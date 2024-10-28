@@ -1,0 +1,44 @@
+
+.sidebar {
+    background-color: #DFE4F1;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 100vh;
+  }
+  
+  /* 每個 menu item 的樣式 */
+  .menu-item {
+    display: flex;
+    align-items: center;
+    background-color: #DFE4F1;
+    border: none;
+    color: black;
+    padding: 15px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+    border-radius: 0; /* 移除圓角 */
+  }
+  
+  .menu-item:hover {
+    background-color: #c8d0e7; /* 選單 hover 時的顏色 */
+  }
+  
+  /* 選取的按鈕樣式 */
+  .menu-item.active {
+    background-color: #017AB1;
+    color: white;
+  }
+  
+  /* 圖標的樣式 */
+  .menu-icon {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    margin-right: 5px; 
+  }
+  

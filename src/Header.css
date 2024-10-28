@@ -1,0 +1,33 @@
+body, html {
+    margin: 0;
+    padding: 20;
+    height: 100%; /* 確保整頁高度 */
+  }
+  
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* App高度填滿頁面 */
+  }
+
+  
+  /* header區塊樣式 */
+  .header {
+    width: 100%;
+    height: 58px;
+    background: linear-gradient(to right, #2C7FA6, #80C48F); /* 藍綠漸層背景 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-content: flex-start; 
+    box-sizing: border-box;
+  }
+  
+  
+  /* logo樣式，根據需要調整大小 */
+  .logo {
+    height: 40px;
+    padding-left: 15px
+  }
+  
+ 
