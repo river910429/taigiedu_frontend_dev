@@ -7,6 +7,7 @@ import Component2 from "./Component2";
 
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import Footer from "./Footer";
 import MainContent from "./MainContent";
 import MainSearchPage from './mainSearchPage/MainSearchPage.jsx';
 
@@ -22,6 +23,7 @@ const App = () => {
             <Route path="/search" element={<MainSearchPage  />} />
           </Routes>
         </div>
+        <Footer />
       </div>
     </BrowserRouter>
   );

@@ -1,0 +1,43 @@
+/* Footer 整體樣式 */
+.footer {
+    width: 100%; /* 滿版寬度 */
+    background: linear-gradient(to right, #80C48F, #2C7FA6); /* 左綠右藍漸層 */
+    padding: 20px 0; /* 上下間距 */
+    bottom: 0; /* 固定在螢幕底部 */
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* 按鈕容器 */
+.footer-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* 按鈕間距 */
+    margin-bottom: 10px;
+}
+
+/* 按鈕樣式 */
+.footer-button {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.footer-button:hover {
+    background-color: white;
+    color: #017AB1;
+}
+
+/* 版權文字樣式 */
+.footer-text {
+    font-size: 14px;
+    text-align: center;
+}

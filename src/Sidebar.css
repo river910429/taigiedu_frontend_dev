@@ -40,5 +40,9 @@
     height: 20px;
     margin-left: 10px;
     margin-right: 5px; 
+    transition: filter 0.3s ease;
   }
-  
+  /* 當 active 時變成白色 */
+.active-icon {
+  filter: brightness(0) invert(1); /* 將 icon 變成白色 */
+}
