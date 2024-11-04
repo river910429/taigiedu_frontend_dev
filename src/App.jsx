@@ -10,6 +10,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import MainContent from "./MainContent";
 import MainSearchPage from './mainSearchPage/MainSearchPage.jsx';
+import TranscriptPage from './transcriptPage/TranscriptPage.jsx';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<MainContent />} />
             <Route path="/search" element={<MainSearchPage  />} />
+            <Route path="/transcript" element={<TranscriptPage />} />
           </Routes>
         </div>
         <Footer />

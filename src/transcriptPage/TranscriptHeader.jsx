@@ -2,13 +2,13 @@
 import React, { useState } from "react";
 import "./TranscriptHeader.css";
 import recordImage from "/src/assets/record.svg";
+import { useFontSize } from "./TranscriptPage";
 
 const TranscriptHeader = () => {
   const [isChecked, setIsChecked] = useState(true); // 模式切換的開關狀態
-  const [fontSize, setFontSize] = useState("中"); // 預設字體大小
-
   const toggleSwitch = () => setIsChecked(!isChecked);
-
+  
+  const { fontSize, setFontSize } = useFontSize();
   const handleFontSizeChange = (size) => setFontSize(size);
 
   return (
