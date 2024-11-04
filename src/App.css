@@ -1,6 +1,13 @@
+@font-face {
+    font-family: 'NotoSansTC'; /* 使用您指定的字體名稱 */
+    src: url('/src/assets/NotoSansTC.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    margin: 0; /* 保證頁面無白邊 */
+    font-family: 'NotoSansTC', Arial, sans-serif; /* 將字體應用於 body */
+    margin: 0;
     padding: 0;
 }
 
@@ -20,3 +27,22 @@ body {
     padding: 20px; /* 調整間距 */
 }
 
+a {
+    color: #4678b2; 
+    text-decoration: none; 
+}
+
+a:visited {
+    color: #4678b2; 
+    text-decoration: none; 
+}
+
+a:hover {
+    color: #24759a; 
+    text-decoration: none;
+}
+
+a:active {
+    color: #4678b2; 
+    text-decoration: none; 
+}
