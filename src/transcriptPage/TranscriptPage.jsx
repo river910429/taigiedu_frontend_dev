@@ -11,7 +11,7 @@ const FontSizeContext = createContext();
 export const useFontSize = () => useContext(FontSizeContext);
 
 const FontSizeProvider = ({ children }) => {
-  const [fontSize, setFontSize] = useState("中"); // 預設字體大小為中
+  const [fontSize, setFontSize] = useState("小"); // 預設字體大小為中
 
   return (
     <FontSizeContext.Provider value={{ fontSize, setFontSize }}>
@@ -21,11 +21,42 @@ const FontSizeProvider = ({ children }) => {
 };
 
 const TranscriptPage = () => {
+  const [isRecording, setIsRecording] = useState(false); // 錄音狀態
+  const [isProcessing, setIsProcessing] = useState(false); // 處理中狀態
+  const [isEditable, setIsEditable] = useState(false); // 背景狀態（灰或白）
+  const [fontSize, setFontSize] = useState("小"); // 字體大小
+
+  const handleFontSizeChange = (size) => {
+    setFontSize(size); // 改變字體大小
+  };
+
+  const handleRecordClick = () => {
+    if (isProcessing) return; // 禁止在處理中操作
+    if (isRecording) {
+      // 停止錄音並開始處理
+      setIsRecording(false);
+      setIsProcessing(true);
+      setTimeout(() => {
+        setIsProcessing(false); // 處理完成
+        setIsEditable(true); // 背景變白
+      }, 3000);
+    } else {
+      // 開始錄音
+      setIsRecording(true);
+      setIsEditable(false); // 背景為灰色
+    }
+  };
   return (
     <div className="transcript-page">
       <FontSizeProvider>
-        <TranscriptHeader />
-        <TranscriptContent />
+        <TranscriptHeader
+          isRecording={isRecording}
+          isProcessing={isProcessing}
+          fontSize={fontSize}
+          onRecordClick={handleRecordClick}
+          onFontSizeChange={handleFontSizeChange}
+        />
+        <TranscriptContent isEditable={isEditable} fontSize={fontSize} />
       </FontSizeProvider>
     </div>
   );

@@ -1,0 +1,93 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.25); /* 半透明背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 確保在所有元素之上 */
+  padding: 16px; /* 與螢幕邊緣的間距 */
+}
+
+.modal-close-button {
+  position: absolute; /* 絕對定位 */
+  top: 16px; 
+  right: 16px; 
+
+  display: flex;
+  width: 30px;
+  height: 30px;
+  padding: 3.944px 3.659px 3.174px 3.459px;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+
+  background: none; 
+  border: none; 
+  font-size: 20px; 
+  color: #B3B3B3; 
+  cursor: pointer; /* 滑鼠指針變為手型 */
+  z-index: 1001; /* 確保按鈕在內容上方 */
+}
+
+.modal-close-button:hover {
+  color: #000; 
+  background: #c7c7c7;
+}
+
+.modal-content {
+  position: relative; /* 讓叉叉按鈕相對於彈窗內容定位 */
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+
+  width: 100%; /* 設定寬度為可用空間 */
+  max-width: 70%; 
+  height: auto; /* 自適應高度 */
+  max-height: 90vh; /* 高度不超過視窗的 90% */
+  padding: 20px;
+
+
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0px 8px 8px 0px rgba(0, 0, 0, 0.14);
+}
+
+.feedback-textarea {
+  min-height: 260px;
+  height: auto;
+  display: flex;
+  padding-bottom: 4px;
+  border-radius: 12px;
+  font-size: 18px;
+  resize: none; /* 禁用拖動調整大小 */
+  
+  border: 6px solid #f2f2f2; 
+  border-top-width: 8px; /* 上邊框較粗 */
+  border-bottom-width: 20px; /* 下邊框較粗 */
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  align-self: flex-end;
+}
+
+.modal-button {
+  margin-top: 8px;
+  background-color: #017ab1;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 120px;
+  height: 40px;
+}
+
+.modal-button:hover {
+  background-color: #005f8a;
+}

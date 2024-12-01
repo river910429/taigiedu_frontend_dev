@@ -1,133 +1,166 @@
 .transcript-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0px 10px;
-  }
-  
-  .mode-selection {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .mode-option {
-    color: gray;
-  }
-  
-  .mode-option.active {
-    color: green;
-    font-weight: bold;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 10px;
+}
 
-  .vertical-divider {
-    width: 1px;
-    height: 30px;
-    background-color: #ccc;
-    margin: 0 15px;
-  }
-  
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 34px;
-    height: 20px;
-  }
-  
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 20px;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
-  }
-  
-  input:checked + .slider {
-    background-color: #4caf50;
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(14px);
-  }
-  
-  .record-button {
-    background-color: #017AB1;
-    color: white;
-    border: none;
-    padding: 10px 10px;
-    border-radius: 6px; /* 方形有圓角 */
-    cursor: pointer;
-    font-size: 18px;
-    width: 80px;
-    height: 20px;
-  }
+.mode-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .record-button:hover {
-    background-color: #679bb3;
-  }
- 
-  
-  .font-size-control {
-    display: flex;
-    gap: 12px;
-    align-items: center; /* 垂直置中 */
-  }
-  
-  .font-size-button {
-    
-    background-color: #e0e0e0;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    color: black;
-    transition: background-color 0.3s, color 0.3s;
-  }
+.mode-option {
+  color: gray;
+}
 
-  .font-size-button:hover {
-    background-color: #679bb3;
+.mode-option.active {
+  color: green;
+  font-weight: bold;
+}
+
+.vertical-divider {
+  width: 1px;
+  height: 30px;
+  background-color: #ccc;
+  margin: 0 15px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+.record-button {
+  display: flex;
+  align-items: center; /* 圖示與文字垂直置中 */
+  justify-content: center; /* 內容水平置中 */
+  gap: 5px; /* 圖示與文字的間距 */
+  background-color: #017AB1; /* 預設背景色 */
+  color: white;
+  border-radius: 8px; /* 圓角 */
+  cursor: pointer;
+  font-size: 16px; /* 字體大小 */
+  width: 119.875px; /* 固定寬度 */
+  height: 48px; /* 固定高度 */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.record-button:hover {
+  background-color: #679bb3;
+}
+
+.record-button.recording {
+  background-color: #D3E6FB; /* 錄音中背景色 */
+  color: #000000; /* 錄音中文字顏色 */
+  border: 1.5px solid #3B74D6; /* 錄音中邊框顏色 */
+}
+
+/* 錄音中圖示 */
+.record-icon {
+  width: 30px; /* 圖示寬度 */
+  height: 30px; /* 圖示高度 */
+}
+
+
+.record-button.processing {
+  background-color: #e0e0e0; /* 處理中背景色 */
+  color: #666; /* 處理中文字顏色 */
+  cursor: not-allowed; /* 禁止操作狀態 */
+}
+
+.loading-icon {
+  width: 24px; /* 圖示寬度 */
+  height: 24px; /* 圖示高度 */
+  animation: spin 1s linear infinite; /* 旋轉動畫 */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  .font-size-button.selected {
-    background-color: #017AB1;
-    color: w;
+  100% {
+    transform: rotate(360deg);
   }
-  .font-size-button.小 {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
-  }
-  
-  .font-size-button.中 {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
-  }
-  
-  .font-size-button.大 {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-  }
+}
+.font-size-control {
+  display: flex;
+  gap: 17px;
+  align-items: center; /* 垂直置中 */
+}
+
+.font-size-button {
+  background-color: #dfeaf2;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: black;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.font-size-button:hover {
+  background-color: #679bb3;
+}
+
+.font-size-button.selected {
+  background-color: #017ab1;
+  color: w;
+}
+.font-size-button.小 {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+}
+
+.font-size-button.中 {
+  width: 50px;
+  height: 50px;
+  font-size: 22px;
+}
+
+.font-size-button.大 {
+  width: 60px;
+  height: 60px;
+  font-size: 26px;
+}

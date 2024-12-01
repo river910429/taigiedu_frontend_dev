@@ -1,6 +1,6 @@
 
 .sidebar {
-    background-color: #DFE4F1;
+    background-color: #DFEAF2;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -11,7 +11,7 @@
   .menu-item {
     display: flex;
     align-items: center;
-    background-color: #DFE4F1;
+    background-color: #DFEAF2;
     border: none;
     color: black;
     padding: 15px;
