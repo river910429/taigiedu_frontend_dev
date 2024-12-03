@@ -2,15 +2,13 @@ import React from "react";
 import { BrowserRouter ,Routes, Route} from "react-router-dom";
 import "./App.css";
 
-import Component from "./Component";
-import Component2 from "./Component2";
-
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Footer from "./Footer";
 import MainContent from "./MainContent";
 import MainSearchPage from './mainSearchPage/MainSearchPage.jsx';
 import TranscriptPage from './transcriptPage/TranscriptPage.jsx';
+import ReadPage from './readPage/ReadPage.jsx';
 
 const App = () => {
   return (
@@ -23,6 +21,7 @@ const App = () => {
             <Route path="/" element={<MainContent />} />
             <Route path="/search" element={<MainSearchPage  />} />
             <Route path="/transcript" element={<TranscriptPage />} />
+            <Route path="/read" element={<ReadPage />} />
           </Routes>
         </div>
         <Footer />
