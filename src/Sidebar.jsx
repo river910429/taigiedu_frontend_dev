@@ -12,7 +12,7 @@ const Sidebar = () => {
     { id: 3, label: "台語朗讀", icon: "/src/assets/sidebar_icon/朗讀.svg" },
     { id: 4, label: "台語文字轉換",icon: "/src/assets/sidebar_icon/文字轉換.svg",},
     { id: 5, label: "台語教學資源共享平台",icon: "/src/assets/sidebar_icon/資源共享平台.svg",},
-    { id: 6, label: "台語俗諺語", icon: "/src/assets/sidebar_icon/俗諺語.svg" },
+    { id: 6, label: "台語俗諺語", icon: "/src/assets/sidebar_icon/俗諺語.svg", path: "/phrase" },
     { id: 7, label: "台語名人堂", icon: "/src/assets/sidebar_icon/名人堂.svg" },
     { id: 8, label: "台語文化", icon: "/src/assets/sidebar_icon/文化.svg" },
     { id: 9, label: "媒體與社群資源",icon: "/src/assets/sidebar_icon/媒體與社群資源.svg",},

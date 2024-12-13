@@ -222,12 +222,16 @@
 	.sentenceCard {
 		width: 100%;
 		background-color: #dfeaf2;
-    border-bottom:  1px solid #eaf4f9;
-    color:#000
+    	border-bottom:  1px solid #eaf4f9;
+    	color:#000
 	}
 
   .titleCard {
+    height:50px;
 		width: 100%;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    padding-top: 0.7rem;
 		background-color: #2D92C1;
     color:#fff;
     font-size: 18px;
@@ -237,7 +241,7 @@
 
 
 	.sentenceTitle {
-		font-size: 14px;
+		font-size: 16px;
 		font-weight: bold;
 		/* overflow:hidden; white-space: nowrap; text-overflow: ellipsis; */
 		-webkit-line-clamp: 1;
@@ -248,7 +252,7 @@
 	}
 
 	.sentenceContent {
-		font-size: 14px;
+		font-size: 16px;
     font-family: 微軟正黑體;
 		/* overflow:hidden; white-space: nowrap; text-overflow: ellipsis; */
 		-webkit-line-clamp: 1;

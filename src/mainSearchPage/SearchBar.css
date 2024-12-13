@@ -11,11 +11,19 @@
   }
   
   .category-select {
-    padding: 8px;
+    flex: 1;
+    padding: 0.75rem 2.5rem 0.75rem 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 10px;
     background-color: white;
+    outline: none;
     cursor: pointer;
+    transition: border-color 0.3s;
+  }
+  
+  .category-select:focus {
+    border-color: #4AA3BA;
+    box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
   }
   
   .input-container {
@@ -62,3 +70,12 @@
     transform: scale(1.1);
   }
   
+  .search-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+  }

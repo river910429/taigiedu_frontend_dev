@@ -6,7 +6,7 @@ const SearchResults = ({ resultsLeft, resultsRight }) => {
     <div>
       <div className="row pt-5 px-0">
         <div className="col-6">
-          <div className="row shadow px-3 py-3 titleCard cardContainer">
+          <div className="row titleCard cardContainer">
             <div className="col-3 p-0 ">資源出處</div>
             <div className="col-9 p-0 ">內容</div>
           </div>
@@ -148,7 +148,7 @@ const SearchResults = ({ resultsLeft, resultsRight }) => {
           </a>
         </div>
         <div className="col-6">
-          <div className="row shadow px-3 py-3 titleCard cardContainer">
+          <div className="row titleCard cardContainer">
             <div className="col-3 p-0 ">資源出處</div>
             <div className="col-9 p-0 ">內容</div>
           </div>
@@ -303,7 +303,7 @@ const SearchResults = ({ resultsLeft, resultsRight }) => {
         <li className="page-item"><a className="page-link" href="javascript:changePage(15);">15</a></li>
         <li className="page-item"><a className="page-link" href="javascript:changePage(16);">16</a></li>
         <li className="page-item"><a className="page-link" href="javascript:changePage(17);">17</a></li>
-        <li className="page-item"><a className="page-link wide-link" href="javascript:nextPage();">》Next</a></li>
+        <li className="page-item"><a className="page-link wide-link" href="javascript:nextPage();">Next 》</a></li>
       </ul>
       {/* 你可以在這裡加入其他的結果列表 */}
       {/* <div className="search-results"> */}

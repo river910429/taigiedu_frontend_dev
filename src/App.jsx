@@ -11,6 +11,7 @@ import Footer from "./Footer";
 import MainContent from "./MainContent";
 import MainSearchPage from './mainSearchPage/MainSearchPage.jsx';
 import TranscriptPage from './transcriptPage/TranscriptPage.jsx';
+import PhrasePage from './phrasePage/PhrasePage.jsx';
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
             <Route path="/" element={<MainContent />} />
             <Route path="/search" element={<MainSearchPage  />} />
             <Route path="/transcript" element={<TranscriptPage />} />
+            <Route path="/phrase" element={<PhrasePage />} />
           </Routes>
         </div>
         <Footer />
