@@ -27,11 +27,11 @@ const MainSearchPage = () => {
       <div className="results-container">
         <SearchResults resultsLeft={resultsLeft} resultsRight={resultsRight} />
       </div>
-      <Pagination
+      {/* <Pagination
         currentPage={currentPage}
         totalPages={25}
         onPageChange={handlePageChange}
-      />
+      /> */}
     </div>
   );
 };

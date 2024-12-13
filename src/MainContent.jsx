@@ -62,7 +62,7 @@ const MainContent = () => {
           {["台語文", "國中", "奇異果", "母語", "王育德"].map((tag) => (
             <button
               key={tag}
-              className="px-5 py-2 bg-[#40A299] text-white rounded-full hover:bg-[#369589] transition-colors duration-200"
+              className="button"
             >
               {tag}
             </button>
@@ -100,22 +100,22 @@ const MainContent = () => {
             <h2 className="section-title">考試資訊</h2>
             <ul className="info-list list-disc ml-5">
               <li>
-                <a href="https://example.com/exam-info-1" target="_blank">
+                <a class="main-link" href="https://example.com/exam-info-1" target="_blank">
                   【報名中】2024秋季小學台語認證報名資訊
                 </a>
               </li>
               <li>
-                <a href="https://example.com/exam-info-2" target="_blank">
+                <a class="main-link" href="https://example.com/exam-info-2" target="_blank">
                   【報名截止】113年8月臺灣台語認證考試A卷電腦測驗
                 </a>
               </li>
               <li>
-                <a href="https://example.com/exam-info-3" target="_blank">
+                <a class="main-link" href="https://example.com/exam-info-3" target="_blank">
                   【公告】113年8月考試簡章公告及報名審議
                 </a>
               </li>
               <li>
-                <a href="https://example.com/exam-info-4" target="_blank">
+                <a class="main-link" href="https://example.com/exam-info-4" target="_blank">
                   【改期】教育部臺灣台語認證113年從4月15開始報名
                 </a>
               </li>
@@ -129,22 +129,22 @@ const MainContent = () => {
             <h2 className="section-title">最新消息</h2>
             <ul className="info-list">
               <li>
-                <a href="https://example.com/exam-info-1" target="_blank">
+                <a class="main-link" href="https://example.com/exam-info-1" target="_blank">
                   【報名中】2024秋季小學台語認證報名資訊
                 </a>
               </li>
               <li>
-                <a href="https://example.com/exam-info-2" target="_blank">
+                <a class="main-link" href="https://example.com/exam-info-2" target="_blank">
                   【報名截止】113年8月臺灣台語認證考試A卷電腦測驗
                 </a>
               </li>
               <li>
-                <a href="https://example.com/exam-info-3" target="_blank">
+                <a class="main-link" href="https://example.com/exam-info-3" target="_blank">
                   【公告】113年8月考試簡章公告及報名審議
                 </a>
               </li>
               <li>
-                <a href="https://example.com/exam-info-4" target="_blank">
+                <a class="main-link" href="https://example.com/exam-info-4" target="_blank">
                   【改期】教育部臺灣台語認證113年從4月15開始報名
                 </a>
               </li>

@@ -66,6 +66,7 @@ input[type="text"] {
 
 .search-icon {
   position: absolute;
+  cursor: pointer;
   right: 1rem;
   color: #cbd5e0;
 }
@@ -151,4 +152,24 @@ button:hover {
 
 .fade-in {
   animation: fadeIn 0.5s ease-out forwards;
+}
+
+.main-link{  /* 增加父級選擇器 */
+  color: #4678b2; 
+  text-decoration: none; 
+}
+
+.main-link :visited {
+  color: #4678b2; 
+  text-decoration: none; 
+}
+
+.main-link:hover {
+  color: #24759a; 
+  text-decoration: none;
+}
+
+.main-link:active {
+  color: #4678b2; 
+  text-decoration: none; 
 }

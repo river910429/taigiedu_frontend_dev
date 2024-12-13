@@ -58,7 +58,7 @@ const TranslateTarget = ({
             isEditable ? "editable" : "non-editable"
           }`}
         >
-          {content || <span className="placeholder">轉換內容</span>}
+          {content || <span className="tran-placeholder">轉換內容</span>}
 
           {isEditable && (
             <button className="play-audio-button" onClick={handlePlayAudio}>
