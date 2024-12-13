@@ -82,12 +82,14 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-sizing: content-box !important; 
 }
 .feedback-target {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-sizing: content-box !important; 
 }
 
 .feedback-content-container {
