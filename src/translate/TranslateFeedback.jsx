@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import "./TranslateFeedback.css";
 
 const TranslateFeedback = ({
@@ -9,15 +9,29 @@ const TranslateFeedback = ({
   translatedContent,
   translatedLanguage,
 }) => {
-  if (!isOpen) return null; // 如果視窗未開啟，則不渲染
 
-  const [feedbackOriginal, setFeedbackOriginal] = useState(originalContent);
-  const [feedbackTranslated, setFeedbackTranslated] =
-    useState(translatedContent);
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (isOpen) {
+        event.preventDefault();
+        window.history.pushState(null, "", window.location.href); // 保持當前狀態
+      }
+    };
 
-  const handleOriginalChange = (e) => {
-    setFeedbackOriginal(e.target.value);
-  };
+    if (isOpen) {
+      window.history.pushState(null, "", window.location.href); // 添加歷史記錄條目
+      window.addEventListener("popstate", handlePopState);
+    }
+
+    return () => {
+      if (isOpen) {
+        window.history.replaceState(null, "", window.location.href);
+      }
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isOpen]);
+
+  const [feedbackTranslated, setFeedbackTranslated] = useState(translatedContent);
 
   const handleTranslatedChange = (e) => {
     setFeedbackTranslated(e.target.value);

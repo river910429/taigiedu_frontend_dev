@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./TranslateTarget.css";
-import TranslateFeedback from "./TranslateFeedback";
 
 const TranslateTarget = ({
   isEditable,

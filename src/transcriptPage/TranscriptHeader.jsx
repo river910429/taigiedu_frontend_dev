@@ -50,7 +50,7 @@ const TranscriptHeader = ({
               <img
                 src={stopImage}
                 alt="Stop Recording"
-                className="record-icon"
+                className="recording-icon"
               />
             </>
           ) : (

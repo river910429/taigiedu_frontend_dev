@@ -23,7 +23,7 @@ const ContentFeedback = ({ isOpen, onClose, content, onSubmit  }) => {
 
     return () => {
       if (isOpen) {
-        window.history.back(); // 恢復到彈窗打開前的歷史狀態
+        window.history.replaceState(null, "", window.location.href);
       }
 
       // 滾動到頁面頂部

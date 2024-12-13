@@ -9,6 +9,13 @@
   align-items: center;
   gap: 8px;
 }
+.mode-selection span {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.18px;
+}
 
 .mode-option {
   color: gray;
@@ -98,6 +105,10 @@ input:checked + .slider:before {
 
 /* 錄音中圖示 */
 .record-icon {
+  width: 24px; /* 圖示寬度 */
+  height: 24px; /* 圖示高度 */
+}
+.recording-icon {
   width: 30px; /* 圖示寬度 */
   height: 30px; /* 圖示高度 */
 }

@@ -5,9 +5,7 @@ import TranslateOriginal from "./TranslateOriginal";
 import TranslateTarget from "./TranslateTarget";
 import TranslateFeedback from "./TranslateFeedback";
 
-
 const TranslatePage = () => {
-
   const [isEditable, setIsEditable] = useState(false);
   const [originalContent, setOriginalContent] = useState(""); // 原文內容
   const [translatedContent, setTranslatedContent] = useState(""); // 翻譯後的內容
@@ -15,8 +13,7 @@ const TranslatePage = () => {
   const [targetLanguage, setTargetLanguage] = useState("目標語言"); // 目標語言
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false); // 控制回饋頁面
 
-
-  const handleTranslate  = () => {
+  const handleTranslate = () => {
     setTranslatedContent(originalContent);
     setIsEditable(true); // 啟用目標內容的狀態
   };
@@ -41,7 +38,11 @@ const TranslatePage = () => {
       <button
         className="translate-button"
         onClick={handleTranslate}
-        disabled={originalContent.trim() === ""}
+        disabled={
+          originalContent.trim() === "" ||
+          originalLanguage === "原始語言" || // 必須選擇原始語言
+          targetLanguage === "目標語言" // 必須選擇目標語言
+        }
       >
         翻譯
       </button>
@@ -66,6 +67,5 @@ const TranslatePage = () => {
     </div>
   );
 };
-
 
 export default TranslatePage;
