@@ -1,0 +1,172 @@
+.translate-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 30px;
+  position: relative;
+
+  height: 100vh; /* 填滿視窗高度 */
+  width: 100%; /* 填滿視窗寬度 */
+  box-sizing: border-box; /* 包括內邊距和邊框在寬高計算內 */
+}
+
+.language-dropdown {
+  display: flex;
+  width: 148px;
+  height: 48px;
+  padding: 12px 16px;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0px 0px 0px 4px rgba(181, 183, 192, 0.4);
+
+  color: var(--Primary-Black, #424242);
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px; /* 122.222% */
+
+  appearance: none; /* 隱藏預設箭頭 */
+  background-image: url("src/assets/chevron-up.svg");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 16px) center; /* 箭頭距右邊 16px */
+  background-size: 20px 20px; /* 設定箭頭大小 */
+
+  cursor: pointer;
+  transition: all 0.3s ease; /* 添加過渡動畫 */
+}
+
+/* 滑鼠懸停效果 */
+.language-dropdown:hover {
+  box-shadow: 0px 0px 0px 4px #017ab1;
+}
+
+.target-content-container {
+  height: 600px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* 為了讓按鈕定位在內部 */
+  gap: 10px;
+  background: #f2f2f2; /* 灰色背景 */
+  border-radius: 12px; /* 邊框圓角 */
+  width: 100%; /* 填滿父容器 */
+  box-sizing: border-box; /* 包括內邊距和邊框 */
+
+  border: 1px solid #dedede;
+}
+
+.target-display-box {
+  position: relative;
+  padding: 12px;
+  align-self: stretch;
+  flex: 1; /* 填滿剩餘空間 */
+  min-height: 160px;
+
+  font-size: 18px;
+  resize: none; /* 禁用拖動調整大小 */
+  overflow-y: auto;
+  border-radius: 8px;
+  border: none;
+}
+
+.placeholder {
+  color: #424242;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.target-display-box.non-editable {
+  background-color: #c7c7c7; /* 灰色背景 */
+}
+
+.target-display-box.editable {
+  background-color: #ffffff; /* 白色背景 */
+}
+
+.play-audio-button {
+  background-color:#ffffff;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.play-audio-button:hover {
+  opacity: 0.8; /* 懸停效果 */
+  border: none;
+  background-color:#ffffff;
+}
+
+.play-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 確保圖示不變形 */
+}
+
+
+.copy-button-translate {
+  align-self: flex-end; /* 靠右對齊 */
+  width: 152px;
+  height: 40px;
+  background-color: #2d92c1;
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+
+  color: #fff;
+  text-align: center;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+  letter-spacing: -0.18px;
+}
+
+.copy-button-translate:disabled {
+  background-color: #919191; /* 禁用狀態背景 */
+  color: #ffffff; /* 禁用狀態文字顏色 */
+  cursor: not-allowed; /* 禁用狀態鼠標樣式 */
+}
+
+.copy-button-translate.copied {
+  background-color: #dfeaf2;
+  color: #000000;
+  border-color: #017ab1;
+  cursor: not-allowed; /* 禁用狀態鼠標樣式 */
+}
+
+.tran-feedback-button {
+  margin-top: -15px;
+  align-self: flex-end; /* 靠右對齊 */
+  width: 152px;
+  height: 40px;
+  background-color: #2d92c1;
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+
+  color: #fff;
+  text-align: center;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+  letter-spacing: -0.18px;
+}

@@ -1,0 +1,192 @@
+/* 整個背景遮罩 */
+.tran-feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 保證在最上層 */
+}
+
+/* 視窗容器 */
+.tran-feedback-modal {
+  background: #fff;
+  width: 90%;
+  max-width: 1200px; /* 最大寬度 */
+  height: 80%; /* 最大高度 */
+  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 標題區域 */
+.tran-feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0px;
+
+  color: #2d3648;
+  text-align: center;
+  font-feature-settings: "calt" off;
+  font-family: Inter;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px; /* 109.091% */
+  letter-spacing: -0.22px;
+}
+
+.close-button {
+  padding: 0px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.close-button:hover {
+  color: #000;
+  background: none;
+}
+
+/* 主體內容 */
+.feedback-body {
+  flex: 1;
+  display: flex;
+  margin-top: 20px;
+  background: #eaeaea; /* 大方框底色 */
+  border-radius: 10px;
+  padding: 8px;
+  gap: 60px 32px;
+  flex-wrap: wrap;
+  border: 1px solid #dedede;
+  max-height: calc(100% - 100px); /* 根據需要調整 */
+  overflow-y: auto;
+}
+
+.feedback-original {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.feedback-target {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feedback-content-container {
+  flex: 1;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* 為了讓按鈕定位在內部 */
+  gap: 10px;
+  background: #eaeaea; /* 灰色背景 */
+  border-radius: 12px; /* 邊框圓角 */
+  width: 100%; /* 填滿父容器 */
+  box-sizing: border-box; /* 包括內邊距和邊框 */
+  overflow-y: auto; /* 允許垂直滾動 */
+  border: 1px solid #dedede;
+}
+/* 語言標籤 */
+.feedback-language-display {
+  text-align: left;
+  display: flex;
+  width: 115px;
+  height: 23px;
+  padding: 12px 16px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  background: var(--White, #dadada);
+
+  color: var(--system-primary-text, #041833);
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 100% */
+
+  background-image: url("src/assets/chevron-up.svg");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 16px) center; /* 箭頭距右邊 16px */
+  background-size: 20px 20px; /* 設定箭頭大小 */
+}
+
+/* 純文字顯示區 */
+.feedback-text-display {
+  flex: 1;
+  display: flex;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 8px;
+  background: #dadada;
+  color: #333;
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-y: auto;
+}
+
+/* 右側輸入框 */
+.feedback-text-input {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  line-height: 1.5;
+  border: none;
+  border-radius: 8px;
+  resize: none;
+  background: #ffffff;
+  color: #333;
+  overflow-y: auto;
+}
+
+/* 底部按鈕區域 */
+.feedback-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* 提交按鈕 */
+.feedback-submit-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  background: #2d92c1;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  width: 152px;
+  height: 40px;
+  padding: 4px;
+
+  text-align: center;
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+}
+
+.feedback-submit-button:hover {
+  background: #0056b3;
+}

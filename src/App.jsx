@@ -9,6 +9,7 @@ import MainContent from "./MainContent";
 import MainSearchPage from './mainSearchPage/MainSearchPage.jsx';
 import TranscriptPage from './transcriptPage/TranscriptPage.jsx';
 import ReadPage from './readPage/ReadPage.jsx';
+import TranslatePage from './translate/TranslatePage.jsx';
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
             <Route path="/search" element={<MainSearchPage  />} />
             <Route path="/transcript" element={<TranscriptPage />} />
             <Route path="/read" element={<ReadPage />} />
+            <Route path="/translate" element={<TranslatePage />} />
           </Routes>
         </div>
         <Footer />
@@ -30,21 +32,4 @@ const App = () => {
   );
 };
 
-{
-  /*
-function App() {
-  const text="台語文共備平台"
-  return (
-    <>
-      <h1>{text}</h1>
-      <button onClick={function(){alert('hello')}}>click</button>
-      <Component2 />
-      <Component a='hello'/>
-      <Component a='hello1'/>
-      <Component a='hello2'/>
-    </>
-  );
-}
-*/
-}
 export default App;

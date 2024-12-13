@@ -1,0 +1,86 @@
+.translate-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 30px;
+  position: relative;
+
+  height: 100vh; /* 填滿視窗高度 */
+  width: 100%; /* 填滿視窗寬度 */
+  box-sizing: border-box; /* 包括內邊距和邊框在寬高計算內 */
+}
+
+.language-dropdown {
+  display: flex;
+  width: 148px;
+  height: 48px;
+  padding: 12px 16px;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0px 0px 0px 4px rgba(181, 183, 192, 0.4);
+
+  color: var(--Primary-Black, #424242);
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px; /* 122.222% */
+
+  appearance: none; /* 隱藏預設箭頭 */
+  background-image: url("src/assets/chevron-up.svg");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 16px) center; /* 箭頭距右邊 16px */
+  background-size: 20px 20px; /* 設定箭頭大小 */
+
+  cursor: pointer;
+  transition: all 0.3s ease; /* 添加過渡動畫 */
+}
+
+/* 滑鼠懸停效果 */
+.language-dropdown:hover {
+  box-shadow: 0px 0px 0px 4px #017ab1;
+}
+
+.original-content-container {
+  height: 600px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* 為了讓按鈕定位在內部 */
+  gap: 10px;
+  background: #f2f2f2; /* 灰色背景 */
+  border-radius: 12px; /* 邊框圓角 */
+  width: 100%; /* 填滿父容器 */
+  box-sizing: border-box; /* 包括內邊距和邊框 */
+
+  border: 1px solid #dedede;
+}
+
+.original-input-box {
+  padding: 12px;
+  align-self: stretch;
+  flex: 1; /* 填滿剩餘空間 */
+  min-height: 160px;
+
+  font-size: 18px;
+  resize: none; /* 禁用拖動調整大小 */
+  overflow-y: auto;
+  background-color: white;
+  border-radius: 8px;
+  border:none;
+}
+
+.original-input-box::placeholder {
+  color: #424242;
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.18px;
+  text-align: center; /* 僅對 placeholder 水平置中 */
+  padding-top: 250px;
+}
+
