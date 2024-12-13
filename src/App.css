@@ -17,7 +17,7 @@ body {
     height: 100vh; /* 保證頁面填滿整個視窗 */
 }
 
-.content {
+.maincontent {
     display: grid;
     grid-template-columns: 230px 1fr; /* 左側Sidebar寬度固定，右側MainContent填滿剩餘空間 */
     flex: 1;
@@ -27,22 +27,3 @@ body {
     padding: 20px; /* 調整間距 */
 }
 
-a {
-    color: #4678b2; 
-    text-decoration: none; 
-}
-
-a:visited {
-    color: #4678b2; 
-    text-decoration: none; 
-}
-
-a:hover {
-    color: #24759a; 
-    text-decoration: none;
-}
-
-a:active {
-    color: #4678b2; 
-    text-decoration: none; 
-}

@@ -24,9 +24,9 @@
   display: flex;
   flex-direction: column;
   position: relative;
-
   gap: 8px;
   flex-shrink: 0;
+  box-sizing: initial!important;
 }
 
 /* 標題區域 */
@@ -129,6 +129,7 @@
   background-repeat: no-repeat;
   background-position: calc(100% - 16px) center; /* 箭頭距右邊 16px */
   background-size: 20px 20px; /* 設定箭頭大小 */
+  box-sizing: initial!important;
 }
 
 /* 純文字顯示區 */

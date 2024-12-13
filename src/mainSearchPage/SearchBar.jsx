@@ -14,21 +14,28 @@ const SearchBar = () => {
 
   return (
     <div className="search-bar">
-      <select className="category-select">
+
+      <div className="input-container">
+      <div className="px-2">
+      <select className="category-select category-input">
         <option value="all">all</option>
         <option value="other">其他類別</option>
       </select>
-      <div className="input-container">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="輸入關鍵字..."
-          className="search-input"
-        />
-        <button className="search-button" onClick={handleSearch}>
-          <img src="/search_logo.svg" alt="搜尋" className="search-icon" />
-        </button>
+      </div>  
+      <form onSubmit={handleSearch} className="search-container">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="搜尋..."
+            className="search-input"
+          />
+          <img
+            src="search_logo.svg" 
+            className="search-icon"
+            onClick={handleSearch} // 點擊圖片觸發搜尋跳轉
+          />
+        </form>
       </div>
     </div>
   );

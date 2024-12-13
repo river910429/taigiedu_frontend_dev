@@ -1,0 +1,20 @@
+.page-container {
+    padding-left: 5%; /* 設置左側間隔 */
+    padding-right: 5%; /* 如果需要右側間隔 */
+}
+
+.search-bar-container {
+    width: 40%;
+    padding-left: 3%; /* 設置左側間隔 */
+    padding-top:2%;
+    margin-bottom: 2%;
+}
+  
+.phrase-results-container {
+    display: grid;
+    gap: 20px;
+    width: 100%;
+    padding-left: 5%; /* 設置左側間隔 */
+    padding-right: 5%; /* 如果需要右側間隔 */
+    margin-top: 0;
+}
