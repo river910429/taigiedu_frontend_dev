@@ -21,6 +21,7 @@ body {
     display: grid;
     grid-template-columns: 230px 1fr; /* 左側Sidebar寬度固定，右側MainContent填滿剩餘空間 */
     flex: 1;
+    background-color: #f5f5f5;
 }
 
 .main-content {

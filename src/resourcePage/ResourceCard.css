@@ -1,0 +1,126 @@
+.resource-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 確保內容不超出卡片範圍 */
+  height: 380px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.resource-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+  }
+
+.card-header {
+  background-size: cover; /* 圖片覆蓋整個區域 */
+  background-position: center; /* 圖片居中 */
+  width: 100%;
+  height: 222px;
+  position: relative; /* 方便定位內部元素 */
+}
+
+.file-type {
+  position: absolute;
+  background: #424242;
+  bottom: 0px;
+  left: 0px;
+
+  display: flex;
+  width: 120px;
+  height: 35px;
+  padding: 7px 40px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+
+  color: #fff;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.stats {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: row;
+}
+
+.stats .likes,
+.stats .downloads {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 4px;
+
+  align-self: stretch;
+  color: var(--system-primary-text, #041833);
+  text-align: center;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 262.5% */
+}
+
+
+.likes-icon,
+.downloads-icon {
+  display: flex;
+  width: 22px;
+  height: 22px;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-title {
+  margin: 0;
+  color: #000;
+  font-feature-settings: "liga" off, "clig" off;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.card-uploader,
+.card-tag {
+  margin: 0;
+  color: #787878;
+  font-feature-settings: "liga" off, "clig" off;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.card-tags {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  flex-wrap: wrap; /* 若超出空間，自動換行 */
+  margin-top: 12px;
+}
+
+.card-tag {
+  display: flex;
+  padding: 3px 6px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 100px;
+  border: 1.4px solid #787878;
+  white-space: nowrap; /* 防止標籤換行 */
+}

@@ -1,0 +1,31 @@
+.resource-content {
+    height: 100vh; /* 填滿視窗高度 */
+    position: relative;
+    margin: 56px 0px;
+    padding-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(256px, 1fr)); /*自動調整列數，卡片最小寬度200px，最大寬度為平分剩餘空間（1fr）。 */
+    column-gap: 48px;
+    row-gap: 56px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  
+  @media (max-width: 1200px) {
+    .resource-content {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .resource-content {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .resource-content {
+      grid-template-columns: 1fr;
+    }
+  }
+  

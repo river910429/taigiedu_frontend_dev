@@ -1,0 +1,115 @@
+.resource-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.grade-dropdown,
+.version-dropdown {
+  position: relative; 
+  display: flex;
+  width: 148px;
+  height: 48px;
+  padding: 12px 16px;
+  align-items: center;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0px 0px 0px 4px rgba(20, 118, 255, 0.14);
+
+  color: var(--Primary-Black, #424242);
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px; /* 122.222% */
+
+  appearance: none; /* 隱藏預設箭頭 */
+  background-image: url("src/assets/chevron-up.svg");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 16px) center; /* 箭頭距右邊 16px */
+  background-size: 20px 20px; /* 設定箭頭大小 */
+
+  cursor: pointer;
+  transition: all 0.3s ease; /* 添加過渡動畫 */
+}
+
+
+.grade-dropdown:hover,
+.version-dropdown:hover {
+  box-shadow: 0px 0px 0px 4px #017ab1;
+}
+
+.version-dropdown:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+
+
+.res-search-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 0.5; /* 搜索框占满剩余空间 */
+  max-width: 800px;
+}
+
+.res-search-input {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem; /* 調整內距以便顯示圖示 */
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  margin: 0 auto;
+}
+
+.res-search-icon {
+  position: absolute;
+  cursor: pointer;
+  right: 0.5rem;
+  color: #cbd5e0;
+}
+
+.res-button-container{
+    display: flex; /* 创建一个独立的区域 */
+    flex: 1;
+    justify-content: flex-end; /* 按钮靠右对齐 */
+    gap: 20px; /* 按钮之间的间距 */
+}
+
+.res-upload-button,
+.res-delete-button {
+  display: flex;
+  width: 140px;
+  height: 48px;
+  padding: 16px 24px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  background: var(--primary-blue, #2d92c1);
+
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+
+  color: #fff;
+  text-align: center;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px; /* 150% */
+}
+.res-delete-button{
+    background: #F37458;
+}
+
+.res-upload-button:hover {
+  background-color: #005f8d;
+}
+
+.res-delete-button:hover{
+    background-color: #c62905;
+}
