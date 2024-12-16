@@ -13,6 +13,7 @@ import PhrasePage from './phrasePage/PhrasePage.jsx';
 import TranslatePage from './translatePage/TranslatePage.jsx';
 import ResourcePage from './resourcePage/ResourcePage.jsx';
 import FilePreview from "./resourcePage/FilePreview.jsx";
+import DeleteResource from "./resourcePage/DeleteResource";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
             <Route path="/translate" element={<TranslatePage />} />
             <Route path="/resource" element={<ResourcePage />} />
             <Route path="/file-preview" element={<FilePreview />} />
+            <Route path="/delete-resource" element={<DeleteResource />} />
           </Routes>
         </div>
         <Footer />

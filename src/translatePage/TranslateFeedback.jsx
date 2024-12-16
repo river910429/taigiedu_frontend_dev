@@ -10,6 +10,8 @@ const TranslateFeedback = ({
   translatedLanguage,
 }) => {
 
+  const [feedbackTranslated, setFeedbackTranslated] = useState(translatedContent);
+
   useEffect(() => {
     const handlePopState = (event) => {
       if (isOpen) {
@@ -31,7 +33,7 @@ const TranslateFeedback = ({
     };
   }, [isOpen]);
 
-  const [feedbackTranslated, setFeedbackTranslated] = useState(translatedContent);
+  
 
   const handleTranslatedChange = (e) => {
     setFeedbackTranslated(e.target.value);
@@ -44,7 +46,7 @@ const TranslateFeedback = ({
     onClose(); // 关闭弹窗
   };
 
-  if (!isOpen) return null; // 如果未打开，不渲染组件
+  if (!isOpen) return null; 
 
   return (
     <div className="tran-feedback-overlay">

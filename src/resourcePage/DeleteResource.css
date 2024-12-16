@@ -1,0 +1,8 @@
+.delete-resource-page{
+    margin: auto;
+    width: 90%;
+    height: 80%;
+    background: #fff;
+    overflow: hidden; /* 隱藏多餘內容，防止滾動條出現 */
+    position: relative;
+  }

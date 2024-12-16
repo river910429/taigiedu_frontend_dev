@@ -116,7 +116,7 @@ input:checked + .slider:before {
 
 .record-button.processing {
   background-color: #e0e0e0; /* 處理中背景色 */
-  color: #666; /* 處理中文字顏色 */
+  color: #555; /* 處理中文字顏色 */
   cursor: not-allowed; /* 禁止操作狀態 */
 }
 
@@ -134,6 +134,7 @@ input:checked + .slider:before {
     transform: rotate(360deg);
   }
 }
+
 .font-size-control {
   display: flex;
   gap: 17px;

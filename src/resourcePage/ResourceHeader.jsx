@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import "./ResourceHeader.css";
 
-const ResourceHeader = () => {
+const ResourceHeader = ({onUploadOpen}) => {
+  const navigate = useNavigate();
   const [selectedGrade, setSelectedGrade] = useState("階段");
   const [selectedVersion, setSelectedVersion] = useState("版本");
   const [query, setQuery] = React.useState("");
-  const [isUploadOpen, setIsUploadOpen] = useState(false); // 控制彈窗顯示
   const [isGradeOpen, setIsGradeOpen] = useState(false);
   const [isVersionOpen, setIsVersionOpen] = useState(false);
 
@@ -47,9 +48,9 @@ const ResourceHeader = () => {
     if (query.trim() === "") return;
   };
 
-  const handleUploadOpen = () => {
-    setIsUploadOpen(true);
-  };
+  const handleDelete = () => {
+    navigate("/delete-resource"); 
+  }
 
   const versionOptions =
     selectedGrade === "階段"
@@ -112,11 +113,11 @@ const ResourceHeader = () => {
 
       {/* 上傳/刪除我的資源按鈕 */}
       <div className="res-button-container">
-        <button className="res-upload-button" onClick={handleUploadOpen}>
+        <button className="res-upload-button" onClick={onUploadOpen}>
           上傳我的資源
         </button>
 
-        <button className="res-delete-button" onClick={handleUploadOpen}>
+        <button className="res-delete-button" onClick={handleDelete}>
           刪除我的資源
         </button>
       </div>

@@ -1,0 +1,263 @@
+.upload-resource-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 保證在最上層 */
+}
+.upload-resource-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+
+  width: 70%;
+  max-width: 1200px; /* 最大寬度 */
+  height: 80%; /* 最大高度 */
+  padding: 16px;
+  gap: 20px;
+  flex-shrink: 0;
+  box-sizing: initial !important;
+
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 8px 8px 0px rgba(0, 0, 0, 0.14);
+}
+
+/* header */
+.upload-resource-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 10px;
+  color: #000;
+  font-family: Inter;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 30px; /* 136.364% */
+}
+
+/* form */
+.upload-resource-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  align-self: stretch;
+}
+
+.form-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  align-self: stretch;
+
+  color: var(--gray-1100, #1a1a1a);
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px;
+}
+
+.form-label-title {
+  display: inline-flex; /* 讓 * 和文字保持在同一行 */
+  align-items: center; /* 垂直居中對齊 */
+}
+
+.form-label-required {
+  color: #c1272d; /* 設置紅色 */
+  font-size: 22px;
+}
+
+.form-label input[name="name"],
+.form-label input[name="versionOther"],
+.form-label input[name="book"],
+.form-label input[name="contentTypeOther"] {
+  padding: 10px;
+  align-self: stretch;
+  border-radius: 8px;
+  border: 1px solid var(--system-btn-outline-d, #a6a6a6);
+}
+
+.form-label input[name="name"]::placeholder {
+  color: #a6a6a6;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px; /* 116.667% */
+}
+
+.radio-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 0px;
+}
+
+.input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid var(--Checkbox-border, rgba(0, 0, 0, 0.25));
+  background: var(--White, #fff);
+}
+
+.radio-group label,
+.file-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0px;
+
+  color: var(--Body-text-color, #4f4f4f);
+  font-family: Roboto;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px; /* 28.8px */
+}
+
+.form-label p,
+.file-upload-container p {
+  margin-bottom: 0px;
+  color: #2d3648;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 12px; /* 85.714% */
+  letter-spacing: -0.14px;
+}
+
+/* file upload */
+.file-upload {
+  /*  opacity: 0; 
+    height: 40px;
+    */
+  display: none;
+}
+
+.upload-button-wrapper {
+  display: flex;
+  align-items: center; /* 垂直置中 */
+  gap: 8px; /* 按鈕與檔案名稱間距 */
+}
+
+.upload-button {
+  display: flex;
+  height: 40px;
+  padding: 8px 16px;
+  justify-content: center;
+  align-items: center;
+  background-color: #dfeaf2;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  color: var(--primary-blue, #2d92c1);
+  text-align: center;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+
+  background-image: url("/src/assets/resourcepage/Subtract.svg");
+  background-repeat: no-repeat;
+  background-position: 20px center; /* 調整圖片在按鈕中的位置 */
+  background-size: 16px 20px; /* 調整圖片大小 */
+  text-indent: 25px; /* 將文字與圖片分開 */
+  transition: background-color 0.3s ease;
+}
+
+.upload-button:hover {
+  background-color: #0056b3;
+}
+
+.upload-button.uploaded {
+  display: flex;
+  height: 40px;
+  padding: 8px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 12px; /* 已上傳狀態的綠色背景 */
+  border-radius: 8px;
+  border: 1px solid var(--primary-blue, #2d92c1);
+  background: #dfeaf2;
+  color: #000;
+  background-image: url("/src/assets/resourcepage/Subtract.svg");
+  background-repeat: no-repeat;
+  background-position: 20px center; /* 調整圖片在按鈕中的位置 */
+  background-size: 16px 20px; /* 調整圖片大小 */
+  text-indent: 25px; /* 將文字與圖片分開 */
+  transition: background-color 0.3s ease;
+}
+
+.upload-button.uploaded:hover {
+  background-color: #82b0d6; /* 已上傳狀態的深綠色背景 */
+}
+
+/* submit */
+.upload-resource-footer {
+  align-self: stretch;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+.submit-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 120px;
+  height: 40px;
+  padding: 8px 16px;
+
+  background: #2d92c1;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+
+  text-align: center;
+  font-family: "SF Pro";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+.submit-button:hover {
+  background: #82b0d6;
+}
+
+.submit-button.disabled {
+  background-color: #c4c4c4;
+}
+
+.submit-button.processing {
+  color: #000;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.submit-button.enabledsuccess-button {
+  border: 1px solid #2d92c1;
+  cursor: not-allowed;
+  background: #dfeaf2;
+  color: #000;
+  letter-spacing: -0.14px;
+}
