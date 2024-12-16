@@ -11,6 +11,7 @@ import TranscriptPage from './transcriptPage/TranscriptPage.jsx';
 import ReadPage from './readPage/ReadPage.jsx';
 import TranslatePage from './translate/TranslatePage.jsx';
 import PhrasePage from './phrasePage/PhrasePage.jsx';
+import CelebrityPage from './celebrity/CelebrityPage.jsx';
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
             <Route path="/phrase" element={<PhrasePage />} />
             <Route path="/read" element={<ReadPage />} />
             <Route path="/translate" element={<TranslatePage />} />
+            <Route path="/celebrity" element={<CelebrityPage />} />
           </Routes>
         </div>
         <Footer />

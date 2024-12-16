@@ -115,20 +115,21 @@ const PhraseResult = () => {
                 <div className="col-6">
                     {leftPhrases.map((phrase, index) => (
                         <a key={index} href="#" onClick={() => showDetail(phrase)}>
-                            <div className="row shadow px-3 py-3 my-2 phaseCard cardContainer">
-                                <div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
-                            </div>
-                        </a>
+						<div className="row px-3 py-3 my-2 phaseCard cardContainer">
+							<div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
+						</div>
+					</a>
                     ))}
                 </div>
 
                 <div className="col-6">
                     {rightPhrases.map((phrase, index) => (
                         <a key={index} href="#" onClick={() => showDetail(phrase)}>
-                            <div className="row shadow px-3 py-3 my-2 phaseCard cardContainer">
+                            <div className="row px-3 py-3 my-2 phaseCard cardContainer">
                                 <div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
                             </div>
                         </a>
+                      
                     ))}
                 </div>
 
