@@ -1,68 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './MultiSelect.css';
 
-const MultiSelect = () => {
-  const options = [
-    { id: 1, label: '選項 1' },
-    { id: 2, label: '選項 2' },
-    { id: 3, label: '選項 3' },
-    { id: 4, label: '選項 4' },
-  ];
-
+const MultiSelect = ({ 
+  options, 
+  selectedOptions, 
+  onChange, 
+  placeholder = "請選擇...",
+  displayText = "請選擇"
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selected, setSelected] = useState(selectedOptions || []);
+  const dropdownRef = useRef(null);
 
-  const handleToggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
 
-  const handleSelectItem = (id) => {
-    if (selectedItems.includes(id)) {
-      setSelectedItems(selectedItems.filter(item => item !== id));
-    } else {
-      setSelectedItems([...selectedItems, id]);
-    }
-  };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
+  // 新增全選功能
   const handleSelectAll = () => {
-    if (selectedItems.length === options.length) {
-      setSelectedItems([]);
+    if (selected.length === options.length) {
+      // 如果全部都選了，就全部取消
+      setSelected([]);
+      onChange([]);
     } else {
-      setSelectedItems(options.map(option => option.id));
+      // 否則全選
+      setSelected([...options]);
+      onChange([...options]);
     }
+  };
+
+  const handleOptionClick = (option) => {
+    let newSelected;
+    if (selected.includes(option)) {
+      newSelected = selected.filter(item => item !== option);
+    } else {
+      newSelected = [...selected, option];
+    }
+    setSelected(newSelected);
+    onChange(newSelected);
   };
 
   return (
-    <div className="multi-select">
-      <div className="select-header" onClick={handleToggleDropdown}>
-        {selectedItems.length === 0 ? '請選擇' : `已選擇 ${selectedItems.length} 項`}
+    <div className="multi-select" ref={dropdownRef}>
+    <div 
+      className={`select-header ${isOpen ? 'active' : ''}`}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+        <div className="selected-options">
+          {selected.length > 0 ? (
+            <span className="display-text">{displayText} ({selected.length})</span>
+          ) : (
+            <span className="select-placeholder">{placeholder}</span>
+          )}
+        </div>
+        <span className={`arrow ${isOpen ? 'up' : 'down'}`}><img src="src/assets/chevron-up.svg" /></span>
       </div>
       
       {isOpen && (
         <div className="options-container">
-          <div className="option" onClick={handleSelectAll}>
-            <input
-              type="checkbox"
-              checked={selectedItems.length === options.length}
-              readOnly
-            />
-            <span>全選</span>
-          </div>
-          
-          {options.map(option => (
-            <div
-              key={option.id}
-              className="option"
-              onClick={() => handleSelectItem(option.id)}
-            >
-              <input
-                type="checkbox"
-                checked={selectedItems.includes(option.id)}
-                readOnly
-              />
-              <span>{option.label}</span>
-            </div>
-          ))}
+          {/* 加入全選選項 */}
+          <div
+  className={`option ${selected.length === options.length ? 'selected' : ''}`}
+  onClick={handleSelectAll}
+>
+  <span 
+    className={`checkbox ${selected.length === options.length ? 'checked' : ''}`}
+  >
+    {selected.length === options.length && '✓'}
+  </span>
+  全選
+</div>
+          {/* 分隔線 */}
+          <div className="divider"></div>
+          {options.map(option => {
+  const isSelected = selected.includes(option);
+  return (
+    <div
+      key={option}
+      className={`option ${isSelected ? 'selected' : ''}`}
+      onClick={() => handleOptionClick(option)}
+    >
+      <span 
+        className={`checkbox ${isSelected ? 'checked' : ''}`}
+      >
+        {isSelected && '✓'}
+      </span>
+      <span>{option}</span>
+    </div>
+  );
+})}
         </div>
       )}
     </div>
