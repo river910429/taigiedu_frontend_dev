@@ -63,7 +63,7 @@ const PhraseSearchBar = () => {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="search-input"
+            className="phrase-search-input"
           />
           <img
             src="search_logo.svg"
