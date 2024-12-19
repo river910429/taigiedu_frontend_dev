@@ -15,6 +15,8 @@ import TranslatePage from './translatePage/TranslatePage.jsx';
 import ResourcePage from './resourcePage/ResourcePage.jsx';
 import FilePreview from "./resourcePage/FilePreview.jsx";
 import DeleteResource from "./resourcePage/DeleteResource";
+import CultureFood from "./culture/food/FoodPage";
+import CultureFestival from "./culture/festival/FestivalPage";
 
 const App = () => {
   return (
@@ -34,6 +36,8 @@ const App = () => {
             <Route path="/file-preview" element={<FilePreview />} />
             <Route path="/delete-resource" element={<DeleteResource />} />
             <Route path="/celebrity" element={<CelebrityPage />} />
+            <Route path="/culture/food" element={<CultureFood />} />
+            <Route path="/culture/festival" element={<CultureFestival />} />
           </Routes>
         </div>
         <Footer />

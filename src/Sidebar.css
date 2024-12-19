@@ -24,15 +24,19 @@
     border-radius: 0; /* 移除圓角 */
   }
   
-  .menu-item:hover {
+  .menu-item:hover,
+  .submenu-item:hover {
     background-color: #c8d0e7; /* 選單 hover 時的顏色 */
   }
-  
+
+
   /* 選取的按鈕樣式 */
-  .menu-item.active {
+  .menu-item.active,
+  .submenu-item.active {
     background-color: #017AB1;
     color: white;
   }
+   
   
   /* 圖標的樣式 */
   .menu-icon {
@@ -45,4 +49,52 @@
   /* 當 active 時變成白色 */
 .active-icon {
   filter: brightness(0) invert(1); /* 將 icon 變成白色 */
+}
+
+
+.menu-item {
+  position: relative;
+}
+
+.arrow {
+  position: absolute;
+  right: 15px;
+  transition: transform 0.3s ease;
+  font-size: 12px;
+}
+
+.arrow.up {
+  transform: rotate(-180deg);
+}
+
+.submenu {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  background-color: #e8eef4;
+  border: none;
+  color: black;
+  padding: 12px 15px 12px 50px;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+.submenu-item.active:hover {
+  background-color: #017AB1;  
+  color: white; 
+}
+.arrow img {
+  width: 20px;
+  height: 20px;
+  transition: filter 0.3s ease;
+}
+
+.menu-item.active .arrow img {
+  filter: brightness(0) invert(1); /* Makes SVG white */
 }
