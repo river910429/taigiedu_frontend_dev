@@ -17,6 +17,8 @@ import FilePreview from "./resourcePage/FilePreview.jsx";
 import DeleteResource from "./resourcePage/DeleteResource";
 import CultureFood from "./culture/food/FoodPage";
 import CultureFestival from "./culture/festival/FestivalPage";
+import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
+import ExamPage from "./examPage/ExamPage";
 
 const App = () => {
   return (
@@ -38,6 +40,8 @@ const App = () => {
             <Route path="/celebrity" element={<CelebrityPage />} />
             <Route path="/culture/food" element={<CultureFood />} />
             <Route path="/culture/festival" element={<CultureFestival />} />
+            <Route path="/socialmedia" element={<SocialmediaPage />} />
+            <Route path="/exam" element={<ExamPage />} />
           </Routes>
         </div>
         <Footer />

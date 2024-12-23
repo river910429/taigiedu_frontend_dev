@@ -26,8 +26,8 @@ const Sidebar = () => {
         { id: 'festival', label: "節慶", path: "/culture/festival" }
       ]
     },
-    { id: 9, label: "媒體與社群資源",icon: "/src/assets/sidebar_icon/媒體與社群資源.svg"},
-    { id: 10, label: "認證考試",icon: "/src/assets/sidebar_icon/認證考試.svg"},
+    { id: 9, label: "媒體與社群資源",icon: "/src/assets/sidebar_icon/媒體與社群資源.svg", path: "/socialmedia" },
+    { id: 10, label: "認證考試",icon: "/src/assets/sidebar_icon/認證考試.svg", path: "/exam" },
   ];
 
   useEffect(() => {
