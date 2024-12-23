@@ -1,8 +1,45 @@
-.delete-resource-page{
-    margin: auto;
-    width: 90%;
-    height: 80%;
-    background: #fff;
-    overflow: hidden; /* 隱藏多餘內容，防止滾動條出現 */
-    position: relative;
-  }
+.delete-resource-page {
+  padding: 60px;
+  overflow: hidden; /* 隱藏多餘內容，防止滾動條出現 */
+  position: relative;
+}
+
+.back-button {
+  background: none; /* 移除按鈕背景 */
+  border: none; /* 移除邊框 */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 圖案與文字間隔 */
+  padding: 0;
+  padding-bottom: 12px;
+}
+.back-button:hover {
+  background: none;
+} 
+
+.back-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.back-text {
+  color: #101828;
+  font-family: Inter;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px; /* 100% */
+}
+
+
+.file-separator {
+  margin: 0px;
+}
+
+.delete-resource-title{
+  font-size: 22px;
+  font-weight: bold;
+  padding-top: 18px;
+  margin-bottom: -30px;
+}

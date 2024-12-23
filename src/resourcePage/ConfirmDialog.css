@@ -1,0 +1,85 @@
+/* 灰色背景遮罩 */
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 確認框容器 */
+.confirm-dialog-container {
+  background: #fff;
+  text-align: left;
+  border-radius: 8px;
+  padding: 16px;
+  width: 35%;
+  box-shadow: 0px 8px 8px 0px rgba(0, 0, 0, 0.14);
+}
+
+/* 標題樣式 */
+.confirm-dialog-container h3 {
+    margin-bottom: 12px;
+  color: #000;
+  font-family: Inter;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 30px; /* 136.364% */
+}
+
+/* 檔案名稱樣式 */
+.confirm-dialog-container p {
+    margin-bottom: 12px;
+  color: #787878;
+  text-overflow: ellipsis;
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px; /* 116.667% */
+}
+
+/* 按鈕區域 */
+.confirm-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 刪除按鈕 */
+.confirm-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.confirm-button:hover {
+  background: #b71c1c;
+}
+
+/* 取消按鈕 */
+.cancel-button {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background: #cfcfcf;
+}

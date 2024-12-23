@@ -3,7 +3,7 @@ import "./ResourceContent.css";
 
 import ResourceCard from "./ResourceCard";
 
-const ResourceContent = ({ numberOfCards = 10 }) => {
+const ResourceContent = ({ numberOfCards = 20 ,renderCard,onCardClick  }) => {
   const defaultCard = {
     //imageUrl: "/src/assets/home/banner.png",
     imageUrl: "/src/assets/resourcepage/file_preview_demo.png",
@@ -16,24 +16,20 @@ const ResourceContent = ({ numberOfCards = 10 }) => {
     date: "today",
   };
 
-  const cards = Array.from({ length: 20 }, () => defaultCard);
+  const cards = Array.from({ length: numberOfCards  }, () => defaultCard);
   //const cards = fetchNewData() || Array.from({ length: 20 }, () => defaultCard);
 
   return (
     <div className="resource-content">
-      {cards.map((card, index) => (
-        <ResourceCard
-          key={index}
-          imageUrl={card.imageUrl}
-          fileType={card.fileType}
-          likes={card.likes}
-          downloads={card.downloads}
-          title={card.title}
-          uploader={card.uploader}
-          tags={card.tags}
-          date={card.date}
-        />
-      ))}
+      {cards.map((card, index) =>
+        renderCard ? renderCard(card, index) :(
+          <ResourceCard
+            key={index}
+            {...card}
+            onCardClick={onCardClick ? () => onCardClick(card) : undefined}
+          />
+        )
+      )}
     </div>
   );
 };

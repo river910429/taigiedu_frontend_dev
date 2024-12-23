@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import "./ResourceCard.css";
 
 const ResourceCard = ({
@@ -11,9 +10,16 @@ const ResourceCard = ({
   uploader,
   tags = [],
   date,
+  onCardClick, // 新增一個 prop 控制點擊事件
 }) => {
-  const navigate = useNavigate();
 
+  const handleCardClick = () => {
+    if (onCardClick) {
+      onCardClick(); // 如果傳入了自定義點擊方法，則執行它
+    }
+  };
+
+/*
   const handleCardClick = () => {
     navigate("/file-preview", {
       state: {
@@ -29,6 +35,7 @@ const ResourceCard = ({
     });
   };
 
+  */
   return (
     <div className="resource-card"  onClick={handleCardClick}>
       {/* 卡片標頭區域，背景圖片 */}

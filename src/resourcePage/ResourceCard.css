@@ -4,8 +4,7 @@
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* 確保內容不超出卡片範圍 */
-  height: 380px;
+  height:  100%;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .resource-card:hover {
@@ -124,3 +123,70 @@
   border: 1.4px solid #787878;
   white-space: nowrap; /* 防止標籤換行 */
 }
+
+/* 刪除頁面專用 */
+.delete-card-wrapper {
+  position: relative;
+  background: transparent; /* 預設背景透明 */
+  transition: background-color 0.3s ease; /* 平滑過渡 */
+}
+
+.delete-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3); /* 灰色半透明 */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1; /* 確保在內容上方 */
+}
+
+.delete-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #d32f2f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  z-index: 2;
+  opacity: 0;
+  visibility: hidden;/* hidden */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  pointer-events: all; /* 允許按鈕點擊 */
+}
+
+.delete-button img {
+  width: 16px;
+  height: 16px;
+}
+
+.delete-button:hover {
+  background-color: #b71c1c;
+}
+
+.delete-card-wrapper:hover .delete-overlay,
+.delete-card-wrapper:hover .delete-button {
+  opacity: 1;
+  visibility: visible;
+}
+.delete-card-wrapper:hover .delete-button {
+  opacity: 1;
+  visibility: visible;
+}
+/*
+.resource-card:hover + .delete-button {
+  opacity: 1;
+  visibility: visible;
+}
+  */
