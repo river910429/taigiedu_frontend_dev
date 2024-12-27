@@ -3,7 +3,7 @@ import "./ResourceContent.css";
 
 import ResourceCard from "./ResourceCard";
 
-const ResourceContent = ({ numberOfCards = 20 ,renderCard,onCardClick  }) => {
+const ResourceContent = ({ numberOfCards,renderCard,onCardClick  }) => {
   const defaultCard = {
     //imageUrl: "/src/assets/home/banner.png",
     imageUrl: "/src/assets/resourcepage/file_preview_demo.png",

@@ -14,6 +14,7 @@ import TranslatePage from './translatePage/TranslatePage.jsx';
 import ResourcePage from './resourcePage/ResourcePage.jsx';
 import FilePreview from "./resourcePage/FilePreview.jsx";
 import DeleteResource from "./resourcePage/DeleteResource";
+import DownloadPage from "./resourcePage/DownloadPage";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
             <Route path="/resource" element={<ResourcePage />} />
             <Route path="/file-preview" element={<FilePreview />} />
             <Route path="/delete-resource" element={<DeleteResource />} />
+            <Route path="/download" element={<DownloadPage />} />
           </Routes>
         </div>
         <Footer />

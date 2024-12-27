@@ -12,14 +12,13 @@ const ResourceCard = ({
   date,
   onCardClick, // 新增一個 prop 控制點擊事件
 }) => {
-
   const handleCardClick = () => {
     if (onCardClick) {
       onCardClick(); // 如果傳入了自定義點擊方法，則執行它
     }
   };
 
-/*
+  /*
   const handleCardClick = () => {
     navigate("/file-preview", {
       state: {
@@ -37,7 +36,7 @@ const ResourceCard = ({
 
   */
   return (
-    <div className="resource-card"  onClick={handleCardClick}>
+    <div className="resource-card" onClick={handleCardClick}>
       {/* 卡片標頭區域，背景圖片 */}
       <div
         className="card-header"

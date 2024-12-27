@@ -9,6 +9,15 @@ const FilePreview = () => {
   const { imageUrl, fileType, likes, downloads, title, uploader, tags, date } =
     location.state || {}; // 解構數據，設置預設值
 
+  const handleViewDownloadPage = () => {
+    navigate("/download", {
+      state: {
+        fileName: "113台灣台語.pdf", // 檔案名稱
+        pdfUrl: "/src/assets/resourcepage/download_test_file.pdf", // PDF 文件的 URL
+      },
+    });
+  };
+
   return (
     <div className="file-preview-page">
       <div className="file-preview-header">
@@ -54,8 +63,8 @@ const FilePreview = () => {
         <img src={imageUrl} alt={title} />
       </div>
 
-      <div className="file-bottom-fixed" onClick={() => alert("點擊事件觸發")}>
-      <img src="/src/assets/resourcepage/Vector (Stroke).svg" />
+      <div className="file-bottom-fixed" onClick={handleViewDownloadPage}>
+        <img src="/src/assets/resourcepage/Vector (Stroke).svg" />
         閱讀全部
       </div>
     </div>
