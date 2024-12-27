@@ -52,9 +52,11 @@
   font-size: 26px;
 }
 
-.button-container {
+.audio-button-container {
   display: flex;
-  align-items: flex-start;
+  width: 100%;
+  align-items: center;
+  justify-content:flex-start;
   gap: 10px;
 }
 
@@ -95,7 +97,44 @@
   cursor: not-allowed; /* 禁用狀態鼠標樣式 */
 }
 
+.generate-audio-button.processing {
+  background-color: #e0e0e0; /* 處理中背景色 */
+  cursor: not-allowed; /* 禁止操作狀態 */
+  color: var(--Primary-Black, #424242);
+}
+
 .generate-audio-button:hover {
   background-color: #2d92c1;
   color: white;
+}
+
+.loading-icon {
+  width: 24px; /* 圖示寬度 */
+  height: 24px; /* 圖示高度 */
+  margin-left: 8px; /* 与文字间距 */
+  animation: spin 1s linear infinite; /* 旋轉動畫 */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.processing-container {
+  display: flex;
+  align-items: center; /* 垂直对齐 */
+}
+
+.audio-player {
+  border: 2px solid red; /* 調試邊框 */
+  width: 100%;
+}
+
+audio {
+  margin-top: 0px;
+  margin-bottom: 0px;
 }

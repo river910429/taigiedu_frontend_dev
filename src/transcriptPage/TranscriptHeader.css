@@ -4,13 +4,13 @@
   align-items: center;
 }
 
-.mode-selection {
+.transcript-mode-selection {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.mode-selection span {
-  font-size: 16px;
+.transcript-mode-selection span {
+  font-size: 18px;
   font-style: normal;
   font-weight: 400;
   line-height: 24px;
@@ -101,6 +101,7 @@ input:checked + .slider:before {
   background-color: #D3E6FB; /* 錄音中背景色 */
   color: #000000; /* 錄音中文字顏色 */
   border: 1.5px solid #3B74D6; /* 錄音中邊框顏色 */
+  padding: 0.5rem 0.5rem;
 }
 
 /* 錄音中圖示 */

@@ -17,7 +17,7 @@ const TranscriptHeader = ({
 
   return (
     <div className="transcript-header">
-      <div className="mode-selection">
+      <div className="transcript-mode-selection">
         <span>選擇模式：</span>
         <span className={`mode-option ${isChecked ? "active" : ""}`}>錄音</span>
         <label className="switch">

@@ -50,7 +50,13 @@ const ContentFeedback = ({ isOpen, onClose, content, onSubmit  }) => {
         <button className="modal-close-button" onClick={onClose}>
           ×
         </button>
+
         <p>語音：</p>
+        <audio controls>
+          <source src="/src/assets/海豬救援隊.mp3" type="audio/mpeg" />
+          您的瀏覽器不支援音訊播放。
+        </audio>
+
         <p>正確文字：</p>
         <textarea
           className="feedback-textarea"
