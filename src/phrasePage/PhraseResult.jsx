@@ -3,10 +3,10 @@ import './PhraseResult.css';
 import PhraseModal from './PhraseModal';
 
 const PhraseResult = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPhrase, setSelectedPhrase] = useState(null);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [selectedPhrase, setSelectedPhrase] = useState(null);
 
-    const phrases = [
+	const phrases = [
 		{
 			phrase: '歹竹出好筍，好竹出痀崙',
 			pronunciation: 'Pháinn-tik tshut hó-sún, hó-tik tshut ku-lun',
@@ -89,82 +89,132 @@ const PhraseResult = () => {
 		}
 	];
 
-    const leftPhrases = phrases.slice(0, Math.ceil(phrases.length / 2));
-    const rightPhrases = phrases.slice(Math.ceil(phrases.length / 2));
+	const leftPhrases = phrases.slice(0, Math.ceil(phrases.length / 2));
+	const rightPhrases = phrases.slice(Math.ceil(phrases.length / 2));
 
-    const showDetail = (phraseData) => {
-        setSelectedPhrase(phraseData);
-        setIsModalOpen(true);
-    };
+	const showDetail = (phraseData) => {
+		setSelectedPhrase(phraseData);
+		setIsModalOpen(true);
+	};
 
-    const previousPage = () => {
-        // 實現上一頁邏輯
-    };
 
-    const nextPage = () => {
-        // 實現下一頁邏輯
-    };
+	const TOTAL_ITEMS = 200;
+	const ITEMS_PER_PAGE = 16;
+	const TOTAL_PAGES = Math.ceil(TOTAL_ITEMS / ITEMS_PER_PAGE);
+	const VISIBLE_PAGES = 10;
 
-    const changePage = (pageNumber) => {
-        // 實現換頁邏輯
-    };
+	// Add pagination state
+	const [currentPage, setCurrentPage] = useState(1);
 
-    return (
-        <div>
-            <div className="row pt-0 px-0" id="phraseResult">
-                <div className="col-6">
-                    {leftPhrases.map((phrase, index) => (
-                        <a key={index} href="#" onClick={() => showDetail(phrase)}>
-						<div className="row px-3 py-3 my-2 phaseCard cardContainer">
-							<div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
-						</div>
-					</a>
-                    ))}
-                </div>
+	// Add pagination handlers
+	const handlePageChange = (pageNumber) => {
+		setCurrentPage(pageNumber);
+	};
 
-                <div className="col-6">
-                    {rightPhrases.map((phrase, index) => (
-                        <a key={index} href="#" onClick={() => showDetail(phrase)}>
-                            <div className="row px-3 py-3 my-2 phaseCard cardContainer">
-                                <div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
-                            </div>
-                        </a>
-                      
-                    ))}
-                </div>
+	const handlePreviousPage = () => {
+		if (currentPage > 1) {
+			setCurrentPage(prev => prev - 1);
+		}
+	};
 
-                <ul className="pagination">
-                    <li className="page-item">
-                        <a className="page-link wide-link" href="#" onClick={previousPage}>《 Back</a>
-                    </li>
-                    {[8, 9, 10, 11, 12, 13, 14, 15, 16, 17].map(num => (
-                        <li key={num} className={`page-item ${num === 12 ? 'active' : ''}`}>
-                            <a 
-                                className="page-link" 
-                                href="#" 
-                                onClick={() => changePage(num)}
-                            >
-                                {num}
-                            </a>
-                        </li>
-                    ))}
-                    <li className="page-item">
-                        <a className="page-link wide-link" href="#" onClick={nextPage}>Next 》</a>
-                    </li>
-                </ul>
-            </div>
+	const handleNextPage = () => {
+		if (currentPage < TOTAL_PAGES) {
+			setCurrentPage(prev => prev + 1);
+		}
+	};
 
-            {selectedPhrase && (
-                <PhraseModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    phrase={selectedPhrase.phrase}
-                    pronunciation={selectedPhrase.pronunciation}
+	// Add page number calculator
+	const getPageNumbers = () => {
+		let start = Math.max(1, currentPage - 4);
+		let end = Math.min(TOTAL_PAGES, start + VISIBLE_PAGES - 1);
+
+		if (end === TOTAL_PAGES) {
+			start = Math.max(1, end - VISIBLE_PAGES + 1);
+		}
+
+		if (start === 1) {
+			end = Math.min(TOTAL_PAGES, VISIBLE_PAGES);
+		}
+
+		return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+	};
+
+	const previousPage = () => {
+		// 實現上一頁邏輯
+	};
+
+	const nextPage = () => {
+		// 實現下一頁邏輯
+	};
+
+	const changePage = (pageNumber) => {
+		// 實現換頁邏輯
+	};
+
+	return (
+		<div>
+			<div className="row pt-0 px-0" id="phraseResult">
+				<div className="col-6">
+					{leftPhrases.map((phrase, index) => (
+						<a key={index} href="#" onClick={() => showDetail(phrase)}>
+							<div className="row px-3 py-3 my-2 phaseCard cardContainer">
+								<div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
+							</div>
+						</a>
+					))}
+				</div>
+
+				<div className="col-6">
+					{rightPhrases.map((phrase, index) => (
+						<a key={index} href="#" onClick={() => showDetail(phrase)}>
+							<div className="row px-3 py-3 my-2 phaseCard cardContainer">
+								<div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
+							</div>
+						</a>
+
+					))}
+				</div>
+
+				<div className="pagination-container">
+					<ul className="pagination">
+						<li className="page-item back-button">
+							<a className={`page-link wide-link ${currentPage <= 1 ? 'invisible' : ''}`}
+								onClick={handlePreviousPage}>
+								《 Back
+							</a>
+						</li>
+
+						{getPageNumbers().map(number => (
+							<li key={number}
+								className={`page-item ${currentPage === number ? 'active' : ''}`}>
+								<a className="page-link"
+									onClick={() => handlePageChange(number)}>
+									{number}
+								</a>
+							</li>
+						))}
+
+						<li className="page-item next-button">
+							<a className={`page-link wide-link ${currentPage >= TOTAL_PAGES ? 'invisible' : ''}`}
+								onClick={handleNextPage}>
+								Next 》
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			{selectedPhrase && (
+				<PhraseModal
+					isOpen={isModalOpen}
+					onClose={() => setIsModalOpen(false)}
+					phrase={selectedPhrase.phrase}
+					pronunciation={selectedPhrase.pronunciation}
 					interpretation={selectedPhrase.interpretation}
-                />
-            )}
-        </div>
-    );
+				/>
+			)}
+		</div>
+	);
 };
 
 export default PhraseResult;
