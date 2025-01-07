@@ -1,0 +1,114 @@
+.exam-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: #fff;
+}
+
+.exam-type-dropdown {
+    position: relative;
+    display: flex;
+    width: 148px;
+    height: 48px;
+    padding: 12px 16px;
+    align-items: center;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0px 0px 0px 4px rgba(20, 118, 255, 0.14);
+    color: #424242;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    background-image: url("src/assets/chevron-up.svg");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 16px) center;
+    background-size: 20px 20px;
+}
+
+.exam-type-dropdown:hover {
+    box-shadow: 0px 0px 0px 4px #017ab1;
+}
+
+.exam-search-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 0.5;
+    max-width: 30%;
+}
+
+.exam-search-input {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    outline: none;
+}
+
+.exam-search-input:focus,
+.exam-search-input:hover {
+    border-color: #4AA3BA;
+    box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+
+.exam-search-icon {
+    position: absolute;
+    cursor: pointer;
+    right: 0.5rem;
+    color: #cbd5e0;
+}
+
+.exam-category-title {
+    color: #017AB1;
+    font-size: 24px;
+    margin: 30px 0 20px 0;
+    padding: 0;
+}
+
+.exam-card {
+    background: none;
+    border: none;
+    padding: 10px;
+    transition: transform 0.2s;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.exam-card:hover {
+    transform: translateY(-5px);
+}
+
+.exam-section {
+    margin-bottom: 40px;
+}
+
+.exam-report-issue {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.exam-image-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 77.1%;
+    overflow: hidden;
+    border-radius: 0;
+}
+
+.exam-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

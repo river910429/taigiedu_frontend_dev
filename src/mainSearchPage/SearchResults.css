@@ -302,7 +302,14 @@
 		color: #fff;
 		background-color: #2D92C1;
 		border-color: rgba(0, 0, 0, 0);
+		cursor: pointer;
 
+	}
+	.page-link:hover {
+		background-color: rgba(0, 0, 0, 0);
+		color: #2D92C1;
+		border-color: rgba(0, 0, 0, 0);
+		cursor: pointer;  /* Add cursor pointer */
 	}
 
 	a,
@@ -315,4 +322,42 @@
 	}
 	.form-check-input[type=radio] {
 		margin-top: 1rem;
+	}
+	.pagination-container {
+		display: flex;
+		justify-content: center;
+		position: relative;
+		padding: 0 120px;  /* Make space for back/next buttons */
+	}
+	
+	.pagination-container {
+		display: flex;
+		justify-content: center;
+	}
+	
+	.pagination {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 5px;
+	}
+	
+	.page-numbers {
+		display: flex;
+		gap: 5px;
+	}
+	
+	.back-button,
+	.next-button {
+		display: flex;
+		align-items: center;
+	}
+	
+	.invisible {
+		visibility: hidden;
+	}
+	
+	.page-link {
+		border: none;
+		padding: 0.5rem 1rem;
 	}

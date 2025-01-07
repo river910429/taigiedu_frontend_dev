@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import "./ResourceHeader.css";
+import MultiSelect from '../phrasePage/MultiSelect';
 
 const ResourceHeader = ({onUploadOpen}) => {
   const navigate = useNavigate();
   const [selectedGrade, setSelectedGrade] = useState("階段");
-  const [selectedVersion, setSelectedVersion] = useState("版本");
   const [query, setQuery] = React.useState("");
   const [isGradeOpen, setIsGradeOpen] = useState(false);
-  const [isVersionOpen, setIsVersionOpen] = useState(false);
+  const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState([]); //多選下拉選單
 
-  const handleGradeClick = () => setIsGradeOpen(!isGradeOpen);
-  const handleVersionClick = () => setIsVersionOpen(!isVersionOpen);
 
   const gradeToVersions = {
     國小: ["真平", "康軒"],
@@ -19,6 +18,13 @@ const ResourceHeader = ({onUploadOpen}) => {
     高中: ["真平", "育達", "泰宇", "奇異果", "創新"],
   };
 
+  const getVersionOptions = (grade) => {
+    if (grade === "全部") {
+      // return Object.values(gradeToVersions).flat();
+      return allVersions;
+    }
+    return gradeToVersions[grade] || [];
+  };
   const allVersions = [
     "真平",
     "康軒",
@@ -31,16 +37,16 @@ const ResourceHeader = ({onUploadOpen}) => {
     "泰宇",
     "創新",
   ];
+  const handleCategoryChange = (selected) => {
+    setSelectedCategories(selected);
+  };
 
   const handleGradeChange = (e) => {
     const grade = e.target.value;
     setSelectedGrade(grade);
-    setSelectedVersion("版本"); // 重置版本為 "版本"
-  };
-
-  const handleVersionChange = (e) => {
-    const version = e.target.value;
-    setSelectedVersion(version);
+    // 強制清空已選版本
+    setSelectedCategories([]);
+    setIsMultiSelectEnabled(grade !== "階段");
   };
 
   const handleSearch = (e) => {
@@ -52,23 +58,18 @@ const ResourceHeader = ({onUploadOpen}) => {
     navigate("/delete-resource"); 
   }
 
-  const versionOptions =
-    selectedGrade === "階段"
-      ? []
-      : selectedGrade === "全部"
-      ? allVersions
-      : gradeToVersions[selectedGrade] || [];
+
 
   return (
     <div className="resource-header">
       {/* 階段下拉選單 */}
       <select
-        className={`grade-dropdown ${isGradeOpen  ? "open" : ""}`}
-        onClick={handleGradeClick}
+        className={`grade-dropdown ${isGradeOpen ? "open" : ""}`}
+        onClick={() => setIsGradeOpen(!isGradeOpen)}
         value={selectedGrade}
         onChange={handleGradeChange}
       >
-        <option value="階段" hidden>
+        <option hidden>
           階段
         </option>
         <option value="全部">全部</option>
@@ -77,23 +78,18 @@ const ResourceHeader = ({onUploadOpen}) => {
         <option value="國小">國小</option>
       </select>
 
-      {/* 版本下拉選單 */}
-      <select
-        className={`version-dropdown ${isVersionOpen  ? "open" : ""}`}
-        onClick={handleVersionClick}
-        value={selectedVersion}
-        onChange={handleVersionChange}
-        disabled={selectedGrade === "階段"}
-      > 
-        <option value="版本" hidden>
-          版本
-        </option>
-        {versionOptions.map((version) => (
-          <option key={version} value={version}>
-            {version}
-          </option>
-        ))}
-      </select>
+
+
+<div className={`multiselect-wrapper ${isMultiSelectEnabled ? 'enabled' : 'disabled'} resource-multi`}>
+      <MultiSelect
+        key={selectedGrade}
+        options={getVersionOptions(selectedGrade)}
+        selectedOptions={selectedCategories}
+        onChange={handleCategoryChange}
+        placeholder="版本"
+        displayText="已選擇版本"
+      />
+    </div>
 
       {/* Search Bar */}
       <form onSubmit={handleSearch} className="res-search-container">

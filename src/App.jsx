@@ -10,10 +10,15 @@ import MainSearchPage from './mainSearchPage/MainSearchPage.jsx';
 import TranscriptPage from './transcriptPage/TranscriptPage.jsx';
 import ReadPage from './readPage/ReadPage.jsx';
 import PhrasePage from './phrasePage/PhrasePage.jsx';
+import CelebrityPage from './celebrity/CelebrityPage.jsx';
 import TranslatePage from './translatePage/TranslatePage.jsx';
 import ResourcePage from './resourcePage/ResourcePage.jsx';
 import FilePreview from "./resourcePage/FilePreview.jsx";
 import DeleteResource from "./resourcePage/DeleteResource";
+import CultureFood from "./culture/food/FoodPage";
+import CultureFestival from "./culture/festival/FestivalPage";
+import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
+import ExamPage from "./examPage/ExamPage";
 import DownloadPage from "./resourcePage/DownloadPage";
 
 const App = () => {
@@ -33,6 +38,11 @@ const App = () => {
             <Route path="/resource" element={<ResourcePage />} />
             <Route path="/file-preview" element={<FilePreview />} />
             <Route path="/delete-resource" element={<DeleteResource />} />
+            <Route path="/celebrity" element={<CelebrityPage />} />
+            <Route path="/culture/food" element={<CultureFood />} />
+            <Route path="/culture/festival" element={<CultureFestival />} />
+            <Route path="/socialmedia" element={<SocialmediaPage />} />
+            <Route path="/exam" element={<ExamPage />} />
             <Route path="/download" element={<DownloadPage />} />
           </Routes>
         </div>

@@ -30,18 +30,26 @@
     width: 100%;
     position: relative;
   }
+  .filter-section {
+    display: flex;
+    align-items: center;
+    width: 250px;
+    padding-right: 10px;
+  }
 
-  .search-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    border-right: none;
+  .phrase-search-input {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    margin: 0 auto;
     outline: none;
     transition: border-color 0.3s;
   }
   
-  .search-input:focus {
+  
+  .phrase-search-input:focus,
+  .phrase-search-input:hover {
     border-color: #4AA3BA;
     box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
   }
@@ -82,6 +90,5 @@
     display: block; /* 確保選單顯示 */
     position: relative; /* 確保定位正確 */
   }
-
 
   

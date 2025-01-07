@@ -5,7 +5,7 @@
 }
 
 .grade-dropdown,
-.version-dropdown {
+.version-dropdown,.resource-multi .select-header {
   position: relative; 
   display: flex;
   width: 148px;
@@ -24,19 +24,23 @@
   font-weight: 400;
   line-height: 22px; /* 122.222% */
 
+   cursor: pointer;
+  transition: all 0.3s ease; /* 添加過渡動畫 */
+}
+.grade-dropdown,
+.version-dropdown{
+  outline: none;
   appearance: none; /* 隱藏預設箭頭 */
   background-image: url("src/assets/chevron-up.svg");
   background-repeat: no-repeat;
   background-position: calc(100% - 16px) center; /* 箭頭距右邊 16px */
   background-size: 20px 20px; /* 設定箭頭大小 */
-
-  cursor: pointer;
-  transition: all 0.3s ease; /* 添加過渡動畫 */
 }
 
 
 .grade-dropdown:hover,
-.version-dropdown:hover {
+.version-dropdown:hover,
+.resource-multi .select-header:hover{
   box-shadow: 0px 0px 0px 4px #017ab1;
 }
 
@@ -64,6 +68,12 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   margin: 0 auto;
+  outline: none;
+}
+.res-search-input:focus,
+.res-search-input:hover {
+  border-color: #4AA3BA;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
 }
 
 .res-search-icon {
@@ -112,4 +122,14 @@
 
 .res-delete-button:hover{
     background-color: #c62905;
+}
+
+.multiselect-wrapper.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.multiselect-wrapper.enabled {
+  pointer-events: auto;
+  opacity: 1;
 }

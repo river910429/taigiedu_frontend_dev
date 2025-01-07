@@ -1,42 +1,139 @@
 .multi-select {
-    position: relative;
-    width: 200px;
-  }
-  
-  .select-header {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: white;
-  }
-  
-  .options-container {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    margin-top: 4px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  
-  .option {
-    padding: 8px 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .option:hover {
-    background-color: #f5f5f5;
-  }
-  
-  input[type="checkbox"] {
-    margin: 0;
-  }
-  
+  position: relative;
+  width: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.select-header {
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 10px; 
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  transition: all 0.3s;
+}
+
+.select-header:hover,
+.select-header:focus {
+  border-color: #4AA3BA;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+.select-header.active{
+  border-color: #4AA3BA;
+  background-color: #ddd;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+.selected-options {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.select-placeholder {
+  color: #000;
+  font-size: 14px;
+}
+
+.display-text {
+  color: #000;
+  font-size: 14px;
+}
+
+.arrow {
+  position: absolute;
+  right: 0.75rem;
+  color: #000;
+  transition: transform 0.3s;
+}
+
+.arrow.up {
+  transform: rotate(180deg);
+}
+
+.options-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Webkit browsers (Chrome, Safari) */
+.options-container::-webkit-scrollbar {
+  display: none;
+}
+
+.option {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.option span:last-child {
+  /* 用於文字部分 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 30px); /* 減去核取方塊寬度和間距 */
+}
+
+.option:hover {
+  background-color: #f5f5f5;
+}
+
+.option.selected {
+  background-color: rgba(185, 204, 224, 1);
+}
+
+.checkbox {
+  width: 23px;
+  height: 23px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* 未選中狀態 */
+.checkbox:not(.checked) {
+  background-color: white;
+  border-color: #ddd;
+}
+
+/* 選中狀態 */
+.checkbox.checked {
+  background-color: #2d92c1;
+  color: white;
+}
+
+/* Hover 效果 */
+.checkbox:hover {
+  border-color: #4AA3BA;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+
+.divider {
+  height: 1px;
+  background-color: #ddd;
+  margin: 1px 0;
+}
