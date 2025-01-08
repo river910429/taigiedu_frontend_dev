@@ -29,7 +29,7 @@ const ResourcePage = () => {
     <div className="resource-page">
       <ResourceHeader onUploadOpen={handleUploadOpen} />
       <ResourceContent
-        numberOfCards={20}
+        numberOfCards={241}
         onCardClick={(card) => handleCardClick(card)}
       />
       <UploadResource isOpen={isUploadOpen} onClose={handleUploadClose} />
