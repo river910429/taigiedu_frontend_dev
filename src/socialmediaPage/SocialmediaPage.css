@@ -1,11 +1,12 @@
 .socialmedia-header {
+    background: #fff;
+    padding: 20px 0;
+}
+.socialmedia-header-content {
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 20px;
-    background: #fff;
 }
-
 .social-type-dropdown {
     position: relative;
     display: flex;

@@ -26,6 +26,36 @@
   text-align: left;
   line-height: 0.8; /* 調整行距使其更緊湊 */
 }
+.bigbig{
+  font-size: 2.5rem;
+  font-weight: bold;
+  display: block;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  unicode-bidi: isolate;
+}
+.big{
+  font-size: 2rem;
+  font-weight: bold;
+  display: block;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  unicode-bidi: isolate;
+}
+.small{
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  unicode-bidi: isolate;
+}
+
 
 .hero-text h2 {
   font-size: 2rem;
@@ -82,7 +112,7 @@
 button {
   padding: 0.5rem 1rem;
   border-radius: 9999px;
-  background-color: #40A299;
+  background-color: #2D92C1;
   color: white;
   border: none;
   cursor: pointer;
@@ -114,7 +144,7 @@ button:hover {
 }
 
 .section-title {
-  color: #40A299;
+  color: #2D92C1;
   border-bottom: 2px solid #e2e8f0;
   padding-bottom: 0.5rem;
   margin-bottom: 0.5rem;

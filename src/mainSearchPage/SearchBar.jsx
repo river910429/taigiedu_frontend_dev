@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import './SearchBar.css';
 import MultiSelect from '../phrasePage/MultiSelect';
 
-const SearchBar = () => {
-  const [query, setQuery] = useState('');
+const SearchBar = ({ initialQuery }) => {
+  const [query, setQuery] = useState(initialQuery);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const navigate = useNavigate();
   const categories = [
@@ -20,7 +20,7 @@ const SearchBar = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim() === '') return;
-    
+
     // 構建搜尋參數
     const searchParams = new URLSearchParams();
     searchParams.append('query', query);
@@ -39,20 +39,20 @@ const SearchBar = () => {
     <div className="search-bar">
 
       <div className="input-container">
-      <div className="px-2 bar-selectspace">
-      <MultiSelect
+        <div className="px-2 bar-selectspace">
+          <MultiSelect
             options={categories}
             selectedOptions={selectedCategories}
             onChange={handleCategoryChange}
             placeholder="資料出處"
             displayText="資料出處"
           />
-      {/* <select className="category-select category-input">
+          {/* <select className="category-select category-input">
         <option value="all">all</option>
         <option value="other">其他類別</option>
       </select> */}
-      </div>  
-      <form onSubmit={handleSearch} className="search-container">
+        </div>
+        <form onSubmit={handleSearch} className="search-container">
           <input
             type="text"
             value={query}
@@ -61,7 +61,7 @@ const SearchBar = () => {
             className="search-input"
           />
           <img
-            src="search_logo.svg" 
+            src="search_logo.svg"
             className="search-icon"
             onClick={handleSearch} // 點擊圖片觸發搜尋跳轉
           />
