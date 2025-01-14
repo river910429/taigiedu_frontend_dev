@@ -29,7 +29,7 @@ const TranscriptPage = () => {
   const handleFontSizeChange = (size) => {
     setFontSize(size); // 改變字體大小
   };
-
+  
   const handleRecordClick = () => {
     if (isProcessing) return; // 禁止在處理中操作
     if (isRecording) {
@@ -46,6 +46,19 @@ const TranscriptPage = () => {
       setIsEditable(false); // 背景為灰色
     }
   };
+  const handleFileUpload = async (file) => {
+    setIsProcessing(true);
+    setIsEditable(false);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setIsProcessing(false);
+      setIsEditable(true);
+    } catch (error) {
+      console.error('File processing failed:', error);
+      setIsProcessing(false);
+    }
+  };
   return (
     <div className="transcript-page">
       <FontSizeProvider>
@@ -55,6 +68,7 @@ const TranscriptPage = () => {
           fontSize={fontSize}
           onRecordClick={handleRecordClick}
           onFontSizeChange={handleFontSizeChange}
+          onFileUpload={handleFileUpload}
         />
         <TranscriptContent isEditable={isEditable} fontSize={fontSize} />
       </FontSizeProvider>

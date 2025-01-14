@@ -177,3 +177,70 @@ input:checked + .slider:before {
   height: 60px;
   font-size: 26px;
 }
+
+/* Add upload button styles */
+.file-upload {
+  display: none;
+}
+
+.upload-button-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-button {
+  display: flex;
+  height: 48px;
+  padding: 8px 16px;
+  justify-content: center;
+  align-items: center;
+  background-color: #dfeaf2;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #2d92c1;
+  transition: all 0.3s ease;
+  background-image: url("/src/assets/resourcepage/Subtract.svg");
+  background-repeat: no-repeat;
+  background-position: 20px center;
+  background-size: 16px 20px;
+  text-indent: 25px;
+}
+
+
+.upload-button:hover {
+  background-color: #c5d9e7;
+}
+
+
+.upload-button.uploaded {
+  border: 1px solid #2d92c1;
+  background: #dfeaf2;
+  color: #000;
+}
+
+.file-name {
+  color: #4f4f4f;
+  font-size: 16px;
+}
+
+.file-upload {
+  display: none;
+}
+.upload-button.processing {
+  background-color: #e0e0e0;
+  color: #555;
+  cursor: not-allowed;
+}
+
+.upload-button.processing .loading-icon {
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
