@@ -6,7 +6,7 @@ import ResourceHeader from "./ResourceHeader";
 import ResourceContent from "./ResourceContent";
 import UploadResource from "./UploadResource";
 
-const ResourcePage = () => {
+const ResourcePage = ({isLoggedIn, setIsLoggedIn  }) => {
   const [isUploadOpen, setIsUploadOpen] = useState(false); // 控制上傳頁面
 
   const handleUploadOpen = () => {
@@ -18,7 +18,6 @@ const ResourcePage = () => {
   };
 
   const navigate = useNavigate();
-
   const handleCardClick = (card) => {
     navigate("/file-preview", {
       state: { ...card }, // 傳遞所有卡片資料到目標頁面
@@ -27,7 +26,9 @@ const ResourcePage = () => {
 
   return (
     <div className="resource-page">
-      <ResourceHeader onUploadOpen={handleUploadOpen} />
+      <ResourceHeader
+        onUploadOpen={handleUploadOpen}
+      />
       <ResourceContent
         numberOfCards={20}
         onCardClick={(card) => handleCardClick(card)}

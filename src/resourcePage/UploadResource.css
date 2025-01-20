@@ -100,14 +100,6 @@
   margin-top: 0px;
 }
 
-.input[type="radio"] {
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  border: 2px solid var(--Checkbox-border, rgba(0, 0, 0, 0.25));
-  background: var(--White, #fff);
-}
-
 .radio-group label,
 .file-name {
   display: flex;

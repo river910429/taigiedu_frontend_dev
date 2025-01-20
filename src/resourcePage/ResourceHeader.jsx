@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./ResourceHeader.css";
 import MultiSelect from '../phrasePage/MultiSelect';
 
-const ResourceHeader = ({onUploadOpen}) => {
+const ResourceHeader = ({onUploadOpen,isLoggedIn, setIsLoggedIn  }) => {
   const navigate = useNavigate();
   const [selectedGrade, setSelectedGrade] = useState("階段");
   const [query, setQuery] = React.useState("");
@@ -54,9 +54,15 @@ const ResourceHeader = ({onUploadOpen}) => {
     if (query.trim() === "") return;
   };
 
+  
   const handleDelete = () => {
-    navigate("/delete-resource"); 
-  }
+    if (!isLoggedIn) {
+       // 未登入時跳轉到登入頁，並帶上目標頁面資訊
+       navigate("/login", { state: { redirectTo: "/delete-resource" } });
+      return;
+    }
+    navigate("/delete-resource"); // 跳轉到刪除頁面
+  };
 
 
 
