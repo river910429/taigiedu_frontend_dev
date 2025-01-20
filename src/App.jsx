@@ -44,24 +44,25 @@ const App = () => {
               path="/resource"
               element={
                 <ResourcePage
-                  isLoggedIn={isLoggedIn}
-                  setIsLoggedIn={setIsLoggedIn}
+                  //isLoggedIn={isLoggedIn}
+                  //setIsLoggedIn={setIsLoggedIn}
                 />
               }
             />
             <Route path="/file-preview" element={<FilePreview />} />
             <Route
               path="/delete-resource"
-              element={
-                isLoggedIn ? (
-                  <DeleteResource />
-                ) : (
-                  <Navigate
-                    to="/login"
-                    state={{ redirectTo: "/delete-resource" }}
-                  />
-                )
-              }
+              element={<DeleteResource />} 
+              // element={
+              //   isLoggedIn ? (
+              //     <DeleteResource />
+              //   ) : (
+              //     <Navigate
+              //       to="/login"
+              //       state={{ redirectTo: "/delete-resource" }}
+              //     />
+              //   )
+              // }
             />
             <Route path="/upload-resource" element={<UploadResource />} />
             <Route path="/celebrity" element={<CelebrityPage />} />
@@ -71,7 +72,9 @@ const App = () => {
             <Route path="/exam" element={<ExamPage />} />
             <Route
               path="/login"
-              element={<Login setIsLoggedIn={setIsLoggedIn} />}
+              element={<Login 
+                //setIsLoggedIn={setIsLoggedIn} 
+                />}
             />
             <Route path="/register" element={<RegisterPage />} />
           </Routes>
