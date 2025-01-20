@@ -1,5 +1,6 @@
 // src/mainsearchpage/MainSearchPage.jsx
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 import Pagination from './Pagination';
@@ -20,10 +21,12 @@ const MainSearchPage = () => {
     setCurrentPage(page);
     // TODO: 在這裡加入 API 請求或資料更新邏輯
   };
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('query') || '';
 
   return (
     <div className="main-search-page">
-      <SearchBar />
+      <SearchBar initialQuery={initialQuery}/>
       <div className="results-container">
         <SearchResults resultsLeft={resultsLeft} resultsRight={resultsRight} />
       </div>

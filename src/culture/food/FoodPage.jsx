@@ -34,7 +34,7 @@ const FoodPage = () => {
 
     return (
         <div className="container py-4">
-            <div className="row g-4">
+            <div className="row g-4 pt-4">
                 {foods.map(food => (
                     <div key={food.id} 
                          className="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-custom-5"

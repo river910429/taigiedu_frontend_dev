@@ -43,7 +43,7 @@ const DeleteResource = () => {
 
   return (
     <div className="delete-resource-page">
-      <button className="back-button" onClick={() => window.history.back()}>
+      <button className="delete-back-button" onClick={() => window.history.back()}>
         <img
           src="/src/assets/resourcepage/arrow-left-circle.svg"
           alt="Back"

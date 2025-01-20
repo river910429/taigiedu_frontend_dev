@@ -7,6 +7,10 @@ const MainContent = () => {
   const navigate = useNavigate(); // 使用 useNavigate 來進行頁面跳轉
   const [query, setQuery] = React.useState("");
 
+  const handleTagClick = (tag) => {
+    navigate(`/search?query=${encodeURIComponent(tag)}`);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault(); // 防止頁面重整
     if (query.trim() === "") return;
@@ -24,19 +28,19 @@ const MainContent = () => {
             className="w-full h-full object-cover"
           />
           <div className="hero-text absolute top-1/3 left-1/4 text-white">
-            <h2 className="text-4xl font-bold leading-tight">歡迎來到</h2>
-            <h1 className="text-4xl font-bold leading-tight">
+            <div className="big text-4xl font-bold leading-tight">歡迎來到</div>
+            <div className="bigbig text-4xl font-bold leading-tight pb-4">
               Tâi-gí 教學共備平台
-            </h1>
-            <p className="mt-2 text-xl leading-snug">
+            </div>
+            <div className="small mt-2 text-xl leading-snug">
               鯨魚以聲音與其他鯨群溝通，聲波能穿越遙遠的距離。
-            </p>
-            <p className="mt-2 text-xl leading-snug">
+            </div>
+            <div className="small mt-2 text-xl leading-snug">
               台語老師透過語言的教學，讓台語的聲音在人群中傳播。
-            </p>
-            <p className="mt-2 text-xl leading-snug">
+            </div>
+            <div className="small mt-2 text-xl leading-snug">
               希翼能以台語為傳播媒介，傳遞咱台灣文化與情感。
-            </p>
+            </div>
           </div>
         </div>
       </section>
@@ -63,6 +67,7 @@ const MainContent = () => {
             <button
               key={tag}
               className="button"
+              onClick={() => handleTagClick(tag)}
             >
               {tag}
             </button>

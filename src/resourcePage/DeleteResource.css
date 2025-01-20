@@ -4,7 +4,7 @@
   position: relative;
 }
 
-.back-button {
+.delete-back-button {
   background: none; /* 移除按鈕背景 */
   border: none; /* 移除邊框 */
   display: flex;
@@ -13,7 +13,7 @@
   padding: 0;
   padding-bottom: 12px;
 }
-.back-button:hover {
+.delete-back-button:hover {
   background: none;
 } 
 

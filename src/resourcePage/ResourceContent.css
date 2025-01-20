@@ -1,31 +1,44 @@
+.resource-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 200px); /* Account for header and padding */
+}
+
 .resource-content {
-    height: 100vh; /* 填滿視窗高度 */
-    position: relative;
-    margin: 40px 0px;
-    padding-top: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 300px)); /*自動調整列數，卡片最小寬度200px，最大寬度為平分剩餘空間（1fr）。 */
-    column-gap: 48px;
-    row-gap: 50px;
-    overflow-x: auto;
-    overflow-y: auto;
+  position: relative;
+  margin: 40px 0px;
+  padding-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 300px));
+  column-gap: 48px;
+  row-gap: 50px;
+  justify-content: center;
+  min-height: 860px;
+  align-items: start; /* Prevent stretching */
+}
+
+.pagination-container {
+  margin-top: auto;
+  padding: 20px 0;
+}
+
+@media (max-width: 1400px) {
+  .resource-content {
+    grid-template-columns: repeat(3, 300px);
+    min-height: 1140px; /* Approximately 4 rows for 3-column layout */
   }
-  
-  @media (max-width: 1400px) {
-    .resource-content {
-      grid-template-columns: repeat(3, 1fr);
-    }
+}
+
+@media (max-width: 1200px) {
+  .resource-content {
+    grid-template-columns: repeat(2, 300px);
+    min-height: 1700px; /* Approximately 6 rows for 2-column layout */
   }
-  
-  @media (max-width: 1200px) {
-    .resource-content {
-      grid-template-columns: repeat(2, 1fr);
-    }
+}
+
+@media (max-width: 600px) {
+  .resource-content {
+    grid-template-columns: 300px;
+    min-height: 3300px; /* Approximately 12 rows for 1-column layout */
   }
-  
-  @media (max-width: 600px) {
-    .resource-content {
-      grid-template-columns: 1fr;
-    }
-  }
-  
+}
