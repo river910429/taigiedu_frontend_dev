@@ -91,7 +91,8 @@
 }
 
 .res-upload-button,
-.res-delete-button {
+.res-delete-button,
+.res-login-button {
   display: flex;
   width: 140px;
   height: 48px;
@@ -116,13 +117,16 @@
     background: #F37458;
 }
 
-.res-upload-button:hover {
+
+.res-upload-button:hover,
+.res-login-button:hover {
   background-color: #005f8d;
 }
 
 .res-delete-button:hover{
     background-color: #c62905;
 }
+
 
 .multiselect-wrapper.disabled {
   pointer-events: none;

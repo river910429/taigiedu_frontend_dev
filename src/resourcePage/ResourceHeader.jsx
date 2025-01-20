@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import "./ResourceHeader.css";
-import MultiSelect from '../phrasePage/MultiSelect';
+import MultiSelect from "../phrasePage/MultiSelect";
 
-const ResourceHeader = ({onUploadOpen,isLoggedIn, setIsLoggedIn  }) => {
+const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [selectedGrade, setSelectedGrade] = useState("階段");
   const [query, setQuery] = React.useState("");
   const [isGradeOpen, setIsGradeOpen] = useState(false);
   const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]); //多選下拉選單
-
 
   const gradeToVersions = {
     國小: ["真平", "康軒"],
@@ -54,17 +53,19 @@ const ResourceHeader = ({onUploadOpen,isLoggedIn, setIsLoggedIn  }) => {
     if (query.trim() === "") return;
   };
 
-  
   const handleDelete = () => {
+    /*
     if (!isLoggedIn) {
-       // 未登入時跳轉到登入頁，並帶上目標頁面資訊
-       navigate("/login", { state: { redirectTo: "/delete-resource" } });
+      // 未登入時跳轉到登入頁，並帶上目標頁面資訊
+      navigate("/login", { state: { redirectTo: "/delete-resource" } });
       return;
-    }
+    }*/
     navigate("/delete-resource"); // 跳轉到刪除頁面
   };
 
-
+  const handleLogin = () => {
+    navigate("/login"); // 跳轉到刪除頁面
+  };
 
   return (
     <div className="resource-header">
@@ -75,27 +76,27 @@ const ResourceHeader = ({onUploadOpen,isLoggedIn, setIsLoggedIn  }) => {
         value={selectedGrade}
         onChange={handleGradeChange}
       >
-        <option hidden>
-          階段
-        </option>
+        <option hidden>階段</option>
         <option value="全部">全部</option>
         <option value="高中">高中</option>
         <option value="國中">國中</option>
         <option value="國小">國小</option>
       </select>
 
-
-
-<div className={`multiselect-wrapper ${isMultiSelectEnabled ? 'enabled' : 'disabled'} resource-multi`}>
-      <MultiSelect
-        key={selectedGrade}
-        options={getVersionOptions(selectedGrade)}
-        selectedOptions={selectedCategories}
-        onChange={handleCategoryChange}
-        placeholder="版本"
-        displayText="已選擇版本"
-      />
-    </div>
+      <div
+        className={`multiselect-wrapper ${
+          isMultiSelectEnabled ? "enabled" : "disabled"
+        } resource-multi`}
+      >
+        <MultiSelect
+          key={selectedGrade}
+          options={getVersionOptions(selectedGrade)}
+          selectedOptions={selectedCategories}
+          onChange={handleCategoryChange}
+          placeholder="版本"
+          displayText="已選擇版本"
+        />
+      </div>
 
       {/* Search Bar */}
       <form onSubmit={handleSearch} className="res-search-container">
@@ -115,6 +116,10 @@ const ResourceHeader = ({onUploadOpen,isLoggedIn, setIsLoggedIn  }) => {
 
       {/* 上傳/刪除我的資源按鈕 */}
       <div className="res-button-container">
+        <button className="res-login-button" onClick={handleLogin}>
+          登入
+        </button>
+
         <button className="res-upload-button" onClick={onUploadOpen}>
           上傳我的資源
         </button>
