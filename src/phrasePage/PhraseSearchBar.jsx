@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MultiSelect from './MultiSelect';
+import MultiSelect from './multiselect';
 import './PhraseSearchBar.css';
 
 const PhraseSearchBar = () => {
