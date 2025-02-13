@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import "./readPage.css";
+import "./ReadPage.css";
 
 import ReadHeader from "./ReadHeader";
 import ReadContent from "./ReadContent";

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SearchBar.css';
-import MultiSelect from '../phrasePage/MultiSelect';
+import MultiSelect from '../phrasePage/multiselect';
 
 const SearchBar = ({ initialQuery }) => {
   const [query, setQuery] = useState(initialQuery);
