@@ -3,7 +3,7 @@ import "./TranslateOriginal.css";
 
 const TranslateOriginal = ({ setOriginalContent, setOriginalLanguage }) => {
   const [content, setContent] = useState(""); // 輸入框內容
-  const [selectedLanguage, setSelectedLanguage] = useState("原始語言"); // 預設下拉選單值
+  const [selectedLanguage, setSelectedLanguage] = useState("華文"); // 預設下拉選單值
 
   const handleInputChange = (e) => {
     const text = e.target.value;
@@ -26,9 +26,8 @@ const TranslateOriginal = ({ setOriginalContent, setOriginalLanguage }) => {
           value={selectedLanguage}
           onChange={handleLanguageChange}
         >
-          <option value="原始語言" hidden>原始語言</option>
           <option value="漢羅">漢羅</option>
-          <option value="台文">台文</option>
+          <option value="華文">華文</option>
           <option value="台羅">台羅</option>
           <option value="白話字">白話字</option>
         </select>

@@ -1,6 +1,6 @@
 /* Main Content Styling */
 .main-content {
-  min-height: 100vh;
+  height: 100%;
   background-color: #f5f7fa;
   
 }

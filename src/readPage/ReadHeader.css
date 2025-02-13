@@ -1,13 +1,16 @@
 .read-header {
   display: flex;
+  flex-direction: column;
+}
+.read-mode-area{
+  display: flex;
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
- 
 }
-
 .mode-selection {
   display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 

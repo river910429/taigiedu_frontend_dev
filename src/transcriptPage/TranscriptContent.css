@@ -1,7 +1,12 @@
+.transcript-overlay{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
 .transcript-content {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* 填滿視窗高度 */
+ height: 100%;
   background-color: white;
   border-radius: 13px;
   border: 1px solid #ddd; /* 外部邊框 */
@@ -55,7 +60,6 @@
 
 .content-display {
   flex: 1; /* 占滿剩餘空間 */
-  min-height: 200px;
   padding: 0px 22px;
   border-radius: 8px;
   margin: 0px 10px;
@@ -88,7 +92,7 @@
   display: flex;
   justify-content: flex-end; /* 靠右對齊 */
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .copy-button {

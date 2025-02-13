@@ -3,20 +3,52 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./FilePreview.css";
 
 const FilePreview = () => {
-  const location = useLocation(); // 用來接收數據
-  const navigate = useNavigate(); // 用來返回上一頁
+  const navigate = useNavigate();
 
-  const { imageUrl, fileType, likes, downloads, title, uploader, tags, date } =
-    location.state || {}; // 解構數據，設置預設值
+  // 從 URL 查詢參數取得資料
+  const searchParams = new URLSearchParams(window.location.search);
+  const imageUrl = searchParams.get("imageUrl");
+  const fileType = searchParams.get("fileType");
+  const likes = searchParams.get("likes");
+  const downloads = searchParams.get("downloads");
+  const title = searchParams.get("title");
+  const uploader = searchParams.get("uploader");
+  const tags = JSON.parse(searchParams.get("tags") || "[]");
+  const date = searchParams.get("date");
+
+  if (!title) {
+    return <div>Loading file preview...</div>;
+  }
 
   const handleViewDownloadPage = () => {
     navigate("/download", {
       state: {
-        fileName: "113台灣台語.pdf", // 檔案名稱
-        pdfUrl: "/src/assets/resourcepage/download_test_file.pdf", // PDF 文件的 URL
+        fileName: title,
+        pdfUrl: "/src/assets/resourcepage/download_test_file.pdf", 
       },
     });
   };
+
+  //直接開pdf預覽
+  // const handleDownload = () => {
+  //   const pdfUrl = "/src/assets/resourcepage/download_test_file.pdf";
+  //   window.open(pdfUrl, '_blank');
+  // };
+  
+  // const handleViewDownloadPage = () => {
+  //   window.location.href = "/download";
+  // };
+  const handleDownload = () => {
+    const pdfUrl = "/src/assets/resourcepage/download_test_file.pdf";
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.setAttribute('download', `${title}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
 
   return (
     <div className="file-preview-page">
@@ -56,7 +88,14 @@ const FilePreview = () => {
           ))}
         </div>
 
-        <button className="file-like-button">點讚資源</button>
+        <button className="file-download-button" onClick={handleDownload}>
+          下載資源
+        </button>
+
+        <button className="file-like-button">
+          點讚資源
+        </button>
+
       </div>
 
       <div className="file-preview-image">

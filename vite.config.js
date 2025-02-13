@@ -4,4 +4,25 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // server: {
+  //   historyApiFallback: true
+  // },
+  // 添加基礎路由配置
+  base: '/',
+  // 添加服務器配置
+  server: {
+    historyApiFallback: true,
+    middleware: (app) => {
+      app.use((req, res, next) => {
+        // 如果請求的是 HTML 文件，返回 index.html
+        if (req.headers.accept?.includes('text/html')) {
+          req.url = '/index.html'
+        }
+        if (req.url.includes('file-preview')) {
+          req.url = '/index.html';
+        }
+        next()
+      })
+    }
+  }
 })
