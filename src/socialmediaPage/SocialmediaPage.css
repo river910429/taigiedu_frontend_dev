@@ -10,7 +10,7 @@
 .social-type-dropdown {
     position: relative;
     display: flex;
-    width: 148px;
+    width: 250px;
     height: 48px;
     padding: 12px 16px;
     align-items: center;
@@ -119,4 +119,82 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* 確保下拉選單容器在最上層 */
+.social-custom-dropdown {
+    position: relative;
+    width: 250px;
+    z-index: 1000;
+}
+
+/* 修改下拉選單樣式 */
+.social-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 200px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 8px 0;
+    z-index: 1001;
+}
+
+/* 修改子選單容器樣式 */
+.social-with-submenu {
+    position: relative;
+    padding: 0;
+}
+
+/* 修改子選單觸發區域 */
+.social-dropdown-item.with-submenu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    width: 100%;
+}
+
+/* 修改子選單顯示 */
+.social-submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 200px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease-in-out;
+    z-index: 1002;
+    padding: 8px 0;
+}
+
+/* 改用父容器 hover 觸發子選單 */
+.social-dropdown-item-container:hover .social-submenu {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 統一選項樣式 */
+.social-dropdown-item,
+.social-submenu-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.social-dropdown-item:hover,
+.social-submenu-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* 添加箭頭樣式 */
+.social-submenu-arrow {
+    margin-left: 8px;
+    font-size: 18px;
+    line-height: 1;
 }

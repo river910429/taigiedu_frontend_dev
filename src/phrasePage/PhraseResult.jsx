@@ -10,7 +10,23 @@ const PhraseResult = () => {
 		{
 			phrase: '歹竹出好筍，好竹出痀崙',
 			pronunciation: 'Pháinn-tik tshut hó-sún, hó-tik tshut ku-lun',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
+			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。',
+			pronun_diff: [
+				{
+				"word": "八",
+				"variations": [
+					{ "location": "台北", "pronun": "pueh" },
+					{ "location": "台南", "pronun": "peh" }
+				]
+				},
+				{
+				"word": "九",
+				"variations": [
+					{ "location": "台北", "pronun": "ku" },
+					{ "location": "台南", "pronun": "kuh" }
+				]
+				}
+			]
 		},
 		{
 			phrase: '仙人拍鼓有時錯，跤步踏差啥人無?',
@@ -211,6 +227,7 @@ const PhraseResult = () => {
 					phrase={selectedPhrase.phrase}
 					pronunciation={selectedPhrase.pronunciation}
 					interpretation={selectedPhrase.interpretation}
+					pronun_diff={selectedPhrase.pronun_diff}
 				/>
 			)}
 		</div>

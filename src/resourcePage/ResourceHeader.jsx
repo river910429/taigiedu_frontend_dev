@@ -9,7 +9,7 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
   const [query, setQuery] = React.useState("");
   const [isGradeOpen, setIsGradeOpen] = useState(false);
   const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState([]); //多選下拉選單
+  const [selectedCategories, setSelectedCategories] = useState(); //多選下拉選單
 
   const gradeToVersions = {
     國小: ["真平", "康軒"],
@@ -43,8 +43,14 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
   const handleGradeChange = (e) => {
     const grade = e.target.value;
     setSelectedGrade(grade);
-    // 強制清空已選版本
-    setSelectedCategories([]);
+    // Set all versions for the selected grade
+    if (grade === "全部") {
+      setSelectedCategories([...allVersions]);
+    } else if (grade !== "階段") {
+      setSelectedCategories([...gradeToVersions[grade]]);
+    } else {
+      setSelectedCategories([]);
+    }
     setIsMultiSelectEnabled(grade !== "階段");
   };
 

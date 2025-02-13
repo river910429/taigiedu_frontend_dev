@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './PhraseModal.css';
 
-const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation }) => {
+const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, pronun_diff }) => {
   const playAudio = async () => {
     try {
       const response = await fetch('/TTS', {
@@ -11,7 +11,24 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation })
         },
         body: JSON.stringify({ text: phrase }),
       });
-      
+
+      const data = await response.json();
+      const audio = new Audio(`data:audio/wav;base64,${data.audio_base64}`);
+      audio.play();
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
+  };
+  const playVariationAudio = async (word, pronun) => {
+    try {
+      const response = await fetch('/TTS', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: pronun }),
+      });
+
       const data = await response.json();
       const audio = new Audio(`data:audio/wav;base64,${data.audio_base64}`);
       audio.play();
@@ -21,6 +38,40 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation })
   };
 
   if (!isOpen) return null;
+
+  const renderPronunDiffTable = () => {
+    if (!pronun_diff || pronun_diff.length === 0) return null;
+
+    return (
+      <div className="pronun-diff-container">
+        <table className="pronun-diff-table">
+          <thead>
+            <tr>
+              <th>單字方音差</th>
+              <th>發音</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pronun_diff.map((word) =>
+              word.variations.map((variant, index) => (
+                <tr key={`${word.word}-${variant.location}-${index}`}>
+                  <td>
+                    {word.word} <span className="pronun-location-badge">{variant.location}</span>
+                  </td>
+                  <td>{variant.pronun}<img 
+                      src="src/assets/megaphone.svg" 
+                      className="pronun-speaker-icon"
+                      onClick={() => playVariationAudio(word.word, variant.pronun)}
+                      alt="播放"
+                    /> </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   return (
     <div className="phrase-modal-overlay">
@@ -41,12 +92,13 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation })
                 </div>
               </div>
               <div className="phrase-interpretation-container">
-               <span className="phrase-interpretation-label">漢羅解讀</span>
+                <span className="phrase-interpretation-label">漢羅解讀</span>
                 <div className="phrase-interpretation-text">
-                {interpretation}
+                  {interpretation}
                 </div>
-               </div>
-             </div>
+              </div>
+              {renderPronunDiffTable()}
+            </div>
           </div>
         </div>
       </div>

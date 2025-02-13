@@ -2,11 +2,45 @@ import React, { useState } from 'react';
 import './SocialmediaPage.css';
 
 const SocialmediaPage = () => {
-    const [selectedType, setSelectedType] = useState("類型");
+    const [selectedType, setSelectedType] = useState("分類");  // 將 "類型" 改為 "分類"
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const menuItems = {
+        'YouTube': {
+            hasSubMenu: true,
+            subItems: [
+                '文學文化', '教育', '台語漫才', '在地地景與人物',
+                '宗教', '講古', '藝術', '笑詼', '訪談',
+                '新聞', '演講朗讀', '廣播'
+            ]
+        },
+        'Podcast': {
+            hasSubMenu: false
+        },
+        '電視綜藝': {
+            hasSubMenu: false
+        }
+    };
+    React.useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isDropdownOpen && !event.target.closest('.social-custom-dropdown')) {
+                setIsDropdownOpen(false);
+            }
+        };
+    
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropdownOpen]);
 
-    const handleTypeChange = (e) => {
-        setSelectedType(e.target.value);
+    const handleTypeChange = (type, subType = null) => {
+        console.log('Before change:', selectedType);
+        console.log('Changing to:', type, subType);
+        const newSelectedType = subType ? `${type} > ${subType}` : type;
+        setSelectedType(newSelectedType);
+        setIsDropdownOpen(false);
+        console.log('After change:', newSelectedType);
     };
 
     const handleSearch = (e) => {
@@ -42,7 +76,7 @@ const SocialmediaPage = () => {
             <div className="socialmedia-header">
                 <div className="container px-4">
                     <div className="socialmedia-header-content">
-                        <select
+                        {/* <select
                             className="social-type-dropdown"
                             value={selectedType}
                             onChange={handleTypeChange}
@@ -51,7 +85,56 @@ const SocialmediaPage = () => {
                             <option value="YouTube">YouTube</option>
                             <option value="Podcast">Podcast</option>
                             <option value="電視綜藝">電視綜藝</option>
-                        </select>
+                        </select> */}
+                        <div className="social-custom-dropdown">
+  <div 
+    className="dropdown-header social-type-dropdown"
+    onClick={() => {
+      console.log("dropdown-header clicked");
+      setIsDropdownOpen(!isDropdownOpen);
+    }}
+  >
+    {selectedType}
+  </div>
+  {isDropdownOpen && (
+    <div className="social-dropdown-menu">
+      {Object.entries(menuItems).map(([type, { hasSubMenu, subItems }]) => (
+        <div key={type} className="social-dropdown-item-container">
+          {!hasSubMenu ? (
+            <div
+              className="social-dropdown-item"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleTypeChange(type);
+              }}
+            >
+              {type}
+            </div>
+          ) : (
+            <div className="social-dropdown-item with-submenu">
+              <span>{type}</span>
+              <span className="social-submenu-arrow">›</span>
+              <div className="social-submenu">
+                {subItems.map(subItem => (
+                  <div
+                    key={subItem}
+                    className="social-submenu-item"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTypeChange(type, subItem);
+                    }}
+                  >
+                    {subItem}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
                         <form onSubmit={handleSearch} className="social-search-container">
                             <input

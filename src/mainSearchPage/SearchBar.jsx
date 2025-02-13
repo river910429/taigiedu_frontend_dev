@@ -6,7 +6,6 @@ import MultiSelect from '../phrasePage/MultiSelect';
 
 const SearchBar = ({ initialQuery }) => {
   const [query, setQuery] = useState(initialQuery);
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const navigate = useNavigate();
   const categories = [
     '台語文數位典藏',
@@ -16,7 +15,7 @@ const SearchBar = ({ initialQuery }) => {
     '李講古我來聽',
     '國立教育廣播電臺'
   ];
-
+  const [selectedCategories, setSelectedCategories] = useState([...categories]);
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim() === '') return;

@@ -1,7 +1,7 @@
 .transcript-content {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* 填滿視窗高度 */
+  height: 570px; /* 填滿視窗高度 */
   background-color: white;
   border-radius: 13px;
   border: 1px solid #ddd; /* 外部邊框 */

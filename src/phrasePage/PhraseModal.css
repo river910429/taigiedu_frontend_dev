@@ -89,3 +89,56 @@
     color: #787878;
     font-size: 18px;
 }
+
+.pronun-diff-container {
+  margin-top: 20px;
+}
+
+.pronun-diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.pronun-diff-table th {
+  background-color: #cfcfcf;
+  color: rgb(0, 0, 0);
+  padding: 10px;
+  text-align: left;
+}
+
+.pronun-diff-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.pronun-diff-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.pronun-location-badge {
+  background-color: #2D92C1;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.9em;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.pronun-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pronun-speaker-icon {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.pronun-speaker-icon:hover {
+  opacity: 0.8;
+}
