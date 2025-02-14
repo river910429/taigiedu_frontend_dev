@@ -6,12 +6,22 @@ const SocialmediaPage = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [query, setQuery] = useState("");
     const menuItems = {
+        '社群': {
+            hasSubMenu: true,
+            subItems: [
+              '文學文化', '民俗', '生態', '在地地景與人物',
+              '宗教', '新聞', '講古', '考古', '教育',
+              '技藝', '歌仔戲', '活動', '科學', '物理',
+              '美食', '旅遊', '笑詼', '唸歌', '教材',
+              '親子', '訪談', '部落格','野球', '電影',
+              '歌詞', '認證考試', '廣播', '鄭順聰', '演講','醫學'
+            ]},
         'YouTube': {
             hasSubMenu: true,
             subItems: [
                 '文學文化', '教育', '台語漫才', '在地地景與人物',
                 '宗教', '講古', '藝術', '笑詼', '訪談',
-                '新聞', '演講朗讀', '廣播'
+                '新聞', '演講朗讀', '廣播',
             ]
         },
         'Podcast': {
