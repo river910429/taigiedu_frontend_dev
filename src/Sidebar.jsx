@@ -1,5 +1,5 @@
 import React, { useState,useEffect  } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = () => {
@@ -7,6 +7,7 @@ const Sidebar = () => {
   const [activeSubItem, setActiveSubItem] = useState(null);
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const navigate = useNavigate(); // 使用 React Router 的 navigate
+  const location = useLocation(); // 監聽當前路由變化
 
   const menuItems = [
     { id: 1, label: "主頁搜尋", icon: "/src/assets/sidebar_icon/主頁.svg", path: "/" },
@@ -30,12 +31,26 @@ const Sidebar = () => {
     { id: 10, label: "認證考試",icon: "/src/assets/sidebar_icon/認證考試.svg", path: "/exam" },
   ];
 
+  // 當 URL 變更時，根據當前路徑來設定 activeItem
   useEffect(() => {
-    // Close submenu if active item is not a culture submenu item
-    if (activeItem !== 8 && !activeSubItem) {
-      setIsSubMenuOpen(false);
+    const matchedItem = menuItems.find(item => item.path === location.pathname);
+    if (matchedItem) {
+      setActiveItem(matchedItem.id);
+      setIsSubMenuOpen(matchedItem.hasSubmenu || false);
+    } else {
+      // 檢查是否為子選單
+      const parentItem = menuItems.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.path === location.pathname));
+      if (parentItem) {
+        setActiveItem(parentItem.id);
+        setIsSubMenuOpen(true);
+        setActiveSubItem(parentItem.submenuItems.find(sub => sub.path === location.pathname).id);
+      } else {
+        setActiveItem(null);
+        setIsSubMenuOpen(false);
+        setActiveSubItem(null);
+      }
     }
-  }, [activeItem, activeSubItem]);
+  }, [location.pathname]); // 監聽 location.pathname 變化
 
    const handleClick = (id, path, hasSubmenu) => {
     if (hasSubmenu) {
