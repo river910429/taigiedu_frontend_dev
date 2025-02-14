@@ -108,10 +108,12 @@ const PhraseResult = () => {
 	const leftPhrases = phrases.slice(0, Math.ceil(phrases.length / 2));
 	const rightPhrases = phrases.slice(Math.ceil(phrases.length / 2));
 
-	const showDetail = (phraseData) => {
-		setSelectedPhrase(phraseData);
-		setIsModalOpen(true);
-	};
+	const showDetail = (e, phraseData) => {
+        e.preventDefault(); // 防止預設的連結行為
+        setSelectedPhrase(phraseData);
+        setIsModalOpen(true);
+    };
+
 
 
 	const TOTAL_ITEMS = 200;
@@ -172,7 +174,7 @@ const PhraseResult = () => {
 			<div className="row pt-0 px-0" id="phraseResult">
 				<div className="col-6">
 					{leftPhrases.map((phrase, index) => (
-						<a key={index} href="#" onClick={() => showDetail(phrase)}>
+						<a key={index} href="#" onClick={(e) => showDetail(e, phrase)}>
 							<div className="row px-3 py-3 my-2 phaseCard cardContainer">
 								<div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
 							</div>
@@ -182,7 +184,7 @@ const PhraseResult = () => {
 
 				<div className="col-6">
 					{rightPhrases.map((phrase, index) => (
-						<a key={index} href="#" onClick={() => showDetail(phrase)}>
+						<a key={index} href="#" onClick={(e) => showDetail(e, phrase)}>
 							<div className="row px-3 py-3 my-2 phaseCard cardContainer">
 								<div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
 							</div>

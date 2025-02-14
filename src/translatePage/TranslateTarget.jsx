@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./TranslateTarget.css";
 
 const TranslateTarget = ({
@@ -6,9 +6,19 @@ const TranslateTarget = ({
   content,
   setTargetLanguage,
   onFeedbackOpen,
+  targetLanguage,
+  availableLanguages,
 }) => {
-  const [selectedLanguage, setSelectedLanguage] = useState("目標語言"); // 預設下拉選單值
+  const [selectedLanguage, setSelectedLanguage] = useState("台羅"); // 預設下拉選單值
   const [isCopied, setIsCopied] = useState(false); // 控制複製按鈕狀態
+
+  // 當 availableLanguages 改變時，選擇對應的第一個可用語言
+  useEffect(() => {
+    if (availableLanguages.length > 0) {
+      setSelectedLanguage(availableLanguages[0]);
+      setTargetLanguage(availableLanguages[0]); // 更新父層狀態
+    }
+  }, [availableLanguages, setTargetLanguage]);
 
   const handleCopy = () => {
     if (content.trim() === "") return; // 防止複製空內容
@@ -42,13 +52,11 @@ const TranslateTarget = ({
         value={selectedLanguage}
         onChange={handleLanguageChange}
       >
-        <option value="目標語言" hidden>
-          目標語言
-        </option>
-        <option value="漢羅">漢羅</option>
-        <option value="台文">台文</option>
-        <option value="台羅">台羅</option>
-        <option value="白話字">白話字</option>
+        {availableLanguages.map((lang) => (
+          <option key={lang} value={lang}>
+            {lang}
+          </option>
+        ))}
       </select>
 
       <div className="target-content-container">
@@ -83,7 +91,6 @@ const TranslateTarget = ({
       >
         內容修正回饋
       </button>
-
     </div>
   );
 };

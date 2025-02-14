@@ -39,6 +39,7 @@ const TranscriptHeader = ({
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
+    
   };
   return (
     <div className="transcript-header">

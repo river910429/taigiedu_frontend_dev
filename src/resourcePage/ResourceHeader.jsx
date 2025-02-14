@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ResourceHeader.css";
-import MultiSelect from "../phrasePage/MultiSelect";
+import MultiSelect from "../phrasePage/multiselect";
 
 const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
   const navigate = useNavigate();

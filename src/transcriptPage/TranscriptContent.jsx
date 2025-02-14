@@ -41,7 +41,7 @@ const TranscriptContent = ({ isEditable, fontSize }) => {
   };
 
   return (
-    <div>
+    <div className="transcript-overlay">
       <div className="transcript-content">
         {/* Tabs */}
         <div className="tabs">

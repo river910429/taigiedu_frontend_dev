@@ -4,8 +4,7 @@
   align-items: flex-start;
   gap: 30px;
   position: relative;
-
-  height: 100vh; /* 填滿視窗高度 */
+  height: 100%; /* 填滿視窗高度 */
   width: 100%; /* 填滿視窗寬度 */
   box-sizing: border-box; /* 包括內邊距和邊框在寬高計算內 */
 }

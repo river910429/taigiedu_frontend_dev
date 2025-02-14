@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './MultiSelect.css';
+import './multiselect.css';
 
 const MultiSelect = ({ 
   options, 
