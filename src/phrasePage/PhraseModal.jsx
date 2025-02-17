@@ -52,21 +52,29 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
             </tr>
           </thead>
           <tbody>
-            {pronun_diff.map((word) =>
-              word.variations.map((variant, index) => (
-                <tr key={`${word.word}-${variant.location}-${index}`}>
-                  <td>
-                    {word.word} <span className="pronun-location-badge">{variant.location}</span>
-                  </td>
-                  <td>{variant.pronun}<img 
-                      src="src/assets/megaphone.svg" 
-                      className="pronun-speaker-icon"
-                      onClick={() => playVariationAudio(word.word, variant.pronun)}
-                      alt="播放"
-                    /> </td>
-                </tr>
-              ))
-            )}
+          {pronun_diff.map((word, wordIndex) =>
+  word.variations.map((variant, index) => (
+    <tr 
+      key={`${word.word}-${variant.location}-${index}`}
+      className={
+        index === word.variations.length - 1 && 
+        wordIndex !== pronun_diff.length - 1 ? 
+        'word-last-row' : ''
+      }
+    >
+      <td>
+        {word.word} <span className="pronun-location-badge">{variant.location}</span>
+      </td>
+      <td>{variant.pronun}<img 
+          src="src/assets/megaphone.svg" 
+          className="pronun-speaker-icon"
+          onClick={() => playVariationAudio(word.word, variant.pronun)}
+          alt="播放"
+        />
+      </td>
+    </tr>
+  ))
+)}
           </tbody>
         </table>
       </div>

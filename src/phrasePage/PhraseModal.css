@@ -112,6 +112,11 @@
   border-bottom: 1px solid #eee;
 }
 
+/* 為不同 word 組之間添加粗黑線 */
+.pronun-diff-table tr.word-last-row td {
+  border-bottom: 2px solid #000;  /* 粗黑線分隔 */
+}
+
 .pronun-diff-table tr:nth-child(even) {
   background-color: #f9f9f9;
 }
