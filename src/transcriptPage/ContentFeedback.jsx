@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./ContentFeedback.css";
 
-const ContentFeedback = ({ isOpen, onClose, content, onSubmit  }) => {
+const ContentFeedback = ({ isOpen, onClose, content, onSubmit, audioSource }) => {
   const [editableContent, setEditableContent] = useState(content || ""); // 預設為傳遞的內容
 
   useEffect(() => {
@@ -53,7 +53,11 @@ const ContentFeedback = ({ isOpen, onClose, content, onSubmit  }) => {
 
         <p>語音：</p>
         <audio controls>
-          <source src="/src/assets/海豬救援隊.mp3" type="audio/mpeg" />
+          {audioSource ? (
+            <source src={audioSource} type="audio/wav" />
+          ) : (
+            <span>無可用的音訊</span>
+          )}
           您的瀏覽器不支援音訊播放。
         </audio>
 
