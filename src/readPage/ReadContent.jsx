@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./ReadContent.css";
-import { useFontSize } from "./ReadPage";
+import { useFontSize, useLang  } from "./ReadPage";
 import loadingImage from "/src/assets/record_loading.svg"; // 處理中圖示
 
 const ReadContent = () => {
   const { fontSize } = useFontSize(); // 獲取當前字體大小
+  const { selectedLang } = useLang();
 
   const maxCharLimit = 500; // 最大字數限制
   const [content, setContent] = useState(""); // 輸入框內容
@@ -13,6 +14,7 @@ const ReadContent = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // 按鈕禁用狀態
   const [initialContent, setInitialContent] = useState(""); // 音檔生成時的文字
   const [isProcessing, setIsProcessing] = useState(false); // 處理中狀態
+  const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
     const text = e.target.value;
@@ -25,21 +27,62 @@ const ReadContent = () => {
     }
   };
 
-  const handleGenerateAudio = () => {
-    if (content.trim() === "") return; // 防止生成空內容
+  const handleGenerateAudio = async () => {
+    // if (content.trim() === "") return; // 防止生成空內容
 
-    setIsProcessing(true); // 顯示“處理中”
-    setIsButtonDisabled(true); // 禁用按钮
-    setAudioSrc(null); // 隐藏语音条
+    // setIsProcessing(true); // 顯示“處理中”
+    // setIsButtonDisabled(true); // 禁用按钮
+    // setAudioSrc(null); // 隐藏语音条
 
-    setTimeout(() => {
-      const generatedAudioUrl = "/src/assets/海豬救援隊.mp3"; // 模拟生成音档的 URL
-      setAudioSrc(generatedAudioUrl); // 设置音档 URL
-      setIsProcessing(false); // 取消“處理中”
-      setInitialContent(content); // 保存生成音档时的内容
-    }, 3000); // 模拟生成过程需要 3 秒
+    // setTimeout(() => {
+    //   const generatedAudioUrl = "/src/assets/海豬救援隊.mp3"; // 模拟生成音档的 URL
+    //   setAudioSrc(generatedAudioUrl); // 设置音档 URL
+    //   setIsProcessing(false); // 取消“處理中”
+    //   setInitialContent(content); // 保存生成音档时的内容
+    // }, 3000); // 模拟生成过程需要 3 秒
+    if (content.trim() === "") return;
+
+    setIsProcessing(true);
+    setIsButtonDisabled(true);
+    setAudioSrc(null);
+
+    try {
+      setError(null); // 重置錯誤狀態
+      const parameters = {
+        tts_lang: selectedLang,
+        tts_data: content
+      };
+      console.log('API Parameters:', parameters);
+
+      const response = await fetch('https://dev.taigiedu.com/backend/synthesize_speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(parameters)
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const synthesized_audio_base64 = await response.text();
+      const audioUrl = `data:audio/wav;base64,${synthesized_audio_base64}`;
+      setAudioSrc(audioUrl);
+      setInitialContent(content);
+    } catch (error) {
+      console.error('Error generating audio:', error);
+      setError('ㄨㄚˊ~ 伺服器出錯了，哭哭！');
+      setIsButtonDisabled(false); // 恢復按鈕可點擊狀態
+    } finally {
+      setIsProcessing(false);
+    }
   };
-
+  useEffect(() => {
+    if (content.trim() !== "") {  // 只有在有內容時才啟用按鈕
+      setIsButtonDisabled(false);
+    }
+  }, [selectedLang]);  
   // 音檔生成後的檢查
   useEffect(() => {
     if (audioSrc) {
@@ -62,7 +105,12 @@ const ReadContent = () => {
       <div className={`remaining-chars ${remainingChars <= 50 ? "low" : ""}`}>
         剩餘字數：{remainingChars}
       </div>
-
+      {/* 錯誤提示 */}
+      {error && (
+        <div className="error-toast">
+          {error}
+        </div>
+      )}
       {/* 按鈕區域 */}
       <div className="audio-button-container">
         <button
@@ -91,11 +139,11 @@ const ReadContent = () => {
         </button>
         {/* 音檔播放條 */}
         {audioSrc && !isProcessing && (
-          <audio controls>
-            <source src={audioSrc} type="audio/mpeg" />
-            您的瀏覽器不支援音檔播放。
-          </audio>
-        )}
+        <audio controls>
+          <source src={audioSrc} type="audio/wav" />
+          您的瀏覽器不支援音檔播放。
+        </audio>
+      )}
       </div>
     </div>
   );

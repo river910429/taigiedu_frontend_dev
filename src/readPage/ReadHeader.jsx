@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import "./ReadHeader.css";
-import { useFontSize } from "./ReadPage";
+import { useFontSize, useLang } from "./ReadPage";
 
 const ReadHeader = () => {
   const { fontSize, setFontSize } = useFontSize();
+  const { selectedLang, setSelectedLang } = useLang();
   const [selectedMode, setSelectedMode] = useState("漢羅");
 
   const handleModeChange = (event) => {
     setSelectedMode(event.target.value);
+    const langMap = {
+      "漢羅": "tb",
+      "台羅": "tl",
+      "白話字": "poj"
+    };
+    setSelectedLang(langMap[event.target.value]);
   };
 
   return (
