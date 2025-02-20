@@ -34,6 +34,7 @@ const TranscriptPage = () => {
   });
   const [error, setError] = useState(null);
   const [audioSource, setAudioSource] = useState(null);
+  const [toast, setToast] = useState({ message: null, type: null });
 
   useEffect(() => {
     return () => {
@@ -45,14 +46,24 @@ const TranscriptPage = () => {
   }, [audioSource]);
 
   const showError = (message) => {
-    setError(null);  // 先重置錯誤狀態
+    setToast({ message: null, type: null });  // 先重置
     setTimeout(() => {
-      setError(message);  // 然後設置新的錯誤訊息
+      setToast({ message, type: 'error' });
     }, 100);
 
-    // 3秒後自動清除錯誤訊息
     setTimeout(() => {
-      setError(null);
+      setToast({ message: null, type: null });
+    }, 3000);
+  };
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message: null, type: null });  // 先重置
+    setTimeout(() => {
+      setToast({ message, type });
+    }, 100);
+
+    setTimeout(() => {
+      setToast({ message: null, type: null });
     }, 3000);
   };
 
@@ -310,10 +321,11 @@ const TranscriptPage = () => {
           content={content}
           setContent={setContent}
           audioSource={audioSource}
+          showToast={showToast}
         />
-        {error && (
-          <div className="error-toast">
-            {error}
+        {toast.message && (
+          <div className={`error-toast ${toast.type}`}>
+            {toast.message}
           </div>
         )}
       </FontSizeProvider>

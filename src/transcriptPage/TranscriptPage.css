@@ -11,7 +11,6 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #ff4d4f;
   color: white;
   padding: 12px 24px;
   border-radius: 4px;
@@ -19,6 +18,17 @@
   animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
   z-index: 1000;
 }
+
+/* 錯誤訊息樣式 */
+.error-toast.error {
+  background-color: #ff4d4f;
+}
+
+/* 成功訊息樣式 */
+.error-toast.success {
+  background-color: #52c41a;
+}
+
 
 @keyframes slideIn {
   from {

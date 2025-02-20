@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import "./TranscriptContent.css";
 import ContentFeedback from "./ContentFeedback";
 
-const TranscriptContent = ({ isEditable, fontSize, content, setContent, audioSource }) => {
+const TranscriptContent = ({ isEditable, fontSize, content, setContent, audioSource, showToast  }) => {
   const [activeTab, setActiveTab] = useState("漢羅");
   const [isCopied, setIsCopied] = useState(false); // 控制複製按鈕狀態
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false); // 控制彈窗顯示
@@ -93,6 +93,8 @@ const TranscriptContent = ({ isEditable, fontSize, content, setContent, audioSou
         content={content[activeTab]}
         onSubmit={handleFeedbackSubmit}
         audioSource={audioSource}
+        activeTab={activeTab}
+        showToast={showToast}
       />
     </div>
   );
