@@ -86,7 +86,7 @@ const ContentFeedback = ({ isOpen, onClose, content, onSubmit, audioSource, acti
       onClose();
     } catch (error) {
       console.error('Feedback submission failed:', error);
-    showToast('提交失敗，請稍後再試', 'error');  // 使用 error 類型
+    showToast('提交失敗，請稍後再試', 'error');
     } finally {
       setIsSubmitting(false);
     }

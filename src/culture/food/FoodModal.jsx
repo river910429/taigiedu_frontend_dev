@@ -3,6 +3,39 @@ import './FoodModal.css';
 
 const FoodModal = ({ isOpen, onClose, food }) => {
     if (!isOpen || !food) return null;
+    const playAudio = async () => {
+        try {
+            // 準備 API 參數
+            const parameters = {
+                tts_lang: 'tb',    // 使用漢羅
+                tts_data: food.name // 要合成的文字
+            };
+
+            console.log('Sending TTS request:', parameters);
+
+            const response = await fetch('https://dev.taigiedu.com/backend/synthesize_speech', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(parameters)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+
+            const synthesized_audio_base64 = await response.text();
+            console.log('Received audio data length:', synthesized_audio_base64.length);
+
+            // 建立並播放音訊
+            const audio = new Audio(`data:audio/wav;base64,${synthesized_audio_base64}`);
+            await audio.play();
+
+        } catch (error) {
+            console.error('Error playing audio:', error);
+        }
+    };
 
     return (
         <div className="food-modal-overlay">
@@ -21,8 +54,8 @@ const FoodModal = ({ isOpen, onClose, food }) => {
                                     <h2 className="food-modal-title">{food.name}</h2>
                                     <div className="food-pronunciation-container">
                                         <div className="food-pronunciation-text">{food.pron}</div>
-                                        <div className="food-play-button">
-                                            <img src="/src/assets/megaphone.svg" />
+                                        <div className="food-play-button" onClick={playAudio}>
+                                            <img src="/src/assets/megaphone.svg" alt="播放發音" />
                                         </div>
                                     </div>
                                 </div>
