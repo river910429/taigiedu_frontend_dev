@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useRef, useEffect  } from "react";
 import "./TranscriptPage.css";
-
+import { useToast } from "../components/Toast";
 import TranscriptHeader from "./TranscriptHeader";
 import TranscriptContent from "./TranscriptContent";
 
@@ -34,8 +34,8 @@ const TranscriptPage = () => {
   });
   const [error, setError] = useState(null);
   const [audioSource, setAudioSource] = useState(null);
-  const [toast, setToast] = useState({ message: null, type: null });
-
+  // const [toast, setToast] = useState({ message: null, type: null });
+  const { showError, showToast } = useToast();
   useEffect(() => {
     return () => {
       // 清理音訊 URL
@@ -45,27 +45,27 @@ const TranscriptPage = () => {
     };
   }, [audioSource]);
 
-  const showError = (message) => {
-    setToast({ message: null, type: null });  // 先重置
-    setTimeout(() => {
-      setToast({ message, type: 'error' });
-    }, 100);
+  // const showError = (message) => {
+  //   setToast({ message: null, type: null });  // 先重置
+  //   setTimeout(() => {
+  //     setToast({ message, type: 'error' });
+  //   }, 100);
 
-    setTimeout(() => {
-      setToast({ message: null, type: null });
-    }, 3000);
-  };
+  //   setTimeout(() => {
+  //     setToast({ message: null, type: null });
+  //   }, 3000);
+  // };
 
-  const showToast = (message, type = 'success') => {
-    setToast({ message: null, type: null });  // 先重置
-    setTimeout(() => {
-      setToast({ message, type });
-    }, 100);
+  // const showToast = (message, type = 'success') => {
+  //   setToast({ message: null, type: null });  // 先重置
+  //   setTimeout(() => {
+  //     setToast({ message, type });
+  //   }, 100);
 
-    setTimeout(() => {
-      setToast({ message: null, type: null });
-    }, 3000);
-  };
+  //   setTimeout(() => {
+  //     setToast({ message: null, type: null });
+  //   }, 3000);
+  // };
 
   const startRecording = async () => {
     console.log('Starting recording...');
@@ -116,6 +116,7 @@ const TranscriptPage = () => {
       if (error.name === 'NotAllowedError') {
         showError('你不允許網站使用麥克風，我要怎麼錄音┐(´д`)┌');
       } else if (error.name === 'NotFoundError') {
+                console.log('Triggering error toast for NotFoundError');
         showError('等等~找不到麥克風，是誰搶走了我的麥克風(☉д⊙)');
       } else if (error.name === 'NotSupportedError') {
         showError('您的瀏覽器不支援所需的錄音功能( ´•̥̥̥ω•̥̥̥` )');
@@ -323,11 +324,11 @@ const TranscriptPage = () => {
           audioSource={audioSource}
           showToast={showToast}
         />
-        {toast.message && (
+        {/* {toast.message && (
           <div className={`error-toast ${toast.type}`}>
             {toast.message}
           </div>
-        )}
+        )} */}
       </FontSizeProvider>
     </div>
   );

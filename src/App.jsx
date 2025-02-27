@@ -1,5 +1,6 @@
 import React , { useState }from "react";
 import { BrowserRouter, Routes, Route , Navigate, useLocation} from "react-router-dom";
+import { ToastProvider } from './components/Toast';
 import "./App.css";
 
 import Sidebar from "./Sidebar";
@@ -23,18 +24,20 @@ import ExamPage from "./examPage/ExamPage";
 import DownloadPage from "./resourcePage/DownloadPage";
 import Login from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
+import CelebrityDetails from "./celebrity/CelebrityDetails";
 
 
 const AppLayout = () => {
   const location = useLocation();
   const isPreviewPage = location.pathname === '/file-preview';
   const isDownloadPage = location.pathname === '/download';
+  const isCelebrityDetail = location.pathname === '/celebrity/detail';
 
   return (
       <div className="app">
         <Header />
-        <div className={`maincontent ${isPreviewPage || isDownloadPage? 'preview-page' : ''}`}>
-        {!isPreviewPage && !isDownloadPage && <Sidebar />}
+        <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail? 'preview-page' : ''}`}>
+        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail &&<Sidebar />}
           <Routes>
             <Route path="/" element={<MainContent />} />
             <Route path="/search" element={<MainSearchPage />} />
@@ -69,6 +72,7 @@ const AppLayout = () => {
             />
             <Route path="/upload-resource" element={<UploadResource />} />
             <Route path="/celebrity" element={<CelebrityPage />} />
+            <Route path="/celebrity/detail" element={<CelebrityDetails />} />
             <Route path="/culture/food" element={<CultureFood />} />
             <Route path="/culture/festival" element={<CultureFestival />} />
             <Route path="/socialmedia" element={<SocialmediaPage />} />
@@ -82,7 +86,7 @@ const AppLayout = () => {
             <Route path="/register" element={<RegisterPage />} />
           </Routes>
         </div>
-        {!isPreviewPage && !isDownloadPage && <Footer />}
+      <Footer />
       </div>
   );
   }
@@ -91,9 +95,12 @@ const AppLayout = () => {
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
+    <ToastProvider>
     <BrowserRouter>
-      <AppLayout />
+        <AppLayout />
     </BrowserRouter>
+    </ToastProvider>
+
   );
 };
 

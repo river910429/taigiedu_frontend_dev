@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./ReadContent.css";
 import { useFontSize, useLang  } from "./ReadPage";
+import { useToast } from "../components/Toast";
 import loadingImage from "/src/assets/record_loading.svg"; // 處理中圖示
 
 const ReadContent = () => {
@@ -14,7 +15,8 @@ const ReadContent = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // 按鈕禁用狀態
   const [initialContent, setInitialContent] = useState(""); // 音檔生成時的文字
   const [isProcessing, setIsProcessing] = useState(false); // 處理中狀態
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
+  const { showError, showToast } = useToast();
 
   const handleInputChange = (e) => {
     const text = e.target.value;
@@ -47,20 +49,31 @@ const ReadContent = () => {
     setAudioSrc(null);
 
     try {
-      setError(null); // 重置錯誤狀態
+      showError(null); // 重置錯誤狀態
       const parameters = {
         tts_lang: selectedLang,
         tts_data: content
       };
       console.log('API Parameters:', parameters);
 
-      const response = await fetch('https://dev.taigiedu.com/backend/synthesize_speech', {
+      // 創建一個超時 Promise
+      const timeout = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('請求超時，伺服器回應時間過長'));
+        }, 10000); // 10 秒超時
+      });
+
+      // 創建 fetch Promise
+      const fetchPromise = fetch('https://dev.taigiedu.com/backend/synthesize_speech', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(parameters)
       });
+
+      // 讓兩個 Promise 競爭，哪個先完成就用哪個結果
+      const response = await Promise.race([fetchPromise, timeout]);
 
       if (!response.ok) {
         throw new Error('API request failed');
@@ -72,7 +85,12 @@ const ReadContent = () => {
       setInitialContent(content);
     } catch (error) {
       console.error('Error generating audio:', error);
-      setError('ㄨㄚˊ~ 伺服器出錯了，哭哭！');
+      // 根據錯誤類型顯示不同的錯誤訊息
+      if (error.message === '請求超時，伺服器回應時間過長') {
+        showError('ㄨㄚˊ~ 伺服器回應時間過長，請稍後再試！');
+      } else {
+        showError('ㄨㄚˊ~ 伺服器出錯了，哭哭！');
+      }
       setIsButtonDisabled(false); // 恢復按鈕可點擊狀態
     } finally {
       setIsProcessing(false);
@@ -106,11 +124,11 @@ const ReadContent = () => {
         剩餘字數：{remainingChars}
       </div>
       {/* 錯誤提示 */}
-      {error && (
+      {/* {error && (
         <div className="error-toast">
           {error}
         </div>
-      )}
+      )} */}
       {/* 按鈕區域 */}
       <div className="audio-button-container">
         <button

@@ -23,8 +23,34 @@ const CelebrityPage = () => {
         { id: 15, name: "謝宗佑", image: "./src/assets/celebrity/nopic.png", pron:"Tsiā Tsong-iū" , subtitle:"1996年11月26日-", intro:"還沒畢業的老屁股", portfolio:"這是作品文字。這是作品文字。這是作品文字。這是作品文字。" },
     ];
     const handleCardClick = (celebrity) => {
-        setSelectedCelebrity(celebrity);
-        setIsModalOpen(true);
+        // setSelectedCelebrity(celebrity);
+        // setIsModalOpen(true);
+        const detailUrl = new URL('/celebrity/detail', window.location.origin);
+    
+    // 添加查詢參數
+    detailUrl.searchParams.append('name', celebrity.name);
+    detailUrl.searchParams.append('image', celebrity.image);
+    detailUrl.searchParams.append('pron', celebrity.pron);
+    detailUrl.searchParams.append('subtitle', celebrity.subtitle);
+    detailUrl.searchParams.append('intro', celebrity.intro);
+    detailUrl.searchParams.append('portfolio', celebrity.portfolio);
+
+
+    // 直接使用 window.open，不需要中間的 about:blank
+    window.open(detailUrl.toString(), '_blank', 'noopener,noreferrer');
+    
+    console.log("Opening URL:", detailUrl.toString());
+
+    // const detailUrl = `${window.location.origin}/celebrity/detail?name=${encodeURIComponent(celebrity.name)}`;
+    
+    // // 打開新窗口
+    // const newWindow = window.open(detailUrl, '_blank', 'noopener,noreferrer');
+    // if (newWindow) newWindow.opener = null;
+    
+    // console.log("Opening URL:", detailUrl);
+
+
+    
     };
 
     const handleCloseModal = () => {
@@ -59,11 +85,11 @@ const CelebrityPage = () => {
             />
             如有任何問題，請點此回報問題
             </div>
-            <CelebrityModal
+            {/* <CelebrityModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 celebrity={selectedCelebrity}
-            />
+            /> */}
         </div>
     );
 };

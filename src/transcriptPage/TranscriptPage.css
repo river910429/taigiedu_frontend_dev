@@ -20,11 +20,11 @@
 }
 
 /* 錯誤訊息樣式 */
-.error-toast.error {
+/* .error-toast.error {
   background-color: #ff4d4f;
 }
 
-/* 成功訊息樣式 */
+成功訊息樣式
 .error-toast.success {
   background-color: #52c41a;
 }
@@ -48,4 +48,4 @@
   to {
     opacity: 0;
   }
-}
+} */

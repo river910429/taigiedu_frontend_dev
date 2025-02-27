@@ -1,0 +1,77 @@
+.toast-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    color: white;
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease, fadeOut 0.3s ease 5.7s forwards;
+    z-index: 1000;
+    font-family: 'Noto Sans TC', sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+  }
+
+  /* 圖標容器 */
+.toast-icon-container {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+}
+
+/* 內容區域 */
+.toast-content {
+    padding-left: 4px;
+}
+  
+  /* 錯誤訊息樣式 */
+  .toast-message.error {
+    background-color: #F4CDCD;
+    color : #000000;
+  }
+  
+  /* 成功訊息樣式 */
+  .toast-message.success {
+    background-color: #d6f8c5;
+    color : #000000;
+  }
+  
+  /* 警告訊息樣式 */
+  .toast-message.warning {
+    background-color: #FCE6CC;
+    color : #000000;
+  }
+  
+  /* 信息訊息樣式 */
+  .toast-message.info {
+    background-color: #D0E4FF;
+    color : #000000;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useToast } from "../components/Toast";// 引入 useToast
 import "./ContentFeedback.css";
 
-const ContentFeedback = ({ isOpen, onClose, content, onSubmit, audioSource, activeTab, showToast }) => {
+const ContentFeedback = ({ isOpen, onClose, content, onSubmit, audioSource, activeTab }) => {
+  const { showToast } = useToast();// 使用 useToast
   const [editableContent, setEditableContent] = useState(content || ""); // 預設為傳遞的內容
   const [isSubmitting, setIsSubmitting] = useState(false);
 
