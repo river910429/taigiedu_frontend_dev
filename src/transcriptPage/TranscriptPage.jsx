@@ -116,7 +116,6 @@ const TranscriptPage = () => {
       if (error.name === 'NotAllowedError') {
         showError('你不允許網站使用麥克風，我要怎麼錄音┐(´д`)┌');
       } else if (error.name === 'NotFoundError') {
-                console.log('Triggering error toast for NotFoundError');
         showError('等等~找不到麥克風，是誰搶走了我的麥克風(☉д⊙)');
       } else if (error.name === 'NotSupportedError') {
         showError('您的瀏覽器不支援所需的錄音功能( ´•̥̥̥ω•̥̥̥` )');
