@@ -8,6 +8,7 @@ const TranslateFeedback = ({
   originalLanguage,
   translatedContent,
   translatedLanguage,
+  onContentUpdate,
 }) => {
 
   const [feedbackTranslated, setFeedbackTranslated] = useState(translatedContent);
@@ -43,6 +44,7 @@ const TranslateFeedback = ({
     alert(
       `回饋提交成功！\n原始內容：${feedbackOriginal}\n翻譯內容：${feedbackTranslated}`
     );
+    onContentUpdate(feedbackTranslated); // 傳送修正後的內容
     onClose(); // 关闭弹窗
   };
 
@@ -73,13 +75,15 @@ const TranslateFeedback = ({
               className="feedback-text-input"
               placeholder="請輸入修正後的內容..."
               defaultValue={translatedContent}
+              value={feedbackTranslated}
+              onChange={handleTranslatedChange}
             /></div>
             
           </div>
         </div>
 
         <div className="feedback-footer">
-          <button className="feedback-submit-button" onClick={onClose}>
+          <button className="feedback-submit-button" onClick={handleSubmit}>
             提交
           </button>
         </div>

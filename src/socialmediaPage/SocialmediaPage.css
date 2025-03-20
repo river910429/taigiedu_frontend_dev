@@ -162,7 +162,7 @@
     left: 100%;
     top: 0;
     min-width: 200px;
-    max-height: 600px; /* 添加最大高度 */
+    max-height: 250%; /* 添加最大高度 */
     overflow-y: auto; /* 添加垂直滾動 */
     background: #fff;
     border-radius: 10px;

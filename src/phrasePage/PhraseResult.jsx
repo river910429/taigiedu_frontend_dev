@@ -20,10 +20,10 @@ const PhraseResult = () => {
 				]
 				},
 				{
-				"word": "九",
+				"word": "有",
 				"variations": [
-					{ "location": "台北", "pronun": "ku" },
-					{ "location": "台南", "pronun": "kuh" }
+					{ "location": "台北", "pronun": "ú" },
+					{ "location": "台南", "pronun": "ú" }
 				]
 				}
 			]
