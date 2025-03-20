@@ -22,24 +22,25 @@ const TranscriptHeader = ({
   const handleFileChange = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
+      // 檢查檔案類型
+      if (!file.type.startsWith('audio/')) {
+        alert('請選擇音訊檔案');
+        return;
+      }
+
       setFileName(file.name);
-      setIsFileProcessing(true);
-      await onFileUpload(file);
-      // Simulate processing time
       try {
-        // await onFileUpload(file); // Future implementation
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsFileProcessing(false);
+        await onFileUpload(file);
       } catch (error) {
         console.error('File processing failed:', error);
-        setIsFileProcessing(false);
+        setFileName(''); // 重置檔案名稱
       }
     }
   };
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
-    
+
   };
   return (
     <div className="transcript-header">
@@ -62,17 +63,16 @@ const TranscriptHeader = ({
               accept="audio/*"
               onChange={handleFileChange}
             />
-            <span 
-  className={`upload-button ${
-    isFileProcessing 
-      ? "processing" 
-      : fileName 
-        ? "uploaded with-icon" 
-        : "with-icon"
-  }`}
-  onClick={() => !isFileProcessing && fileInputRef.current?.click()}
->
-              {isFileProcessing ? (
+            <span
+              className={`upload-button ${isProcessing
+                  ? "processing"
+                  : fileName
+                    ? "uploaded with-icon"
+                    : "with-icon"
+                }`}
+              onClick={() => !isProcessing && fileInputRef.current?.click()}
+            >
+              {isProcessing ? (
                 <>
                   處理中
                   <img src={loadingImage} alt="Processing" className="loading-icon" />
@@ -89,9 +89,8 @@ const TranscriptHeader = ({
           </div>
         ) : (
           <button
-            className={`record-button ${
-              isProcessing ? "processing" : isRecording ? "recording" : ""
-            }`}
+            className={`record-button ${isProcessing ? "processing" : isRecording ? "recording" : ""
+              }`}
             onClick={onRecordClick}
           >
             {isProcessing ? (
@@ -116,9 +115,8 @@ const TranscriptHeader = ({
         {["小", "中", "大"].map((size) => (
           <button
             key={size}
-            className={`font-size-button ${
-              fontSize === size ? "selected" : ""
-            } ${size}`}
+            className={`font-size-button ${fontSize === size ? "selected" : ""
+              } ${size}`}
             onClick={() => onFontSizeChange(size)} // 呼叫父層的字體大小變更函數
           >
             {size}

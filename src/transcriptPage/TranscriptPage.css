@@ -6,3 +6,46 @@
   padding: 60px;
   background-color: #f5f5f5;
 }
+
+.error-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+  z-index: 1000;
+}
+
+/* 錯誤訊息樣式 */
+/* .error-toast.error {
+  background-color: #ff4d4f;
+}
+
+成功訊息樣式
+.error-toast.success {
+  background-color: #52c41a;
+}
+
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+} */

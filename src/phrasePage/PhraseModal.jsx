@@ -4,17 +4,33 @@ import './PhraseModal.css';
 const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, pronun_diff }) => {
   const playAudio = async () => {
     try {
-      const response = await fetch('/TTS', {
+      // 準備 API 參數
+      const parameters = {
+        tts_lang: 'tb',  // 使用漢羅
+        tts_data: phrase // 要合成的文字
+      };
+
+      console.log('Sending TTS request:', parameters);
+
+      const response = await fetch('https://dev.taigiedu.com/backend/synthesize_speech', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ text: phrase }),
+        body: JSON.stringify(parameters)
       });
 
-      const data = await response.json();
-      const audio = new Audio(`data:audio/wav;base64,${data.audio_base64}`);
-      audio.play();
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const synthesized_audio_base64 = await response.text();
+      console.log('Received audio data length:', synthesized_audio_base64.length);
+
+      // 建立並播放音訊
+      const audio = new Audio(`data:audio/wav;base64,${synthesized_audio_base64}`);
+      await audio.play();
+
     } catch (error) {
       console.error('Error playing audio:', error);
     }

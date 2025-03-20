@@ -97,3 +97,9 @@ audio {
   margin-top: -10px;
   margin-bottom: 20px;
 }
+
+.modal-button.submitting {
+  background-color: #d9d9d9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
