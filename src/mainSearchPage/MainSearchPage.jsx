@@ -1,40 +1,139 @@
-// src/mainsearchpage/MainSearchPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
-import Pagination from './Pagination';
 import './MainSearchPage.css';
 
 const MainSearchPage = () => {
-  const [resultsLeft, setResultsLeft] = useState([
-    { source: '台語文數位典藏資料庫', content: '台灣女性做人的條件...' },
-    { source: '台文通訊Bong報', content: '分享王育德小說內涵的女性角色...' },
-  ]);
-  const [resultsRight, setResultsRight] = useState([
-    { source: '國立教育廣播電台', content: '台語女性身分...' },
-    { source: '台灣組合', content: '探索女性文化的轉變...' },
-  ]);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    // TODO: 在這裡加入 API 請求或資料更新邏輯
-  };
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('query') || '';
+  const initialCategories = searchParams.get('categories') 
+    ? searchParams.get('categories').split(',') 
+    : [];
+  
+  // 狀態管理
+  const [availableResources, setAvailableResources] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState(initialCategories);
+  const [searchResults, setSearchResults] = useState([]);
+  const [filteredResults, setFilteredResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // 從 API 獲取搜尋結果
+  // 修改 useEffect 部分中決定使用的分類邏輯
+
+useEffect(() => {
+  const fetchSearchResults = async () => {
+    if (!initialQuery) {
+      setSearchResults([]);
+      setFilteredResults([]);
+      setAvailableResources([]);
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+
+      const preciseSearch = `"${initialQuery}"`;
+      const parameters = {
+        'text': preciseSearch,
+        'size': 1000,
+        'mark': true,
+        'tags': ["<b style='color:red;'>", "</b>"],
+        'lang': ["T", "K", "Z", "P"]
+      };
+
+      const response = await fetch('https://dev.taigiedu.com/backend/sentence_search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(parameters)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data);
+
+      // 轉換 API 數據為組件所需格式
+      const formattedResults = data.data.documents.map((doc, index) => ({
+        id: index + 1,
+        resource: doc.Source || 'Unknown Source',
+        content: doc.highlight?.Body?.[0] || doc.Body || 'No content available',
+        url: doc.Url || '#',
+      }));
+
+      // 提取不重複的資源名稱
+      const uniqueResources = [...new Set(formattedResults.map(item => item.resource))];
+      setAvailableResources(uniqueResources);
+      
+      // 決定要使用哪些分類
+      let categoriesToUse;
+      
+      // 如果 URL 中有指定分類，使用 URL 中的分類
+      if (initialCategories.length > 0) {
+        categoriesToUse = initialCategories;
+      } else {
+        // 否則全選所有資源
+        categoriesToUse = uniqueResources;
+        setSelectedCategories(uniqueResources); // 關鍵：明確設置選中的類別為所有資源
+      }
+
+      setSearchResults(formattedResults);
+      
+      // 根據選定的類別過濾結果
+      filterResults(formattedResults, categoriesToUse);
+      
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error fetching search results:', err);
+      setError('搜尋發生錯誤，請稍後再試。');
+      setIsLoading(false);
+    }
+  };
+
+  fetchSearchResults();
+}, [initialQuery]);
+
+  // 過濾搜尋結果
+  const filterResults = (results, categories) => {
+    if (!categories || categories.length === 0) {
+      setFilteredResults(results);
+      return;
+    }
+    
+    const filtered = results.filter(item => categories.includes(item.resource));
+    setFilteredResults(filtered);
+  };
+
+  // 處理類別選擇變更
+  const handleCategoryChange = (newCategories) => {
+    setSelectedCategories(newCategories);
+    filterResults(searchResults, newCategories);
+  };
 
   return (
     <div className="main-search-page">
-      <SearchBar initialQuery={initialQuery}/>
+      <SearchBar 
+        initialQuery={initialQuery}
+        categories={availableResources}
+        selectedCategories={selectedCategories}
+        onCategoryChange={handleCategoryChange}
+      />
       <div className="results-container">
-        <SearchResults resultsLeft={resultsLeft} resultsRight={resultsRight} />
+        <SearchResults 
+          results={filteredResults}
+          isLoading={isLoading}
+          error={error}
+          keyword={initialQuery}
+          totalItems={filteredResults.length}
+        />
       </div>
-      {/* <Pagination
-        currentPage={currentPage}
-        totalPages={25}
-        onPageChange={handlePageChange}
-      /> */}
     </div>
   );
 };

@@ -12,6 +12,14 @@ const MultiSelect = ({
   const [selected, setSelected] = useState(selectedOptions || []);
   const dropdownRef = useRef(null);
 
+  // 當 selectedOptions 或 options 變更時，同步更新內部 selected 狀態
+  useEffect(() => {
+    // 確保外部傳入的 selectedOptions 被正確反映在內部狀態中
+    if (selectedOptions) {
+      setSelected(selectedOptions);
+    }
+  }, [selectedOptions, options]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -49,10 +57,10 @@ const MultiSelect = ({
 
   return (
     <div className="multi-select" ref={dropdownRef}>
-    <div 
-      className={`select-header ${isOpen ? 'active' : ''}`}
-      onClick={() => setIsOpen(!isOpen)}
-    >
+      <div 
+        className={`select-header ${isOpen ? 'active' : ''}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
         <div className="selected-options">
           {selected.length > 0 ? (
             <span className="display-text">{displayText} ({selected.length})</span>
@@ -67,35 +75,35 @@ const MultiSelect = ({
         <div className="options-container">
           {/* 加入全選選項 */}
           <div
-  className={`option ${selected.length === options.length ? 'selected' : ''}`}
-  onClick={handleSelectAll}
->
-  <span 
-    className={`checkbox ${selected.length === options.length ? 'checked' : ''}`}
-  >
-    {selected.length === options.length && '✓'}
-  </span>
-  全選
-</div>
+            className={`option ${selected.length === options.length && options.length > 0 ? 'selected' : ''}`}
+            onClick={handleSelectAll}
+          >
+            <span 
+              className={`checkbox ${selected.length === options.length && options.length > 0 ? 'checked' : ''}`}
+            >
+              {selected.length === options.length && options.length > 0 && '✓'}
+            </span>
+            全選
+          </div>
           {/* 分隔線 */}
           <div className="divider"></div>
           {options.map(option => {
-  const isSelected = selected.includes(option);
-  return (
-    <div
-      key={option}
-      className={`option ${isSelected ? 'selected' : ''}`}
-      onClick={() => handleOptionClick(option)}
-    >
-      <span 
-        className={`checkbox ${isSelected ? 'checked' : ''}`}
-      >
-        {isSelected && '✓'}
-      </span>
-      <span>{option}</span>
-    </div>
-  );
-})}
+            const isSelected = selected.includes(option);
+            return (
+              <div
+                key={option}
+                className={`option ${isSelected ? 'selected' : ''}`}
+                onClick={() => handleOptionClick(option)}
+              >
+                <span 
+                  className={`checkbox ${isSelected ? 'checked' : ''}`}
+                >
+                  {isSelected && '✓'}
+                </span>
+                <span>{option}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

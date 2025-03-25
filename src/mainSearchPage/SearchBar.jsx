@@ -1,21 +1,17 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SearchBar.css';
 import MultiSelect from '../phrasePage/multiselect';
 
-const SearchBar = ({ initialQuery }) => {
+const SearchBar = ({ initialQuery = '', categories = [], selectedCategories = [], onCategoryChange }) => {
   const [query, setQuery] = useState(initialQuery);
   const navigate = useNavigate();
-  const categories = [
-    '台語文數位典藏',
-    '台文通訊Bong報',
-    '潘科元台語文理補習班',
-    '台灣組合',
-    '李講古我來聽',
-    '國立教育廣播電臺'
-  ];
-  const [selectedCategories, setSelectedCategories] = useState([...categories]);
+
+  // 當 initialQuery 變更時更新狀態
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim() === '') return;
@@ -30,13 +26,14 @@ const SearchBar = ({ initialQuery }) => {
   };
 
   const handleCategoryChange = (selected) => {
-    setSelectedCategories(selected);
-    console.log('已選擇:', selected);
+    // 通知父組件分類已更改
+    if (onCategoryChange) {
+      onCategoryChange(selected);
+    }
   };
 
   return (
     <div className="search-bar">
-
       <div className="input-container">
         <div className="px-2 bar-selectspace">
           <MultiSelect
@@ -46,10 +43,6 @@ const SearchBar = ({ initialQuery }) => {
             placeholder="資料出處"
             displayText="資料出處"
           />
-          {/* <select className="category-select category-input">
-        <option value="all">all</option>
-        <option value="other">其他類別</option>
-      </select> */}
         </div>
         <form onSubmit={handleSearch} className="search-container">
           <input
@@ -62,7 +55,7 @@ const SearchBar = ({ initialQuery }) => {
           <img
             src="search_logo.svg"
             className="search-icon"
-            onClick={handleSearch} // 點擊圖片觸發搜尋跳轉
+            onClick={handleSearch}
           />
         </form>
       </div>
