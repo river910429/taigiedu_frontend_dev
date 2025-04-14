@@ -1,11 +1,55 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MainContent.css";
 import heroImage from "./assets/Rectangle 7310.svg";
 
 const MainContent = () => {
   const navigate = useNavigate(); // 使用 useNavigate 來進行頁面跳轉
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = useState("");
+  const [keywords, setKeywords] = useState([]); // 存儲API回傳的關鍵字
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 組件掛載時獲取關鍵字
+  useEffect(() => {
+    fetchKeywords();
+  }, []);
+
+  // 從API獲取關鍵字 (使用 fetch 而非 axios)
+  const fetchKeywords = async () => {
+    setIsLoading(true);
+    try {
+      const parameters = {
+        "text": "我愛台語"
+      };
+
+      const response = await fetch(
+        "https://dev.taigiedu.com/backend/top_keywords",
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(parameters)
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success" && Array.isArray(data.data)) {
+        setKeywords(data.data);
+      } else {
+        console.error("API回傳格式錯誤:", data);
+        // 如果API失敗，使用預設關鍵字
+        setKeywords(["台語文", "國中", "奇異果", "母語", "王育德"]);
+      }
+    } catch (error) {
+      console.error("獲取關鍵字失敗:", error);
+      // 如果API失敗，使用預設關鍵字
+      setKeywords(["台語文", "國中", "奇異果", "母語", "王育德"]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleTagClick = (tag) => {
     navigate(`/search?query=${encodeURIComponent(tag)}`);
@@ -56,22 +100,26 @@ const MainContent = () => {
             className="search-input"
           />
           <img
-            src="search_logo.svg" 
+            src="search_logo.svg"
             className="search-icon"
             onClick={handleSearch} // 點擊圖片觸發搜尋跳轉
           />
         </form>
 
         <div className="tag-buttons mt-4 flex justify-center gap-3">
-          {["台語文", "國中", "奇異果", "母語", "王育德"].map((tag) => (
-            <button
-              key={tag}
-              className="button"
-              onClick={() => handleTagClick(tag)}
-            >
-              {tag}
-            </button>
-          ))}
+          {isLoading ? (
+            <div className="text-gray-500">載入關鍵字中...</div>
+          ) : (
+            keywords.map((tag) => (
+              <button
+                key={tag}
+                className="button"
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </button>
+            ))
+          )}
         </div>
       </div>
 
