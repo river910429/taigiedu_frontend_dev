@@ -133,6 +133,7 @@ const TranscriptPage = () => {
       setIsProcessing(true);
 
       // 在 stopRecording 函數中修改 API 回應處理部分
+// 在 stopRecording 函數中修改 API 回應處理部分
 audioRecorder.onstop = async () => {
   try {
     const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
@@ -157,33 +158,30 @@ audioRecorder.onstop = async () => {
           })
         });
 
-        const transcription = await response.text();
+        const responseData = await response.json();
         console.log('=== API Response Content ===');
-        console.log('Raw transcription:', transcription);
+        console.log('Raw response:', responseData);
         
-        // 檢查是否為靜音回應
-        if (transcription.trim() === '<{silent}>') {
-          showToast('蛤??????? 你好像沒講話吧？ (ﾟд⊙)',"warning");
+        // 檢查是否為靜音回應 - 新格式 {"message": {"tw": "<silent>", ...}}
+        if (responseData.message && responseData.message.tw === "<silent>") {
+          showToast('蛤??????? 你好像沒講話吧？ (ﾟд⊙)', "warning");
           setIsProcessing(false);
           return; // 提前退出，不更新文本內容
         }
         
-        try {
-          // 嘗試解析 JSON（如果回應是 JSON 格式）
-          const jsonData = JSON.parse(transcription);
-          console.log('Parsed JSON data:', jsonData);
-        } catch (e) {
-          // 如果不是 JSON，就使用原始文字
-          console.log('Response is not JSON format');
+        // 更新各個標籤的內容
+        if (responseData.message) {
+          setContent({
+            漢羅: responseData.message.tw || "",
+            台羅: responseData.message.tl || "",
+            白話字: responseData.message.poj || ""
+          });
+        } else {
+          console.error('API 回傳格式錯誤:', responseData);
+          showError('API 回傳格式錯誤');
+          setIsProcessing(false);
+          return;
         }
-        console.log('=== End of API Response ===');
-
-        // 更新所有 tab 的內容
-        setContent({
-          漢羅: transcription,
-          台羅: transcription,
-          白話字: transcription
-        });
 
         setIsEditable(true);
         setIsProcessing(false);  // 重置處理狀態
@@ -289,22 +287,30 @@ audioRecorder.onstop = async () => {
         throw new Error(`API request failed with status ${response.status}`);
       }
   
-      const transcription = await response.text();
+      const responseData = await response.json();
       console.log('=== API Response Content ===');
-      console.log('Raw transcription:', transcription);
+      console.log('Raw response:', responseData);
   
-      // 檢查是否為靜音回應
-      if (transcription.trim() === '<{silent}>') {
+      // 檢查是否為靜音回應 - 新格式 {"message": {"tw": "<silent>", ...}}
+      if (responseData.message && responseData.message.tw === "<silent>") {
         showToast('ㄋㄟㄋㄟ？這個檔案好像沒有聲音耶！', 'warning');
+        setIsProcessing(false);
         return; // 提前退出，不更新文本內容
       }
   
-      // 更新內容
-      setContent({
-        漢羅: transcription,
-        台羅: transcription,
-        白話字: transcription
-      });
+      // 更新各個標籤的內容
+      if (responseData.message) {
+        setContent({
+          漢羅: responseData.message.tw || "",
+          台羅: responseData.message.tl || "",
+          白話字: responseData.message.poj || ""
+        });
+      } else {
+        console.error('API 回傳格式錯誤:', responseData);
+        showError('API 回傳格式錯誤');
+        setIsProcessing(false);
+        return;
+      }
   
       setIsEditable(true);
     } catch (error) {
