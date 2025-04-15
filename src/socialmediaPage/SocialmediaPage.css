@@ -218,3 +218,50 @@
     font-size: 18px;
     line-height: 1;
 }
+
+/* 選中項目的樣式 */
+.social-submenu-item.selected {
+    background-color: #f0f8ff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 勾選標記樣式 */
+.checkmark {
+    color: #017ab1;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+/* 修改子選單顯示邏輯，保持下拉選單開啟狀態 */
+.social-dropdown-item-container:hover .social-submenu,
+.social-submenu:hover,
+.social-dropdown-item.with-submenu:hover .social-submenu {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 增加子選單與主選單的間距 */
+.social-submenu {
+    padding: 8px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* 阻止子選單的點擊事件冒泡導致選單關閉 */
+.social-submenu-item {
+    position: relative;
+    z-index: 10;
+    cursor: pointer;
+    padding: 10px 16px;
+  }
+  
+  /* 增大子選單項目的點擊區域 */
+  .social-submenu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 12px 16px;
+  }

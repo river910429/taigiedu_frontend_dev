@@ -5,6 +5,10 @@ const SocialmediaPage = () => {
     const [selectedType, setSelectedType] = useState("分類");  // 將 "類型" 改為 "分類"
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [query, setQuery] = useState("");
+    
+    // 儲存多選項目，格式為 { 主分類: [子項目1, 子項目2, ...] }
+    const [selectedItems, setSelectedItems] = useState({});
+    
     const menuItems = {
         '社群': {
             hasSubMenu: true,
@@ -31,6 +35,7 @@ const SocialmediaPage = () => {
             hasSubMenu: false
         }
     };
+    
     React.useEffect(() => {
         const handleClickOutside = (event) => {
             if (isDropdownOpen && !event.target.closest('.social-custom-dropdown')) {
@@ -44,14 +49,92 @@ const SocialmediaPage = () => {
         };
     }, [isDropdownOpen]);
 
-    const handleTypeChange = (type, subType = null) => {
-        console.log('Before change:', selectedType);
-        console.log('Changing to:', type, subType);
-        const newSelectedType = subType ? `${type} > ${subType}` : type;
-        setSelectedType(newSelectedType);
-        setIsDropdownOpen(false);
-        console.log('After change:', newSelectedType);
-    };
+    // 處理多選邏輯
+const handleTypeChange = (type, subType = null) => {
+  console.log('Before change:', { selectedType, selectedItems });
+  
+  if (!subType) {
+    // 如果是無子選單的主類別，直接選擇
+    if (!menuItems[type].hasSubMenu) {
+      setSelectedType(type);
+      // 清空已選擇的項目
+      setSelectedItems({});
+      setIsDropdownOpen(false);
+    } else {
+      // 有子選單的主類別，不做選擇，只是顯示該類別，保持下拉選單開啟
+      setSelectedType(type);
+    }
+  } else {
+    // 子選單項目處理 - 直接更新顯示和選項，不使用巢狀 setTimeout
+    const newSelectedItems = { ...selectedItems };
+    
+    // 如果選擇的是新的主類別，先清空之前的選擇
+    if (Object.keys(newSelectedItems).length > 0 && !(type in newSelectedItems)) {
+      // 完全重置選項
+      setSelectedItems({ [type]: [subType] });
+      setSelectedType(`${type} > ${subType}`);
+      return;
+    }
+    
+    // 初始化該類別的數組，如果不存在
+    if (!newSelectedItems[type]) {
+      newSelectedItems[type] = [];
+    }
+    
+    // 檢查項目是否已選擇
+    const itemIndex = newSelectedItems[type].indexOf(subType);
+    
+    if (itemIndex > -1) {
+      // 已選擇，則移除
+      newSelectedItems[type].splice(itemIndex, 1);
+      
+      // 檢查該類別下是否還有項目
+      if (newSelectedItems[type].length === 0) {
+        delete newSelectedItems[type];
+        setSelectedType(type);
+      } else if (newSelectedItems[type].length === 1) {
+        setSelectedType(`${type} > ${newSelectedItems[type][0]}`);
+      } else {
+        setSelectedType(`${type} > ${newSelectedItems[type].length} 個選項`);
+      }
+    } else {
+      // 未選擇，則添加
+      newSelectedItems[type].push(subType);
+      
+      if (newSelectedItems[type].length === 1) {
+        setSelectedType(`${type} > ${subType}`);
+      } else {
+        setSelectedType(`${type} > ${newSelectedItems[type].length} 個選項`);
+      }
+    }
+    
+    // 一次性更新狀態，防止多次渲染
+    setSelectedItems(newSelectedItems);
+  }
+  
+  console.log('After change:', { type, subType });
+};
+    
+
+    // 更新顯示的選擇類型文字
+    const updateSelectedTypeDisplay = (type) => {
+        // 確保 selectedItems 已更新
+        if (!selectedItems[type] || selectedItems[type].length === 0) {
+            setSelectedType(type);
+            return;
+        }
+        
+        if (selectedItems[type].length === 1) {
+            setSelectedType(`${type} > ${selectedItems[type][0]}`);
+        } else {
+            setSelectedType(`${type} > ${selectedItems[type].length} 個選項`);
+        }
+    }
+
+    // 檢查項目是否被選擇
+    const isItemSelected = (type, subType) => {
+        return selectedItems[type] && selectedItems[type].includes(subType);
+    }
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -65,15 +148,12 @@ const SocialmediaPage = () => {
             { id: 3, title: "台語新聞", url: "https://youtube.com/...", image: "./src/assets/culture/foodN.png" },
             { id: 4, title: "台語新聞", url: "https://youtube.com/...", image: "./src/assets/culture/foodN.png" },
             { id: 5, title: "台語新聞", url: "https://youtube.com/...", image: "./src/assets/culture/foodN.png" },
-            // ... more items
         ],
         Podcast: [
             { id: 1, title: "台語文化", url: "https://podcast.com/...", image: "./src/assets/culture/foodN.png" },
-            // ... more items
         ],
         電視綜藝: [
             { id: 1, title: "台語節目", url: "https://tv.com/...", image: "./src/assets/culture/foodN.png" },
-            // ... more items
         ]
     };
 
@@ -86,65 +166,71 @@ const SocialmediaPage = () => {
             <div className="socialmedia-header">
                 <div className="container px-4">
                     <div className="socialmedia-header-content">
-                        {/* <select
-                            className="social-type-dropdown"
-                            value={selectedType}
-                            onChange={handleTypeChange}
-                        >
-                            <option hidden>分類</option>
-                            <option value="YouTube">YouTube</option>
-                            <option value="Podcast">Podcast</option>
-                            <option value="電視綜藝">電視綜藝</option>
-                        </select> */}
                         <div className="social-custom-dropdown">
-  <div 
-    className="dropdown-header social-type-dropdown"
-    onClick={() => {
-      console.log("dropdown-header clicked");
-      setIsDropdownOpen(!isDropdownOpen);
-    }}
-  >
-    {selectedType}
-  </div>
-  {isDropdownOpen && (
-    <div className="social-dropdown-menu">
-      {Object.entries(menuItems).map(([type, { hasSubMenu, subItems }]) => (
-        <div key={type} className="social-dropdown-item-container">
-          {!hasSubMenu ? (
-            <div
-              className="social-dropdown-item"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleTypeChange(type);
-              }}
-            >
-              {type}
-            </div>
-          ) : (
-            <div className="social-dropdown-item with-submenu">
-              <span>{type}</span>
-              <span className="social-submenu-arrow">›</span>
-              <div className="social-submenu">
-                {subItems.map(subItem => (
-                  <div
-                    key={subItem}
-                    className="social-submenu-item"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTypeChange(type, subItem);
-                    }}
-                  >
-                    {subItem}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+                            <div 
+                                className="dropdown-header social-type-dropdown"
+                                onClick={() => {
+                                    console.log("dropdown-header clicked");
+                                    setIsDropdownOpen(!isDropdownOpen);
+                                }}
+                            >
+                                {selectedType}
+                            </div>
+                            {isDropdownOpen && (
+                                <div className="social-dropdown-menu">
+                                    {Object.entries(menuItems).map(([type, { hasSubMenu, subItems }]) => (
+                                        <div key={type} className="social-dropdown-item-container">
+                                            {!hasSubMenu ? (
+                                                <div
+                                                    className="social-dropdown-item"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleTypeChange(type);
+                                                    }}
+                                                >
+                                                    {type}
+                                                </div>
+                                            ) : (
+                                                <div 
+                                                    className="social-dropdown-item with-submenu"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // 只改變顯示的主類別名稱，不觸發選擇
+                                                        if (selectedType !== type) {
+                                                            setSelectedType(type);
+                                                        }
+                                                    }}
+                                                >
+                                                    <span>{type}</span>
+                                                    <span className="social-submenu-arrow">›</span>
+                                                    <div 
+                                                        className="social-submenu"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        {subItems.map(subItem => (
+                                                            <div
+                                                            key={subItem}
+                                                            className={`social-submenu-item ${isItemSelected(type, subItem) ? 'selected' : ''}`}
+                                                            onMouseDown={(e) => { // 改用 onMouseDown 代替 onClick，反應更靈敏
+                                                              e.preventDefault(); 
+                                                              e.stopPropagation();
+                                                              handleTypeChange(type, subItem);
+                                                            }}
+                                                          >
+                                                            {subItem}
+                                                            {isItemSelected(type, subItem) && (
+                                                              <span className="checkmark">✓</span>
+                                                            )}
+                                                          </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         <form onSubmit={handleSearch} className="social-search-container">
                             <input
