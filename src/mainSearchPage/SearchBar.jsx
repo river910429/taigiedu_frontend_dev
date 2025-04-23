@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SearchBar.css';
 import MultiSelect from '../phrasePage/multiselect';
+import searchIcon from '../assets/home/search_logo.svg';
 
 const SearchBar = ({ initialQuery = '', categories = [], selectedCategories = [], onCategoryChange }) => {
   const [query, setQuery] = useState(initialQuery);
@@ -53,7 +54,7 @@ const SearchBar = ({ initialQuery = '', categories = [], selectedCategories = []
             className="search-input"
           />
           <img
-            src="search_logo.svg"
+            src={searchIcon}
             className="search-icon"
             onClick={handleSearch}
           />

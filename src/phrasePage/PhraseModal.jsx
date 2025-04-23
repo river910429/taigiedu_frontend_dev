@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './PhraseModal.css';
+import megaphoneIcon from '../assets/megaphone.svg';
 
 const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, pronun_diff }) => {
   const playAudio = async () => {
@@ -82,7 +83,7 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
         {word.word} <span className="pronun-location-badge">{variant.location}</span>
       </td>
       <td>{variant.pronun}<img 
-          src="src/assets/megaphone.svg" 
+          src={megaphoneIcon}
           className="pronun-speaker-icon"
           onClick={() => playVariationAudio(word.word, variant.pronun)}
           alt="播放"
@@ -112,7 +113,7 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
               <div className="phrase-pronunciation-container">
                 <div className="phrase-pronunciation-text">{pronunciation}</div>
                 <div className="phrase-play-button" onClick={playAudio}>
-                  <img src="src/assets/megaphone.svg" />
+                  <img src={megaphoneIcon} />
                 </div>
               </div>
               <div className="phrase-interpretation-container">
