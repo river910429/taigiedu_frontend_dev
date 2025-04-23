@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import './SocialmediaPage.css';
+import searchIcon from '../assets/home/search_logo.svg';
+import chevronUp from '../assets/chevron-up.svg';
+import questionMarkIcon from '../assets/question-mark.svg';
 
 const SocialmediaPage = () => {
     const [selectedType, setSelectedType] = useState("分類");  // 將 "類型" 改為 "分類"
@@ -160,7 +163,12 @@ const handleTypeChange = (type, subType = null) => {
     const handleCardClick = (url) => {
         window.open(url, '_blank');
     };
-
+    const dropdownStyle = {
+      backgroundImage: `url(${chevronUp})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'calc(100% - 16px) center',
+      backgroundSize: '20px 20px'
+  };
     return (
         <div className="socialmedia-page">
             <div className="socialmedia-header">
@@ -169,6 +177,7 @@ const handleTypeChange = (type, subType = null) => {
                         <div className="social-custom-dropdown">
                             <div 
                                 className="dropdown-header social-type-dropdown"
+                                style={dropdownStyle}
                                 onClick={() => {
                                     console.log("dropdown-header clicked");
                                     setIsDropdownOpen(!isDropdownOpen);
@@ -241,7 +250,7 @@ const handleTypeChange = (type, subType = null) => {
                                 className="social-search-input"
                             />
                             <img
-                                src="search_logo.svg"
+                                src={searchIcon}
                                 className="social-search-icon"
                                 onClick={handleSearch}
                             />
@@ -275,7 +284,7 @@ const handleTypeChange = (type, subType = null) => {
                 </div>
             ))}
             <div className="text-start mt-4 socialmedia-report-issue">
-                <img src="../src/assets/question-mark.svg" className="question-icon" />
+                <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題
             </div>
         </div>

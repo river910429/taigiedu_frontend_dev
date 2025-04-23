@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './multiselect.css';
+import chevonUp from '../assets/chevron-up.svg';
 
 const MultiSelect = ({ 
   options, 
@@ -68,7 +69,7 @@ const MultiSelect = ({
             <span className="select-placeholder">{placeholder}</span>
           )}
         </div>
-        <span className={`arrow ${isOpen ? 'up' : 'down'}`}><img src="src/assets/chevron-up.svg" /></span>
+        <span className={`arrow ${isOpen ? 'up' : 'down'}`}><img src={chevonUp} /></span>
       </div>
       
       {isOpen && (

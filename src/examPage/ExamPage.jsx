@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import './ExamPage.css';
+import searchIcon from '../assets/home/search_logo.svg';
+import questionMarkIcon from '../assets/question-mark.svg';
+import foodImage from '../assets/culture/foodN.png'; 
 
 const ExamPage = () => {
     const [selectedType, setSelectedType] = useState("類型");
@@ -7,22 +10,22 @@ const ExamPage = () => {
 
     const examItems = {
         "考試資訊": [
-            { id: 1, title: "台語認證初級考試", url: "https://exam.com/basic", image: "./src/assets/culture/foodN.png" },
-            { id: 2, title: "台語認證中級考試", url: "https://exam.com/intermediate", image: "./src/assets/culture/foodN.png" },
-            { id: 3, title: "台語認證高級考試", url: "https://exam.com/advanced", image: "./src/assets/culture/foodN.png" },
-            { id: 4, title: "台語教師認證", url: "https://exam.com/teacher", image: "./src/assets/culture/foodN.png" },
+            { id: 1, title: "台語認證初級考試", url: "https://exam.com/basic", image: foodImage },
+            { id: 2, title: "台語認證中級考試", url: "https://exam.com/intermediate", image: foodImage },
+            { id: 3, title: "台語認證高級考試", url: "https://exam.com/advanced", image: foodImage },
+            { id: 4, title: "台語教師認證", url: "https://exam.com/teacher", image: foodImage },
         ],
         "推薦用書/教材": [
-            { id: 1, title: "台語認證指南", url: "https://book.com/guide", image: "./src/assets/culture/foodN.png" },
-            { id: 2, title: "台語會話練習", url: "https://book.com/conversation", image: "./src/assets/culture/foodN.png" },
-            { id: 3, title: "台語文法大全", url: "https://book.com/grammar", image: "./src/assets/culture/foodN.png" },
-            { id: 4, title: "台語發音教學", url: "https://book.com/pronunciation", image: "./src/assets/culture/foodN.png" },
+            { id: 1, title: "台語認證指南", url: "https://book.com/guide", image: foodImage },
+            { id: 2, title: "台語會話練習", url: "https://book.com/conversation", image: foodImage },
+            { id: 3, title: "台語文法大全", url: "https://book.com/grammar", image: foodImage },
+            { id: 4, title: "台語發音教學", url: "https://book.com/pronunciation", image: foodImage },
         ],
         "教育頻道": [
-            { id: 1, title: "台語教學頻道", url: "https://channel.com/teaching", image: "./src/assets/culture/foodN.png" },
-            { id: 2, title: "台語線上課程", url: "https://channel.com/online", image: "./src/assets/culture/foodN.png" },
-            { id: 3, title: "台語文化講座", url: "https://channel.com/culture", image: "./src/assets/culture/foodN.png" },
-            { id: 4, title: "台語考試準備", url: "https://channel.com/prep", image: "./src/assets/culture/foodN.png" },
+            { id: 1, title: "台語教學頻道", url: "https://channel.com/teaching", image: foodImage },
+            { id: 2, title: "台語線上課程", url: "https://channel.com/online", image: foodImage },
+            { id: 3, title: "台語文化講座", url: "https://channel.com/culture", image: foodImage },
+            { id: 4, title: "台語考試準備", url: "https://channel.com/prep", image: foodImage },
         ]
     };
 
@@ -64,7 +67,7 @@ const ExamPage = () => {
                                 className="exam-search-input"
                             />
                             <img
-                                src="search_logo.svg"
+                                src={searchIcon}
                                 className="exam-search-icon"
                                 onClick={handleSearch}
                             />
@@ -96,7 +99,7 @@ const ExamPage = () => {
                 </div>
             ))}
             <div className="text-start mt-4 exam-report-issue">
-                <img src="../src/assets/question-mark.svg" className="question-icon" />
+                <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題
             </div>
         </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MainContent.css";
 import heroImage from "./assets/Rectangle 7310.svg";
+import searchIcon from "./assets/home/search_logo.svg";
 
 const MainContent = () => {
   const navigate = useNavigate(); // 使用 useNavigate 來進行頁面跳轉
@@ -100,7 +101,7 @@ const MainContent = () => {
             className="search-input"
           />
           <img
-            src="search_logo.svg"
+            src={searchIcon}
             className="search-icon"
             onClick={handleSearch} // 點擊圖片觸發搜尋跳轉
           />

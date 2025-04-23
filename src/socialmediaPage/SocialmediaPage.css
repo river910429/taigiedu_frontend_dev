@@ -25,7 +25,7 @@
     cursor: pointer;
     outline: none;
     appearance: none;
-    background-image: url("src/assets/chevron-up.svg");
+    /* background-image: url("src/assets/chevron-up.svg"); */
     background-repeat: no-repeat;
     background-position: calc(100% - 16px) center;
     background-size: 20px 20px;
