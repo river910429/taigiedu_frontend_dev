@@ -25,15 +25,9 @@
   font-weight: 300;
   line-height: normal;
 
-  background-image: url("src/assets/arrow-right.svg");
-  background-repeat: no-repeat;
-  background-position: calc(100% - 10px) center; /* 箭頭距右邊 16px */
-  background-size: 24px 24px; /* 設定箭頭大小 */
+  /* 背景圖片已移至 JS 中處理 */
 }
 .translate-button:hover {
   background: #a6bdcd;
-  background-image: url("src/assets/arrow-right.svg");
-  background-repeat: no-repeat;
-  background-position: calc(100% - 10px) center; /* 箭頭距右邊 16px */
-  background-size: 24px 24px; /* 設定箭頭大小 */
+  /* 背景圖片已移至 JS 中處理 */
 }

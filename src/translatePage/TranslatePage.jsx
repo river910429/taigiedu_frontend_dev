@@ -1,75 +1,144 @@
 import React, { useState } from "react";
+import { useToast } from "../components/Toast";
 import "./TranslatePage.css";
+import arrowRightIcon from "../assets/arrow-right.svg";
 
 import TranslateOriginal from "./TranslateOriginal";
 import TranslateTarget from "./TranslateTarget";
 import TranslateFeedback from "./TranslateFeedback";
 
+// 支援的語言選項
 const languageOptions = {
-  漢羅: ["台羅", "漢羅",  "華文", "白話字"],
+  漢羅: ["台羅", "漢羅", "華文", "白話字"],
   華文: ["台羅", "漢羅", "華文", "白話字"],
-  台羅: ["白話字", "台羅" ],
-  白話字: ["台羅", "白話字"],
+  台羅: ["白話字", "台羅", "漢羅"],
+  白話字: ["台羅", "白話字", "漢羅"],
 };
 
-//漢羅（tb）、台羅（tl）、白話字（poj）
-const conversionModes = {
-  "漢羅": { "台羅": "tbn2tl" , "白話字": "tbn2poj" },
-  "台羅": { "白話字": "tl2poj", "台羅": "tl2tl" },
-  "白話字": { "台羅": "poj2tl" },
+// API 支援的直接轉換模式
+const directConversionModes = {
+  "漢羅_台羅": "tbn2tl",
+  "漢羅_華文": "tbn2zh",
+  "台羅_白話字": "tl2poj",
+  "白話字_台羅": "poj2tl",
+  "華文_漢羅": "zh2tbn"
+};
+
+// 需要中間轉換的路徑（多步驟轉換）
+const conversionPaths = {
+  "漢羅_白話字": [
+    { from: "漢羅", to: "台羅", mode: "tbn2tl" },
+    { from: "台羅", to: "白話字", mode: "tl2poj" }
+  ],
+  "白話字_漢羅": [
+    { from: "白話字", to: "台羅", mode: "poj2tl" },
+    { from: "台羅", to: "漢羅", mode: "tl2tbn" } // 目前無 tl2tbn 模式，會發生錯誤
+  ],
+  "台羅_漢羅": [
+    { from: "台羅", to: "漢羅", mode: "tl2tbn" } // 目前無 tl2tbn 模式，會發生錯誤
+  ],
+  "華文_台羅": [
+    { from: "華文", to: "漢羅", mode: "zh2tbn" },
+    { from: "漢羅", to: "台羅", mode: "tbn2tl" }
+  ],
+  "華文_白話字": [
+    { from: "華文", to: "漢羅", mode: "zh2tbn" },
+    { from: "漢羅", to: "台羅", mode: "tbn2tl" },
+    { from: "台羅", to: "白話字", mode: "tl2poj" }
+  ]
 };
 
 const TranslatePage = () => {
+  const { showToast } = useToast();
   const [isEditable, setIsEditable] = useState(false);
   const [originalContent, setOriginalContent] = useState(""); // 原文內容
   const [translatedContent, setTranslatedContent] = useState(""); // 翻譯後的內容
   const [originalLanguage, setOriginalLanguage] = useState("華文"); // 原始語言
-  const [targetLanguage, setTargetLanguage] = useState(languageOptions["華文"][1]); // 目標語言
+  const [targetLanguage, setTargetLanguage] = useState(languageOptions["華文"][0]); // 目標語言
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false); // 控制回饋頁面
   const [loading, setLoading] = useState(false); // 控制翻譯請求的 loading 狀態
 
-  // 當原始語言變更時，重置目標語言
+  // 當原始語言變更時，更新目標語言選項
   const handleOriginalLanguageChange = (language) => {
     setOriginalLanguage(language);
-    setTargetLanguage(""); // 重置目標語言
+    // 選擇該語言可用轉換選項中的第一個
+    if (languageOptions[language] && languageOptions[language].length > 0) {
+      setTargetLanguage(languageOptions[language][0]);
+    } else {
+      setTargetLanguage("");
+    }
   };
 
+  // 執行單次API轉換
+  const performSingleConversion = async (mode, textToConvert) => {
+    const response = await fetch("https://dev.taigiedu.com/backend/convert_taibun", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        taibun_mode: mode,
+        taibun_data: textToConvert,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    return await response.text();
+  };
 
   const handleTranslate = async () => {
     if (!originalContent.trim() || !originalLanguage || !targetLanguage) {
       return;
     }
 
-    const conversionMode = conversionModes[originalLanguage]?.[targetLanguage];
-
-    if (!conversionMode) {
-      alert("不支援此語言轉換");
+    // 如果源語言和目標語言相同
+    if (originalLanguage === targetLanguage) {
+      showToast(`${originalLanguage}轉${originalLanguage}? 自己嚇自己`, 'warning');
+      setTranslatedContent(originalContent);
+      setIsEditable(true);
       return;
     }
 
-    setLoading(true); // 開啟 loading 狀態
+    setLoading(true);
 
     try {
-      const response = await fetch("https://dev.taigiedu.com/backend/convert_taibun", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          taibun_mode: conversionMode,
-          taibun_data: originalContent,
-        }),
-      });
+      let result = originalContent;
+      const conversionKey = `${originalLanguage}_${targetLanguage}`;
 
-      const translatedText = await response.text(); // API 回傳的是純文字
+      // 檢查是否有直接轉換模式
+      if (directConversionModes[conversionKey]) {
+        // 單步轉換
+        result = await performSingleConversion(directConversionModes[conversionKey], originalContent);
+      } 
+      // 檢查是否有多步轉換路徑
+      else if (conversionPaths[conversionKey]) {
+        // 多步轉換
+        let currentText = originalContent;
+        const steps = conversionPaths[conversionKey];
 
-      setTranslatedContent(translatedText);
-      setIsEditable(true); // 啟用目標內容的狀態
+        for (const step of steps) {
+          currentText = await performSingleConversion(step.mode, currentText);
+        }
+
+        result = currentText;
+      } 
+      // 不支援的轉換
+      else {
+        showToast(`不支援 ${originalLanguage} 到 ${targetLanguage} 的轉換`, 'error');
+        setLoading(false);
+        return;
+      }
+
+      setTranslatedContent(result);
+      setIsEditable(true);
     } catch (error) {
       console.error("翻譯失敗:", error);
-      alert("翻譯過程發生錯誤，請稍後再試");
+      showToast("翻譯過程發生錯誤，請稍後再試", 'error');
     } finally {
-      setLoading(false); // 關閉 loading 狀態
+      setLoading(false);
     }
   };
 
@@ -85,6 +154,13 @@ const TranslatePage = () => {
     setTranslatedContent(updatedContent); // 更新翻譯內容
   };
 
+  const translateButtonStyle = {
+    backgroundImage: `url(${arrowRightIcon})`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'calc(100% - 10px) center',
+    backgroundSize: '24px 24px'
+  };
+
   return (
     <div className="translate-page">
       {/* 原始輸入區 */}
@@ -96,6 +172,7 @@ const TranslatePage = () => {
       {/* 翻譯按鈕 */}
       <button
         className="translate-button"
+        style={translateButtonStyle}
         onClick={handleTranslate}
         disabled={
           originalContent.trim() === "" ||
@@ -103,7 +180,7 @@ const TranslatePage = () => {
           targetLanguage === "" // 必須選擇目標語言
         }
       >
-         {loading ? "翻譯中..." : "翻譯"}
+        {loading ? "翻譯中..." : "翻譯"}
       </button>
 
       {/* 翻譯後顯示區 */}
@@ -114,7 +191,6 @@ const TranslatePage = () => {
         targetLanguage={targetLanguage}
         availableLanguages={languageOptions[originalLanguage] || []} // 根據原始語言過濾可選擇的目標語言
         onFeedbackOpen={handleFeedbackOpen} // 傳遞開啟回饋頁面的函數
-        
       />
 
       {/* 回饋頁面 */}
@@ -125,7 +201,7 @@ const TranslatePage = () => {
         originalLanguage={originalLanguage}
         translatedContent={translatedContent}
         translatedLanguage={targetLanguage}
-        onContentUpdate={handleFeedbackContentUpdate} // 新增這行
+        onContentUpdate={handleFeedbackContentUpdate}
       />
     </div>
   );

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./TranslateTarget.css";
+import speakerIcon from "../assets/speaker-wave.svg";
+import chevronUpIcon from "../assets/chevron-up.svg";
 
 const TranslateTarget = ({
   isEditable,
@@ -8,25 +10,25 @@ const TranslateTarget = ({
   onFeedbackOpen,
   availableLanguages,
 }) => {
-  const [selectedLanguage, setSelectedLanguage] = useState("台羅"); // 預設下拉選單值
-  const [isCopied, setIsCopied] = useState(false); // 控制複製按鈕狀態
-  const [isPlaying, setIsPlaying] = useState(false); // 控制播放按鈕狀態
+  const [selectedLanguage, setSelectedLanguage] = useState("台羅");
+  const [isCopied, setIsCopied] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // 當 availableLanguages 改變時，選擇對應的第一個可用語言
   useEffect(() => {
     if (availableLanguages.length > 0) {
       setSelectedLanguage(availableLanguages[0]);
-      setTargetLanguage(availableLanguages[0]); // 更新父層狀態
+      setTargetLanguage(availableLanguages[0]);
     }
   }, [availableLanguages, setTargetLanguage]);
 
   const handleCopy = () => {
-    if (content.trim() === "") return; // 防止複製空內容
+    if (content.trim() === "") return;
     navigator.clipboard
-      .writeText(content) // 修正複製功能
+      .writeText(content)
       .then(() => {
-        setIsCopied(true); // 更新按鈕狀態
-        setTimeout(() => setIsCopied(false), 3000); // 3秒後恢復按鈕狀態
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 3000);
       })
       .catch((err) => {
         console.error("複製失敗:", err);
@@ -36,62 +38,93 @@ const TranslateTarget = ({
   const handleLanguageChange = (e) => {
     const language = e.target.value;
     setSelectedLanguage(language);
-    setTargetLanguage(language); // 更新父層狀態
+    setTargetLanguage(language);
   };
 
-  // const handlePlayAudio = () => {
-  //   alert("播放文字內容：\n" + content);
-  //   // 模擬播放功能，可以替換為實際的音頻生成和播放邏輯
-  // };
+  const dropdownStyle = {
+    backgroundImage: `url(${chevronUpIcon})`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'calc(100% - 16px) center',
+    backgroundSize: '20px 20px'
+  };
+
 
   const handlePlayAudio = async () => {
     if (!content.trim()) {
       alert("沒有可播放的內容！");
       return;
     }
-
+  
     setIsPlaying(true); // 設定播放中狀態
-
+  
     try {
+      let ttsLang = "tb"; // 預設是漢羅
+    
+      switch (selectedLanguage) {
+        case "台羅":
+          ttsLang = "tl";
+          break;
+        case "漢羅":
+          ttsLang = "tb";
+          break;
+        case "白話字":
+          ttsLang = "poj";
+          break;
+        default:
+          ttsLang = "tb"; // 預設漢羅
+      }
       const response = await fetch("https://dev.taigiedu.com/backend/synthesize_speech", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          tts_lang: "tb", // 假設 API 使用 "tb" 表示漢羅
+          tts_lang: ttsLang, 
           tts_data: content,
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
       }
-
+  
       const synthesizedAudioBase64 = await response.text(); // API 回傳 Base64 音訊
-
-      playAudio(synthesizedAudioBase64); // 播放音訊
+  
+      // 創建並播放音頻，監聽播放結束事件
+      const audioSrc = `data:audio/wav;base64,${synthesizedAudioBase64}`;
+      const audio = new Audio(audioSrc);
+      
+      // 設置音訊事件處理
+      audio.onloadeddata = () => {
+        audio.play().catch(err => {
+          console.error("播放音訊時發生錯誤:", err);
+          setIsPlaying(false);
+        });
+      };
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+      };
+      
+      audio.onerror = () => {
+        console.error("音頻載入失敗");
+        setIsPlaying(false);
+      };
+      
     } catch (error) {
       console.error("語音合成失敗:", error);
       alert("語音合成失敗，請稍後再試");
-    } finally {
-      setIsPlaying(false); // 恢復按鈕狀態
+      setIsPlaying(false);
     }
-  };
-
-  const playAudio = (base64Audio) => {
-    const audioSrc = `data:audio/wav;base64,${base64Audio}`;
-    const audio = new Audio(audioSrc);
-    audio.play().catch((err) => console.error("播放音訊時發生錯誤:", err));
   };
 
   return (
     <div className="translate-content">
-      {/* 下拉選單 */}
       <select
         className="language-dropdown"
         value={selectedLanguage}
         onChange={handleLanguageChange}
+        style={dropdownStyle}
       >
         {availableLanguages.map((lang) => (
           <option key={lang} value={lang}>
@@ -101,7 +134,6 @@ const TranslateTarget = ({
       </select>
 
       <div className="target-content-container">
-        {/*  顯示區*/}
         <div
           className={`target-display-box ${
             isEditable ? "editable" : "non-editable"
@@ -110,15 +142,24 @@ const TranslateTarget = ({
           {content || <span className="tran-placeholder">轉換內容</span>}
 
           {isEditable && (
-            <button className="play-audio-button" onClick={handlePlayAudio} disabled={isPlaying} >
-               {isPlaying ? "播放中..." : <img src="src/assets/speaker-wave.svg" className="play-icon" />}
+            <button 
+              className={`play-audio-button ${isPlaying ? 'playing' : ''}`}
+              onClick={handlePlayAudio} 
+              disabled={isPlaying}
+              aria-label="播放音訊"
+            >
+              <img 
+                src={speakerIcon} 
+                className="play-icon" 
+                alt="播放"
+              />
             </button>
           )}
         </div>
 
         <button
-          className={`copy-button-translate ${isCopied ? "copied" : ""}`} // 動態添加 copied 樣式
-          disabled={!isEditable || content.trim() === ""} // 背景為灰色或無內容時禁用按鈕
+          className={`copy-button-translate ${isCopied ? "copied" : ""}`}
+          disabled={!isEditable || content.trim() === ""}
           onClick={handleCopy}
         >
           {isCopied ? "文字已複製！" : "複製全文"}

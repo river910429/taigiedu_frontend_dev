@@ -11,7 +11,7 @@ const TranslateFeedback = ({
   translatedLanguage,
   onContentUpdate,
 }) => {
-  const { showToast } = useToast();
+  const { showToast } = useToast(); // 使用 useToast
   const [feedbackTranslated, setFeedbackTranslated] = useState(translatedContent);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
