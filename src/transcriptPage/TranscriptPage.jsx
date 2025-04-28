@@ -163,7 +163,7 @@ audioRecorder.onstop = async () => {
         console.log('Raw response:', responseData);
         
         // 檢查是否為靜音回應 - 新格式 {"message": {"tw": "<silent>", ...}}
-        if (responseData.message && responseData.message.tw === "<silent>") {
+        if (responseData.message && responseData.message.tw === "<{silent}>") {
           showToast('蛤??????? 你好像沒講話吧？ (ﾟд⊙)', "warning");
           setIsProcessing(false);
           return; // 提前退出，不更新文本內容
@@ -292,7 +292,7 @@ audioRecorder.onstop = async () => {
       console.log('Raw response:', responseData);
   
       // 檢查是否為靜音回應 - 新格式 {"message": {"tw": "<silent>", ...}}
-      if (responseData.message && responseData.message.tw === "<silent>") {
+      if (responseData.message && responseData.message.tw === "<{silent}>") {
         showToast('ㄋㄟㄋㄟ？這個檔案好像沒有聲音耶！', 'warning');
         setIsProcessing(false);
         return; // 提前退出，不更新文本內容
