@@ -1,4 +1,5 @@
-import React, { useState, useEffect  } from "react";
+import React, { useState, useEffect } from "react";
+import { useToast } from "../components/Toast";
 import "./TranslateFeedback.css";
 
 const TranslateFeedback = ({
@@ -10,8 +11,14 @@ const TranslateFeedback = ({
   translatedLanguage,
   onContentUpdate,
 }) => {
-
+  const { showToast } = useToast();
   const [feedbackTranslated, setFeedbackTranslated] = useState(translatedContent);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 當 translatedContent 發生變化時，更新 feedbackTranslated
+  useEffect(() => {
+    setFeedbackTranslated(translatedContent);
+  }, [translatedContent]);
 
   useEffect(() => {
     const handlePopState = (event) => {
@@ -34,21 +41,48 @@ const TranslateFeedback = ({
     };
   }, [isOpen]);
 
-  
-
   const handleTranslatedChange = (e) => {
     setFeedbackTranslated(e.target.value);
   };
 
-  const handleSubmit = () => {
-    alert(
-      `回饋提交成功！\n原始內容：${feedbackOriginal}\n翻譯內容：${feedbackTranslated}`
-    );
-    onContentUpdate(feedbackTranslated); // 傳送修正後的內容
-    onClose(); // 关闭弹窗
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      // 準備 API 參數
+      const parameters = {
+        'mode': `${originalLanguage.toLowerCase()}_to_${translatedLanguage.toLowerCase()}`,
+        'inputText': originalContent,
+        'correctedText': feedbackTranslated
+      };
+
+      // 發送 API 請求
+      const response = await fetch('https://dev.taigiedu.com/backend/submit_tc_feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(parameters)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      // 顯示成功訊息
+      showToast('回饋提交成功！感謝您的協助改進翻譯品質', 'success');
+      onContentUpdate(feedbackTranslated); // 傳送修正後的內容
+      onClose(); // 關閉彈窗
+    } catch (error) {
+      console.error('Feedback submission failed:', error);
+      showToast('提交失敗，請稍後再試', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (!isOpen) return null; 
+  if (!isOpen) return null;
 
   return (
     <div className="tran-feedback-overlay">
@@ -71,24 +105,29 @@ const TranslateFeedback = ({
 
           <div className="feedback-target">
             <div className="feedback-language-display">{translatedLanguage}</div>
-            <div className="feedback-content-container"><textarea
-              className="feedback-text-input"
-              placeholder="請輸入修正後的內容..."
-              defaultValue={translatedContent}
-              value={feedbackTranslated}
-              onChange={handleTranslatedChange}
-            /></div>
-            
+            <div className="feedback-content-container">
+              <textarea
+                className="feedback-text-input"
+                placeholder="請輸入修正後的內容..."
+                value={feedbackTranslated}
+                onChange={handleTranslatedChange}
+              />
+            </div>
           </div>
         </div>
 
         <div className="feedback-footer">
-          <button className="feedback-submit-button" onClick={handleSubmit}>
-            提交
+          <button 
+            className={`feedback-submit-button ${isSubmitting ? 'submitting' : ''}`}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? '提交中...' : '提交'}
           </button>
         </div>
       </div>
     </div>
   );
 };
+
 export default TranslateFeedback;
