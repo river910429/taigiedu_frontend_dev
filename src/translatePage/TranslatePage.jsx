@@ -11,8 +11,8 @@ import TranslateFeedback from "./TranslateFeedback";
 const languageOptions = {
   漢羅: ["台羅", "漢羅", "華文", "白話字"],
   華文: ["台羅", "漢羅", "華文", "白話字"],
-  台羅: ["白話字", "台羅", "漢羅"],
-  白話字: ["台羅", "白話字", "漢羅"],
+  台羅: ["白話字", "台羅"],
+  白話字: ["台羅", "白話字"],
 };
 
 // API 支援的直接轉換模式
@@ -29,13 +29,6 @@ const conversionPaths = {
   "漢羅_白話字": [
     { from: "漢羅", to: "台羅", mode: "tbn2tl" },
     { from: "台羅", to: "白話字", mode: "tl2poj" }
-  ],
-  "白話字_漢羅": [
-    { from: "白話字", to: "台羅", mode: "poj2tl" },
-    { from: "台羅", to: "漢羅", mode: "tl2tbn" } // 目前無 tl2tbn 模式，會發生錯誤
-  ],
-  "台羅_漢羅": [
-    { from: "台羅", to: "漢羅", mode: "tl2tbn" } // 目前無 tl2tbn 模式，會發生錯誤
   ],
   "華文_台羅": [
     { from: "華文", to: "漢羅", mode: "zh2tbn" },

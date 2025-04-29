@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useToast } from "../components/Toast";
 import "./TranslateTarget.css";
 import speakerIcon from "../assets/speaker-wave.svg";
 import chevronUpIcon from "../assets/chevron-up.svg";
+import loadingIcon from "../assets/loading.png";
 
 const TranslateTarget = ({
   isEditable,
@@ -13,6 +15,8 @@ const TranslateTarget = ({
   const [selectedLanguage, setSelectedLanguage] = useState("台羅");
   const [isCopied, setIsCopied] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
 
   // 當 availableLanguages 改變時，選擇對應的第一個可用語言
   useEffect(() => {
@@ -48,31 +52,32 @@ const TranslateTarget = ({
     backgroundSize: '20px 20px'
   };
 
-
   const handlePlayAudio = async () => {
     if (!content.trim()) {
-      alert("沒有可播放的內容！");
+      showToast("沒有可播放的內容！", 'error');
       return;
     }
   
-    setIsPlaying(true); // 設定播放中狀態
+    // 設置載入中狀態，但還不是播放中
+    setIsLoading(true);
   
     try {
       let ttsLang = "tb"; // 預設是漢羅
     
-      switch (selectedLanguage) {
-        case "台羅":
-          ttsLang = "tl";
-          break;
-        case "漢羅":
-          ttsLang = "tb";
-          break;
-        case "白話字":
-          ttsLang = "poj";
-          break;
-        default:
-          ttsLang = "tb"; // 預設漢羅
-      }
+      // switch (selectedLanguage) {
+      //   case "台羅":
+      //     ttsLang = "tl";
+      //     break;
+      //   case "漢羅":
+      //     ttsLang = "tb";
+      //     break;
+      //   case "白話字":
+      //     ttsLang = "poj";
+      //     break;
+      //   default:
+      //     ttsLang = "tb"; // 預設漢羅
+      // }
+      
       const response = await fetch("https://dev.taigiedu.com/backend/synthesize_speech", {
         method: "POST",
         headers: {
@@ -90,30 +95,45 @@ const TranslateTarget = ({
   
       const synthesizedAudioBase64 = await response.text(); // API 回傳 Base64 音訊
   
-      // 創建並播放音頻，監聽播放結束事件
+      // 創建音頻對象
       const audioSrc = `data:audio/wav;base64,${synthesizedAudioBase64}`;
       const audio = new Audio(audioSrc);
       
-      // 設置音訊事件處理
-      audio.onloadeddata = () => {
-        audio.play().catch(err => {
-          console.error("播放音訊時發生錯誤:", err);
-          setIsPlaying(false);
-        });
-      };
+      // 預先加載音頻
+      await new Promise((resolve, reject) => {
+        audio.onloadeddata = resolve;
+        audio.onerror = reject;
+        
+        // 10秒後如果還沒加載完成就超時
+        const timeout = setTimeout(() => {
+          reject(new Error("音訊加載超時"));
+          showToast("音訊加載超時", 'error');
+        }, 10000);
+        
+        // 清除超時計時器
+        audio.onloadeddata = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+      });
       
+      // 音頻加載完成，設置載入狀態為 false，播放狀態為 true
+      setIsLoading(false);
+      setIsPlaying(true);
+      
+      // 播放音頻
+      await audio.play();
+      
+      // 監聽播放結束
       audio.onended = () => {
-        setIsPlaying(false);
-      };
-      
-      audio.onerror = () => {
-        console.error("音頻載入失敗");
         setIsPlaying(false);
       };
       
     } catch (error) {
       console.error("語音合成失敗:", error);
-      alert("語音合成失敗，請稍後再試");
+      showToast("語音合成或播放失敗，請稍後再試", 'error');
+      // 重置所有狀態
+      setIsLoading(false);
       setIsPlaying(false);
     }
   };
@@ -143,16 +163,24 @@ const TranslateTarget = ({
 
           {isEditable && (
             <button 
-              className={`play-audio-button ${isPlaying ? 'playing' : ''}`}
+              className={`play-audio-button ${isPlaying ? 'playing' : ''} ${isLoading ? 'loading' : ''}`}
               onClick={handlePlayAudio} 
-              disabled={isPlaying}
-              aria-label="播放音訊"
+              disabled={isPlaying || isLoading}
+              aria-label={isLoading ? "載入中" : isPlaying ? "播放中" : "播放音訊"}
             >
-              <img 
-                src={speakerIcon} 
-                className="play-icon" 
-                alt="播放"
-              />
+              {isLoading ? (
+                <img 
+                  src={loadingIcon} 
+                  className="loading-icon" 
+                  alt="載入中"
+                />
+              ) : (
+                <img 
+                  src={speakerIcon} 
+                  className="play-icon" 
+                  alt="播放"
+                />
+              )}
             </button>
           )}
         </div>
