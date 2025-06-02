@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../components/Toast";
 import "./RegisterPage.css";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const [isVerificationVisible, setIsVerificationVisible] = useState(false); // 控制是否顯示信箱驗證視窗
-  const [resendCooldown, setResendCooldown] = useState(60); // 再次獲取驗證碼的倒數計時
+  const { showToast } = useToast(); 
+  const [isVerificationVisible, setIsVerificationVisible] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(60);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 控制表單提交狀態
 
   const [formData, setFormData] = useState({
     email: "",
@@ -19,13 +22,6 @@ const RegisterPage = () => {
     usagePurpose: [],
   });
 
-  /*usagePurpose json 格式：
-  [
-    { "type": "備課" },
-    { "type": "自學" },
-    { "type": "其他", "custom": "自定義內容" }
-  ]
-*/
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -34,22 +30,22 @@ const RegisterPage = () => {
         setFormData((prev) => ({
           ...prev,
           usagePurpose: checked
-            ? [...prev.usagePurpose, { type: value, custom: "" }] // 新增 "其他" 且初始化為空
-            : prev.usagePurpose.filter((item) => item.type !== value), // 移除 "其他"
+            ? [...prev.usagePurpose, { type: value, custom: "" }]
+            : prev.usagePurpose.filter((item) => item.type !== value),
         }));
       } else {
         setFormData((prev) => ({
           ...prev,
           usagePurpose: checked
-            ? [...prev.usagePurpose, { type: value }] // 新增一般選項
-            : prev.usagePurpose.filter((item) => item.type !== value), // 移除一般選項
+            ? [...prev.usagePurpose, { type: value }]
+            : prev.usagePurpose.filter((item) => item.type !== value),
         }));
       }
     } else if (name === "customPurpose") {
       setFormData((prev) => ({
         ...prev,
         usagePurpose: prev.usagePurpose.map(
-          (item) => (item.type === "其他" ? { ...item, custom: value } : item) // 更新 "其他" 的描述
+          (item) => (item.type === "其他" ? { ...item, custom: value } : item)
         ),
       }));
     } else {
@@ -57,20 +53,113 @@ const RegisterPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 基本驗證
     if (formData.password !== formData.confirmPassword) {
-      alert("密碼與確認密碼不一致！");
+      showToast("密碼與確認密碼不一致！", "error");
       return;
     }
-    console.log("Submitted Data:", formData);
-    // 模擬註冊成功，切換到信箱驗證提醒視窗
-    setIsVerificationVisible(true);
+
+    // 檢查必填欄位
+    if (!formData.email || !formData.password || !formData.lastName || !formData.firstName || !formData.profession) {
+      showToast("請填寫所有必填欄位", "error");
+      return;
+    }
+
+    // 檢查至少選擇一個使用網站動機
+    if (formData.usagePurpose.length === 0) {
+      showToast("請至少選擇一個使用網站動機", "error");
+      return;
+    }
+
+    // 如果選擇了"其他"職業，但沒有填寫說明
+    if (formData.profession === "其他" && !formData.professionOther) {
+      showToast("請填寫其他職業說明", "error");
+      return;
+    }
+
+    // 如果選擇了"其他"使用動機，但沒有填寫說明
+    const otherPurpose = formData.usagePurpose.find(item => item.type === "其他");
+    if (otherPurpose && !otherPurpose.custom) {
+      showToast("請填寫其他使用動機說明", "error");
+      return;
+    }
+
+    // 準備 API 參數
+    const parameters = {
+      email: formData.email,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
+      lastName: formData.lastName,
+      firstName: formData.firstName,
+      profession: formData.profession,
+      organization: formData.organization,
+      usagePurpose: formData.usagePurpose,
+    };
+
+    // 只有當選擇"其他"職業時，才加入 professionOther
+    if (formData.profession === "其他") {
+      parameters.professionOther = formData.professionOther;
+    }
+
+    setIsSubmitting(true); // 開始提交
+
+    try {
+      const response = await fetch("https://dev.taigiedu.com/backend/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(parameters),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // 註冊成功
+        console.log("Register success:", data);
+        showToast("註冊成功！請查看您的電子郵件進行驗證", "success");
+        setIsVerificationVisible(true); // 顯示驗證提示
+      } else {
+        // 註冊失敗
+        console.error("Register failed:", data);
+        // 顯示具體錯誤訊息
+        showToast(data.message || "註冊失敗，請稍後再試", "error");
+      }
+    } catch (error) {
+      console.error("Request error:", error);
+      showToast("網路連線錯誤，請檢查您的網路連線", "error");
+    } finally {
+      setIsSubmitting(false); // 結束提交
+    }
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = async () => {
     if (resendCooldown === 0) {
       setResendCooldown(60); // 重置倒數計時
+      
+      try {
+        const response = await fetch("https://dev.taigiedu.com/backend/api/user/resend-verification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: formData.email }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showToast("驗證信已重新發送", "success");
+        } else {
+          showToast(data.message || "重新發送驗證信失敗", "error");
+        }
+      } catch (error) {
+        console.error("Resend verification error:", error);
+        showToast("網路連線錯誤，請稍後再試", "error");
+      }
     }
   };
 
@@ -227,6 +316,7 @@ const RegisterPage = () => {
                   name="organization"
                   value={formData.organization}
                   onChange={handleChange}
+                  required
                 />
               </label>
 
@@ -269,8 +359,12 @@ const RegisterPage = () => {
                 </div>
               </label>
 
-              <button type="submit" className="register-submit-button">
-                送出
+              <button 
+                type="submit" 
+                className="register-submit-button"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "處理中..." : "送出"}
               </button>
             </form>
           </div>

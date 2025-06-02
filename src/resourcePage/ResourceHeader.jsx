@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../components/Toast";
 import "./ResourceHeader.css";
 import MultiSelect from "../phrasePage/multiselect";
 
-const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
+const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [selectedGrade, setSelectedGrade] = useState("階段");
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = useState("");
   const [isGradeOpen, setIsGradeOpen] = useState(false);
   const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState(); //多選下拉選單
+  const [selectedCategories, setSelectedCategories] = useState([]); // 多選下拉選單
 
+  // 定義版本選項映射
   const gradeToVersions = {
     國小: ["真平", "康軒"],
     國中: ["真平", "康軒", "奇異果", "師昀", "全華", "豪風", "長鴻"],
@@ -19,11 +22,11 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
 
   const getVersionOptions = (grade) => {
     if (grade === "全部") {
-      // return Object.values(gradeToVersions).flat();
       return allVersions;
     }
     return gradeToVersions[grade] || [];
   };
+  
   const allVersions = [
     "真平",
     "康軒",
@@ -36,6 +39,7 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
     "泰宇",
     "創新",
   ];
+  
   const handleCategoryChange = (selected) => {
     setSelectedCategories(selected);
   };
@@ -56,21 +60,50 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
 
   const handleSearch = (e) => {
     e.preventDefault(); // 防止頁面重整
-    if (query.trim() === "") return;
+    
+    // 構建搜索參數
+    const searchParams = {
+      stage: selectedGrade === "階段" || selectedGrade === "全部" ? "" : selectedGrade,
+      version: selectedCategories?.join(",") || "",
+      keyword: query.trim(),
+      searchContent: ""
+    };
+    
+    console.log("執行搜索:", searchParams);
+    
+    // 調用父組件的搜索函數
+    if (onSearch) {
+      onSearch(searchParams);
+    }
   };
 
-  const handleDelete = () => {
-    /*
+  // 上傳資源處理
+  const handleUpload = () => {
     if (!isLoggedIn) {
-      // 未登入時跳轉到登入頁，並帶上目標頁面資訊
-      navigate("/login", { state: { redirectTo: "/delete-resource" } });
+      showToast("請先登入後再上傳資源", "warning");
+      navigate("/login", { state: { redirectTo: "/resource" } });
       return;
-    }*/
-    navigate("/delete-resource"); // 跳轉到刪除頁面
+    }
+    onUploadOpen();
   };
 
-  const handleLogin = () => {
-    navigate("/login"); // 跳轉到刪除頁面
+  // 刪除資源處理
+  const handleDelete = () => {
+    if (!isLoggedIn) {
+      showToast("請先登入後再刪除資源", "warning");
+      navigate("/login", { state: { redirectTo: "/resource" } });
+      return;
+    }
+    navigate("/delete-resource");
+  };
+
+  // 登出處理
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("isLoggedIn");
+    setIsLoggedIn(false);
+    showToast("已成功登出", "success");
   };
 
   return (
@@ -122,11 +155,17 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn }) => {
 
       {/* 上傳/刪除我的資源按鈕 */}
       <div className="res-button-container">
-        <button className="res-login-button" onClick={handleLogin}>
-          登入
-        </button>
+        {/* 只在登入狀態下顯示登出按鈕 */}
+        {isLoggedIn && (
+          <button 
+            className="res-login-button logout-button" 
+            onClick={handleLogout}
+          >
+            登出
+          </button>
+        )}
 
-        <button className="res-upload-button" onClick={onUploadOpen}>
+        <button className="res-upload-button" onClick={handleUpload}>
           上傳我的資源
         </button>
 

@@ -7,10 +7,10 @@ const ResourceCard = ({
   likes,
   downloads,
   title,
-  uploader,
+  uploader, // 這可能是從 uploader_name 傳入的
   tags = [],
   date,
-  onCardClick, // 新增一個 prop 控制點擊事件
+  onCardClick, // 控制點擊事件的 prop
 }) => {
   const handleCardClick = () => {
     if (onCardClick) {
@@ -18,32 +18,16 @@ const ResourceCard = ({
     }
   };
 
-  /*
-  const handleCardClick = () => {
-    navigate("/file-preview", {
-      state: {
-        imageUrl,
-        fileType,
-        likes,
-        downloads,
-        title,
-        uploader,
-        tags,
-        date,
-      },
-    });
-  };
-
-  */
   return (
     <div className="resource-card" onClick={handleCardClick}>
       {/* 卡片標頭區域，背景圖片 */}
       <div
         className="card-header"
-        style={{ backgroundImage: `url(${imageUrl})` }}
+        style={{ backgroundImage: `url(${imageUrl || "/src/assets/resourcepage/file_preview_demo.png"})` }}
       >
         <div className="file-type">{fileType}</div>
         <div className="stats">
+          {/* 顯示喜歡數量 */}
           <div className="likes">
             <img
               src="/src/assets/Union (Stroke).svg"
@@ -52,6 +36,7 @@ const ResourceCard = ({
             />
             <span>{likes}</span>
           </div>
+          {/* 顯示下載數量 */}
           <div className="downloads">
             <img
               src="/src/assets/arrow-down-circle.svg"
@@ -65,8 +50,11 @@ const ResourceCard = ({
 
       {/* 卡片內容 */}
       <div className="card-content">
+        {/* 資源標題 */}
         <h3 className="card-title">{title}</h3>
+        {/* 上傳者名稱 */}
         <p className="card-uploader">上傳者：{uploader}</p>
+        {/* 資源標籤 */}
         <div className="card-tags">
           {tags.map((tag, index) => (
             <span key={index} className="card-tag">

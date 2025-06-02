@@ -1,64 +1,181 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useToast } from "../components/Toast";
 import "./FilePreview.css";
 
 const FilePreview = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { showToast } = useToast();
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [downloadsCount, setDownloadsCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [resourceData, setResourceData] = useState({
+    imageUrl: "",
+    fileType: "",
+    title: "",
+    uploader: "",
+    date: "",
+    fileUrl: "",
+    resourceId: "",
+    tags: []
+  });
 
   // 從 URL 查詢參數取得資料
-  const searchParams = new URLSearchParams(window.location.search);
-  const imageUrl = searchParams.get("imageUrl");
-  const fileType = searchParams.get("fileType");
-  const likes = searchParams.get("likes");
-  const downloads = searchParams.get("downloads");
-  const title = searchParams.get("title");
-  const uploader = searchParams.get("uploader");
-  const tags = JSON.parse(searchParams.get("tags") || "[]");
-  const date = searchParams.get("date");
+  useEffect(() => {
+    try {
+      const searchParams = new URLSearchParams(location.search);
+      
+      // 解析標籤
+      let parsedTags = [];
+      try {
+        parsedTags = JSON.parse(decodeURIComponent(searchParams.get("tags") || "[]"));
+      } catch (e) {
+        console.error("解析標籤錯誤:", e);
+        parsedTags = [];
+      }
+      
+      // 設置資源數據
+      setResourceData({
+        imageUrl: searchParams.get("imageUrl") || "/src/assets/resourcepage/file_preview_demo.png",
+        fileType: searchParams.get("fileType") || "PDF",
+        title: searchParams.get("title") || "無標題資源",
+        uploader: searchParams.get("uploader") || "匿名上傳者",
+        date: searchParams.get("date") || "未知日期",
+        fileUrl: searchParams.get("fileUrl") || "",
+        resourceId: searchParams.get("id") || "",
+        tags: parsedTags
+      });
+      
+      // 設置計數器
+      setLikesCount(parseInt(searchParams.get("likes") || "0", 10));
+      setDownloadsCount(parseInt(searchParams.get("downloads") || "0", 10));
+      
+      // 檢查用戶是否已點讚
+      const likedResources = JSON.parse(localStorage.getItem("likedResources") || "[]");
+      setIsLiked(likedResources.includes(searchParams.get("id")));
+      
+      setIsLoading(false);
+    } catch (error) {
+      console.error("解析 URL 參數時發生錯誤:", error);
+      setIsLoading(false);
+    }
+  }, [location.search]);
 
-  if (!title) {
-    return <div>Loading file preview...</div>;
+  if (isLoading) {
+    return (
+      <div className="file-preview-loading">
+        <div className="loading-spinner"></div>
+        <p>載入資源預覽中...</p>
+      </div>
+    );
   }
 
   const handleViewDownloadPage = () => {
+    if (!resourceData.fileUrl) {
+      showToast("無法查看此資源，檔案連結不可用", "error");
+      return;
+    }
+
     navigate("/download", {
       state: {
-        fileName: title,
-        pdfUrl: "/src/assets/resourcepage/download_test_file.pdf", 
+        fileName: resourceData.title,
+        pdfUrl: resourceData.fileUrl, 
       },
     });
   };
-
-  //直接開pdf預覽
-  // const handleDownload = () => {
-  //   const pdfUrl = "/src/assets/resourcepage/download_test_file.pdf";
-  //   window.open(pdfUrl, '_blank');
-  // };
   
-  // const handleViewDownloadPage = () => {
-  //   window.location.href = "/download";
-  // };
-  const handleDownload = () => {
-    const pdfUrl = "/src/assets/resourcepage/download_test_file.pdf";
-    const link = document.createElement('a');
-    link.href = pdfUrl;
-    link.setAttribute('download', `${title}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async () => {
+    if (!resourceData.fileUrl) {
+      showToast("無法下載此資源，檔案連結不可用", "error");
+      return;
+    }
+
+    try {
+      // 如果有資源 ID，記錄下載
+      if (resourceData.resourceId) {
+        await fetch(`https://dev.taigiedu.com/backend/api/resource/download/${resourceData.resourceId}`, {
+          method: "POST",
+        });
+      }
+
+      // 執行下載
+      const link = document.createElement('a');
+      link.href = resourceData.fileUrl;
+      link.setAttribute('download', `${resourceData.title}.${resourceData.fileType.toLowerCase()}`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // 更新下載計數
+      setDownloadsCount(prev => prev + 1);
+      showToast("資源下載已開始", "success");
+    } catch (error) {
+      console.error("下載資源錯誤:", error);
+      showToast("下載過程中發生錯誤，請稍後再試", "error");
+    }
   };
 
+  const handleLike = async () => {
+    if (!resourceData.resourceId) {
+      showToast("無法點讚此資源", "error");
+      return;
+    }
 
+    try {
+      // 如果已經點讚，不再重複點讚
+      if (isLiked) {
+        showToast("您已經點讚過此資源", "info");
+        return;
+      }
+
+      // 準備點讚請求參數
+      const parameters = {
+        id: parseInt(resourceData.resourceId, 10)  // 確保 ID 是整數
+      };
+      
+      // 發送點讚請求
+      const response = await fetch("https://dev.taigiedu.com/backend/api/resource/like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(parameters)
+      });
+      
+      const result = await response.json();
+      console.log("點讚回應:", result);
+      
+      // 處理回應結果
+      if (response.ok) {
+        // 更新本地存儲記錄已點讚的資源
+        const likedResources = JSON.parse(localStorage.getItem("likedResources") || "[]");
+        likedResources.push(resourceData.resourceId);
+        localStorage.setItem("likedResources", JSON.stringify(likedResources));
+        
+        // 更新 UI 狀態
+        setIsLiked(true);
+        setLikesCount(prev => prev + 1);
+        showToast("已成功點讚此資源", "success");
+      } else {
+        showToast(result.message || "點讚失敗，請稍後再試", "error");
+      }
+    } catch (error) {
+      console.error("點讚操作錯誤:", error);
+      showToast("網絡連接錯誤，請稍後再試", "error");
+    }
+  };
 
   return (
     <div className="file-preview-page">
       <div className="file-preview-header">
-        <h1 className="file-title">{title}</h1>
+        <h1 className="file-title">{resourceData.title}</h1>
 
         <div className="file-separator">&nbsp;</div>
 
         <div className="file-info">
-          <span>2週前</span>
+          <span>{resourceData.date}</span>
 
           <div className="file-likes">
             <img
@@ -66,7 +183,7 @@ const FilePreview = () => {
               alt="Likes"
               className="file-likes-icon"
             />
-            <span>{likes}</span>
+            <span>{likesCount}</span>
           </div>
           <div className="file-downloads">
             <img
@@ -74,14 +191,14 @@ const FilePreview = () => {
               alt="Downloads"
               className="file-downloads-icon"
             />
-            <span>{downloads}</span>
+            <span>{downloadsCount}</span>
           </div>
         </div>
 
-        <div className="file-uploader">AUTHOR：{uploader}</div>
+        <div className="file-uploader">AUTHOR：{resourceData.uploader}</div>
 
         <div className="file-tags">
-          {tags.map((tag, index) => (
+          {resourceData.tags.map((tag, index) => (
             <span key={index} className="file-tag">
               {tag}
             </span>
@@ -92,21 +209,24 @@ const FilePreview = () => {
           下載資源
         </button>
 
-        <button className="file-like-button">
-          點讚資源
+        <button 
+          className={`file-like-button ${isLiked ? 'liked' : ''}`} 
+          onClick={handleLike}
+        >
+          {isLiked ? '已點讚' : '點讚資源'}
         </button>
-
       </div>
 
       <div className="file-preview-image">
-        <img src={imageUrl} alt={title} />
+        <img src={resourceData.imageUrl} alt={resourceData.title} />
       </div>
 
       <div className="file-bottom-fixed" onClick={handleViewDownloadPage}>
-        <img src="/src/assets/resourcepage/Vector (Stroke).svg" />
+        <img src="/src/assets/resourcepage/Vector (Stroke).svg" alt="閱讀全部" />
         閱讀全部
       </div>
     </div>
   );
 };
+
 export default FilePreview;

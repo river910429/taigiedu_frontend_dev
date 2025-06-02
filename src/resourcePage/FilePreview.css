@@ -200,3 +200,20 @@
 .file-bottom-fixed:hover {
   background: rgba(0, 0, 0, 0.5); /* 灰色背景 */
 }
+
+
+
+.file-like-button.liked {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.file-preview-loading {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

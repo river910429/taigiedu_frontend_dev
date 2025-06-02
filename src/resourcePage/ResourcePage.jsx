@@ -1,13 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ResourcePage.css";
-
 import ResourceHeader from "./ResourceHeader";
 import ResourceContent from "./ResourceContent";
 import UploadResource from "./UploadResource";
+import "./ResourcePage.css";
 
-const ResourcePage = ({isLoggedIn, setIsLoggedIn  }) => {
-  const [isUploadOpen, setIsUploadOpen] = useState(false); // 控制上傳頁面
+const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
+  const navigate = useNavigate();
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [searchParams, setSearchParams] = useState({
+    stage: "",
+    version: "",
+    keyword: "",
+    searchContent: ""
+  });
+  
+  // 初始化時從 localStorage 檢查登入狀態
+  useEffect(() => {
+    const storedLoginStatus = localStorage.getItem("isLoggedIn");
+    if (storedLoginStatus === "true" && !isLoggedIn && typeof setIsLoggedIn === 'function') {
+      setIsLoggedIn(true);
+    }
+  }, [isLoggedIn, setIsLoggedIn]);
 
   const handleUploadOpen = () => {
     setIsUploadOpen(true);
@@ -16,7 +30,11 @@ const ResourcePage = ({isLoggedIn, setIsLoggedIn  }) => {
   const handleUploadClose = () => {
     setIsUploadOpen(false);
   };
-
+  
+  // 處理搜索請求
+  const handleSearch = (params) => {
+    setSearchParams(params);
+  };
   // const navigate = useNavigate();
   // const handleCardClick = (card) => {
   //   navigate("/file-preview", {
@@ -29,16 +47,32 @@ const ResourcePage = ({isLoggedIn, setIsLoggedIn  }) => {
   //   window.open(previewUrl, '_blank');
   // };
 
-  
-  const handleCardClick = (card) => {
-    const tags = JSON.stringify(card.tags);
-    // 構建正確的 URL
-    const previewUrl = `${window.location.origin}/file-preview?title=${encodeURIComponent(card.title)}&imageUrl=${encodeURIComponent(card.imageUrl)}&fileType=${encodeURIComponent(card.fileType)}&likes=${card.likes}&downloads=${card.downloads}&uploader=${encodeURIComponent(card.uploader)}&tags=${encodeURIComponent(tags)}&date=${encodeURIComponent(card.date)}`;
-    
-    // 打開新窗口
-    const newWindow = window.open(previewUrl, '_blank', 'noopener,noreferrer');
-    if (newWindow) newWindow.opener = null;
-    console.log("網址："+previewUrl);
+  // 處理資源卡片點擊 - 在新分頁開啟並傳遞完整數據
+  const handleCardClick = (resource) => {
+    try {
+      // 確保所有數據都被正確編碼並傳遞
+      const tagsString = encodeURIComponent(JSON.stringify(resource.tags || []));
+      
+      // 完整的資源 URL，包含所有必要參數
+      const previewUrl = `${window.location.origin}/file-preview?` + 
+        `title=${encodeURIComponent(resource.title || '無標題資源')}` +
+        `&imageUrl=${encodeURIComponent(resource.imageUrl || "/src/assets/resourcepage/file_preview_demo.png")}` +
+        `&fileType=${encodeURIComponent(resource.fileType || 'PDF')}` +
+        `&likes=${resource.likes || 0}` +
+        `&downloads=${resource.downloads || 0}` +
+        `&uploader=${encodeURIComponent(resource.uploader_name || '匿名上傳者')}` +
+        `&tags=${tagsString}` +
+        `&date=${encodeURIComponent(resource.date || '')}` +
+        `&fileUrl=${encodeURIComponent(resource.fileUrl || '')}` +
+        `&id=${encodeURIComponent(resource.id || '')}`;
+      
+      // 在新分頁中打開預覽頁面
+      window.open(previewUrl, '_blank', 'noopener,noreferrer');
+      
+      console.log("開啟預覽頁面:", previewUrl);
+    } catch (error) {
+      console.error("處理卡片點擊時發生錯誤:", error);
+    }
   };
 
   // const handleCardClick = (card) => {
@@ -50,12 +84,15 @@ const ResourcePage = ({isLoggedIn, setIsLoggedIn  }) => {
 
   return (
     <div className="resource-page">
-      <ResourceHeader
-        onUploadOpen={handleUploadOpen}
+      <ResourceHeader 
+        onUploadOpen={handleUploadOpen} 
+        isLoggedIn={isLoggedIn}
+        setIsLoggedIn={setIsLoggedIn}
+        onSearch={handleSearch}
       />
       <ResourceContent
-        numberOfCards={241}
-        onCardClick={(card) => handleCardClick(card)}
+        searchParams={searchParams}
+        onCardClick={handleCardClick}
       />
       <UploadResource isOpen={isUploadOpen} onClose={handleUploadClose} />
     </div>

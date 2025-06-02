@@ -137,3 +137,13 @@
   pointer-events: auto;
   opacity: 1;
 }
+
+/* 登出按鈕樣式 */
+.res-login-button.logout-button {
+  background-color: #e74c3c; /* 紅色背景 */
+  color: white;
+}
+
+.res-login-button.logout-button:hover {
+  background-color: #c0392b; /* 深紅色 hover 效果 */
+}
