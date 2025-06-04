@@ -6,31 +6,68 @@ import { useToast } from "../components/Toast";
 // 添加 renderCard 到組件參數中
 const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoaded }) => {
   const { showToast } = useToast();
-  const [resources, setResources] = useState([]);
+  const [allResources, setAllResources] = useState([]); // 存儲所有資源
+  const [displayedResources, setDisplayedResources] = useState([]); // 當前頁顯示的資源
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [lastSearchParams, setLastSearchParams] = useState(null); // 存儲上次搜索參數
+
   // 分頁設置
   const ITEMS_PER_PAGE = 12;
   const [currentPage, setCurrentPage] = useState(1);
-  const TOTAL_PAGES = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const [totalPages, setTotalPages] = useState(1);
   const VISIBLE_PAGES = 10;
 
-  // 獲取資源數據
-useEffect(() => {
-  fetchResources();
-}, [searchParams, currentPage]);
+  // 當搜索參數變更時重新獲取數據
+  useEffect(() => {
+    // 檢查搜索參數是否變化
+    const isParamsChanged = JSON.stringify(searchParams) !== JSON.stringify(lastSearchParams);
+    if (isParamsChanged) {
+      console.log("搜索參數已變更，重新獲取資源");
+      setCurrentPage(1); // 重置到第一頁
+      setLastSearchParams(searchParams);
+      fetchResources();
+    }
+  }, [searchParams]);
 
-const fetchResources = async () => {
-  setIsLoading(true);
-  try {
+  // 當頁碼變更時更新顯示的資源
+  useEffect(() => {
+    updateDisplayedResources();
+  }, [currentPage, allResources]);
+
+  // 更新當前頁顯示的資源
+  const updateDisplayedResources = () => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, allResources.length);
+
+    if (startIndex < allResources.length) {
+      const resourcesForCurrentPage = allResources.slice(startIndex, endIndex);
+      setDisplayedResources(resourcesForCurrentPage);
+    } else {
+      // 如果當前頁已經超出範圍，重置到第一頁
+      setCurrentPage(1);
+    }
+  };
+
+  // 獲取資源數據
+  const fetchResources = async () => {
+    setIsLoading(true);
+    try {
+      // 處理版本參數 - 可以是字串或陣列
+      let versionParam = searchParams?.version || "";
+
+      // 如果是逗號分隔的字串，將其轉換為陣列
+      if (typeof versionParam === 'string' && versionParam.includes(',')) {
+        versionParam = versionParam.split(',').map(v => v.trim()).filter(v => v);
+      }
+
       const parameters = {
         stage: searchParams?.stage || "",
-        version: searchParams?.version || "",
+        version: versionParam,
         keyword: searchParams?.keyword || "",
         searchContent: searchParams?.searchContent || "",
-        page: currentPage,
-        limit: ITEMS_PER_PAGE
+        page: 1, // 始終獲取第一頁
+        limit: 1000 // 設置較大的限制以獲取更多結果
       };
 
       console.log("搜索參數:", parameters);
@@ -44,44 +81,55 @@ const fetchResources = async () => {
       });
 
       const result = await response.json();
-      
-      
-    if (response.ok && result.status === "success") {
-      console.log("搜索結果:", result);
-      
-      if (result.data && Array.isArray(result.data.resources)) {
-        const resourcesList = result.data.resources;
-        setResources(resourcesList);
-        setTotalItems(result.data.totalItems || 0);
-        
-        // 調用回調函數以通知父組件資源已載入完成
-        if (onResourcesLoaded) {
-          onResourcesLoaded(resourcesList);
+
+      if (response.ok && result.status === "success") {
+        console.log("搜索結果:", result);
+
+        if (result.data && Array.isArray(result.data.resources)) {
+          const resourcesList = result.data.resources;
+          setAllResources(resourcesList);
+          setTotalItems(resourcesList.length);
+
+          // 計算總頁數
+          const calculatedTotalPages = Math.ceil(resourcesList.length / ITEMS_PER_PAGE);
+          setTotalPages(Math.max(1, calculatedTotalPages)); // 確保至少有1頁
+
+          // 調用回調函數以通知父組件資源已載入完成
+          if (onResourcesLoaded) {
+            onResourcesLoaded(resourcesList);
+          }
+        } else {
+          console.error("返回的資源數據結構不正確:", result);
+          setAllResources([]);
+          setDisplayedResources([]);
+          setTotalItems(0);
+          setTotalPages(1);
+
+          // 也要通知父組件資源為空
+          if (onResourcesLoaded) {
+            onResourcesLoaded([]);
+          }
         }
       } else {
-        console.error("返回的資源數據結構不正確:", result);
-        setResources([]);
+        console.error("搜索請求失敗:", result);
+        showToast("搜索資源時發生錯誤，請稍後再試", "error");
+        setAllResources([]);
+        setDisplayedResources([]);
         setTotalItems(0);
-        
-        // 也要通知父組件資源為空
+        setTotalPages(1);
+
         if (onResourcesLoaded) {
           onResourcesLoaded([]);
         }
       }
-    } else {
-        console.error("搜索請求失敗:", result);
-        showToast("搜索資源時發生錯誤，請稍後再試", "error");
-        setResources([]);
-        setTotalItems(0);
-        if (onResourcesLoaded) {
-        onResourcesLoaded([]);
-      }
-      }
     } catch (error) {
       console.error("搜索請求錯誤:", error);
       showToast("網絡連接錯誤，請檢查您的網絡連接", "error");
-      setResources([]);
+      setAllResources([]);
+      setDisplayedResources([]);
       setTotalItems(0);
+      setTotalPages(1);
+
       if (onResourcesLoaded) {
         onResourcesLoaded([]);
       }
@@ -104,7 +152,7 @@ const fetchResources = async () => {
   };
 
   const handleNextPage = () => {
-    if (currentPage < TOTAL_PAGES) {
+    if (currentPage < totalPages) {
       setCurrentPage(prev => prev + 1);
       window.scrollTo(0, 0);
     }
@@ -112,62 +160,68 @@ const fetchResources = async () => {
 
   const getPageNumbers = () => {
     let start = Math.max(1, currentPage - 4);
-    let end = Math.min(TOTAL_PAGES, start + VISIBLE_PAGES - 1);
+    let end = Math.min(totalPages, start + VISIBLE_PAGES - 1);
 
-    if (end === TOTAL_PAGES) {
+    if (end === totalPages) {
       start = Math.max(1, end - VISIBLE_PAGES + 1);
     }
     if (start === 1) {
-      end = Math.min(TOTAL_PAGES, VISIBLE_PAGES);
+      end = Math.min(totalPages, VISIBLE_PAGES);
     }
 
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
+  // 只更新 return 部分的 JSX 結構
 
-  return (
-    <>
-      <div className="resource-container">
+  
+return (
+  <>
+    <div className="resource-container">
+      <div className="resource-content-container"> {/* 新增的置中容器 */}
         {isLoading ? (
           <div className="resource-loading">
             <div className="loading-spinner"></div>
             <p>載入資源中...</p>
           </div>
-        ) : resources.length === 0 ? (
+        ) : allResources.length === 0 ? (
           <div className="resource-empty">
             <p>沒有找到符合條件的資源</p>
           </div>
         ) : (
-          <div className="resource-content">
-            {resources.map((resource, index) => {
-              // 如果提供了自定義渲染函數，則使用它
-              if (renderCard) {
-                return renderCard(resource, index);
-              }
-              
-              // 否則使用默認的卡片渲染
-              return (
-                <ResourceCard
-                  key={resource.id || index}
-                  imageUrl={resource.imageUrl || "/src/assets/resourcepage/file_preview_demo.png"}
-                  fileType={resource.fileType || "PDF"}
-                  likes={resource.likes || 0}
-                  downloads={resource.downloads || 0}
-                  title={resource.title || "無標題資源"}
-                  uploader={resource.uploader_name || "匿名上傳者"}
-                  tags={resource.tags || []}
-                  date={resource.date || ""}
-                  onCardClick={() => onCardClick && onCardClick(resource)}
-                />
-              );
-            })}
+          // 包裝元素來確保固定高度
+          <div className="resource-content-wrapper">
+            <div className="resource-content">
+              {displayedResources.map((resource, index) => {
+                // 如果提供了自定義渲染函數，則使用它
+                if (renderCard) {
+                  return renderCard(resource, index);
+                }
+                
+                // 否則使用默認的卡片渲染
+                return (
+                  <ResourceCard
+                    key={resource.id || index}
+                    imageUrl={resource.imageUrl || "/src/assets/resourcepage/file_preview_demo.png"}
+                    fileType={resource.fileType || "PDF"}
+                    likes={resource.likes || 0}
+                    downloads={resource.downloads || 0}
+                    title={resource.title || "無標題資源"}
+                    uploader={resource.uploader_name || "匿名上傳者"}
+                    tags={resource.tags || []}
+                    date={resource.date || ""}
+                    onCardClick={() => onCardClick && onCardClick(resource)}
+                  />
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {!isLoading && resources.length > 0 && (
+        {!isLoading && allResources.length > 0 && (
           <div className="pagination-container">
             <ul className="pagination">
               <li className="page-item back-button">
-                <a 
+                <a
                   className={`page-link wide-link ${currentPage <= 1 ? 'invisible' : ''}`}
                   onClick={handlePreviousPage}
                 >
@@ -176,11 +230,11 @@ const fetchResources = async () => {
               </li>
 
               {getPageNumbers().map(number => (
-                <li 
+                <li
                   key={number}
                   className={`page-item ${currentPage === number ? 'active' : ''}`}
                 >
-                  <a 
+                  <a
                     className="page-link"
                     onClick={() => handlePageChange(number)}
                   >
@@ -190,8 +244,8 @@ const fetchResources = async () => {
               ))}
 
               <li className="page-item next-button">
-                <a 
-                  className={`page-link wide-link ${currentPage >= TOTAL_PAGES ? 'invisible' : ''}`}
+                <a
+                  className={`page-link wide-link ${currentPage >= totalPages ? 'invisible' : ''}`}
                   onClick={handleNextPage}
                 >
                   Next 》
@@ -201,8 +255,9 @@ const fetchResources = async () => {
           </div>
         )}
       </div>
-    </>
-  );
+    </div>
+  </>
+);
 };
 
 export default ResourceContent;

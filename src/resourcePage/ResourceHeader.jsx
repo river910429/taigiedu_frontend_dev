@@ -26,7 +26,7 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
     }
     return gradeToVersions[grade] || [];
   };
-  
+
   const allVersions = [
     "真平",
     "康軒",
@@ -39,7 +39,7 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
     "泰宇",
     "創新",
   ];
-  
+
   const handleCategoryChange = (selected) => {
     setSelectedCategories(selected);
   };
@@ -60,17 +60,17 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
 
   const handleSearch = (e) => {
     e.preventDefault(); // 防止頁面重整
-    
+
     // 構建搜索參數
     const searchParams = {
       stage: selectedGrade === "階段" || selectedGrade === "全部" ? "" : selectedGrade,
-      version: selectedCategories?.join(",") || "",
+      version: selectedCategories.length > 0 ? selectedCategories : "", // 直接傳遞陣列
       keyword: query.trim(),
       searchContent: ""
     };
-    
+
     console.log("執行搜索:", searchParams);
-    
+
     // 調用父組件的搜索函數
     if (onSearch) {
       onSearch(searchParams);
@@ -123,9 +123,8 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
       </select>
 
       <div
-        className={`multiselect-wrapper ${
-          isMultiSelectEnabled ? "enabled" : "disabled"
-        } resource-multi`}
+        className={`multiselect-wrapper ${isMultiSelectEnabled ? "enabled" : "disabled"
+          } resource-multi`}
       >
         <MultiSelect
           key={selectedGrade}
@@ -157,8 +156,8 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
       <div className="res-button-container">
         {/* 只在登入狀態下顯示登出按鈕 */}
         {isLoggedIn && (
-          <button 
-            className="res-login-button logout-button" 
+          <button
+            className="res-login-button logout-button"
             onClick={handleLogout}
           >
             登出

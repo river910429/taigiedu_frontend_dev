@@ -1,51 +1,119 @@
 .resource-container {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 200px); /* Account for header and padding */
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  position: relative;
+  width: 100%;
 }
 
+.resource-content-container {
+  width: 100%;
+  max-width: 1440px; /* 設定最大寬度 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto; /* 使用 margin auto 確保水平居中 */
+}
+
+/* 添加一個居中的 grid 容器 */
 .resource-content {
   position: relative;
   margin: 40px 0px;
   padding-top: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 300px));
+  grid-template-columns: repeat(4, minmax(250px, 300px)); /* 更靈活的列寬 */
   column-gap: 48px;
   row-gap: 50px;
-  justify-content: center;
-  min-height: 860px;
-  align-items: start; /* Prevent stretching */
+  min-height: 400px;
+  align-items: start;
+  width: 100%;
+  justify-content: center; /* 將網格居中 */
+}
+
+/* 修改卡片樣式，確保固定寬度 */
+.resource-content > * {
+  width: 100%; /* 設置寬度為100% */
+  max-width: 300px; /* 但限制最大寬度 */
+  justify-self: center; /* 在網格單元格中居中 */
+}
+
+/* 確保 ResourceCard 組件內的卡片有固定寬度 */
+.resource-content .resource-card {
+  width: 100%;
+  max-width: 300px;
+  height: 400px; /* 固定高度 */
+  margin: 0 auto; /* 在容器中居中 */
+}
+
+/* 刪除頁面的卡片包裝器也需要固定尺寸 */
+.resource-content .delete-card-wrapper {
+  width: 100%;
+  max-width: 300px;
+  height: 400px;
+  margin: 0 auto;
+}
+
+.resource-content-wrapper {
+  min-height: 750px;
+  position: relative;
+  width: 100%;
+  display: flex; /* 使用 flex 布局 */
+  justify-content: center; /* 水平居中內容 */
 }
 
 .pagination-container {
-  margin-top: auto;
+  margin-top: 50px;
   padding: 20px 0;
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
-@media (max-width: 1400px) {
+/* 響應式設計 */
+@media (max-width: 1440px) {
   .resource-content {
-    grid-template-columns: repeat(3, 300px);
-    min-height: 1140px; /* Approximately 4 rows for 3-column layout */
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: 24px;
+  }
+  
+  .resource-content > * {
+    max-width: 100%; /* 在較小螢幕上允許卡片填滿網格單元 */
   }
 }
 
 @media (max-width: 1200px) {
   .resource-content {
-    grid-template-columns: repeat(2, 300px);
-    min-height: 1700px; /* Approximately 6 rows for 2-column layout */
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .resource-content-wrapper {
+    min-height: 850px;
+  }
+}
+
+@media (max-width: 900px) {
+  .resource-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .resource-content-wrapper {
+    min-height: 1250px;
   }
 }
 
 @media (max-width: 600px) {
   .resource-content {
-    grid-template-columns: 300px;
-    min-height: 3300px; /* Approximately 12 rows for 1-column layout */
+    grid-template-columns: repeat(1, 1fr);
+  }
+  
+  .resource-content-wrapper {
+    min-height: 2450px;
   }
 }
 
-/* 現有的 CSS... */
-
-/* 載入狀態 */
+/* 其餘樣式保持不變 */
 .resource-loading {
   width: 100%;
   height: 400px;
@@ -71,7 +139,6 @@
   100% { transform: rotate(360deg); }
 }
 
-/* 無資源時的顯示 */
 .resource-empty {
   width: 100%;
   height: 200px;
@@ -84,3 +151,45 @@
   border-radius: 8px;
   margin: 20px 0;
 }
+/* 
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 10px;
+}
+
+.page-item {
+  display: inline-block;
+}
+
+.page-link {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #333;
+  background-color: white;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.page-link:hover {
+  background-color: #f1f1f1;
+}
+
+.page-item.active .page-link {
+  background-color: #2196F3;
+  color: white;
+  border-color: #2196F3;
+}
+
+.wide-link {
+  padding: 8px 20px;
+}
+
+.invisible {
+  visibility: hidden;
+} */
