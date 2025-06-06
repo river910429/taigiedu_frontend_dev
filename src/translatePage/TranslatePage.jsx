@@ -89,7 +89,7 @@ const TranslatePage = () => {
 
     // 如果源語言和目標語言相同
     if (originalLanguage === targetLanguage) {
-      showToast(`${originalLanguage}轉${originalLanguage}? 自己嚇自己`, 'warning');
+      showToast(`${originalLanguage}轉${originalLanguage}，同語言轉換`, 'warning');
       setTranslatedContent(originalContent);
       setIsEditable(true);
       return;

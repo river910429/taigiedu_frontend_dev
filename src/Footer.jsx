@@ -10,7 +10,7 @@ const Footer = () => {
         <button className="footer-button">Policy</button>
       </div>
       <div className="footer-text">
-        © 2024 台語文共備平台 All Rights Reserved.
+        © 2024 台語文教學共備平台 All Rights Reserved.
       </div>
     </footer>
   );

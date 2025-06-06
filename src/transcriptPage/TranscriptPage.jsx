@@ -114,13 +114,13 @@ const TranscriptPage = () => {
       });
 
       if (error.name === 'NotAllowedError') {
-        showError('你不允許網站使用麥克風，我要怎麼錄音┐(´д`)┌');
+        showError('未提供網站錄音權限，請檢視瀏覽器設定或重新載入頁面');
       } else if (error.name === 'NotFoundError') {
-        showError('等等~找不到麥克風，是誰搶走了我的麥克風(☉д⊙)');
+        showError('未找到麥克風設備，請確保您的設備已連接並正確配置');
       } else if (error.name === 'NotSupportedError') {
-        showError('您的瀏覽器不支援所需的錄音功能( ´•̥̥̥ω•̥̥̥` )');
+        showError('您的瀏覽器不支援錄音功能');
       } else {
-        showError(`不知道花生了什麼事，錄音初始化失敗(／‵Д′)／~ ╧╧: ${error.message}`);
+        showError(`錄音初始化失敗: ${error.message}`);
       }
       setIsRecording(false);
     }
@@ -164,7 +164,7 @@ audioRecorder.onstop = async () => {
         
         // 檢查是否為靜音回應 - 新格式 {"message": {"tw": "<silent>", ...}}
         if (responseData.message && responseData.message.tw === "<{silent}>") {
-          showToast('蛤??????? 你好像沒講話吧？ (ﾟд⊙)', "warning");
+          showToast('這段錄音似乎沒有聲音，請再嘗試一次！', "warning");
           setIsProcessing(false);
           return; // 提前退出，不更新文本內容
         }
@@ -293,7 +293,7 @@ audioRecorder.onstop = async () => {
   
       // 檢查是否為靜音回應 - 新格式 {"message": {"tw": "<silent>", ...}}
       if (responseData.message && responseData.message.tw === "<{silent}>") {
-        showToast('ㄋㄟㄋㄟ？這個檔案好像沒有聲音耶！', 'warning');
+        showToast('這段音檔似乎沒有聲音，請檢查後再試一次！', 'warning');
         setIsProcessing(false);
         return; // 提前退出，不更新文本內容
       }

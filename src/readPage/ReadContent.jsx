@@ -87,9 +87,9 @@ const ReadContent = () => {
       console.error('Error generating audio:', error);
       // 根據錯誤類型顯示不同的錯誤訊息
       if (error.message === '請求超時，伺服器回應時間過長') {
-        showError('ㄨㄚˊ~ 伺服器回應時間過長，請稍後再試！');
+        showError('伺服器回應時間過長，請稍後再試！');
       } else {
-        showError('ㄨㄚˊ~ 伺服器出錯了，哭哭！');
+        showError('伺服器發生錯誤，請稍後再嘗試！');
       }
       setIsButtonDisabled(false); // 恢復按鈕可點擊狀態
     } finally {

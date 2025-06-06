@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import MultiSelect from './multiselect';
 import './PhraseSearchBar.css';
 import searchIcon from '../assets/home/search_logo.svg';
 
 const PhraseSearchBar = () => {
-  const [query, setQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('query') || '');
+  const [selectedCategories, setSelectedCategories] = useState(
+    searchParams.get('categories') ? searchParams.get('categories').split(',') : []
+  );
   const navigate = useNavigate();
+
+  // 當 URL 參數變化時更新本地狀態
+  useEffect(() => {
+    setQuery(searchParams.get('query') || '');
+    setSelectedCategories(
+      searchParams.get('categories') ? searchParams.get('categories').split(',') : []
+    );
+  }, [searchParams]);
 
   const categories = [
     '數字',
@@ -31,11 +42,12 @@ const PhraseSearchBar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (query.trim() === '') return;
     
     // 構建搜尋參數
     const searchParams = new URLSearchParams();
-    searchParams.append('query', query);
+    if (query.trim() !== '') {
+      searchParams.append('query', query);
+    }
     if (selectedCategories.length > 0) {
       searchParams.append('categories', selectedCategories.join(','));
     }
@@ -65,6 +77,7 @@ const PhraseSearchBar = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="phrase-search-input"
+            placeholder="輸入關鍵字搜尋成語"
           />
           <img
             src={searchIcon}

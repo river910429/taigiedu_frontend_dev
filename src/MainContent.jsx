@@ -69,13 +69,13 @@ const MainContent = () => {
         <div className="w-full max-w-[1600px] mx-auto h-[450px] relative bg-gradient-to-r from-[#4AA3BA] to-[#96D0B3] overflow-hidden rounded-lg">
           <img
             src={heroImage}
-            alt="台語教學共備平台"
+            alt="台語文教學共備平台"
             className="w-full h-full object-cover"
           />
           <div className="hero-text absolute top-1/3 left-1/4 text-white">
             <div className="big text-4xl font-bold leading-tight">歡迎來到</div>
             <div className="bigbig text-4xl font-bold leading-tight pb-4">
-              Tâi-gí 教學共備平台
+              台語文教學共備平台
             </div>
             <div className="small mt-2 text-xl leading-snug">
               鯨魚以聲音與其他鯨群溝通，聲波能穿越遙遠的距離。

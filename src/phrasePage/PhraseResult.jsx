@@ -1,131 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PhraseResult.css';
 import PhraseModal from './PhraseModal';
 
-const PhraseResult = () => {
+const PhraseResult = ({ phrases = [], loading, error }) => {
+	console.log("PhraseResult 收到的數據:", { phrases, loading, error });
+
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedPhrase, setSelectedPhrase] = useState(null);
+	const [displayedPhrases, setDisplayedPhrases] = useState([]);
+	const [leftPhrases, setLeftPhrases] = useState([]);
+	const [rightPhrases, setRightPhrases] = useState([]);
 
-	const phrases = [
-		{
-			phrase: '歹竹出好筍，好竹出痀崙',
-			pronunciation: 'Pháinn-tik tshut hó-sún, hó-tik tshut ku-lun',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。',
-			pronun_diff: [
-				{
-				"word": "八",
-				"variations": [
-					{ "location": "台北", "pronun": "pueh" },
-					{ "location": "台南", "pronun": "peh" }
-				]
-				},
-				{
-				"word": "有",
-				"variations": [
-					{ "location": "台北", "pronun": "ú" },
-					{ "location": "台南", "pronun": "ú" }
-				]
-				}
-			]
-		},
-		{
-			phrase: '仙人拍鼓有時錯，跤步踏差啥人無?',
-			pronunciation: 'Sian-jîn phah kóo iú sî tshò, kha-pōo ta̍h-tsha siánn-lâng bô?',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '軟塗深掘',
-			pronunciation: 'Nńg-thôo tshim-ku̍t',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '甘蔗無雙頭甜',
-			pronunciation: 'Kam-tsià bô siang-thâu tinn',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '有一好，無兩好',
-			pronunciation: 'Ū tsi̍t hó, bô nn̄g hó',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '花媠袂芳，芳花袂媠',
-			pronunciation: 'Hue súi bē phang, phang hue bē súi',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '媠，媠無十全；䆀，䆀無交圇',
-			pronunciation: 'Súi, súi bô si̍p-tsân; bái, bái bô kau-lám',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '生狂狗食無屎',
-			pronunciation: 'Senn kông káu tsia̍h bô sái',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '勤儉才有底，浪費不成家',
-			pronunciation: 'Khîn-khiám tsiah ū té, lōng-huì put sîng ka',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '會儉起樓堂，袂儉賣田園',
-			pronunciation: 'Ē khiām khí lâu-tn̂g, bē khiām bē tshân-hn̂g',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '儉穿得新，儉食得賰',
-			pronunciation: 'Khiām tshīng tit sin, khiām tsia̍h tit tshun',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '鳥喙牛尻川',
-			pronunciation: 'Tsiáu-tshuì gû-kha-tshng',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '閹雞抾碎米，水牛落大屎',
-			pronunciation: 'Iam-ke khioh suì-bí, tsuí-gû lak tuā-sái',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '做雞做鳥討食，做水牛落屎',
-			pronunciation: 'Tsò ke tsò tsiáu thó-tsia̍h, tsò tsuí-gû lak sái',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '市內趁，庄跤食，三年就好額；庄跤趁，市內食，三年做乞食',
-			pronunciation: 'Tshī-lāi thàn, tsng-kha tsia̍h, sam-nî tō hó-gia̍h; tsng-kha thàn, tshī-lāi tsia̍h, sam-nî tsò khit-tsia̍h',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		},
-		{
-			phrase: '一日掠魚，三日曝網',
-			pronunciation: 'Tsi̍t-ji̍t lia̍h hî, sam-ji̍t pha̍k-bāng',
-			interpretation: '這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。這是一段範例的解釋文字。'
-		}
-	];
-
-	const leftPhrases = phrases.slice(0, Math.ceil(phrases.length / 2));
-	const rightPhrases = phrases.slice(Math.ceil(phrases.length / 2));
-
-	const showDetail = (e, phraseData) => {
-        e.preventDefault(); // 防止預設的連結行為
-        setSelectedPhrase(phraseData);
-        setIsModalOpen(true);
-    };
-
-
-
-	const TOTAL_ITEMS = 200;
+	// 分頁設置
 	const ITEMS_PER_PAGE = 16;
-	const TOTAL_PAGES = Math.ceil(TOTAL_ITEMS / ITEMS_PER_PAGE);
-	const VISIBLE_PAGES = 10;
-
-	// Add pagination state
 	const [currentPage, setCurrentPage] = useState(1);
 
-	// Add pagination handlers
+	// 這裡改為計算屬性，不直接存為狀態
+	const totalPages = Math.max(1, Math.ceil((phrases?.length || 0) / ITEMS_PER_PAGE));
+	const VISIBLE_PAGES = 10;
+
+	// 當 phrases 變化時重置頁碼
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [phrases.length]); // 只在 phrases 長度變化時重置頁碼
+
+	// 當收到新的成語列表或頁碼變化時，更新顯示
+	useEffect(() => {
+		console.log("更新顯示成語，當前頁:", currentPage, "總頁數:", totalPages);
+
+		if (phrases && phrases.length > 0) {
+			// 為分頁準備數據
+			const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+			const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, phrases.length);
+			console.log(`顯示索引範圍: ${startIndex} 到 ${endIndex}, 總共 ${phrases.length} 條成語`);
+
+			const pageItems = phrases.slice(startIndex, endIndex);
+			setDisplayedPhrases(pageItems);
+
+			// 分為左右兩列
+			const leftItems = pageItems.slice(0, Math.ceil(pageItems.length / 2));
+			const rightItems = pageItems.slice(Math.ceil(pageItems.length / 2));
+
+			console.log("分列後:", { 左列: leftItems.length, 右列: rightItems.length });
+
+			setLeftPhrases(leftItems);
+			setRightPhrases(rightItems);
+		} else {
+			setDisplayedPhrases([]);
+			setLeftPhrases([]);
+			setRightPhrases([]);
+		}
+	}, [phrases, currentPage]);
+
+	// 在 showDetail 函數中添加
+	const showDetail = (e, phraseData) => {
+		e.preventDefault(); // 防止預設的連結行為
+		console.log("查看成語詳情:", phraseData);
+		console.log("方音差數據屬性名稱:", Object.keys(phraseData)); // 查看屬性名稱
+		console.log("方音差數據:", phraseData["Pronounciation variants"]); // 顯示實際數據
+		setSelectedPhrase(phraseData);
+		setIsModalOpen(true);
+	};
+
+	// 分頁處理函數
 	const handlePageChange = (pageNumber) => {
+		console.log("切換到頁面:", pageNumber);
 		setCurrentPage(pageNumber);
 	};
 
@@ -136,47 +75,52 @@ const PhraseResult = () => {
 	};
 
 	const handleNextPage = () => {
-		if (currentPage < TOTAL_PAGES) {
+		if (currentPage < totalPages) {
 			setCurrentPage(prev => prev + 1);
 		}
 	};
 
-	// Add page number calculator
+	// 計算要顯示的頁碼
 	const getPageNumbers = () => {
 		let start = Math.max(1, currentPage - 4);
-		let end = Math.min(TOTAL_PAGES, start + VISIBLE_PAGES - 1);
+		let end = Math.min(totalPages, start + VISIBLE_PAGES - 1);
 
-		if (end === TOTAL_PAGES) {
+		if (end === totalPages) {
 			start = Math.max(1, end - VISIBLE_PAGES + 1);
 		}
 
 		if (start === 1) {
-			end = Math.min(TOTAL_PAGES, VISIBLE_PAGES);
+			end = Math.min(totalPages, VISIBLE_PAGES);
 		}
 
 		return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 	};
 
-	const previousPage = () => {
-		// 實現上一頁邏輯
-	};
+	// 渲染加載狀態
+	if (loading) {
+		return <div className="loading-message">載入成語中...</div>;
+	}
 
-	const nextPage = () => {
-		// 實現下一頁邏輯
-	};
+	// 渲染錯誤狀態
+	if (error) {
+		return <div className="error-message">{error}</div>;
+	}
 
-	const changePage = (pageNumber) => {
-		// 實現換頁邏輯
-	};
+	// 沒有成語
+	if (!phrases || phrases.length === 0) {
+		return <div className="no-results-message">沒有找到符合條件的成語</div>;
+	}
+
+	console.log("渲染成語卡片，左側:", leftPhrases.length, "右側:", rightPhrases.length);
 
 	return (
 		<div>
 			<div className="row pt-0 px-0" id="phraseResult">
 				<div className="col-6">
 					{leftPhrases.map((phrase, index) => (
-						<a key={index} href="#" onClick={(e) => showDetail(e, phrase)}>
+						<a key={`left-${index}`} href="#" onClick={(e) => showDetail(e, phrase)}>
 							<div className="row px-3 py-3 my-2 phaseCard cardContainer">
-								<div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
+								<div className="col-12 p-0 phaseTitle">{phrase.Data}</div>
 							</div>
 						</a>
 					))}
@@ -184,52 +128,54 @@ const PhraseResult = () => {
 
 				<div className="col-6">
 					{rightPhrases.map((phrase, index) => (
-						<a key={index} href="#" onClick={(e) => showDetail(e, phrase)}>
+						<a key={`right-${index}`} href="#" onClick={(e) => showDetail(e, phrase)}>
 							<div className="row px-3 py-3 my-2 phaseCard cardContainer">
-								<div className="col-12 p-0 phaseTitle">{phrase.phrase}</div>
+								<div className="col-12 p-0 phaseTitle">{phrase.Data}</div>
 							</div>
 						</a>
-
 					))}
 				</div>
 
-				<div className="pagination-container">
-					<ul className="pagination">
-						<li className="page-item back-button">
-							<a className={`page-link wide-link ${currentPage <= 1 ? 'invisible' : ''}`}
-								onClick={handlePreviousPage}>
-								《 Back
-							</a>
-						</li>
-
-						{getPageNumbers().map(number => (
-							<li key={number}
-								className={`page-item ${currentPage === number ? 'active' : ''}`}>
-								<a className="page-link"
-									onClick={() => handlePageChange(number)}>
-									{number}
+				{totalPages > 1 && (
+					<div className="pagination-container">
+						<ul className="pagination">
+							<li className="page-item back-button">
+								<a className={`page-link wide-link ${currentPage <= 1 ? 'invisible' : ''}`}
+									onClick={handlePreviousPage}>
+									《 Back
 								</a>
 							</li>
-						))}
 
-						<li className="page-item next-button">
-							<a className={`page-link wide-link ${currentPage >= TOTAL_PAGES ? 'invisible' : ''}`}
-								onClick={handleNextPage}>
-								Next 》
-							</a>
-						</li>
-					</ul>
-				</div>
+							{getPageNumbers().map(number => (
+								<li key={number}
+									className={`page-item ${currentPage === number ? 'active' : ''}`}>
+									<a className="page-link"
+										onClick={() => handlePageChange(number)}>
+										{number}
+									</a>
+								</li>
+							))}
+
+							<li className="page-item next-button">
+								<a className={`page-link wide-link ${currentPage >= totalPages ? 'invisible' : ''}`}
+									onClick={handleNextPage}>
+									Next 》
+								</a>
+							</li>
+						</ul>
+					</div>
+				)}
 			</div>
 
 			{selectedPhrase && (
 				<PhraseModal
 					isOpen={isModalOpen}
 					onClose={() => setIsModalOpen(false)}
-					phrase={selectedPhrase.phrase}
-					pronunciation={selectedPhrase.pronunciation}
-					interpretation={selectedPhrase.interpretation}
-					pronun_diff={selectedPhrase.pronun_diff}
+					phrase={selectedPhrase.Data}
+					pronunciation={selectedPhrase.Tai_lo}
+					interpretation={selectedPhrase.Explain}
+					pronun_diff={selectedPhrase["Pronounciation variants"]} // 修正屬性名稱
+					audio={selectedPhrase.audio && selectedPhrase.audio.length > 0 ? selectedPhrase.audio[0] : null}
 				/>
 			)}
 		</div>
