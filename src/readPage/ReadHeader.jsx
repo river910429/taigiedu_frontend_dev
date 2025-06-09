@@ -11,8 +11,8 @@ const ReadHeader = () => {
     setSelectedMode(event.target.value);
     const langMap = {
       "漢羅": "tb",
-      "台羅": "tl",
-      "白話字": "poj"
+      "台羅": "tb",
+      "白話字": "tb"
     };
     setSelectedLang(langMap[event.target.value]);
   };
