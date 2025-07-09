@@ -187,7 +187,7 @@ pre {
     margin: 0;
 }
 
-.work-list li {
+.work-list > li {
     padding: 0.4rem 0;
     line-height: 1.5;
     color: #787878;
@@ -250,46 +250,47 @@ pre {
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
-.resource-card-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0;
-    padding: 1rem 1rem 0.5rem 1rem;
-    color: #333;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 
-.resource-card-subtitle {
-    font-size: 0.9rem;
-    color: #666;
-    margin: 0 0 0.5rem;
-    padding: 0 1rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-height: 1.4;
-    height: 2.8em;
-}
 
 .resource-card-image-container {
-    margin-top: auto;
     width: 100%;
+    height: 150px;
     overflow: hidden;
+    background-color: #f8f9fa;
 }
 
 .resource-card-image {
     width: 100%;
-    height: 150px;
+    height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
 
 .resource-card:hover .resource-card-image {
     transform: scale(1.05);
+}
+
+.resource-card-content {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.resource-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    line-height: 1.3;
+}
+
+.resource-card-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+    margin: 0;
+    flex: 1;
 }
 
 /* 在小螢幕上調整卡片佈局 - 調整響應式佈局 */
@@ -309,4 +310,145 @@ pre {
     .resource-cards-grid {
         grid-template-columns: 1fr; /* 手機顯示 1 列 */
     }
+}
+
+/* 載入樣式 - 與其他頁面保持一致 */
+.celebrity-loading {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Highlights 樣式 - 改為前置符號與底線 */
+.celebrity-highlights {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.highlight-tag {
+    color: #3498db;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-bottom: 1px solid #3498db;
+    padding-bottom: 2px;
+    text-decoration: none;
+}
+
+/* 經歷列表樣式 */
+.experience-list {
+    list-style: none;
+    padding: 0;
+}
+
+.experience-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.experience-list li:last-child {
+    border-bottom: none;
+}
+
+/* 可折疊作品項目樣式 */
+.collapsible-work-item {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.work-series-header {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0;
+    cursor: pointer;
+    background: none;
+    margin: 0;
+    border: none;
+    transition: color 0.2s ease;
+    line-height: 1.5;
+    color: #787878;
+}
+
+.work-series-header:hover {
+    color: #333;
+}
+
+.work-series-header:hover .work-series-arrow {
+    color: #27B08F;
+}
+
+.work-series-title {
+    font-weight: normal;
+    color: inherit;
+}
+
+.work-series-arrow {
+    color: #999;
+    font-size: 0.8rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+    margin-left: 0.3rem;
+}
+
+.work-series-arrow.expanded {
+    transform: rotate(180deg);
+    color: #27B08F;
+}
+
+.work-series-items {
+    list-style-type: none;
+    padding: 0;
+    margin: 0.5rem 0 0.8rem 0;
+    border-left: 2px solid #e9ecef;
+    margin-left: 1rem;
+}
+
+.work-series-item {
+    padding: 0.4rem 0 0.4rem 1.5rem;
+    line-height: 1.5;
+    color: #787878;
+    position: relative;
+    border-bottom: none;
+    list-style: none;
+}
+
+.work-item-text {
+    display: inline-block;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.work-series-item:before {
+    content: "•";
+    color: #27B08F;
+    position: absolute;
+    left: 0.5rem;
+    top: 0.4rem;
+    font-weight: bold;
+    width: 0.8rem;
+    text-align: center;
+}
+
+.work-series-item:last-child {
+    border-bottom: none;
 }

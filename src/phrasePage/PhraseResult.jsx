@@ -98,17 +98,30 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 
 	// 渲染加載狀態
 	if (loading) {
-		return <div className="loading-message">載入成語中...</div>;
+		return (
+			<div className="phrase-loading">
+				<div className="loading-spinner"></div>
+				<p>載入俗諺語中...</p>
+			</div>
+		);
 	}
 
 	// 渲染錯誤狀態
 	if (error) {
-		return <div className="error-message">{error}</div>;
+		return (
+			<div className="phrase-empty">
+				<p>{error}</p>
+			</div>
+		);
 	}
 
 	// 沒有成語
 	if (!phrases || phrases.length === 0) {
-		return <div className="no-results-message">沒有找到符合條件的成語</div>;
+		return (
+			<div className="phrase-empty">
+				<p>沒有找到符合條件的成語</p>
+			</div>
+		);
 	}
 
 	console.log("渲染成語卡片，左側:", leftPhrases.length, "右側:", rightPhrases.length);

@@ -4,7 +4,7 @@ import MultiSelect from './multiselect';
 import './PhraseSearchBar.css';
 import searchIcon from '../assets/home/search_logo.svg';
 
-const PhraseSearchBar = () => {
+const PhraseSearchBar = ({ availableCategories = [], onCategoryFilter, allPhrases = [] }) => {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('query') || '');
   const [selectedCategories, setSelectedCategories] = useState(
@@ -12,15 +12,22 @@ const PhraseSearchBar = () => {
   );
   const navigate = useNavigate();
 
+  // 當 availableCategories 變化且為初次載入時，設置全選狀態
+  useEffect(() => {
+    if (availableCategories.length > 0 && !searchParams.get('query') && !searchParams.get('categories')) {
+      // 初次載入且沒有搜尋參數時，設為全選
+      setSelectedCategories(availableCategories);
+    }
+  }, [availableCategories]);
+
   // 當 URL 參數變化時更新本地狀態
   useEffect(() => {
     setQuery(searchParams.get('query') || '');
-    setSelectedCategories(
-      searchParams.get('categories') ? searchParams.get('categories').split(',') : []
-    );
+    const urlCategories = searchParams.get('categories') ? searchParams.get('categories').split(',') : [];
+    setSelectedCategories(urlCategories);
   }, [searchParams]);
 
-  const categories = [
+  const categories = availableCategories.length > 0 ? availableCategories : [
     '數字',
     '經濟',
     '地名',
@@ -44,19 +51,39 @@ const PhraseSearchBar = () => {
     e.preventDefault();
     
     // 構建搜尋參數
-    const searchParams = new URLSearchParams();
+    const newSearchParams = new URLSearchParams();
     if (query.trim() !== '') {
-      searchParams.append('query', query);
+      newSearchParams.append('query', query);
     }
     if (selectedCategories.length > 0) {
-      searchParams.append('categories', selectedCategories.join(','));
+      newSearchParams.append('categories', selectedCategories.join(','));
     }
-    navigate(`/phrase?${searchParams.toString()}`);
+    navigate(`/phrase?${newSearchParams.toString()}`);
   };
 
   const handleCategoryChange = (selected) => {
     setSelectedCategories(selected);
     console.log('已選擇類別:', selected);
+    
+    // 檢查是否有搜尋關鍵字
+    const currentQuery = searchParams.get('query') || '';
+    
+    if (!currentQuery.trim()) {
+      // 如果沒有搜尋關鍵字，進行本地篩選
+      if (onCategoryFilter) {
+        onCategoryFilter(selected);
+      }
+    } else {
+      // 如果有搜尋關鍵字，更新 URL 並觸發 API 搜尋
+      const newSearchParams = new URLSearchParams();
+      if (currentQuery.trim() !== '') {
+        newSearchParams.append('query', currentQuery);
+      }
+      if (selected.length > 0) {
+        newSearchParams.append('categories', selected.join(','));
+      }
+      navigate(`/phrase?${newSearchParams.toString()}`);
+    }
   };
 
   return (
