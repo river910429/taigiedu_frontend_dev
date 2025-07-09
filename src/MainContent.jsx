@@ -9,11 +9,51 @@ const MainContent = () => {
   const [query, setQuery] = useState("");
   const [keywords, setKeywords] = useState([]); // 存儲API回傳的關鍵字
   const [isLoading, setIsLoading] = useState(true);
+  const [idiom, setIdiom] = useState(null); // 存儲俗語諺資料
+  const [idiomLoading, setIdiomLoading] = useState(true);
 
-  // 組件掛載時獲取關鍵字
+  // 組件掛載時獲取關鍵字和俗語諺
   useEffect(() => {
     fetchKeywords();
+    fetchRandomIdiom();
   }, []);
+
+  // 從API獲取隨機俗語諺
+  const fetchRandomIdiom = async () => {
+    setIdiomLoading(true);
+    try {
+      const parameters = {}; // 無需附帶參數，空物件即可
+
+      const response = await fetch(
+        "https://dev.taigiedu.com/backend/idiom_random",
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(parameters)
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success" && data.data) {
+        setIdiom(data.data);
+        console.log("取得一則俗諺語：", data);
+        console.log("諺語內容：", data.data.Data);
+        console.log("解釋：", data.data.Explain);
+        console.log("台羅拼音：", data.data.Tai_lo);
+      } else {
+        console.error("API回傳格式錯誤:", data);
+        setIdiom(null);
+      }
+    } catch (error) {
+      console.error("獲取俗語諺失敗:", error);
+      setIdiom(null);
+    } finally {
+      setIdiomLoading(false);
+    }
+  };
 
   // 從API獲取關鍵字 (使用 fetch 而非 axios)
   const fetchKeywords = async () => {
@@ -131,8 +171,45 @@ const MainContent = () => {
           <div className="content-section">
             <h2 className="section-title">俗語諺輪播</h2>
             <div className="text-gray-600">
-              <p>無魚蝦也好</p>
-              <p className="text-sm text-gray-500">Bô hî, hê mā hó</p>
+              {idiomLoading ? (
+                <div className="text-gray-500">載入俗語諺中...</div>
+              ) : idiom ? (
+                <div>
+                  <p 
+                    className="mb-2 text-gray-800" 
+                    style={{ 
+                      fontWeight: 'bold', 
+                      fontSize: '1.125rem',
+                      lineHeight: '1.75rem'
+                    }}
+                  >
+                    {idiom.Data}
+                  </p>
+                  <p className="text-sm text-gray-500 mb-2">{idiom.Tai_lo}</p>
+                  <hr className="border-gray-300 my-2" />
+                  <p className="text-xs text-gray-500 leading-relaxed">{idiom.Explain}</p>
+                </div>
+              ) : (
+                <div>
+                  <p 
+                    className="text-gray-800" 
+                    style={{ 
+                      fontWeight: 'bold', 
+                      fontSize: '1.125rem',
+                      lineHeight: '1.75rem'
+                    }}
+                  >
+                    無魚蝦也好
+                  </p>
+                  <p className="text-sm text-gray-500">Bô hî, hê mā hó</p>
+                  <button 
+                    className="mt-3 text-blue-500 hover:text-blue-700 text-sm underline"
+                    onClick={fetchRandomIdiom}
+                  >
+                    重新載入
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
