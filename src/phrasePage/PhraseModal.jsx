@@ -115,67 +115,69 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
     console.log("渲染方音差表格:", pronun_diff);
 
     return (
-      <div className="pronun-diff-container">
-        <table className="pronun-diff-table">
-          <thead>
-            <tr>
-              <th>單字方音差</th>
-              <th>發音</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pronun_diff.map((wordItem, wordIndex) => {
-              if (!wordItem || !wordItem.pronounciations) {
-                console.log(`跳過無效的方音差項目 ${wordIndex}`);
-                return null;
-              }
-
-              // 獲取所有位置和發音
-              const locations = Object.keys(wordItem.pronounciations || {});
-
-              if (locations.length === 0) {
-                console.log(`項目 ${wordIndex} 無發音位置數據`);
-                return null;
-              }
-
-              // 在 renderPronunDiffTable 函數中修改位置名稱顯示
-              return locations.map((location, index) => {
-                // 轉換方言代碼為顯示名稱
-                let locationName;
-                switch (location) {
-                  case 'lokkang': locationName = '鹿港'; break;
-                  case 'tailam': locationName = '台南'; break;
-                  case 'taipak': locationName = '台北'; break;
-                  default: locationName = location;
+      <div className="pronun-diff-section">
+        <div className="pronun-diff-container">
+          <table className="pronun-diff-table">
+            <thead>
+              <tr>
+                <th>單字方音差</th>
+                <th>發音</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pronun_diff.map((wordItem, wordIndex) => {
+                if (!wordItem || !wordItem.pronounciations) {
+                  console.log(`跳過無效的方音差項目 ${wordIndex}`);
+                  return null;
                 }
 
-                return (
-                  <tr
-                    key={`${wordItem.word}-${location}-${index}`}
-                    className={
-                      index === locations.length - 1 &&
-                        wordIndex !== pronun_diff.length - 1 ?
-                        'word-last-row' : ''
-                    }
-                  >
-                    <td>
-                      {wordItem.word} <span className="pronun-location-badge">{locationName}</span>
-                    </td>
-                    <td>
-                      {wordItem.pronounciations[location]}
-                      <img
-                        src={megaphoneIcon}
-                        className="pronun-speaker-icon"
-                        onClick={() => playVariationAudio(wordItem.word, wordItem.pronounciations[location])}
-                        alt="播放"
-                      />
-                    </td>
-                  </tr>
-                );
-              });
-            })}
-          </tbody>
-        </table>
+                // 獲取所有位置和發音
+                const locations = Object.keys(wordItem.pronounciations || {});
+
+                if (locations.length === 0) {
+                  console.log(`項目 ${wordIndex} 無發音位置數據`);
+                  return null;
+                }
+
+                // 在 renderPronunDiffTable 函數中修改位置名稱顯示
+                return locations.map((location, index) => {
+                  // 轉換方言代碼為顯示名稱
+                  let locationName;
+                  switch (location) {
+                    case 'lokkang': locationName = '鹿港'; break;
+                    case 'tailam': locationName = '台南'; break;
+                    case 'taipak': locationName = '台北'; break;
+                    default: locationName = location;
+                  }
+
+                  return (
+                    <tr
+                      key={`${wordItem.word}-${location}-${index}`}
+                      className={
+                        index === locations.length - 1 &&
+                          wordIndex !== pronun_diff.length - 1 ?
+                          'word-last-row' : ''
+                      }
+                    >
+                      <td>
+                        {wordItem.word} <span className="pronun-location-badge">{locationName}</span>
+                      </td>
+                      <td>
+                        {wordItem.pronounciations[location]}
+                        <img
+                          src={megaphoneIcon}
+                          className="pronun-speaker-icon"
+                          onClick={() => playVariationAudio(wordItem.word, wordItem.pronounciations[location])}
+                          alt="播放"
+                        />
+                      </td>
+                    </tr>
+                  );
+                });
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   };

@@ -155,13 +155,29 @@ const ReadContent = () => {
             "產生音檔"
           )}
         </button>
-        {/* 音檔播放條 */}
+        {/* 音檔播放條與下載按鈕 */}
         {audioSrc && !isProcessing && (
-        <audio controls>
-          <source src={audioSrc} type="audio/wav" />
-          您的瀏覽器不支援音檔播放。
-        </audio>
-      )}
+          <>
+            <audio controls>
+              <source src={audioSrc} type="audio/wav" />
+              您的瀏覽器不支援音檔播放。
+            </audio>
+            <button
+              className="generate-audio-button enabled"
+              onClick={() => {
+                // 創建一個暫時的 a 元素來觸發下載
+                const downloadLink = document.createElement('a');
+                downloadLink.href = audioSrc;
+                downloadLink.download = '台語音檔.wav'; // 設定下載的檔案名稱
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+              }}
+            >
+              下載音檔
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

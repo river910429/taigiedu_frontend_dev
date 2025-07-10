@@ -1,15 +1,26 @@
- .phrase-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
+.phrase-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.phrase-modal-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 40%;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
   
   .phrase-modal-container {
     background: white;
@@ -90,21 +101,42 @@
     font-size: 18px;
 }
 
-.pronun-diff-container {
+.pronun-diff-section {
   margin-top: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pronun-diff-title {
+  margin: 0;
+  padding: 12px 15px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.pronun-diff-container {
+  max-height: 250px;  /* 設置最大高度 */
+  overflow-y: auto;   /* 當內容超出時顯示垂直滾動條 */
 }
 
 .pronun-diff-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
 }
 
 .pronun-diff-table th {
-  background-color: #cfcfcf;
+  background-color: #f0f0f0;
   color: rgb(0, 0, 0);
-  padding: 10px;
+  padding: 10px 15px;
   text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 .pronun-diff-table td {
