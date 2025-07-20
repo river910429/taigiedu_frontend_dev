@@ -1,26 +1,39 @@
 import React, { useState } from 'react';  // Add useState import
 import './FoodPage.css';
 import FoodModal from './FoodModal';
+import nofood from "../../assets/culture/foodN.png"; // 預設無圖片
+import food1 from "../../assets/culture/food1.jpg";
+import food2 from "../../assets/culture/food2.jpg";
+import food3 from "../../assets/culture/food3.jpg";
+import food4 from "../../assets/culture/food4.png";
+import food5 from "../../assets/culture/food5.jpg";
+import food6 from "../../assets/culture/food6.jpg";
+import food7 from "../../assets/culture/food7.jpg";
+import food8 from "../../assets/culture/food8.jpg";
+import food9 from "../../assets/culture/food9.jpg";
+import food10 from "../../assets/culture/food10.jpg";
+import food11 from "../../assets/culture/food11.jpg";
 
 const FoodPage = () => {
     const [selectedFood, setSelectedFood] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const foods = [
-        { id: 1, name: "米糕", image: "../src/assets/culture/food1.jpg", pron:"bí-ko" , intro:"米糕是一種用糯米製成的食品，是台灣傳統的節慶食品之一。米糕的製作方式是將糯米浸泡後蒸熟，再加入其他食材拌炒而成。米糕的口感Q彈，味道香甜，是許多人喜愛的美食。" },
-        { id: 2, name: "蚵仔煎", image: "../src/assets/culture/food2.jpg", pron:"ô-á-tsian" , intro:"蚵仔煎是一種台灣傳統小吃，是用蚵仔、蛋、麵粉等食材製成的煎餅。蚵仔煎的製作方式是將蚵仔、蛋、麵粉等食材拌勻後，倒入平底鍋中煎熟，再加上醬料、香菜等調味料，最後切塊上桌。蚵仔煎的口感酥脆，味道鮮美，是許多人喜愛的美食。" },
-        { id: 3, name: "鳳梨酥", image: "../src/assets/culture/food3.jpg", pron:"ông-lâi-soo" , intro:"鳳梨酥是一種台灣傳統點心，是用鳳梨、麵粉等食材製成的酥餅。鳳梨酥的製作方式是將鳳梨、麵粉等食材拌勻後，包入酥皮中，再烘烤而成。鳳梨酥的外皮酥脆，內餡香甜，是許多人喜愛的美食。" },
-        { id: 4, name: "滷肉飯", image: "../src/assets/culture/foodN.png", pron:"ló͘-bah-pn̄g" , intro:"滷肉飯是一種台灣傳統小吃，是用滷肉和白飯製成的。滷肉飯的製作方式是將豬肉切丁後，加入醬油、糖、五香粉等調味料滷煮，再淋在白飯上。滷肉飯的口感豐富，味道香濃，是許多人喜愛的美食。" },
-        { id: 5, name: "牛肉麵", image: "../src/assets/culture/foodN.png", pron:"gû-bah-mī" , intro:"牛肉麵是一種台灣傳統小吃，是用牛肉和麵條製成的。牛肉麵的製作方式是將牛肉煮熟後，加入麵條和湯頭，再加上蔥花、香菜等調味料。牛肉麵的口感Q彈，味道鮮美，是許多人喜愛的美食。" },
-        { id: 6, name: "珍珠奶茶", image: "../src/assets/culture/foodN.png", pron:"tsin-tsu-ling-tê" , intro:"珍珠奶茶是一種台灣傳統飲品，是用紅茶、牛奶和珍珠製成的。珍珠奶茶的製作方式是將紅茶和牛奶混合後，加入煮熟的珍珠，再加上冰塊。珍珠奶茶的口感Q彈，味道香甜，是許多人喜愛的飲品。" },
-        { id: 7, name: "臭豆腐", image: "../src/assets/culture/foodN.png", pron:"tshàu-tāu-hū" , intro:"臭豆腐是一種台灣傳統小吃，是用發酵豆腐製成的。臭豆腐的製作方式是將豆腐發酵後，加入醬料和泡菜，再炸至金黃。臭豆腐的口感酥脆，味道獨特，是許多人喜愛的美食。" },
-        { id: 8, name: "雞排", image: "../src/assets/culture/foodN.png", pron:"ke-pâi" , intro:"雞排是一種台灣傳統小吃，是用雞胸肉製成的。雞排的製作方式是將雞胸肉切片後，加入麵粉和調味料，再炸至金黃。雞排的口感酥脆，味道香濃，是許多人喜愛的美食。" },
-        { id: 9, name: "刈包", image: "../src/assets/culture/foodN.png", pron:"koah-pau" , intro:"刈包是一種台灣傳統小吃，是用豬肉、酸菜和花生粉製成的。刈包的製作方式是將豬肉煮熟後，加入酸菜和花生粉，再包入蒸熟的麵皮中。刈包的口感豐富，味道香濃，是許多人喜愛的美食。" },
-        { id: 10, name: "鹽酥雞", image: "../src/assets/culture/foodN.png", pron:"iâm-soo-ke" , intro:"鹽酥雞是一種台灣傳統小吃，是用雞肉和調味料製成的。鹽酥雞的製作方式是將雞肉切塊後，加入麵粉和調味料，再炸至金黃。鹽酥雞的口感酥脆，味道香濃，是許多人喜愛的美食。" },
-        { id: 11, name: "擔仔麵", image: "../src/assets/culture/foodN.png", pron:"tàn-á-mī" , intro:"擔仔麵是一種台灣傳統小吃，是用麵條和豬肉製成的。擔仔麵的製作方式是將麵條煮熟後，加入豬肉和湯頭，再加上蔥花、香菜等調味料。擔仔麵的口感Q彈，味道鮮美，是許多人喜愛的美食。" },
-        { id: 12, name: "肉圓", image: "../src/assets/culture/foodN.png", pron:"bah-ôan" , intro:"肉圓是一種台灣傳統小吃，是用豬肉和糯米粉製成的。肉圓的製作方式是將豬肉包入糯米粉中，再蒸熟或炸至金黃。肉圓的口感Q彈，味道香濃，是許多人喜愛的美食。" },
-        { id: 13, name: "豆花", image: "../src/assets/culture/foodN.png", pron:"tāu-hue" , intro:"豆花是一種台灣傳統甜品，是用豆漿製成的。豆花的製作方式是將豆漿煮熟後，加入糖水和配料，再冷藏至凝固。豆花的口感滑嫩，味道香甜，是許多人喜愛的甜品。" },
-        { id: 14, name: "芋圓", image: "../src/assets/culture/foodN.png", pron:"ōo-înn" , intro:"芋圓是一種台灣傳統甜品，是用芋頭和糯米粉製成的。芋圓的製作方式是將芋頭蒸熟後，加入糯米粉和糖，再搓成小圓球煮熟。芋圓的口感Q彈，味道香甜，是許多人喜愛的甜品。" },
-        { id: 15, name: "麻糬", image: "../src/assets/culture/foodN.png", pron:"môa-tsî" , intro:"麻糬是一種台灣傳統甜品，是用糯米粉製成的。麻糬的製作方式是將糯米粉蒸熟後，加入糖和配料，再搓成小圓球。麻糬的口感Q彈，味道香甜，是許多人喜愛的甜品。" }
+        { id: 1, name: "地瓜球", image: food1, pron:"hân-tsî-kiû/hân-tsî-uân/hân-tsî-kiû" , intro:"地瓜切塊蒸熟，加入地瓜粉和糖，切小塊搓圓，小火油炸，在地瓜變色前用篩網壓讓地球求膨起來。地瓜球內部是空的，吃起來膨鬆會越吃越上癮。" },
+        { id: 2, name: "牛肉湯", image: food2, pron:"gû-bah-thng" , intro:"溫體牛肉薄切，滾燙高湯沖熟，快速上桌。肉質鮮嫩多汁，湯頭清甜帶微微牛骨香。台南特色是湯頭清澈自然、重原味，常搭薑絲或米飯食用。" },
+        { id: 3, name: "棺材板", image: food3, pron:"kuann-tshâ-pang" , intro:"厚切吐司油炸至金黃酥脆，挖空後填入奶油白醬與雞肉、蔬菜。外脆內滑，酥香濃郁。造型似棺材盒，為台南創意小吃代表。" },
+        { id: 4, name: "擔仔麵", image: food4, pron:"tànn-á-mī" , intro:"源於台南，「擔仔（tàⁿ-á）」為台語「挑肩擔」挑肩擔販售之意。蝦殼熬湯作底，搭配手工細麵，加肉燥、蝦子、蒜泥。湯鮮微鹹，麵條彈牙。傳統作為點心，講求「食巧毋食飽」。" },
+        { id: 5, name: "蝦捲", image: food5, pron:"hê-kńg" , intro:"用魚漿、蝦仁、蔬菜包裹後油炸。外皮金黃香脆，內餡鮮甜彈牙。通常沾甜辣醬或芥末醬食用，鹹香四溢，是台南傳統辦桌必備的炸物。" },
+        { id: 6, name: "蚵仔煎", image: food6, pron:"ô-á-tsian" , intro:"以新鮮蚵仔搭配地瓜粉漿與蛋液，煎至外皮微酥內嫩，再淋上特製甜辣醬。蚵仔鮮甜多汁，粉漿口感Q滑，蛋香濃郁。整體味道鹹甜交融，外酥內軟，層次豐富，是台灣夜市最具代表性的經典小吃之一。" },
+        { id: 7, name: "豆花", image: food7, pron:"tāu-hue" , intro:"豆花以黃豆磨成豆漿，加熱後拌入凝固劑（如石膏或鹽滷）靜置凝固。烹飪時須掌握溫度，使豆花細緻滑嫩。其口感柔軟細膩，入口即化，散發濃郁豆香。特色在於甜鹹皆宜，可搭配糖水、花生、薑汁或鹹湯。" },
+        { id: 8, name: "肉圓", image: food8, pron:"bah-uân" , intro:"肉圓以地瓜粉或太白粉製成外皮，包入醃製後的豬肉、香菇、筍丁等內餡，常見烹飪方式有油炸、蒸煮或水煮。口感外皮Q彈滑嫩，內餡鮮美多汁。特色在於外皮晶透有嚼勁，搭配甜辣醬、蒜泥等調味，風味層次豐富，是台灣極具代表性的傳統小吃。" },
+        { id: 9, name: "臭豆腐", image: food9, pron:"tshàu-tāu-hū" , intro:"臭豆腐以發酵豆腐製成，常見烹飪方式有油炸、炭烤或水煮。炸臭豆腐外酥內嫩，烤臭豆腐帶有炭香，水煮臭豆腐則滑嫩多汁。其口感外脆內軟或綿密，散發濃烈獨特的發酵香氣。特色在於「聞起來臭、吃起來香」，常搭配泡菜、蒜泥或辣醬。" },
+        { id: 10, name: "車輪餅", image: food10, pron:"tshia-lián-kué" , intro:"以麵糊倒入圓形模具中，包入紅豆餡、奶油或其他內餡後煎烤成型。烹飪時需掌握火候，使外皮金黃酥香。口感外皮酥脆或蓬鬆，內餡綿密香甜。特色在於餅皮與餡料比例恰到好處，口感層次豐富，甜而不膩，是台灣街頭常見且深受喜愛的平民點心。" },
+        { id: 11, name: "肉燥飯", image: food11, pron:"bah-sò-pn̄g" , intro:"以絞肉（多用豬肉）加入醬油、蒜頭、紅蔥頭等慢火燉煮，熬至肉汁濃郁，淋在白飯上食用。烹飪關鍵在於小火慢燉，使肉質軟嫩入味。口感香濃滑順、鹹香帶甜，肉汁滲入米飯中，層次豐富。特色是樸實卻讓人一吃難忘，是台灣庶民美食的代表。" },
+        { id: 12, name: "虱目魚粥", image: nofood, pron:"sat-ba̍k-hî-muâi" , intro:"用虱目魚骨熬湯，搭配去刺虱目魚肚。肉質細嫩、湯頭甘甜鮮美。講究新鮮，沒有腥味。傳統常作為早餐或消夜選擇。" },
+        { id: 13, name: "米糕", image: nofood, pron:"bí-ko" , intro:"糯米蒸熟鋪上滷肉燥、花生粉或魚鬆。米粒飽滿有彈性，滷汁香濃微甜。搭配醃菜、甜辣醬油膏，層次豐富。" },
+        { id: 14, name: "雞蛋糕", image: nofood, pron:"ke-nn̄g-ko" , intro:"雞蛋糕以雞蛋、麵粉、糖、牛奶調製成麵糊，倒入特製模具中烘烤至金黃蓬鬆。外皮微酥、內層柔軟綿密，帶有淡淡蛋香與甜味。雞蛋糕造型多變，從傳統圓形到可愛卡通圖案皆有，是台灣人童年回憶中最常食用的小吃之一。" },
+        { id: 15, name: "碗粿", image: nofood, pron:"uánn-kué" , intro:"米漿加料後蒸成，表面點綴滷肉、蛋黃。口感細滑綿密，搭配甜醬油膏增味。台南碗粿偏甜，米香濃郁，是受歡迎的傳統早餐或點心。" }
+
     ];
     const handleCardClick = (food) => {
         setSelectedFood(food);

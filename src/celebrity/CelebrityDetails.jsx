@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../components/Toast';
 import './CelebrityDetails.css';
+import nopic from "../assets/celebrity/nopic.png"; // 預設無圖片
 
 // 可折疊的作品項目元件
 const CollapsibleWorkItem = ({ series, items }) => {
@@ -83,7 +84,7 @@ const CelebrityDetails = () => {
                         name: data.basicInfo.name || celebrityName,
                         pron_poj: data.basicInfo.pron_poj || '',
                         pron_tl: data.basicInfo.pron_tl || '',
-                        photo: data.basicInfo.photo ? `https://dev.taigiedu.com/static/celebrity/${data.basicInfo.photo}` : "./src/assets/celebrity/nopic.png",
+                        photo: data.basicInfo.photo ? `https://dev.taigiedu.com/static/celebrity/${data.basicInfo.photo}` : {nopic},
                         illustration: data.basicInfo.illustration ? `https://dev.taigiedu.com/static/celebrity/${data.basicInfo.illustration}` : null,
                         born: data.basicInfo.born || '',
                         dead: data.basicInfo.dead || '',

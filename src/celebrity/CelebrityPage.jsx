@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './CelebrityPage.css';
 import CelebrityModal from './CelebrityModal';
 import { useToast } from '../components/Toast';
+import nopic from "../assets/celebrity/nopic.png"; // 預設無圖片
 
 const CelebrityPage = () => {
     const { showError } = useToast();
@@ -40,7 +41,7 @@ const CelebrityPage = () => {
                 const formattedCelebrities = data.map((celebrity, index) => ({
                     id: index + 1,
                     name: celebrity.name,
-                    image: celebrity.photo ? `https://dev.taigiedu.com${celebrity.photo}` : "./src/assets/celebrity/nopic.png",
+                    image: celebrity.photo ? `https://dev.taigiedu.com${celebrity.photo}` : {nopic},
                     illustration: celebrity.illustration ? `https://dev.taigiedu.com${celebrity.illustration}` : null
                 }));
                 setCelebrities(formattedCelebrities);
