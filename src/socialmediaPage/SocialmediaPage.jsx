@@ -3,6 +3,7 @@ import './SocialmediaPage.css';
 import searchIcon from '../assets/home/search_logo.svg';
 import chevronUp from '../assets/chevron-up.svg';
 import questionMarkIcon from '../assets/question-mark.svg';
+import noPics from "../assets/culture/festivalN.png";
 
 const SocialmediaPage = () => {
     const [selectedType, setSelectedType] = useState("分類");  // 將 "類型" 改為 "分類"
@@ -385,6 +386,9 @@ const handleTypeChange = (type, subType = null) => {
                                                 src={item.image}
                                                 alt={item.title}
                                                 className="socialmedia-image"
+                                                onError={(e) => {
+                                                    e.target.src = noPics;
+                                                }}
                                             />
                                         </div>
                                         <h5 className="text-center mt-2">{item.title}</h5>
