@@ -1,6 +1,6 @@
 import React from 'react';
 import './FoodModal.css';
-import megaphoneIcon from '../assets/megaphone.svg';
+import megaphoneIcon from '../../assets/megaphone.svg';
 
 const FoodModal = ({ isOpen, onClose, food }) => {
     if (!isOpen || !food) return null;

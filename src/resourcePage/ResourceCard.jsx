@@ -1,5 +1,8 @@
 import React from "react";
 import "./ResourceCard.css";
+import loveIcon from "../assets/Union (Stroke).svg";
+import downloadIcon from "../assets/arrow-down-circle.svg";
+import filePreviewDemo from "../assets/resourcepage/file_preview_demo.png"; // 預設圖片
 
 const ResourceCard = ({
   imageUrl,
@@ -23,14 +26,14 @@ const ResourceCard = ({
       {/* 卡片標頭區域，背景圖片 */}
       <div
         className="card-header"
-        style={{ backgroundImage: `url(${imageUrl || "/src/assets/resourcepage/file_preview_demo.png"})` }}
+        style={{ backgroundImage: `url(${imageUrl || filePreviewDemo})` }}
       >
         <div className="file-type">{fileType}</div>
         <div className="stats">
           {/* 顯示喜歡數量 */}
           <div className="likes">
             <img
-              src="/src/assets/Union (Stroke).svg"
+              src={loveIcon}
               alt="Likes"
               className="likes-icon"
             />
@@ -39,7 +42,7 @@ const ResourceCard = ({
           {/* 顯示下載數量 */}
           <div className="downloads">
             <img
-              src="/src/assets/arrow-down-circle.svg"
+              src={downloadIcon}
               alt="Downloads"
               className="downloads-icon"
             />

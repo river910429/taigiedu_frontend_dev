@@ -1,6 +1,6 @@
 import React from 'react';
 import './FestivalModal.css';
-import megaphoneIcon from '../assets/megaphone.svg';
+import megaphoneIcon from '../../assets/megaphone.svg';
 
 const FestivalModal = ({ isOpen, onClose, festival }) => {
   if (!isOpen || !festival) return null;
