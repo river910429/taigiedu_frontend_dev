@@ -1,5 +1,6 @@
 import React from 'react';
 import './FoodModal.css';
+import megaphoneIcon from '../assets/megaphone.svg';
 
 const FoodModal = ({ isOpen, onClose, food }) => {
     if (!isOpen || !food) return null;
@@ -55,7 +56,7 @@ const FoodModal = ({ isOpen, onClose, food }) => {
                                     <div className="food-pronunciation-container">
                                         <div className="food-pronunciation-text">{food.pron}</div>
                                         <div className="food-play-button" onClick={playAudio}>
-                                            <img src="/src/assets/megaphone.svg" alt="播放發音" />
+                                            <img src={megaphoneIcon} alt="播放發音" />
                                         </div>
                                     </div>
                                 </div>

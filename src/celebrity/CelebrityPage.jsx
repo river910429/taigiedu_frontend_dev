@@ -108,7 +108,7 @@ const CelebrityPage = () => {
                                         alt={celebrity.name}
                                         className="celebrity-image"
                                         onError={(e) => {
-                                            e.target.src = "./src/assets/celebrity/nopic.png";
+                                            e.target.src = nopic;
                                         }}
                                     />
                                 </div>

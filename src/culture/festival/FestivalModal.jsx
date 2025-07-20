@@ -1,5 +1,6 @@
 import React from 'react';
 import './FestivalModal.css';
+import megaphoneIcon from '../assets/megaphone.svg';
 
 const FestivalModal = ({ isOpen, onClose, festival }) => {
   if (!isOpen || !festival) return null;
@@ -17,7 +18,7 @@ const FestivalModal = ({ isOpen, onClose, festival }) => {
               <div className="festival-pronunciation-container">
                 <div className="festival-pronunciation-text">{festival.pron}</div>
                 <div className="festival-play-button">
-                  <img src="/src/assets/megaphone.svg" />
+                  <img src={megaphoneIcon} />
                 </div>
               </div>
             </div>
