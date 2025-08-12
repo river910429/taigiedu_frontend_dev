@@ -48,7 +48,7 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
       // 準備 API 參數
       const parameters = {
         tts_lang: 'tb',  // 使用漢羅
-        tts_data: phrase // 要合成的文字
+        tts_data: pronunciation // 要合成的文字
       };
 
       console.log('發送 TTS 請求:', parameters);
