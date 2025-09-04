@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
 import "./ResourceHeader.css";
 import MultiSelect from "../phrasePage/multiselect";
+import chevronUpIcon from "../assets/chevron-up.svg";
 
 const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) => {
   const navigate = useNavigate();
@@ -12,6 +13,9 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
   const [isGradeOpen, setIsGradeOpen] = useState(false);
   const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]); // 多選下拉選單
+  
+  const contentTypeOptions = ["學習單", "簡報", "教案", "其他"];
+  const [selectedContentTypes, setSelectedContentTypes] = useState([...contentTypeOptions]); // 預設全選內容類型
 
   // 定義版本選項映射
   const gradeToVersions = {
@@ -44,6 +48,10 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
     setSelectedCategories(selected);
   };
 
+  const handleContentTypeChange = (selected) => {
+    setSelectedContentTypes(selected);
+  };
+
   const handleGradeChange = (e) => {
     const grade = e.target.value;
     setSelectedGrade(grade);
@@ -65,6 +73,7 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
     const searchParams = {
       stage: selectedGrade === "階段" || selectedGrade === "全部" ? "" : selectedGrade,
       version: selectedCategories.length > 0 ? selectedCategories : "", // 直接傳遞陣列
+      contentType: selectedContentTypes.length > 0 ? selectedContentTypes : "", // 新增內容類型參數
       keyword: query.trim(),
       searchContent: ""
     };
@@ -109,18 +118,25 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
   return (
     <div className="resource-header">
       {/* 階段下拉選單 */}
-      <select
-        className={`grade-dropdown ${isGradeOpen ? "open" : ""}`}
-        onClick={() => setIsGradeOpen(!isGradeOpen)}
-        value={selectedGrade}
-        onChange={handleGradeChange}
-      >
-        <option hidden>階段</option>
-        <option value="全部">全部</option>
-        <option value="高中">高中</option>
-        <option value="國中">國中</option>
-        <option value="國小">國小</option>
-      </select>
+      <div className="dropdown-container">
+        <select
+          className={`grade-dropdown ${isGradeOpen ? "open" : ""}`}
+          onClick={() => setIsGradeOpen(!isGradeOpen)}
+          value={selectedGrade}
+          onChange={handleGradeChange}
+        >
+          <option hidden>階段</option>
+          <option value="全部">全部</option>
+          <option value="高中">高中</option>
+          <option value="國中">國中</option>
+          <option value="國小">國小</option>
+        </select>
+        <img
+          src={chevronUpIcon}
+          alt="dropdown arrow"
+          className="dropdown-arrow"
+        />
+      </div>
 
       <div
         className={`multiselect-wrapper ${isMultiSelectEnabled ? "enabled" : "disabled"
@@ -133,6 +149,17 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
           onChange={handleCategoryChange}
           placeholder="版本"
           displayText="已選擇版本"
+        />
+      </div>
+
+      {/* 內容類型多選下拉選單 */}
+      <div className="multiselect-wrapper resource-multi">
+        <MultiSelect
+          options={contentTypeOptions}
+          selectedOptions={selectedContentTypes}
+          onChange={handleContentTypeChange}
+          placeholder="內容類型"
+          displayText="已選擇類型"
         />
       </div>
 

@@ -11,6 +11,7 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
   const [searchParams, setSearchParams] = useState({
     stage: "",
     version: "",
+    contentType: ["學習單", "簡報", "教案", "其他"], // 預設包含所有內容類型
     keyword: "",
     searchContent: ""
   });

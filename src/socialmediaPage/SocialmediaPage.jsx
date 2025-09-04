@@ -14,28 +14,43 @@ const SocialmediaPage = () => {
     const [selectedItems, setSelectedItems] = useState({});
     
     const menuItems = {
+        '工具': {
+            hasSubMenu: true,
+            subItems: [
+              '辭典或翻譯', '字體或輸入法', '其他'
+            ]},
+        '百科': {
+            hasSubMenu: false
+        },
+        '各地教育機構': {
+            hasSubMenu: true,
+            subItems: [
+              '中央', '地方'
+        ]},
+        '綜合資料網站': {
+            hasSubMenu: false
+        },
         '社群': {
             hasSubMenu: true,
             subItems: [
-              '文學文化', '民俗', '生態', '在地地景與人物',
-              '宗教', '新聞', '講古', '考古', '教育',
-              '技藝', '歌仔戲', '活動', '科學', '物理',
-              '美食', '旅遊', '笑詼', '唸歌', '教材',
-              '親子', '訪談', '部落格','野球', '電影',
-              '歌詞', '認證考試', '廣播', '鄭順聰', '演講','醫學'
+              'Blog', 'Facebook Page', 'Facebook Groups', 'Instagram'
             ]},
         'YouTube': {
-            hasSubMenu: true,
-            subItems: [
-                '文學文化', '教育', '台語漫才', '在地地景與人物',
-                '宗教', '講古', '藝術', '笑詼', '訪談',
-                '新聞', '演講朗讀', '廣播',
-            ]
+            hasSubMenu: false,
         },
         'Podcast': {
             hasSubMenu: false
         },
-        '電視綜藝': {
+        '遊戲': {
+            hasSubMenu: false
+        },
+        '卡通動漫': {
+            hasSubMenu: false
+        },
+        '音樂': {
+            hasSubMenu: false
+        },
+        '戲劇': {
             hasSubMenu: false
         }
     };
@@ -230,7 +245,7 @@ const handleTypeChange = (type, subType = null) => {
         ],
         Podcast: [
             { id: 1, title: "Bear's Taiwanese talk 肥宅熊的台語日常雜記", url: "https://podcasters.spotify.com/pod/show/bear-hsu", image: "https://urlscan.io/liveshot/?width=300&height=300&url=https://podcasters.spotify.com/pod/show/bear-hsu" },
-            { id: 2, title: "Cheng-sîn bóng khai-káng 精神罔開講", url: "https://podcasts.apple.com/tw/podcast/%E7%B2%BE%E7%A5%9E%E7%BD%94%E9%96%8B%E8%AC%9B-cheng-s%C3%AEn-b%C3%B3ng-khai-k%C3%A1ng/id1777512019?l=en-GB", image: "https://urlscan.io/liveshot/?width=300&height=300&url=https://podcasts.apple.com/tw/podcast/%E7%B2%BE%E7%A5%9E%E7%BD%94%E9%96%8B%E8%AC%9B-cheng-s%C3%AEn-b%C3%B3ng-khai-k%C3%A1ng/id1777512019?l=en-GB" },
+            { id: 2, title: "Cheng-sîn bóng khai-káng 精神罔開講", url: "https://podcasts.apple.com/tw/podcast/%E7%B2%BE%E7%A5%9E%E7%BD%94%E9%96%8B%E8%AC%9B-cheng-s%C3%AEn-b%C3%B3ng-khai-k%C3%A1ng/id1777512019?l=en-GB", image: "https://urlscan.io/liveshot/?width=300&height=300&url=https://podcasts.apple.com/tw/podcast/%E7%B2%BE%E7%A5%9E%E7%BD%94%E9%96%8B%E8%AC%9B-cheng-s%C3%AEn-b%C3%Bóng-khai-k%C3%A1ng/id1777512019?l=en-GB" },
             { id: 3, title: "Chhia-pang Hòng-sàng Kio̍k 車幫放送局", url: "https://podcasts.apple.com/us/podcast/chhia-pang-h%C3%B2ng-s%C3%A0ng-kio-k-%E8%BB%8A%E5%B9%AB%E6%94%BE%E9%80%81%E5%B1%80/id1675105349", image: "https://urlscan.io/liveshot/?width=300&height=300&url=https://podcasts.apple.com/us/podcast/chhia-pang-h%C3%B2ng-s%C3%A0ng-kio-k-%E8%BB%8A%E5%B9%AB%E6%94%BE%E9%80%81%E5%B1%80/id1675105349" },
             { id: 4, title: "Chò Kang á Lâng Tâi-gí Kang-chok-sek 做工á人台語工作室", url: "https://podcasts.apple.com/tw/podcast/%E5%81%9A%E5%B7%A5%C3%A1%E4%BA%BA%E5%8F%B0%E8%AA%9E%E5%B7%A5%E4%BD%9C%E5%AE%A4-ch%C3%B2-kang-%C3%A1-l%C3%A2ng-t%C3%A2i-g%C3%AD-kang-chok-sek/id1730745763", image: "https://urlscan.io/liveshot/?width=300&height=300&url=https://podcasts.apple.com/tw/podcast/%E5%81%9A%E5%B7%A5%C3%A1%E4%BA%BA%E5%8F%B0%E8%AA%9E%E5%B7%A5%E4%BD%9C%E5%AE%A4-ch%C3%B2-kang-%C3%A1-l%C3%A2ng-t%C3%A2i-g%C3%AD-kang-chok-sek/id1730745763" },
             { id: 5, title: "eng-ha̍k-ú-tiū 英學宇宙", url: "https://enkhakutiu.firstory.io/", image: "https://urlscan.io/liveshot/?width=300&height=300&url=https://enkhakutiu.firstory.io/" },
@@ -276,27 +291,28 @@ const handleTypeChange = (type, subType = null) => {
     const handleCardClick = (url) => {
         window.open(url, '_blank');
     };
-    const dropdownStyle = {
-      backgroundImage: `url(${chevronUp})`,
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'calc(100% - 16px) center',
-      backgroundSize: '20px 20px'
-  };
+    
     return (
         <div className="socialmedia-page">
             <div className="socialmedia-header">
                 <div className="container px-4">
                     <div className="socialmedia-header-content">
                         <div className="social-custom-dropdown">
-                            <div 
-                                className="dropdown-header social-type-dropdown"
-                                style={dropdownStyle}
-                                onClick={() => {
-                                    console.log("dropdown-header clicked");
-                                    setIsDropdownOpen(!isDropdownOpen);
-                                }}
-                            >
-                                {selectedType}
+                            <div className="dropdown-container">
+                                <div 
+                                    className="dropdown-header social-type-dropdown"
+                                    onClick={() => {
+                                        console.log("dropdown-header clicked");
+                                        setIsDropdownOpen(!isDropdownOpen);
+                                    }}
+                                >
+                                    {selectedType}
+                                </div>
+                                <img 
+                                    src={chevronUp} 
+                                    alt="dropdown arrow" 
+                                    className="dropdown-arrow"
+                                />
                             </div>
                             {isDropdownOpen && (
                                 <div className="social-dropdown-menu">

@@ -131,16 +131,21 @@ button:hover {
   padding: 1rem;
   margin-bottom: 1.5rem;
   animation: fadeIn 0.5s ease-out forwards;
+  height: 100%; /* 確保容器填滿可用空間 */
+  display: flex;
+  flex-direction: column;
 }
+
 .grid-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: auto auto; /* 明確定義兩行，每行高度自動調整 */
   gap: 1.5rem;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
   padding: 0 2rem;
-  align-items: stretch;
+  align-items: stretch; /* 確保同一行的項目高度一致 */
 }
 
 .section-title {

@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './ExamPage.css';
 import searchIcon from '../assets/home/search_logo.svg';
 import questionMarkIcon from '../assets/question-mark.svg';
 import foodImage from '../assets/culture/foodN.png'; 
+import chevronUpIcon from '../assets/chevron-up.svg';
 
 const ExamPage = () => {
     const [selectedType, setSelectedType] = useState("類型");
     const [query, setQuery] = useState("");
+
+    // 創建 refs 來引用各個標題
+    const sectionRefs = {
+        "考試資訊": useRef(null),
+        "推薦用書/教材": useRef(null),
+        "教育頻道": useRef(null)
+    };
 
     const examItems = {
         "考試資訊": [
@@ -30,7 +38,16 @@ const ExamPage = () => {
     };
 
     const handleTypeChange = (e) => {
-        setSelectedType(e.target.value);
+        const selectedValue = e.target.value;
+        setSelectedType(selectedValue);
+        
+        // 滾動到對應的標題
+        if (selectedValue !== "類型" && sectionRefs[selectedValue]?.current) {
+            sectionRefs[selectedValue].current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
     };
 
     const handleSearch = (e) => {
@@ -47,16 +64,23 @@ const ExamPage = () => {
             <div className="exam-header">
                 <div className="container px-4">
                     <div className="exam-header-content">
-                        <select
-                            className="exam-type-dropdown"
-                            value={selectedType}
-                            onChange={handleTypeChange}
-                        >
-                            <option hidden>分類</option>
-                            <option value="考試資訊">考試資訊</option>
-                            <option value="推薦用書/教材">推薦用書/教材</option>
-                            <option value="教育頻道">教育頻道</option>
-                        </select>
+                        <div className="dropdown-container">
+                            <select
+                                className="exam-type-dropdown"
+                                value={selectedType}
+                                onChange={handleTypeChange}
+                            >
+                                <option value="類型">類型</option>
+                                <option value="考試資訊">考試資訊</option>
+                                <option value="推薦用書/教材">推薦用書</option>
+                                <option value="教育頻道">教育頻道</option>
+                            </select>
+                            <img 
+                                src={chevronUpIcon} 
+                                alt="dropdown arrow" 
+                                className="dropdown-arrow"
+                            />
+                        </div>
 
                         <form onSubmit={handleSearch} className="exam-search-container">
                             <input
@@ -76,7 +100,12 @@ const ExamPage = () => {
             {Object.entries(examItems).map(([category, items]) => (
                 <div key={category} className="exam-section">
                     <div className="container px-4">
-                        <h2 className="exam-category-title">{category}</h2>
+                        <h2 
+                            className="exam-category-title"
+                            ref={sectionRefs[category]}
+                        >
+                            {category}
+                        </h2>
                         <div className="row g-4">
                             {items.map(item => (
                                 <div key={item.id}

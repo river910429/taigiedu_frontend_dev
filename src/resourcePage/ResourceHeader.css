@@ -4,6 +4,11 @@
   gap: 20px;
 }
 
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
 .grade-dropdown,
 .version-dropdown,.resource-multi .select-header {
   position: relative; 
@@ -31,10 +36,16 @@
 .version-dropdown{
   outline: none;
   appearance: none; /* 隱藏預設箭頭 */
-  background-image: url("src/assets/chevron-up.svg");
-  background-repeat: no-repeat;
-  background-position: calc(100% - 16px) center; /* 箭頭距右邊 16px */
-  background-size: 20px 20px; /* 設定箭頭大小 */
+}
+
+.dropdown-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none; /* 讓箭頭不會阻擋點擊事件 */
 }
 
 

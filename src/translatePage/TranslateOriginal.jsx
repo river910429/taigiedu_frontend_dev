@@ -18,14 +18,6 @@ const TranslateOriginal = ({ setOriginalContent, setOriginalLanguage }) => {
     setOriginalLanguage(language); // 更新父層狀態
   };
 
-  // 定義下拉選單樣式，包含背景圖片
-  const dropdownStyle = {
-    backgroundImage: `url(${chevronUpIcon})`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'calc(100% - 16px) center',
-    backgroundSize: '20px 20px'
-  };
-
   return (
     <div className="translate-content">
       {/* 下拉選單 */}
@@ -34,13 +26,17 @@ const TranslateOriginal = ({ setOriginalContent, setOriginalLanguage }) => {
           className="language-dropdown"
           value={selectedLanguage}
           onChange={handleLanguageChange}
-          style={dropdownStyle}
         >
           <option value="漢羅">漢羅</option>
           <option value="華文">華文</option>
           <option value="台羅">台羅</option>
           <option value="白話字">白話字</option>
         </select>
+        <img 
+          src={chevronUpIcon} 
+          alt="dropdown arrow" 
+          className="dropdown-arrow"
+        />
       </div>
 
       <div className="original-content-container">

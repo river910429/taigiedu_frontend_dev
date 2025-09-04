@@ -42,10 +42,9 @@
 }
 
 .target-content-container {
- 
+  height: 600px; /* 與 original-content-container 相同的固定高度 */
   padding: 8px 4px;
   display: flex;
-  flex: 1;
   flex-direction: column;
   position: relative; /* 為了讓按鈕定位在內部 */
   gap: 10px;
@@ -209,7 +208,7 @@
 }
 
 .tran-feedback-button {
-  margin-top: -15px;
+  margin-top: 15px; /* 改為正值，讓按鈕在容器下方 */
   align-self: flex-end; /* 靠右對齊 */
   width: 152px;
   height: 40px;
@@ -228,4 +227,19 @@
   font-weight: 300;
   line-height: normal;
   letter-spacing: -0.18px;
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none; /* 讓箭頭不會阻擋點擊事件 */
 }

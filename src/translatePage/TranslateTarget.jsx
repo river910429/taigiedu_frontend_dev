@@ -45,13 +45,6 @@ const TranslateTarget = ({
     setTargetLanguage(language);
   };
 
-  const dropdownStyle = {
-    backgroundImage: `url(${chevronUpIcon})`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'calc(100% - 16px) center',
-    backgroundSize: '20px 20px'
-  };
-
   const handlePlayAudio = async () => {
     if (!content.trim()) {
       showToast("沒有可播放的內容！", 'error');
@@ -140,18 +133,24 @@ const TranslateTarget = ({
 
   return (
     <div className="translate-content">
-      <select
-        className="language-dropdown"
-        value={selectedLanguage}
-        onChange={handleLanguageChange}
-        style={dropdownStyle}
-      >
-        {availableLanguages.map((lang) => (
-          <option key={lang} value={lang}>
-            {lang}
-          </option>
-        ))}
-      </select>
+      <div className="dropdown-container">
+        <select
+          className="language-dropdown"
+          value={selectedLanguage}
+          onChange={handleLanguageChange}
+        >
+          {availableLanguages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </select>
+        <img 
+          src={chevronUpIcon} 
+          alt="dropdown arrow" 
+          className="dropdown-arrow"
+        />
+      </div>
 
       <div className="target-content-container">
         <div

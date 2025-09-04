@@ -8,6 +8,11 @@
     gap: 20px;
 }
 
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
 .exam-type-dropdown {
     position: relative;
     display: flex;
@@ -26,10 +31,16 @@
     cursor: pointer;
     outline: none;
     appearance: none;
-    background-image: url("src/assets/chevron-up.svg");
-    background-repeat: no-repeat;
-    background-position: calc(100% - 16px) center;
-    background-size: 20px 20px;
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none; /* 讓箭頭不會阻擋點擊事件 */
 }
 
 .exam-type-dropdown:hover {
