@@ -257,7 +257,7 @@ const MainContent = () => {
         {/* Right Bottom Column */}
         <div className="fade-in">
           <div className="content-section">
-            <h2 className="section-title">最新消息</h2>
+            <h2 className="section-title">活動快訊</h2>
             <ul className="info-list">
               <li>
                 <a class="main-link" href="https://example.com/exam-info-1" target="_blank">
