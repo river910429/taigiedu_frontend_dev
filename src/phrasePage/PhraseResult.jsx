@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './PhraseResult.css';
 import PhraseModal from './PhraseModal';
+import leftChevron from "../assets/chevron-left.svg";
+import doubleLeftChevron from "../assets/chevron-double-left.svg";
 
 const PhraseResult = ({ phrases = [], loading, error }) => {
 	console.log("PhraseResult 收到的數據:", { phrases, loading, error });
@@ -80,6 +82,14 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 		}
 	};
 
+	const handleFirstPage = () => {
+		setCurrentPage(1);
+	};
+
+	const handleLastPage = () => {
+		setCurrentPage(totalPages);
+	};
+
 	// 計算要顯示的頁碼
 	const getPageNumbers = () => {
 		let start = Math.max(1, currentPage - 4);
@@ -152,10 +162,19 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 				{totalPages > 1 && (
 					<div className="pagination-container">
 						<ul className="pagination">
+							{/* 跳轉至第一頁 */}
+							<li className="page-item first-page-button">
+								<a className={`page-link icon-link ${currentPage <= 1 ? 'invisible' : ''}`}
+									onClick={handleFirstPage}>
+									<img src={doubleLeftChevron} alt="第一頁" className="pagination-icon" />
+								</a>
+							</li>
+
+							{/* 上一頁 */}
 							<li className="page-item back-button">
-								<a className={`page-link wide-link ${currentPage <= 1 ? 'invisible' : ''}`}
+								<a className={`page-link icon-link ${currentPage <= 1 ? 'invisible' : ''}`}
 									onClick={handlePreviousPage}>
-									《 Back
+									<img src={leftChevron} alt="上一頁" className="pagination-icon" />
 								</a>
 							</li>
 
@@ -169,10 +188,19 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 								</li>
 							))}
 
+							{/* 下一頁 */}
 							<li className="page-item next-button">
-								<a className={`page-link wide-link ${currentPage >= totalPages ? 'invisible' : ''}`}
+								<a className={`page-link icon-link ${currentPage >= totalPages ? 'invisible' : ''}`}
 									onClick={handleNextPage}>
-									Next 》
+									<img src={leftChevron} alt="下一頁" className="pagination-icon right-arrow" />
+								</a>
+							</li>
+
+							{/* 跳轉至最後一頁 */}
+							<li className="page-item last-page-button">
+								<a className={`page-link icon-link ${currentPage >= totalPages ? 'invisible' : ''}`}
+									onClick={handleLastPage}>
+									<img src={doubleLeftChevron} alt="最後一頁" className="pagination-icon right-arrow" />
 								</a>
 							</li>
 						</ul>

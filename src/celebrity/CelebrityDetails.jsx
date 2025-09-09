@@ -130,6 +130,58 @@ const CelebrityDetails = () => {
         setActiveWorkCategory(category);
     };
     
+    // 檢查標籤是否有資料的函數
+    const hasData = (tabName) => {
+        if (!celebrityData) return false;
+        
+        switch (tabName) {
+            case 'experience':
+                return Array.isArray(celebrityData.experience) && celebrityData.experience.length > 0;
+            case 'works':
+                return celebrityData.works.categories && celebrityData.works.categories.length > 0;
+            case 'resources':
+                return Array.isArray(celebrityData.resources) && celebrityData.resources.length > 0;
+            case 'metaverse':
+                return Array.isArray(celebrityData.metaverse) && celebrityData.metaverse.length > 0;
+            case 'awards':
+                return Array.isArray(celebrityData.awards) && celebrityData.awards.length > 0;
+            default:
+                return false;
+        }
+    };
+    
+    // 獲取可用的標籤列表
+    const getAvailableTabs = () => {
+        const allTabs = ['experience', 'works', 'resources', 'metaverse', 'awards'];
+        return allTabs.filter(tab => hasData(tab));
+    };
+    
+    // 設置第一個有資料的標籤為預設
+    useEffect(() => {
+        if (celebrityData) {
+            const allTabs = ['experience', 'works', 'resources', 'metaverse', 'awards'];
+            const availableTabs = allTabs.filter(tab => {
+                switch (tab) {
+                    case 'experience':
+                        return Array.isArray(celebrityData.experience) && celebrityData.experience.length > 0;
+                    case 'works':
+                        return celebrityData.works.categories && celebrityData.works.categories.length > 0;
+                    case 'resources':
+                        return Array.isArray(celebrityData.resources) && celebrityData.resources.length > 0;
+                    case 'metaverse':
+                        return Array.isArray(celebrityData.metaverse) && celebrityData.metaverse.length > 0;
+                    case 'awards':
+                        return Array.isArray(celebrityData.awards) && celebrityData.awards.length > 0;
+                    default:
+                        return false;
+                }
+            });
+            if (availableTabs.length > 0 && !availableTabs.includes(activeTab)) {
+                setActiveTab(availableTabs[0]);
+            }
+        }
+    }, [celebrityData, activeTab]);
+    
     // 渲染作品項目的函數
     const renderWorkItem = (work, index) => {
         // 檢查是否為帶有 series 和 items 的物件
@@ -257,90 +309,94 @@ const CelebrityDetails = () => {
             {/* 頁籤區塊 */}
             <div className="celebrity-tabs">
                 <div className="celebrity-tab-buttons">
-                    <button 
-                        className={`tab-button ${activeTab === 'experience' ? 'active' : ''}`} 
-                        onClick={() => handleTabClick('experience')}
-                    >
-                        經歷
-                    </button>
-                    <button 
-                        className={`tab-button ${activeTab === 'works' ? 'active' : ''}`} 
-                        onClick={() => handleTabClick('works')}
-                    >
-                        作品
-                    </button>
-                    <button 
-                        className={`tab-button ${activeTab === 'resources' ? 'active' : ''}`} 
-                        onClick={() => handleTabClick('resources')}
-                    >
-                        網路資源
-                    </button>
-                    <button 
-                        className={`tab-button ${activeTab === 'metaverse' ? 'active' : ''}`} 
-                        onClick={() => handleTabClick('metaverse')}
-                    >
-                        元宇宙
-                    </button>
-                    <button 
-                        className={`tab-button ${activeTab === 'awards' ? 'active' : ''}`} 
-                        onClick={() => handleTabClick('awards')}
-                    >
-                        得獎
-                    </button>
+                    {hasData('experience') && (
+                        <button 
+                            className={`tab-button ${activeTab === 'experience' ? 'active' : ''}`} 
+                            onClick={() => handleTabClick('experience')}
+                        >
+                            經歷
+                        </button>
+                    )}
+                    {hasData('works') && (
+                        <button 
+                            className={`tab-button ${activeTab === 'works' ? 'active' : ''}`} 
+                            onClick={() => handleTabClick('works')}
+                        >
+                            作品
+                        </button>
+                    )}
+                    {hasData('resources') && (
+                        <button 
+                            className={`tab-button ${activeTab === 'resources' ? 'active' : ''}`} 
+                            onClick={() => handleTabClick('resources')}
+                        >
+                            網路資源
+                        </button>
+                    )}
+                    {hasData('metaverse') && (
+                        <button 
+                            className={`tab-button ${activeTab === 'metaverse' ? 'active' : ''}`} 
+                            onClick={() => handleTabClick('metaverse')}
+                        >
+                            元宇宙
+                        </button>
+                    )}
+                    {hasData('awards') && (
+                        <button 
+                            className={`tab-button ${activeTab === 'awards' ? 'active' : ''}`} 
+                            onClick={() => handleTabClick('awards')}
+                        >
+                            得獎
+                        </button>
+                    )}
                 </div>
 
                 {/* 頁籤內容 */}
                 <div className="celebrity-tab-content">
                     {/* 經歷頁籤 */}
-                    <div className={`tab-panel ${activeTab === 'experience' ? 'active' : ''}`}>
-                        {Array.isArray(celebrityData.experience) && celebrityData.experience.length > 0 ? (
+                    {hasData('experience') && (
+                        <div className={`tab-panel ${activeTab === 'experience' ? 'active' : ''}`}>
                             <ul className="experience-list">
                                 {celebrityData.experience.map((exp, index) => (
                                     <li key={index}>{exp}</li>
                                 ))}
                             </ul>
-                        ) : (
-                            <p>暫無經歷資料</p>
-                        )}
-                    </div>
+                        </div>
+                    )}
                     
                     {/* 作品頁籤 */}
-                    <div className={`tab-panel ${activeTab === 'works' ? 'active' : ''}`}>
-                        {celebrityData.works.categories && celebrityData.works.categories.length > 0 ? (
-                            <>
-                                {/* 作品分類按鈕組 */}
-                                <div className="work-category-filters">
-                                    <span className="work-category-label">作品類型:</span>
+                    {hasData('works') && (
+                        <div className={`tab-panel ${activeTab === 'works' ? 'active' : ''}`}>
+                            {/* 作品分類按鈕組 */}
+                            <div className="work-category-filters">
+                                <span className="work-category-label">作品類型:</span>
+                                <button 
+                                    className={`category-pill ${activeWorkCategory === 'all' ? 'active' : ''}`}
+                                    onClick={() => handleCategoryClick('all')}
+                                >
+                                    ALL
+                                </button>
+                                {celebrityData.works.categories.map(category => (
                                     <button 
-                                        className={`category-pill ${activeWorkCategory === 'all' ? 'active' : ''}`}
-                                        onClick={() => handleCategoryClick('all')}
+                                        key={category}
+                                        className={`category-pill ${activeWorkCategory === category ? 'active' : ''}`}
+                                        onClick={() => handleCategoryClick(category)}
                                     >
-                                        ALL
+                                        {category}
                                     </button>
-                                    {celebrityData.works.categories.map(category => (
-                                        <button 
-                                            key={category}
-                                            className={`category-pill ${activeWorkCategory === category ? 'active' : ''}`}
-                                            onClick={() => handleCategoryClick(category)}
-                                        >
-                                            {category}
-                                        </button>
-                                    ))}
-                                </div>
-                                
-                                {/* 作品內容 */}
-                                <div className="works-content">
-                                    {renderWorks()}
-                                </div>
-                            </>
-                        ) : (
-                            <p>暫無作品資料</p>
-                        )}
-                    </div>
+                                ))}
+                            </div>
+                            
+                            {/* 作品內容 */}
+                            <div className="works-content">
+                                {renderWorks()}
+                            </div>
+                        </div>
+                    )}
                     
                     {/* 網路資源頁籤 */}
-                    <div className={`tab-panel ${activeTab === 'resources' ? 'active' : ''}`}>
-                        {Array.isArray(celebrityData.resources) && celebrityData.resources.length > 0 ? (
+                    {hasData('resources') && (
+                        <div className={`tab-panel ${activeTab === 'resources' ? 'active' : ''}`}>
                             <div className="resource-cards-grid">
                                 {celebrityData.resources.map((resource, index) => (
                                     <div 
@@ -370,36 +426,30 @@ const CelebrityDetails = () => {
                                     </div>
                                 ))}
                             </div>
-                        ) : (
-                            <p>暫無網路資源</p>
-                        )}
-                    </div>
+                        </div>
+                    )}
                     
                     {/* 元宇宙頁籤 */}
-                    <div className={`tab-panel ${activeTab === 'metaverse' ? 'active' : ''}`}>
-                        {Array.isArray(celebrityData.metaverse) && celebrityData.metaverse.length > 0 ? (
+                    {hasData('metaverse') && (
+                        <div className={`tab-panel ${activeTab === 'metaverse' ? 'active' : ''}`}>
                             <ul>
                                 {celebrityData.metaverse.map((item, index) => (
                                     <li key={index}>{item}</li>
                                 ))}
                             </ul>
-                        ) : (
-                            <p>暫無元宇宙資料</p>
-                        )}
-                    </div>
+                        </div>
+                    )}
                     
                     {/* 得獎頁籤 */}
-                    <div className={`tab-panel ${activeTab === 'awards' ? 'active' : ''}`}>
-                        {Array.isArray(celebrityData.awards) && celebrityData.awards.length > 0 ? (
+                    {hasData('awards') && (
+                        <div className={`tab-panel ${activeTab === 'awards' ? 'active' : ''}`}>
                             <ul>
                                 {celebrityData.awards.map((award, index) => (
                                     <li key={index}>{award}</li>
                                 ))}
                             </ul>
-                        ) : (
-                            <p>暫無得獎資料</p>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
