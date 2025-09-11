@@ -11,11 +11,17 @@ const MainContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [idiom, setIdiom] = useState(null); // 存儲俗語諺資料
   const [idiomLoading, setIdiomLoading] = useState(true);
+  const [examInfo, setExamInfo] = useState([]); // 存儲考試資訊
+  const [newsInfo, setNewsInfo] = useState([]); // 存儲活動快訊
+  const [examLoading, setExamLoading] = useState(true);
+  const [newsLoading, setNewsLoading] = useState(true);
 
   // 組件掛載時獲取關鍵字和俗語諺
   useEffect(() => {
     fetchKeywords();
     fetchRandomIdiom();
+    fetchExamInfo();
+    fetchNewsInfo();
   }, []);
 
   // 從API獲取隨機俗語諺
@@ -89,6 +95,80 @@ const MainContent = () => {
       setKeywords(["台語文", "國中", "奇異果", "母語", "王育德"]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // 從API獲取考試資訊
+  const fetchExamInfo = async () => {
+    setExamLoading(true);
+    try {
+      const response = await fetch(
+        "https://dev.taigiedu.com/backend/info/test",
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+          // 嘗試不傳送 body 或傳送 null
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("考試資訊API回傳:", data);
+
+      if (Array.isArray(data)) {
+        // 顯示所有資料
+        setExamInfo(data);
+      } else {
+        console.error("考試資訊API回傳格式錯誤:", data);
+        setExamInfo([]);
+      }
+    } catch (error) {
+      console.error("獲取考試資訊失敗:", error);
+      setExamInfo([]);
+    } finally {
+      setExamLoading(false);
+    }
+  };
+
+  // 從API獲取活動快訊
+  const fetchNewsInfo = async () => {
+    setNewsLoading(true);
+    try {
+      const response = await fetch(
+        "https://dev.taigiedu.com/backend/info/news",
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+          // 嘗試不傳送 body 或傳送 null
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("活動快訊API回傳:", data);
+
+      if (Array.isArray(data)) {
+        // 顯示所有資料
+        setNewsInfo(data);
+      } else {
+        console.error("活動快訊API回傳格式錯誤:", data);
+        setNewsInfo([]);
+      }
+    } catch (error) {
+      console.error("獲取活動快訊失敗:", error);
+      setNewsInfo([]);
+    } finally {
+      setNewsLoading(false);
     }
   };
 
@@ -229,28 +309,34 @@ const MainContent = () => {
         <div className="fade-in">
           <div className="content-section">
             <h2 className="section-title">考試資訊</h2>
-            <ul className="info-list list-disc ml-5">
-              <li>
-                <a class="main-link" href="https://example.com/exam-info-1" target="_blank">
-                  【報名中】2024秋季小學台語認證報名資訊
-                </a>
-              </li>
-              <li>
-                <a class="main-link" href="https://example.com/exam-info-2" target="_blank">
-                  【報名截止】113年8月臺灣台語認證考試A卷電腦測驗
-                </a>
-              </li>
-              <li>
-                <a class="main-link" href="https://example.com/exam-info-3" target="_blank">
-                  【公告】113年8月考試簡章公告及報名審議
-                </a>
-              </li>
-              <li>
-                <a class="main-link" href="https://example.com/exam-info-4" target="_blank">
-                  【改期】教育部臺灣台語認證113年從4月15開始報名
-                </a>
-              </li>
-            </ul>
+            {examLoading ? (
+              <div className="text-gray-500">載入考試資訊中...</div>
+            ) : (
+              <ul className="info-list list-disc ml-5">
+                {examInfo.length > 0 ? (
+                  examInfo.map((exam) => (
+                    <li key={exam.id}>
+                      {exam.url ? (
+                        <a 
+                          className="main-link" 
+                          href={exam.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          [{exam.category}] {exam.title}
+                        </a>
+                      ) : (
+                        <span className="main-link">
+                          [{exam.category}] {exam.title}
+                        </span>
+                      )}
+                    </li>
+                  ))
+                ) : (
+                  <li>暫無考試資訊</li>
+                )}
+              </ul>
+            )}
           </div>
         </div>
 
@@ -258,28 +344,34 @@ const MainContent = () => {
         <div className="fade-in">
           <div className="content-section">
             <h2 className="section-title">活動快訊</h2>
-            <ul className="info-list">
-              <li>
-                <a class="main-link" href="https://example.com/exam-info-1" target="_blank">
-                  【報名中】2024秋季小學台語認證報名資訊
-                </a>
-              </li>
-              <li>
-                <a class="main-link" href="https://example.com/exam-info-2" target="_blank">
-                  【報名截止】113年8月臺灣台語認證考試A卷電腦測驗
-                </a>
-              </li>
-              <li>
-                <a class="main-link" href="https://example.com/exam-info-3" target="_blank">
-                  【公告】113年8月考試簡章公告及報名審議
-                </a>
-              </li>
-              <li>
-                <a class="main-link" href="https://example.com/exam-info-4" target="_blank">
-                  【改期】教育部臺灣台語認證113年從4月15開始報名
-                </a>
-              </li>
-            </ul>
+            {newsLoading ? (
+              <div className="text-gray-500">載入活動快訊中...</div>
+            ) : (
+              <ul className="info-list">
+                {newsInfo.length > 0 ? (
+                  newsInfo.map((news) => (
+                    <li key={news.id}>
+                      {news.url ? (
+                        <a 
+                          className="main-link" 
+                          href={news.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          [{news.category}] {news.title}
+                        </a>
+                      ) : (
+                        <span className="main-link">
+                          [{news.category}] {news.title}
+                        </span>
+                      )}
+                    </li>
+                  ))
+                ) : (
+                  <li>暫無活動快訊</li>
+                )}
+              </ul>
+            )}
           </div>
         </div>
       </div>

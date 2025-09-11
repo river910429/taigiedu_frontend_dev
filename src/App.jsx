@@ -25,6 +25,7 @@ import DownloadPage from "./resourcePage/DownloadPage";
 import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
 import CelebrityDetails from "./celebrity/CelebrityDetails";
+import AdminMain from "./adminPage/adminMain";
 
 
 const AppLayout = () => {
@@ -32,6 +33,7 @@ const AppLayout = () => {
   const isPreviewPage = location.pathname === '/file-preview';
   const isDownloadPage = location.pathname === '/download';
   const isCelebrityDetail = location.pathname === '/celebrity/detail';
+  const isAdminPage = location.pathname === '/admin';
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   // 檢查登入狀態
   useEffect(() => {
@@ -44,8 +46,8 @@ const AppLayout = () => {
   return (
           <div className="app">
       <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail? 'preview-page' : ''}`}>
-        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && <Sidebar />}
+      <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail || isAdminPage ? 'preview-page' : ''}`}>
+        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && !isAdminPage && <Sidebar />}
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/search" element={<MainSearchPage />} />
@@ -101,6 +103,7 @@ const AppLayout = () => {
               element={<LoginPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
             />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/admin" element={<AdminMain />} />
           </Routes>
         </div>
       <Footer />
