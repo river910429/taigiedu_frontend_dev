@@ -23,13 +23,29 @@ const FestivalModal = ({ isOpen, onClose, festival }) => {
               </div>
             </div>
             <div className="festival-modal-body">
-              <div className="festival-row-container">
+              <div className="festival-content-container">
+                {festival.date && (
+                  <div className="festival-date-container">
+                    <span className="festival-date-label">日期</span>
+                    <div className="festival-date-text">
+                      {festival.date}
+                    </div>
+                  </div>
+                )}
                 <div className="festival-interpretation-container">
                   <span className="festival-interpretation-label">說明</span>
                   <div className="festival-interpretation-text">
-                    {festival.intro}
+                    {festival.intro || festival.intro_taigi || '暫無說明'}
                   </div>
                 </div>
+                {festival.intro_taigi && festival.intro && (
+                  <div className="festival-taigi-container">
+                    <span className="festival-taigi-label">台語說明</span>
+                    <div className="festival-taigi-text">
+                      {festival.intro_taigi}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

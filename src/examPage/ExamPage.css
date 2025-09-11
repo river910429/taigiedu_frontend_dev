@@ -125,15 +125,3 @@
     height: 100%;
     object-fit: cover;
 }
-
-/* 子分類標籤樣式 */
-.subcategory-badge {
-    display: inline-block;
-    background-color: #e3f2fd;
-    color: #1976d2;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-right: 5px;
-}
