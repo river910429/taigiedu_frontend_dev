@@ -51,20 +51,40 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
   // 處理資源卡片點擊 - 在新分頁開啟並傳遞完整數據
   const handleCardClick = (resource) => {
     try {
+      // 處理圖片 URL
+      const getFullImageUrl = (url) => {
+        if (!url || url === "/src/assets/resourcepage/file_preview_demo.png") {
+          return "/src/assets/resourcepage/file_preview_demo.png";
+        }
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return url;
+        }
+        return `https://dev.taigiedu.com/backend/${url}`;
+      };
+
+      // 處理檔案 URL
+      const getFullFileUrl = (url) => {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return url;
+        }
+        return `https://dev.taigiedu.com/backend/${url}`;
+      };
+
       // 確保所有數據都被正確編碼並傳遞
       const tagsString = encodeURIComponent(JSON.stringify(resource.tags || []));
       
       // 完整的資源 URL，包含所有必要參數
       const previewUrl = `${window.location.origin}/file-preview?` + 
         `title=${encodeURIComponent(resource.title || '無標題資源')}` +
-        `&imageUrl=${encodeURIComponent(resource.imageUrl || "/src/assets/resourcepage/file_preview_demo.png")}` +
+        `&imageUrl=${encodeURIComponent(getFullImageUrl(resource.imageUrl))}` +
         `&fileType=${encodeURIComponent(resource.fileType || 'PDF')}` +
         `&likes=${resource.likes || 0}` +
         `&downloads=${resource.downloads || 0}` +
         `&uploader=${encodeURIComponent(resource.uploader_name || '匿名上傳者')}` +
         `&tags=${tagsString}` +
         `&date=${encodeURIComponent(resource.date || '')}` +
-        `&fileUrl=${encodeURIComponent(resource.fileUrl || '')}` +
+        `&fileUrl=${encodeURIComponent(getFullFileUrl(resource.fileUrl))}` +
         `&id=${encodeURIComponent(resource.id || '')}`;
       
       // 在新分頁中打開預覽頁面

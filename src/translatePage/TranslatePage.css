@@ -1,8 +1,8 @@
 .translate-page {
   padding: 60px;
   display: flex;
-  align-items: center;
-  height: 100vh;
+  align-items: center; /* 恢復居中對齊，保持翻譯按鈕在中間 */
+  min-height: 100vh; /* 改為最小高度，允許內容超出時頁面延伸 */
 }
 
 .translate-button {

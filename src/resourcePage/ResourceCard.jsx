@@ -21,12 +21,25 @@ const ResourceCard = ({
     }
   };
 
+  // 處理圖片 URL，如果是相對路徑則添加 base URL
+  const getFullImageUrl = (url) => {
+    if (!url || url === "/src/assets/resourcepage/file_preview_demo.png") {
+      return filePreviewDemo;
+    }
+    // 如果 URL 已經是完整的 HTTP/HTTPS URL，直接返回
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // 否則添加 base URL
+    return `https://dev.taigiedu.com/backend/${url}`;
+  };
+
   return (
     <div className="resource-card" onClick={handleCardClick}>
       {/* 卡片標頭區域，背景圖片 */}
       <div
         className="card-header"
-        style={{ backgroundImage: `url(${imageUrl || filePreviewDemo})` }}
+        style={{ backgroundImage: `url(${getFullImageUrl(imageUrl)})` }}
       >
         <div className="file-type">{fileType}</div>
         <div className="stats">

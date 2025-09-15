@@ -35,15 +35,32 @@ const FilePreview = () => {
         console.error("解析標籤錯誤:", e);
         parsedTags = [];
       }
+
+      // 處理圖片和檔案 URL 的函數
+      const getFullUrl = (url, isImage = false) => {
+        if (!url) {
+          return isImage ? "/src/assets/resourcepage/file_preview_demo.png" : "";
+        }
+        // 如果是本地預設圖片路徑，直接返回
+        if (url === "/src/assets/resourcepage/file_preview_demo.png") {
+          return url;
+        }
+        // 如果已經是完整的 HTTP/HTTPS URL，直接返回
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return url;
+        }
+        // 否則添加 base URL
+        return `https://dev.taigiedu.com/backend/${url}`;
+      };
       
       // 設置資源數據
       setResourceData({
-        imageUrl: searchParams.get("imageUrl") || "/src/assets/resourcepage/file_preview_demo.png",
+        imageUrl: getFullUrl(searchParams.get("imageUrl"), true),
         fileType: searchParams.get("fileType") || "PDF",
         title: searchParams.get("title") || "無標題資源",
         uploader: searchParams.get("uploader") || "匿名上傳者",
         date: searchParams.get("date") || "未知日期",
-        fileUrl: searchParams.get("fileUrl") || "",
+        fileUrl: getFullUrl(searchParams.get("fileUrl")),
         resourceId: searchParams.get("id") || "",
         tags: parsedTags
       });
@@ -81,7 +98,7 @@ const FilePreview = () => {
     navigate("/download", {
       state: {
         fileName: resourceData.title,
-        pdfUrl: resourceData.fileUrl, 
+        pdfUrl: resourceData.fileUrl, // 這裡的 fileUrl 已經是完整的 URL
       },
     });
   };
@@ -100,13 +117,24 @@ const FilePreview = () => {
         });
       }
 
-      // 執行下載
+      // 使用 fetch 下載檔案並保持在當前頁面
+      const response = await fetch(resourceData.fileUrl);
+      const blob = await response.blob();
+      
+      // 創建下載連結
+      const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = resourceData.fileUrl;
+      link.href = downloadUrl;
       link.setAttribute('download', `${resourceData.title}.${resourceData.fileType.toLowerCase()}`);
+      link.style.display = 'none';
+      
+      // 執行下載
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // 清理 URL 物件
+      window.URL.revokeObjectURL(downloadUrl);
       
       // 更新下載計數
       setDownloadsCount(prev => prev + 1);
