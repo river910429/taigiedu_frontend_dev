@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import './PhraseModal.css';
 import megaphoneIcon from '../assets/megaphone.svg';
 
-const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, pronun_diff, audio }) => {
+const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, pronun_diff, audio, type }) => {
   console.log("Modal 接收的數據:", { phrase, pronunciation, interpretation, pronun_diff, audio });
   
   useEffect(() => {
@@ -191,7 +191,10 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
           </div>
           <div className="phrase-modal-detail">
             <div className="phrase-modal-header">
-              <h2 className="phrase-modal-title">{phrase}</h2>
+              <div className="phrase-title-container">
+                <h2 className="phrase-modal-title">{phrase}</h2>
+                {type && <span className="phrase-type-pill">{type}</span>}
+              </div>
             </div>
             <div className="phrase-modal-body">
               <div className="phrase-pronunciation-container">

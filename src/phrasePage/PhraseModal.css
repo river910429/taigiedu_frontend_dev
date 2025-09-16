@@ -54,9 +54,27 @@
   
 
   
+  .phrase-title-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   .phrase-modal-title {
     font-size: 22px;
     font-weight: bold;
+    margin: 0;
+  }
+
+  .phrase-type-pill {
+    border: 2px solid #A6A6A6;
+    color: #A6A6A6;
+    background: transparent;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
   }
   
   .phrase-pronunciation-container {

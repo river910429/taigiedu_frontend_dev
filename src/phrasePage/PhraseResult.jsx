@@ -217,6 +217,7 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 					interpretation={selectedPhrase.Explain}
 					pronun_diff={selectedPhrase["Pronounciation variants"]} // 修正屬性名稱
 					audio={selectedPhrase.audio && selectedPhrase.audio.length > 0 ? selectedPhrase.audio[0] : null}
+					type={selectedPhrase.Type}
 				/>
 			)}
 		</div>
