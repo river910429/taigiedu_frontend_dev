@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+
+# Vite cache
+.vite/
+
+# Build output
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Env files (通常包含敏感資訊)
+.env
+.env.*
