@@ -44,7 +44,7 @@ const AdminMain = () => {
 
   const navigate = useNavigate();
   const routeMap = {
-    "考試資訊": "/admin/exam-info",
+    "考試資訊": "/admin/mainSearch/test",
     // ...
   };
 

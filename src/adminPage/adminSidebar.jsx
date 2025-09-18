@@ -1,19 +1,14 @@
 import React, { useState,useEffect  } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./adminSidebar.css";
-import homeIcon from "../assets/sidebar_icon/主頁.svg";
-import transcriptIcon from "../assets/sidebar_icon/逐字稿.svg";
-import readIcon from "../assets/sidebar_icon/朗讀.svg";
-import translateIcon from "../assets/sidebar_icon/文字轉換.svg";
-import resourceIcon from "../assets/sidebar_icon/資源共享平台.svg";
-import phraseIcon from "../assets/sidebar_icon/俗諺語.svg";
-import celebrityIcon from "../assets/sidebar_icon/名人堂.svg";
-import cultureIcon from "../assets/sidebar_icon/文化.svg";
-import socialMediaIcon from "../assets/sidebar_icon/媒體與社群資源.svg";
-import examIcon from "../assets/sidebar_icon/認證考試.svg";
-import chevronUpIcon from "../assets/chevron-up.svg";
+import bookIcon from '../assets/adminPage/book.svg';
+import cloudIcon from '../assets/adminPage/cloudComputing.svg';
+import houseIcon from '../assets/adminPage/house.svg';
+import playIcon from '../assets/adminPage/playButton.svg';
+import testIcon from '../assets/adminPage/test.svg';
+import userIcon from '../assets/adminPage/userCircle.svg';
 
-const Sidebar = () => {
+const AdminSidebar = () => {
   const basePath = import.meta.env.BASE_URL || '/';
   const [activeItem, setActiveItem] = useState(null); // 用於追蹤哪個選單被選取
   const [activeSubItem, setActiveSubItem] = useState(null);
@@ -24,7 +19,7 @@ const Sidebar = () => {
   const menuItems = [
     { id: 1, 
       label: "主頁搜尋", 
-      icon: homeIcon,
+      icon: houseIcon,
       hasSubmenu: true,
       submenuItems: [
         { id: 'adminTestInfo', label: "考試資訊", path: "/admin/mainSearch/test" },
@@ -33,7 +28,7 @@ const Sidebar = () => {
     },
     { id: 2, 
       label: "台灣文化", 
-      icon: transcriptIcon, 
+      icon: bookIcon, 
       hasSubmenu: true,
       submenuItems: [
         { id: 'food', label: "飲食", path: "/admin/culture/food" },
@@ -42,7 +37,7 @@ const Sidebar = () => {
     },
     { id: 3, 
       label: "認證考試", 
-      icon: examIcon, 
+      icon: testIcon, 
       hasSubmenu: true,
       submenuItems: [
         { id: 'adminExamInfo', label: "考試資訊", path: "/admin/exam/info" },
@@ -50,17 +45,17 @@ const Sidebar = () => {
         { id: 'adminChannels', label: "教育頻道", path: "/admin/exam/channels" },
       ]
     },
-    { id: 4, label: "媒體與社群資源", icon: socialMediaIcon, path: "/admin/socialmedia" },
+    { id: 4, label: "媒體與社群資源", icon: playIcon, path: "/admin/socialmedia" },
     { id: 5, 
       label: "台語教學資源共享平台", 
-      icon: resourceIcon, 
+      icon: cloudIcon, 
       hasSubmenu: true,
       submenuItems: [
         { id: 'adminUploadManagement', label: "上傳項目管理", path: "/admin/resource/upload" },
         { id: 'adminBooks', label: "編輯課本選單", path: "/admin/resource/exam/books" },
       ]
     },
-    { id: 6, label: "會員管理", icon: phraseIcon, path: "/admin/member" }
+    { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" }
     ];
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
@@ -147,4 +142,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;

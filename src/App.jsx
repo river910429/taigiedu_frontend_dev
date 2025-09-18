@@ -26,6 +26,7 @@ import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
 import CelebrityDetails from "./celebrity/CelebrityDetails";
 import AdminMain from "./adminPage/adminMain";
+import AdminSidebar from "./adminPage/adminSidebar";
 
 
 const AppLayout = () => {
@@ -34,7 +35,6 @@ const AppLayout = () => {
   const isDownloadPage = location.pathname === '/download';
   const isCelebrityDetail = location.pathname === '/celebrity/detail';
   const isAdminPage = location.pathname === '/admin';
-
   const isAdminContent = location.pathname.startsWith('/admin/');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   // 檢查登入狀態
@@ -106,6 +106,8 @@ const AppLayout = () => {
             />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/admin" element={<AdminMain />} />
+            <Route path="/admin/mainSearch/test" element={<AdminMain />} />
+
             {/* // 其他 admin 路由 */}
           </Routes>
         </div>
