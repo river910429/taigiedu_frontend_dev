@@ -2,7 +2,7 @@
 node_modules/
 
 # Vite cache
-.vite/
+.vite/deps
 
 # Build output
 dist/
