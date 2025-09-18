@@ -34,6 +34,8 @@ const AppLayout = () => {
   const isDownloadPage = location.pathname === '/download';
   const isCelebrityDetail = location.pathname === '/celebrity/detail';
   const isAdminPage = location.pathname === '/admin';
+
+  const isAdminContent = location.pathname.startsWith('/admin/');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   // 檢查登入狀態
   useEffect(() => {
@@ -47,7 +49,7 @@ const AppLayout = () => {
           <div className="app">
       <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail || isAdminPage ? 'preview-page' : ''}`}>
-        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && !isAdminPage && <Sidebar />}
+        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && !isAdminPage && (isAdminContent ? <AdminSidebar /> : <Sidebar />)}
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/search" element={<MainSearchPage />} />
@@ -104,6 +106,7 @@ const AppLayout = () => {
             />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/admin" element={<AdminMain />} />
+            {/* // 其他 admin 路由 */}
           </Routes>
         </div>
       <Footer />
