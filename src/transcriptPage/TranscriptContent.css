@@ -125,7 +125,7 @@ height: 40px;
 
 .feedback-button {
   width: 152px;
-height: 40px;
+  height: 40px;
   background-color: white;
   color: #2d92c1;
   border: 1px solid #2d92c1;
@@ -135,7 +135,14 @@ height: 40px;
   transition: background-color 0.3s, color 0.3s;
 }
 
-.feedback-button:hover {
+.feedback-button:hover:not(:disabled) {
   background-color: #2d92c1;
   color: white;
+}
+
+.feedback-button:disabled {
+  background-color: #919191; /* 禁用狀態背景 */
+  color: #ffffff; /* 禁用狀態文字顏色 */
+  border: 1px solid #919191; /* 禁用狀態邊框 */
+  cursor: not-allowed; /* 禁用狀態鼠標樣式 */
 }

@@ -100,7 +100,7 @@
   color: var(--Primary-Black, #424242);
 }
 
-.generate-audio-button:hover {
+.generate-audio-button:hover:not(:disabled):not(.processing) {
   background-color: #2d92c1;
   color: white;
 }

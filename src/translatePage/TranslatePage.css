@@ -13,8 +13,9 @@
   margin-right: 15px;
   padding: 4px 14px;
   align-items: center;
+  justify-content: center; /* 文字居中 */
   position: relative;
-  padding-right: 40px; /* 為箭頭留出空間 */
+  /* 移除固定的padding-right，讓loading狀態可以正確居中 */
 
   border-radius: 8px;
   background: var(--primary-blue, #2d92c1);
@@ -26,20 +27,47 @@
   font-style: normal;
   font-weight: 300;
   line-height: normal;
+  white-space: nowrap; /* 防止文字換行 */
+  overflow: hidden; /* 隱藏超出的內容 */
 
   /* 背景圖片已移至 JS 中處理 */
 }
-.translate-button:hover {
+
+.translate-content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 8px; /* 文字和箭頭之間的間距 */
+}
+.translate-button:hover:not(:disabled) {
   background: #a6bdcd;
-  /* 背景圖片已移至 JS 中處理 */
+}
+
+.translate-button:disabled {
+  background: #919191; /* 禁用狀態背景 */
+  color: #ffffff; /* 禁用狀態文字顏色 */
+  cursor: not-allowed; /* 禁用狀態鼠標樣式 */
 }
 
 .translate-arrow {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
   width: 24px;
   height: 24px;
   pointer-events: none; /* 讓箭頭不會阻擋點擊事件 */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* loading狀態的圖示：旋轉動畫 */
+.translate-arrow.loading-icon {
+  animation: spin 1s linear infinite; /* 旋轉動畫 */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useToast } from "../components/Toast";
 import "./TranslatePage.css";
 import arrowRightIcon from "../assets/arrow-right.svg";
+import loadingImage from "../assets/record_loading.svg";
 
 import TranslateOriginal from "./TranslateOriginal";
 import TranslateTarget from "./TranslateTarget";
@@ -147,13 +148,6 @@ const TranslatePage = () => {
     setTranslatedContent(updatedContent); // 更新翻譯內容
   };
 
-  const translateButtonStyle = {
-    backgroundImage: `url(${arrowRightIcon})`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'calc(100% - 10px) center',
-    backgroundSize: '24px 24px'
-  };
-
   return (
     <div className="translate-page">
       {/* 原始輸入區 */}
@@ -165,15 +159,33 @@ const TranslatePage = () => {
       {/* 翻譯按鈕 */}
       <button
         className="translate-button"
-        style={translateButtonStyle}
         onClick={handleTranslate}
         disabled={
+          loading ||
           originalContent.trim() === "" ||
           originalLanguage === "" || // 必須選擇原始語言
           targetLanguage === "" // 必須選擇目標語言
         }
       >
-        {loading ? "翻譯中..." : "翻譯"}
+        {loading ? (
+          <>
+            翻譯中
+            <img 
+              src={loadingImage} 
+              alt="loading" 
+              className="translate-arrow loading-icon"
+            />
+          </>
+        ) : (
+          <div className="translate-content-wrapper">
+            翻譯
+            <img 
+              src={arrowRightIcon} 
+              alt="translate arrow" 
+              className="translate-arrow"
+            />
+          </div>
+        )}
       </button>
 
       {/* 翻譯後顯示區 */}

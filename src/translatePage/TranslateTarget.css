@@ -230,6 +230,16 @@
   letter-spacing: -0.18px;
 }
 
+.tran-feedback-button:disabled {
+  background-color: #919191; /* 禁用狀態背景 */
+  color: #ffffff; /* 禁用狀態文字顏色 */
+  cursor: not-allowed; /* 禁用狀態鼠標樣式 */
+}
+
+.tran-feedback-button:hover:not(:disabled) {
+  background-color: #a6bdcd; /* 只在非禁用狀態時有hover效果 */
+}
+
 .dropdown-container {
   position: relative;
   display: inline-block;

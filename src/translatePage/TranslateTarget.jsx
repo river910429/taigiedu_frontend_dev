@@ -195,7 +195,7 @@ const TranslateTarget = ({
 
       <button
         className="tran-feedback-button"
-        disabled={!isEditable}
+        disabled={!isEditable || content.trim() === ""}
         onClick={onFeedbackOpen}
       >
         內容修正回饋
