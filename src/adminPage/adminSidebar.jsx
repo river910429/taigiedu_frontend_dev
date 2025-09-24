@@ -7,12 +7,13 @@ import houseIcon from '../assets/adminPage/house.svg';
 import playIcon from '../assets/adminPage/playButton.svg';
 import testIcon from '../assets/adminPage/test.svg';
 import userIcon from '../assets/adminPage/userCircle.svg';
+import chevronUpIcon from "../assets/chevron-up.svg";
 
 const AdminSidebar = () => {
   const basePath = import.meta.env.BASE_URL || '/';
   const [activeItem, setActiveItem] = useState(null); // 用於追蹤哪個選單被選取
   const [activeSubItem, setActiveSubItem] = useState(null);
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const [isSubMenuOpen, setIsSubMenuOpen] = useState({});
   const navigate = useNavigate(); // 使用 React Router 的 navigate
   const location = useLocation(); // 監聽當前路由變化
 
@@ -22,8 +23,8 @@ const AdminSidebar = () => {
       icon: houseIcon,
       hasSubmenu: true,
       submenuItems: [
-        { id: 'adminTestInfo', label: "考試資訊", path: "/admin/mainSearch/test" },
-        { id: 'adminNewsInfo', label: "活動快訊", path: "/admin/mainSearch/news" }
+        { id: 'adminTestInfo', label: "考試資訊", path: "/admin/main-search/test" },
+        { id: 'adminNewsInfo', label: "活動快訊", path: "/admin/main-search/news" }
       ]
     },
     { id: 2, 
@@ -69,11 +70,10 @@ const AdminSidebar = () => {
       const parentItem = menuItems.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.path === location.pathname));
       if (parentItem) {
         setActiveItem(parentItem.id);
-        setIsSubMenuOpen(true);
+        setIsSubMenuOpen(prev => ({ ...prev, [parentItem.id]: true }));
         setActiveSubItem(parentItem.submenuItems.find(sub => sub.path === location.pathname).id);
       } else {
         setActiveItem(null);
-        setIsSubMenuOpen(false);
         setActiveSubItem(null);
       }
     }
@@ -81,7 +81,7 @@ const AdminSidebar = () => {
 
    const handleClick = (id, path, hasSubmenu) => {
     if (hasSubmenu) {
-      setIsSubMenuOpen(!isSubMenuOpen);
+      setIsSubMenuOpen(prev => ({ ...prev, [id]: !prev[id] }));
       setActiveItem(id);
       setActiveSubItem(null);
     } else {
@@ -91,17 +91,12 @@ const AdminSidebar = () => {
     }
   };
 
-    const handleSubItemClick = (subItemId, path) => {
+    const handleSubItemClick = (subItemId, path, parentId) => {
     setActiveSubItem(subItemId);
     setActiveItem(null);
-    setIsSubMenuOpen(true); // Keep submenu open when submenu item is active
+    setIsSubMenuOpen(prev => ({ ...prev, [parentId]: true })); // Keep submenu open when submenu item is active
     navigate(path);
   };
-
-  useEffect(() => {
-    handleClick(1,"/"); // 預設點擊 "主頁搜尋"
-  }, []);
-
 
   return (
     <div className="sidebar">
@@ -118,12 +113,12 @@ const AdminSidebar = () => {
             />
             {item.label}
             {item.hasSubmenu && (
-              <span className={`arrow ${isSubMenuOpen ? 'up' : 'down'}`}>
+              <span className={`arrow ${isSubMenuOpen[item.id] ? 'up' : 'down'}`}>
               <img src={chevronUpIcon} />
             </span>
             )}
           </button>
-          {item.hasSubmenu && isSubMenuOpen && (
+          {item.hasSubmenu && isSubMenuOpen[item.id] && (
             <div className="submenu">
               {item.submenuItems.map((subItem) => (
                 <div

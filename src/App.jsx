@@ -27,7 +27,7 @@ import RegisterPage from "./resourcePage/RegisterPage";
 import CelebrityDetails from "./celebrity/CelebrityDetails";
 import AdminMain from "./adminPage/adminMain";
 import AdminSidebar from "./adminPage/adminSidebar";
-
+import AdminTestPage from "./adminPage/adminContent/adminHome/adminTestPage";
 
 const AppLayout = () => {
   const location = useLocation();
@@ -35,7 +35,7 @@ const AppLayout = () => {
   const isDownloadPage = location.pathname === '/download';
   const isCelebrityDetail = location.pathname === '/celebrity/detail';
   const isAdminPage = location.pathname === '/admin';
-  const isAdminContent = location.pathname.startsWith('/admin/');
+  const isAdminContent = location.pathname.startsWith('/admin/') && location.pathname !== '/admin';
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   // 檢查登入狀態
   useEffect(() => {
@@ -49,7 +49,7 @@ const AppLayout = () => {
           <div className="app">
       <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail || isAdminPage ? 'preview-page' : ''}`}>
-        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && !isAdminPage && (isAdminContent ? <AdminSidebar /> : <Sidebar />)}
+      {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && (isAdminContent ? <AdminSidebar /> : isAdminPage ? null : <Sidebar />)}
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/search" element={<MainSearchPage />} />
@@ -106,8 +106,7 @@ const AppLayout = () => {
             />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/admin" element={<AdminMain />} />
-            <Route path="/admin/mainSearch/test" element={<AdminMain />} />
-
+            <Route path="/admin/main-search/test" element={<AdminTestPage />} />
             {/* // 其他 admin 路由 */}
           </Routes>
         </div>

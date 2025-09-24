@@ -1,0 +1,196 @@
+.admin-content-wrapper {
+    background-color: #fff; /* 白色背景 */
+    border-radius: 8px; /* 圓角 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* 輕微陰影 */
+    min-height: 600px; /* 確保內容區域有足夠高度 */
+    padding: 30px; /* 內部大內邊距 */
+}
+
+.admin-header-controls {
+    display: flex; /* 使用 flexbox 確保左右對齊 */
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px; /* 底部內邊距 */
+    border-bottom: 1px solid #e0e0e0; /* 底部淺灰色邊線 */
+    margin-bottom: 20px; /* 與表格的間距 */
+}
+
+.admin-header-controls h5 {
+    font-size: 1.25rem; /* 調整標題大小 */
+    font-weight: 500;
+    color: #333; /* 標題文字顏色 */
+}
+
+.admin-header-controls h5 .text-secondary {
+    color: #666 !important; /* 次要文字顏色 */
+}
+
+.admin-add-button {
+    background-color: #2D92C1;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.admin-add-button:hover {
+    background-color: #40a9ff; /* 懸停時的藍色 */
+}
+
+.admin-add-button img {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    filter: invert(1); /* 將白色圖示反轉為其他顏色，這裡直接設置為白色 */
+}
+.admin-controls-row { /* 新的控制項行 */
+    display: flex;
+    justify-content: space-between; /* 將控制項靠右對齊 */
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.status-filter {
+    display: flex;
+    align-items: center;
+}
+
+.status-filter span {
+    font-size: 0.95rem;
+    color: #555;
+    margin-right: 10px;
+}
+
+.admin-status-dropdown {
+    width: 120px; /* 調整下拉選單寬度 */
+    font-size: 0.9rem;
+}
+
+.admin-table-responsive {
+    overflow-x: auto; /* 確保表格在小螢幕上可以滾動 */
+}
+
+.admin-data-table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate; /* 為了圓角邊框 */
+    border-spacing: 0 0.5px; /* 列之間的間距 */
+}
+
+.admin-data-table thead th {
+    background-color: #2D92C1; /* 表頭背景色 */
+    color: #fff; /* 表頭文字顏色 */
+    font-weight: normal;
+    vertical-align: middle;
+    padding: 0.75rem;
+    border-color: #dee2e6;
+    border-bottom: none; /* 移除 Bootstrap 預設的底部邊框 */
+    border-top: none; /* 移除 Bootstrap 預設的頂部邊框 */
+    white-space: nowrap; /* 防止標題換行 */
+}
+
+.admin-data-table thead th:first-child {
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.admin-data-table thead th:last-child {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+}
+
+.sort-arrow {
+    margin-left: 3px;
+    color: #fff;
+}
+
+.admin-data-table tbody tr {
+    background-color: #DFEAF2; /* 行背景色 */
+    border: 1px solid #dee2e6; /* 行邊框 */
+    border-radius: .25rem; /* 行圓角 */
+    margin-bottom: 8px; /* 行之間的間距 */
+    }
+
+.admin-data-table tbody tr td {
+    vertical-align: middle;
+    padding: 0.5rem;
+}
+
+/* 處理表格行之間的間距，讓它看起來像獨立的卡片 */
+.admin-data-table tbody tr:not(:last-child) {
+    margin-bottom: 8px; /* 每行之間增加間距 */
+}
+
+.admin-data-table tbody tr td:first-child {
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.admin-data-table tbody tr td:last-child {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+}
+
+
+.admin-action-btn {
+    border: none;
+    background: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.admin-action-btn:hover {
+    background-color: #e9ecef;
+}
+
+.admin-action-icon {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+
+.no-data-message-container {
+    background-color: #fff;
+    border-radius: .25rem;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    padding: 3rem 1rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+/* 覆蓋 Bootstrap 的 .table-hover 效果，以符合設計 */
+.admin-data-table.table-hover tbody tr:hover {
+    background-color: #e2f0fa; /* 輕微的藍色背景 */
+    box-shadow: 0 .25rem .5rem rgba(0,0,0,.1); /* 懸停時加強陰影 */
+    transform: translateY(-2px); /* 輕微上移效果 */
+    transition: all 0.2s ease-in-out;
+}
+
+.admin-data-table a {
+    word-break: break-all; /* 防止連結過長溢出 */
+}
+
+.test-loading {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
