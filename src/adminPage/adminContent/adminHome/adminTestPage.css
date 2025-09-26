@@ -90,6 +90,7 @@
 }
 
 .admin-data-table thead th:first-child {
+    background-color: #f5f5f5;
     border-top-left-radius: .25rem;
     border-bottom-left-radius: .25rem;
 }
@@ -122,6 +123,7 @@
 }
 
 .admin-data-table tbody tr td:first-child {
+    background-color: #f5f5f5;
     border-top-left-radius: .25rem;
     border-bottom-left-radius: .25rem;
 }
@@ -129,6 +131,7 @@
 .admin-data-table tbody tr td:last-child {
     border-top-right-radius: .25rem;
     border-bottom-right-radius: .25rem;
+    text-align: center;
 }
 
 

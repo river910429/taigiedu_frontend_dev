@@ -5,6 +5,7 @@ import editIcon from '../../../assets/adminPage/pencil.svg';
 import deleteIcon from '../../../assets/adminPage/trash.svg'; 
 import addIcon from '../../../assets/adminPage/plus.svg'; 
 
+// 拖曳功能 ↓
 import {
     DndContext,
     closestCenter,
@@ -74,18 +75,20 @@ const AdminTestPage = () => {
     const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [testInfo, setTestInfo] = useState([]); // 考試資訊資料
+    const [allTestInfo, setAllTestInfo] = useState([]); // 所有考試資訊資料
+    const [testInfo, setTestInfo] = useState([]); // 顯示的考試資訊資料
     const [statusFilter, setStatusFilter] = useState('published'); // 狀態篩選
     const [activeId, setActiveId] = useState(null); // 目前拖曳的項目 ID
-    const tableRef = useRef(null);
-    const [tableWidth, setTableWidth] = useState(0);
 
-    useEffect(() => {
-        if (tableRef.current) {
-            setTableWidth(tableRef.current.offsetWidth);
-        }
-    }, [testInfo, isLoading]);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [newCategory, setNewCategory] = useState('');
+    const [newContent, setNewContent] = useState('');
+    const [newLink, setNewLink] = useState('');
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [currentEditItem, setCurrentEditItem] = useState(null);
+
+    // 拖曳功能 ⭣⭣⭣⭣⭣⭣⭣⭣⭣
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -105,6 +108,22 @@ const AdminTestPage = () => {
                 const newItems = [...items];
                 const [removed] = newItems.splice(oldIndex, 1);
                 newItems.splice(newIndex, 0, removed);
+                // 同步更新 allTestInfo 的順序
+                setAllTestInfo(prevAllInfo => {
+                    const tempAllInfo = [...prevAllInfo];
+                    const activeItemInAll = tempAllInfo.find(item => item.id === active.id);
+                    const overItemInAll = tempAllInfo.find(item => item.id === over.id);
+
+                    if (!activeItemInAll || !overItemInAll) return prevAllInfo; // 確保找到項目
+
+                    const oldAllIndex = tempAllInfo.indexOf(activeItemInAll);
+                    const newAllIndex = tempAllInfo.indexOf(overItemInAll);
+
+                    const [removedAll] = tempAllInfo.splice(oldAllIndex, 1);
+                    tempAllInfo.splice(newAllIndex, 0, removedAll);
+                    return tempAllInfo;
+                });
+
                 return newItems;
             });
         }
@@ -122,12 +141,13 @@ const AdminTestPage = () => {
     // 找到正在拖曳的項目，用於 DragOverlay 顯示
     const activeItem = useMemo(
         () => testInfo.find((item) => item.id === activeId),
-        [activeId, testInfo]
+        [activeId, allTestInfo]
     );
+    // 拖曳功能 ⭡⭡⭡⭡⭡⭡⭡⭡
 
     useEffect(() => {
         fetchTestInfo();
-    }, [statusFilter]);
+    }, []);
 
     const fetchTestInfo = async () => {
         setIsLoading(true);
@@ -155,12 +175,10 @@ const AdminTestPage = () => {
                     category: item.category,
                     content: item.title,
                     link: item.url,
-                    timestamp: '',
+                    timestamp: item.timestamp || 'N/A',
+                    status: item.status || 'published'
                 }));
-                setTestInfo(formattedData);
-
-                // const currentData = formattedData.filter(item => item.status === statusFilter);
-                // setTestInfo(currentData);
+                setAllTestInfo(formattedData);
 
             } else {
                 console.error("考試資訊API回傳格式錯誤:", data);
@@ -176,21 +194,97 @@ const AdminTestPage = () => {
         }
     };
 
+    useEffect(() => {
+        if(allTestInfo.length > 0 || isLoading === false) {
+            const filteredData = allTestInfo.filter(item => item.status === statusFilter);
+            setTestInfo(filteredData);
+        }
+    }, [allTestInfo, statusFilter, isLoading]);
+
+    // 新增功能 ⭣⭣⭣⭣⭣⭣⭣⭣⭣
     const handleAddClick = () => {
-        alert('點擊了新增項目');
+        if (testInfo.length >= 12 && statusFilter === 'published') {
+            showToast('目前公告數量已滿12個項目，請先到目前公告刪除一個公告再進行上傳。', 'warning');
+            return;
+        }
+        setShowAddModal(true);
     }
+
     const handleEditClick = (item) => {
-        alert(`編輯項目: ${item.content}`);
+        setIsEditing(true);
+        setCurrentEditItem(item);
+        setNewCategory(item.category);
+        setNewContent(item.content);
+        setNewLink(item.link);
+        setShowAddModal(true);
     }
+
+    const handleModalClose = () => {
+        setShowAddModal(false);
+        setNewCategory('');
+        setNewContent('');
+        setNewLink('');
+    }
+
+    const handleFormSubmit  = (event) => {
+        event.preventDefault();
+        if (!newCategory || !newContent || !newLink) {
+            showToast('請填寫所有欄位', 'warning');
+            return;
+        }
+        try {
+            new URL(newLink);
+        } catch (e) {
+            showToast('請輸入有效的 URL', 'warning');
+            return;
+        }
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const timestamp = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+
+        if(isEditing && currentEditItem) {
+            setAllTestInfo(prevInfo => prevInfo.map(item =>
+                item.id === currentEditItem.id ? { ...item, category: newCategory, content: newContent, link: newLink } : item
+            ));
+        } else {
+            const newId = 'new-' + Date.now(); // 使用時間戳作為臨時 ID
+            const newItem = {
+                id: newId,
+                category: newCategory,
+                content: newContent,
+                link: newLink,
+                timestamp: timestamp,
+                status: 'published'
+            };
+            setAllTestInfo(prevInfo => [newItem, ...prevInfo]); // 將新項目加到列表最前面
+            showToast('新公告已成功新增！', 'success');
+        }
+        handleModalClose(); // 關閉 Modal
+    }
+    // 新增/編輯功能 ⭡⭡⭡⭡⭡⭡⭡⭡
+    
+
     
     const handleDeleteClick = (itemId) => {
         if(!window.confirm("確定要刪除此筆目前公告嗎？")) {
             return;
         }
         try {
-            alert(`執行刪除項目 ID: ${itemId}`);
+            setAllTestInfo(prevInfo => {
+                const updatedInfo = prevInfo.map(item =>
+                    item.id === itemId ? { ...item, status: 'archived' } : item
+                );
+                return updatedInfo;
+            });
+            showToast('目前公告已成功刪除！', 'success');
         } catch (error) {
             console.error("刪除失敗:", error);
+            showToast(`刪除失敗: ${error.message}`, 'error');
         }
     }
 
@@ -274,7 +368,7 @@ const AdminTestPage = () => {
                         </table>
                             <DragOverlay>
                                 {activeItem ? (
-                                    <table ref={tableRef} className="table admin-data-table drag-overlay-table">
+                                    <table className="table admin-data-table drag-overlay-table">
                                         <tbody>
                                             <tr className="dragging-overlay-row">
                                                 <td className="drag-handle-column">
@@ -306,6 +400,63 @@ const AdminTestPage = () => {
                     </DndContext>
                 </div>
             )}
+            
+            <div className={`modal fade ${showAddModal ? 'show' : ''}`} style={{ display: showAddModal ? 'block' : 'none' }} tabIndex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden={!showAddModal}>
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content admin-modal-content">
+                        <div className="modal-header admin-modal-header">
+                            <h5 className="modal-title" id="addModalLabel">{isEditing ? '編輯項目' : '新增項目'}</h5>
+                            <button type="button" className="btn-close" aria-label="Close" onClick={handleModalClose}></button>
+                        </div>
+                        <form onSubmit={handleFormSubmit}>
+                            <div className="modal-body admin-modal-body">
+                                <div className="mb-3">
+                                    <label htmlFor="newCategory" className="form-label admin-form-label">*類別</label>
+                                    <select
+                                        className="form-select admin-form-control"
+                                        id="newCategory"
+                                        value={newCategory}
+                                        onChange={(e) => setNewCategory(e.target.value)}
+                                        required
+                                    >
+                                        <option value="教育部">教育部</option>
+                                        <option value="成大">成大</option>
+                                    </select>
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="newContent" className="form-label admin-form-label">*內容 (限20字)</label>
+                                    <input
+                                        type="text"
+                                        className="form-control admin-form-control"
+                                        id="newContent"
+                                        value={newContent}
+                                        onChange={(e) => setNewContent(e.target.value)}
+                                        // maxLength="20"
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="newLink" className="form-label admin-form-label">*連結</label>
+                                    <input
+                                        type="url" // 使用 url 類型可以提供一些基本的 URL 格式驗證
+                                        className="form-control admin-form-control"
+                                        id="newLink"
+                                        value={newLink}
+                                        onChange={(e) => setNewLink(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="modal-footer admin-modal-footer">
+                                <button type="button" className="btn btn-secondary admin-btn-cancel" onClick={handleModalClose}>取消</button>
+                                <button type="submit" className="btn btn-primary admin-btn-submit">送出</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {/* Modal Backdrop (背景遮罩) */}
+            {showAddModal && <div className="modal-backdrop fade show"></div>}
         </div>
     )
 }
