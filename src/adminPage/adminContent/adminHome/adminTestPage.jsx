@@ -419,6 +419,7 @@ const AdminTestPage = () => {
                                         onChange={(e) => setNewCategory(e.target.value)}
                                         required
                                     >
+                                        <option value="" disabled>請選擇類別</option>
                                         <option value="教育部">教育部</option>
                                         <option value="成大">成大</option>
                                     </select>
