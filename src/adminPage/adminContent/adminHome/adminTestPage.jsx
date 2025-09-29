@@ -149,49 +149,109 @@ const AdminTestPage = () => {
         fetchTestInfo();
     }, []);
 
-    const fetchTestInfo = async () => {
+    const fetchTestInfo = () => {
         setIsLoading(true);
         setError(null);
-        try {
-            const response = await fetch("https://dev.taigiedu.com/backend/info/test",{
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+        
+        // 模擬 API 請求延遲
+        setTimeout(() => {
+            try {
+                // 註解掉的 API 呼叫 - 之後恢復時使用
+                /*
+                const response = await fetch("https://dev.taigiedu.com/backend/info/test",{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                    // 嘗試不傳送 body 或傳送 null
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                // 嘗試不傳送 body 或傳送 null
+
+                const data = await response.json();
+                console.log("考試資訊API回傳:", data);
+                */
+
+                // 固定的測試資料 - 保持與 API 相同的資料格式
+                const mockData = [
+                    {
+                        id: 1,
+                        category: "教育部",
+                        title: "112年度台語能力認證考試",
+                        url: "https://example.com/test1",
+                        timestamp: "2024/03/15 10:30:00",
+                        status: "published"
+                    },
+                    {
+                        id: 2,
+                        category: "成大",
+                        title: "台語文學測驗報名開始",
+                        url: "https://example.com/test2",
+                        timestamp: "2024/03/14 14:20:00",
+                        status: "published"
+                    },
+                    {
+                        id: 3,
+                        category: "教育部",
+                        title: "台語教學師資培訓課程",
+                        url: "https://example.com/test3",
+                        timestamp: "2024/03/13 09:15:00",
+                        status: "published"
+                    },
+                    {
+                        id: 4,
+                        category: "成大",
+                        title: "台語語音學研習營",
+                        url: "https://example.com/test4",
+                        timestamp: "2024/03/12 16:45:00",
+                        status: "published"
+                    },
+                    {
+                        id: 5,
+                        category: "教育部",
+                        title: "已刪除的測試公告1",
+                        url: "https://example.com/deleted1",
+                        timestamp: "2024/03/11 11:30:00",
+                        status: "archived"
+                    },
+                    {
+                        id: 6,
+                        category: "成大",
+                        title: "已刪除的測試公告2",
+                        url: "https://example.com/deleted2",
+                        timestamp: "2024/03/10 15:20:00",
+                        status: "archived"
+                    }
+                ];
+
+                console.log("使用模擬資料:", mockData);
+
+                if (Array.isArray(mockData)) {
+                    const formattedData = mockData.map(item => ({
+                        id: item.id,
+                        category: item.category,
+                        content: item.title,
+                        link: item.url,
+                        timestamp: item.timestamp || 'N/A',
+                        status: item.status || 'published'
+                    }));
+                    setAllTestInfo(formattedData);
+                } else {
+                    console.error("模擬資料格式錯誤:", mockData);
+                    setTestInfo([]);
+                    setError("考試資訊載入失敗，請稍後再試。");
                 }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log("考試資訊API回傳:", data);
-
-            if (Array.isArray(data)) {
-                const formattedData = data.map(item => ({
-                    id: item.id,
-                    category: item.category,
-                    content: item.title,
-                    link: item.url,
-                    timestamp: item.timestamp || 'N/A',
-                    status: item.status || 'published'
-                }));
-                setAllTestInfo(formattedData);
-
-            } else {
-                console.error("考試資訊API回傳格式錯誤:", data);
+            } catch (error) {
+                showToast(`載入考試資訊失敗: ${error.message}`, 'error');
                 setTestInfo([]);
-                setError("考試資訊載入失敗，請稍後再試。");
+                setError(error.message);
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            showToast(`載入考試資訊失敗: ${error.message}`, 'error');
-            setTestInfo([]);
-            setError(error.message);
-        } finally {
-            setIsLoading(false);
-        }
+        }, 1000); // 模擬 1 秒的載入時間
     };
 
     useEffect(() => {
@@ -375,7 +435,7 @@ const AdminTestPage = () => {
                                                 <img src={dragIcon} alt="拖曳" className="drag-handle-icon" />
                                                 </td>       
                                                 <td>
-                                                    <button className="btn btn-sm btn-outline-secondary admin-action-btn" onClick={() => handleEditClick(item)}>
+                                                    <button className="btn btn-sm btn-outline-secondary admin-action-btn" onClick={() => handleEditClick(activeItem)}>
                                                         <img src={editIcon} alt="編輯" className="admin-action-icon"/>
                                                     </button>
                                                 </td>
