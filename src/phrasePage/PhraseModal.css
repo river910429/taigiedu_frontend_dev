@@ -76,6 +76,17 @@
     font-weight: bold;
     white-space: nowrap;
   }
+
+  .pill-tag {
+  border: 1px solid #e0e0e0;
+  color: #333;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.7em;
+  vertical-align: middle;
+  display: inline-block;
+  margin-left: 10px;
+  }
   
   .phrase-pronunciation-container {
     display: flex;

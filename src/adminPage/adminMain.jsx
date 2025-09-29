@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './adminMain.css';
 import bookIcon from '../assets/adminPage/book.svg';
 import cloudIcon from '../assets/adminPage/cloudComputing.svg';
@@ -41,6 +42,25 @@ const AdminMain = () => {
     }
   ];
 
+  const navigate = useNavigate();
+  const routeMap = {
+    "考試資訊": "/admin/main-search/test",
+    // ...
+  };
+
+  const handleFunctionClick = (functionName) => {
+    const path = routeMap[functionName];
+    if(path && path !== "#") {
+      navigate(path);
+    }
+    else if(path === "#") {
+      alert(`此功能尚未開放`);
+    }
+    else {
+      alert(`未定義 ${functionName} 的路徑`);
+    }
+  }
+
   return (
     <div className="admin-main-container">
       <div className="admin-header">
@@ -58,7 +78,15 @@ const AdminMain = () => {
               <hr className="card-divider" />
               <div className="function-links">
                 {group.functions.map((func, funcIndex) => (
-                  <a key={funcIndex} href="#" className="function-link">
+                  <a 
+                    key={funcIndex} 
+                    href="#" 
+                    className="function-link"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleFunctionClick(func);
+                    }}
+                  >
                     {func}
                   </a>
                 ))}
