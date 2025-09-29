@@ -1,9 +1,11 @@
-import React , {useState , useEffect , useCallback , useMemo , useRef} from "react";
+import {useState , useEffect , useCallback , useMemo} from "react";
+import PropTypes from 'prop-types';
 import {useToast} from '../../../components/Toast';
 import './adminTestPage.css';
 import editIcon from '../../../assets/adminPage/pencil.svg'; 
 import deleteIcon from '../../../assets/adminPage/trash.svg'; 
 import addIcon from '../../../assets/adminPage/plus.svg'; 
+import uturnIcon from '../../../assets/adminPage/uturn.svg'; // 反向箭頭圖示 
 
 // 拖曳功能 ↓
 import {
@@ -24,7 +26,7 @@ import {
 import {CSS} from '@dnd-kit/utilities';
 import dragIcon from '../../../assets/adminPage/bars-2.png';
 
-const SortableTableRow = ({ item, handleEditClick, handleDeleteClick }) => {
+const SortableTableRow = ({ item, handleEditClick, handleDeleteClick, statusFilter }) => {
     const {
         attributes,
         listeners,
@@ -41,6 +43,12 @@ const SortableTableRow = ({ item, handleEditClick, handleDeleteClick }) => {
         opacity: isDragging ? 0.8 : 1, // 拖曳時降低透明度
         // pointerEvents: isDragging ? 'none' : 'auto', // 拖曳時禁用事件，避免與其他事件衝突
     };
+    
+    // 根據狀態決定使用的圖示和樣式
+    const isArchived = statusFilter === 'archived';
+    const actionIcon = isArchived ? uturnIcon : deleteIcon;
+    const actionClass = isArchived ? "admin-action-btn restore-btn" : "admin-action-btn delete-btn";
+    
     return (
         <tr ref={setNodeRef} style={style} className={isDragging ? 'dragging-row' : ''}>
             <td className="drag-handle-column">
@@ -62,13 +70,27 @@ const SortableTableRow = ({ item, handleEditClick, handleDeleteClick }) => {
                 </a>
             </td>
             <td>
-                <button className="admin-action-btn delete-btn" onClick={() => handleDeleteClick(item.id)}>
-                <img src={deleteIcon} alt="刪除" className="admin-action-icon"/>
+                <button className={actionClass} onClick={() => handleDeleteClick(item.id)}>
+                <img src={actionIcon} alt={isArchived ? "恢復" : "刪除"} className="admin-action-icon"/>
                 </button>
             </td>
             <td>{item.timestamp}</td>
         </tr>
     );
+};
+
+SortableTableRow.propTypes = {
+    item: PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        category: PropTypes.string.isRequired,
+        content: PropTypes.string.isRequired,
+        link: PropTypes.string.isRequired,
+        timestamp: PropTypes.string.isRequired,
+        status: PropTypes.string.isRequired
+    }).isRequired,
+    handleEditClick: PropTypes.func.isRequired,
+    handleDeleteClick: PropTypes.func.isRequired,
+    statusFilter: PropTypes.string.isRequired
 };
 
 const AdminTestPage = () => {
@@ -87,6 +109,10 @@ const AdminTestPage = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [currentEditItem, setCurrentEditItem] = useState(null);
+    
+    // 排序狀態
+    const [sortField, setSortField] = useState(null); // 當前排序欄位
+    const [sortDirection, setSortDirection] = useState('asc'); // 'asc' 或 'desc'
 
     // 拖曳功能 ⭣⭣⭣⭣⭣⭣⭣⭣⭣
     const sensors = useSensors(
@@ -141,15 +167,11 @@ const AdminTestPage = () => {
     // 找到正在拖曳的項目，用於 DragOverlay 顯示
     const activeItem = useMemo(
         () => testInfo.find((item) => item.id === activeId),
-        [activeId, allTestInfo]
+        [activeId, testInfo]
     );
     // 拖曳功能 ⭡⭡⭡⭡⭡⭡⭡⭡
 
-    useEffect(() => {
-        fetchTestInfo();
-    }, []);
-
-    const fetchTestInfo = () => {
+    const fetchTestInfo = useCallback(() => {
         setIsLoading(true);
         setError(null);
         
@@ -252,14 +274,59 @@ const AdminTestPage = () => {
                 setIsLoading(false);
             }
         }, 1000); // 模擬 1 秒的載入時間
-    };
+    }, [showToast]);
+
+    useEffect(() => {
+        fetchTestInfo();
+    }, [fetchTestInfo]);
 
     useEffect(() => {
         if(allTestInfo.length > 0 || isLoading === false) {
-            const filteredData = allTestInfo.filter(item => item.status === statusFilter);
+            let filteredData = allTestInfo.filter(item => item.status === statusFilter);
+            
+            // 如果有排序設定，則進行排序
+            if (sortField) {
+                filteredData.sort((a, b) => {
+                    let aValue = a[sortField];
+                    let bValue = b[sortField];
+                    
+                    // 處理時間欄位的排序
+                    if (sortField === 'timestamp') {
+                        aValue = new Date(aValue);
+                        bValue = new Date(bValue);
+                    }
+                    
+                    // 字串比較
+                    if (typeof aValue === 'string' && typeof bValue === 'string') {
+                        aValue = aValue.toLowerCase();
+                        bValue = bValue.toLowerCase();
+                    }
+                    
+                    if (aValue < bValue) {
+                        return sortDirection === 'asc' ? -1 : 1;
+                    }
+                    if (aValue > bValue) {
+                        return sortDirection === 'asc' ? 1 : -1;
+                    }
+                    return 0;
+                });
+            }
+            
             setTestInfo(filteredData);
         }
-    }, [allTestInfo, statusFilter, isLoading]);
+    }, [allTestInfo, statusFilter, isLoading, sortField, sortDirection]);
+
+    // 處理排序點擊
+    const handleSort = (field) => {
+        if (sortField === field) {
+            // 如果點擊的是同一個欄位，切換排序方向
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            // 如果是新欄位，設為升序
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
 
     // 新增功能 ⭣⭣⭣⭣⭣⭣⭣⭣⭣
     const handleAddClick = () => {
@@ -294,7 +361,7 @@ const AdminTestPage = () => {
         }
         try {
             new URL(newLink);
-        } catch (e) {
+        } catch {
             showToast('請輸入有效的 URL', 'warning');
             return;
         }
@@ -331,20 +398,35 @@ const AdminTestPage = () => {
 
     
     const handleDeleteClick = (itemId) => {
-        if(!window.confirm("確定要刪除此筆目前公告嗎？")) {
+        // 根據當前狀態篩選器決定是刪除還是恢復操作
+        const isRestoreAction = statusFilter === 'archived';
+        
+        const confirmMessage = isRestoreAction 
+            ? "確定要復原此筆已刪除的公告嗎？"
+            : "確定要刪除此筆目前公告嗎？";
+            
+        if(!window.confirm(confirmMessage)) {
             return;
         }
+        
         try {
             setAllTestInfo(prevInfo => {
                 const updatedInfo = prevInfo.map(item =>
-                    item.id === itemId ? { ...item, status: 'archived' } : item
+                    item.id === itemId 
+                        ? { ...item, status: isRestoreAction ? 'published' : 'archived' } 
+                        : item
                 );
                 return updatedInfo;
             });
-            showToast('目前公告已成功刪除！', 'success');
+            
+            const successMessage = isRestoreAction 
+                ? '公告已成功復原！'
+                : '目前公告已成功刪除！';
+                
+            showToast(successMessage, 'success');
         } catch (error) {
-            console.error("刪除失敗:", error);
-            showToast(`刪除失敗: ${error.message}`, 'error');
+            console.error(isRestoreAction ? "復原失敗:" : "刪除失敗:", error);
+            showToast(`${isRestoreAction ? "復原" : "刪除"}失敗: ${error.message}`, 'error');
         }
     }
 
@@ -403,11 +485,31 @@ const AdminTestPage = () => {
                                 <tr>
                                     <th style={{width: '40px'}}></th>
                                     <th style={{width: '50px'}}></th>
-                                    <th className="admin-table-header"> 類別 <span className="sort-arrow">↓</span></th>
-                                    <th className="admin-table-header"> 內容 (限20字) <span className="sort-arrow">↓</span></th>
-                                    <th className="admin-table-header"> 連結 <span className="sort-arrow">↓</span></th>
+                                    <th className="admin-table-header" onClick={() => handleSort('category')} style={{cursor: 'pointer'}}> 
+                                        類別 
+                                        <span className="sort-arrow">
+                                            {sortField === 'category' ? (sortDirection === 'asc' ? '↑' : '↓') : '↓'}
+                                        </span>
+                                    </th>
+                                    <th className="admin-table-header" onClick={() => handleSort('content')} style={{cursor: 'pointer'}}> 
+                                        內容 (限20字) 
+                                        <span className="sort-arrow">
+                                            {sortField === 'content' ? (sortDirection === 'asc' ? '↑' : '↓') : '↓'}
+                                        </span>
+                                    </th>
+                                    <th className="admin-table-header" onClick={() => handleSort('link')} style={{cursor: 'pointer'}}> 
+                                        連結 
+                                        <span className="sort-arrow">
+                                            {sortField === 'link' ? (sortDirection === 'asc' ? '↑' : '↓') : '↓'}
+                                        </span>
+                                    </th>
                                     <th style={{width: '50px'}}></th>
-                                    <th className="admin-table-header"> 建立時間 <span className="sort-arrow">↓</span></th>
+                                    <th className="admin-table-header" onClick={() => handleSort('timestamp')} style={{cursor: 'pointer'}}> 
+                                        建立時間 
+                                        <span className="sort-arrow">
+                                            {sortField === 'timestamp' ? (sortDirection === 'asc' ? '↑' : '↓') : '↓'}
+                                        </span>
+                                    </th>
                                 </tr>
                             </thead>
                             <SortableContext // 提供排序上下文
@@ -421,6 +523,7 @@ const AdminTestPage = () => {
                                             item={item}
                                             handleEditClick={handleEditClick}
                                             handleDeleteClick={handleDeleteClick}
+                                            statusFilter={statusFilter}
                                         />
                                     ))}
                                 </tbody>
