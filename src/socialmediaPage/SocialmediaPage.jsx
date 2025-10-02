@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './SocialmediaPage.css';
 import searchIcon from '../assets/home/search_logo.svg';
 import chevronUp from '../assets/chevron-up.svg';
-import questionMarkIcon from '../assets/question-mark.svg';
+// import questionMarkIcon from '../assets/question-mark.svg';
 import noPics from "../assets/culture/festivalN.png";
 
 const SocialmediaPage = () => {
@@ -107,32 +107,78 @@ const SocialmediaPage = () => {
         };
     }, [isDropdownOpen]);
 
+    // 更新顯示文字的統一函數
+    const updateDisplayText = (selectedItemsObj) => {
+        const totalCategories = Object.keys(selectedItemsObj).length;
+        
+        if (totalCategories === 0) {
+            setSelectedType("分類");
+            return;
+        }
+        
+        // 計算總共選擇的項目數量
+        let totalSelectedCount = 0;
+        const categoryDetails = [];
+        
+        Object.keys(selectedItemsObj).forEach(category => {
+            const subItems = selectedItemsObj[category];
+            if (subItems.length === 0) {
+                // 無子選單的主分類
+                totalSelectedCount += 1;
+                categoryDetails.push(category);
+            } else {
+                // 有子選單的分類
+                totalSelectedCount += subItems.length;
+                if (subItems.length === 1) {
+                    categoryDetails.push(`${category} > ${subItems[0]}`);
+                } else {
+                    categoryDetails.push(`${category} > ${subItems.length} 個選項`);
+                }
+            }
+        });
+        
+        // 根據總選擇數量決定顯示方式
+        if (totalSelectedCount === 1) {
+            // 只有一個項目被選擇，顯示完整名稱
+            setSelectedType(categoryDetails[0]);
+        } else if (totalCategories === 1) {
+            // 只有一個分類，但有多個子項目
+            setSelectedType(categoryDetails[0]);
+        } else {
+            // 多個分類被選擇，顯示總數
+            setSelectedType(`${totalSelectedCount} 個選項`);
+        }
+    };
+
     // 處理多選邏輯
 const handleTypeChange = (type, subType = null) => {
   console.log('Before change:', { selectedType, selectedItems });
   
   if (!subType) {
-    // 如果是無子選單的主類別，直接選擇
+    // 如果是無子選單的主類別
     if (!menuItems[type].hasSubMenu) {
-      setSelectedType(type);
-      // 清空已選擇的項目
-      setSelectedItems({});
-      setIsDropdownOpen(false);
+      const newSelectedItems = { ...selectedItems };
+      
+      if (newSelectedItems[type]) {
+        // 已選擇，則移除
+        delete newSelectedItems[type];
+        setSelectedItems(newSelectedItems);
+        updateDisplayText(newSelectedItems);
+      } else {
+        // 未選擇，則添加 (無子選單項目以空陣列表示已選擇)
+        newSelectedItems[type] = [];
+        setSelectedItems(newSelectedItems);
+        updateDisplayText(newSelectedItems);
+      }
+      
+      // 保持下拉選單開啟，以支援多選功能
     } else {
       // 有子選單的主類別，不做選擇，只是顯示該類別，保持下拉選單開啟
       setSelectedType(type);
     }
   } else {
-    // 子選單項目處理 - 直接更新顯示和選項，不使用巢狀 setTimeout
+    // 子選單項目處理 - 允許多個分類同時被選擇
     const newSelectedItems = { ...selectedItems };
-    
-    // 如果選擇的是新的主類別，先清空之前的選擇
-    if (Object.keys(newSelectedItems).length > 0 && !(type in newSelectedItems)) {
-      // 完全重置選項
-      setSelectedItems({ [type]: [subType] });
-      setSelectedType(`${type} > ${subType}`);
-      return;
-    }
     
     // 初始化該類別的數組，如果不存在
     if (!newSelectedItems[type]) {
@@ -149,92 +195,87 @@ const handleTypeChange = (type, subType = null) => {
       // 檢查該類別下是否還有項目
       if (newSelectedItems[type].length === 0) {
         delete newSelectedItems[type];
-        setSelectedType(type);
-      } else if (newSelectedItems[type].length === 1) {
-        setSelectedType(`${type} > ${newSelectedItems[type][0]}`);
-      } else {
-        setSelectedType(`${type} > ${newSelectedItems[type].length} 個選項`);
       }
     } else {
       // 未選擇，則添加
       newSelectedItems[type].push(subType);
-      
-      if (newSelectedItems[type].length === 1) {
-        setSelectedType(`${type} > ${subType}`);
-      } else {
-        setSelectedType(`${type} > ${newSelectedItems[type].length} 個選項`);
-      }
     }
     
     // 一次性更新狀態，防止多次渲染
     setSelectedItems(newSelectedItems);
+    
+    // 更新顯示文字
+    updateDisplayText(newSelectedItems);
   }
   
   console.log('After change:', { type, subType });
 };
-    
-
-    // 更新顯示的選擇類型文字
-    const updateSelectedTypeDisplay = (type) => {
-        // 確保 selectedItems 已更新
-        if (!selectedItems[type] || selectedItems[type].length === 0) {
-            setSelectedType(type);
-            return;
-        }
-        
-        if (selectedItems[type].length === 1) {
-            setSelectedType(`${type} > ${selectedItems[type][0]}`);
-        } else {
-            setSelectedType(`${type} > ${selectedItems[type].length} 個選項`);
-        }
-    }
 
     // 檢查項目是否被選擇
     const isItemSelected = (type, subType) => {
         return selectedItems[type] && selectedItems[type].includes(subType);
     }
 
-    // 獲取要顯示的項目（根據選擇的分類和子分類進行過濾）
+    // 獲取要顯示的項目（根據選擇的分類、子分類和搜尋關鍵字進行過濾）
     const getFilteredItems = () => {
-        if (selectedType === "分類" || Object.keys(selectedItems).length === 0) {
-            // 如果沒有選擇任何分類，返回所有資料
-            return socialMediaData;
-        }
+        let filteredData = {};
         
-        const filteredData = {};
-        
-        Object.keys(selectedItems).forEach(mainCategory => {
-            const selectedSubItems = selectedItems[mainCategory];
-            
-            if (socialMediaData[mainCategory]) {
-                if (selectedSubItems.length === 0) {
-                    // 如果選擇了主分類但沒有子項目，顯示該分類的所有項目
-                    filteredData[mainCategory] = socialMediaData[mainCategory];
-                } else {
-                    // 根據選擇的子分類過濾項目
-                    const filteredItems = socialMediaData[mainCategory].filter(item => 
-                        selectedSubItems.includes(item.subcategory) || 
-                        (selectedSubItems.includes("") && (!item.subcategory || item.subcategory.trim() === ""))
-                    );
-                    
-                    if (filteredItems.length > 0) {
-                        filteredData[mainCategory] = filteredItems;
+        // 首先根據下拉選單篩選
+        if (Object.keys(selectedItems).length === 0) {
+            // 如果沒有選擇任何分類，使用所有資料
+            filteredData = socialMediaData;
+        } else {
+            // 根據選擇的分類篩選
+            Object.keys(selectedItems).forEach(mainCategory => {
+                const selectedSubItems = selectedItems[mainCategory];
+                
+                if (socialMediaData[mainCategory]) {
+                    if (selectedSubItems.length === 0) {
+                        // 如果選擇了主分類但沒有子項目，顯示該分類的所有項目
+                        filteredData[mainCategory] = socialMediaData[mainCategory];
+                    } else {
+                        // 根據選擇的子分類過濾項目
+                        const filteredItems = socialMediaData[mainCategory].filter(item => 
+                            selectedSubItems.includes(item.subcategory) || 
+                            (selectedSubItems.includes("") && (!item.subcategory || item.subcategory.trim() === ""))
+                        );
+                        
+                        if (filteredItems.length > 0) {
+                            filteredData[mainCategory] = filteredItems;
+                        }
                     }
                 }
-            }
-        });
-        
-        return filteredData;
-    };
-    
-    // 滾動到指定分類
-    const scrollToCategory = (category) => {
-        if (categoryRefs.current[category] && categoryRefs.current[category].current) {
-            categoryRefs.current[category].current.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
             });
         }
+        
+        // 然後根據搜尋關鍵字進一步篩選
+        if (query.trim() !== "") {
+            const searchFilteredData = {};
+            const searchTerm = query.toLowerCase().trim();
+            
+            Object.keys(filteredData).forEach(category => {
+                const filteredItems = filteredData[category].filter(item => {
+                    // 搜尋項目的 title, description, name 等欄位
+                    const searchFields = [
+                        item.title,
+                        item.description,
+                        item.name,
+                        item.subcategory,
+                        category
+                    ].filter(Boolean).join(' ').toLowerCase();
+                    
+                    return searchFields.includes(searchTerm);
+                });
+                
+                if (filteredItems.length > 0) {
+                    searchFilteredData[category] = filteredItems;
+                }
+            });
+            
+            return searchFilteredData;
+        }
+        
+        return filteredData;
     };
     
     const handleCardClick = (url) => {
@@ -244,9 +285,10 @@ const handleTypeChange = (type, subType = null) => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (query.trim() === "") return;
+        
+        // 重新載入頁面時會觸發篩選邏輯
+        // 這裡不需要額外的邏輯，因為顯示邏輯會在 render 時處理
     };
-
-    const socialMediaItems = {};
 
     // 如果正在載入，顯示載入中訊息
     if (isLoading) {
@@ -306,12 +348,15 @@ const handleTypeChange = (type, subType = null) => {
                                         <div key={type} className="social-dropdown-item-container">
                                             {!hasSubMenu ? (
                                                 <div
-                                                    className="social-dropdown-item"
+                                                    className={`social-dropdown-item ${selectedItems[type] ? 'selected' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleTypeChange(type);
                                                     }}
                                                 >
+                                                    <span className="checkbox-indicator">
+                                                        {selectedItems[type] ? '✓' : ''}
+                                                    </span>
                                                     {type}
                                                 </div>
                                             ) : (
@@ -401,10 +446,10 @@ const handleTypeChange = (type, subType = null) => {
                     </div>
                 </div>
             ))}
-            <div className="text-start mt-4 socialmedia-report-issue">
+            {/* <div className="text-start mt-4 socialmedia-report-issue">
                 <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題
-            </div>
+            </div> */}
         </div>
     );
 };

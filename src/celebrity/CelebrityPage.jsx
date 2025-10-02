@@ -118,13 +118,10 @@ const CelebrityPage = () => {
                     ))}
                 </div>
             )}
-            <div className="text-start mt-4 celebrity-report-issue">
-                <img 
-                    src="src/assets/question-mark.svg" 
-                    className="celebrity-question-icon"
-                />
+            {/* <div className="text-start mt-4 exam-report-issue">
+                <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題
-            </div>
+            </div> */}
         </div>
     );
 };

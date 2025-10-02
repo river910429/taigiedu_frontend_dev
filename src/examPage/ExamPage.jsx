@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ExamPage.css';
 import searchIcon from '../assets/home/search_logo.svg';
-import questionMarkIcon from '../assets/question-mark.svg';
+// import questionMarkIcon from '../assets/question-mark.svg';
 import foodImage from '../assets/culture/foodN.png'; 
 import chevronUpIcon from '../assets/chevron-up.svg';
 
 const ExamPage = () => {
     const [selectedType, setSelectedType] = useState("類型");
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [examData, setExamData] = useState({});
     const [categories, setCategories] = useState([]);
@@ -20,6 +21,20 @@ const ExamPage = () => {
     useEffect(() => {
         fetchExamData();
     }, []);
+
+    // 處理下拉選單外部點擊
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isDropdownOpen && !event.target.closest('.exam-custom-dropdown')) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropdownOpen]);
 
     // 從 API 獲取考試資料
     const fetchExamData = async () => {
@@ -83,9 +98,9 @@ const ExamPage = () => {
         }
     };
 
-    const handleTypeChange = (e) => {
-        const selectedValue = e.target.value;
+    const handleTypeChange = (selectedValue) => {
         setSelectedType(selectedValue);
+        setIsDropdownOpen(false); // 選擇後關閉下拉選單
         
         // 滾動到對應的標題
         if (selectedValue !== "類型" && sectionRefs.current[selectedValue]?.current) {
@@ -99,6 +114,40 @@ const ExamPage = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (query.trim() === "") return;
+        
+        // 搜尋邏輯會在 getFilteredData 中處理
+    };
+
+    // 獲取篩選後的資料
+    const getFilteredData = () => {
+        // 只根據搜尋關鍵字篩選，下拉選單不影響顯示內容
+        if (query.trim() === "") {
+            // 如果沒有搜尋關鍵字，顯示所有資料
+            return examData;
+        }
+
+        // 根據搜尋關鍵字篩選
+        const searchFilteredData = {};
+        const searchTerm = query.toLowerCase().trim();
+
+        Object.keys(examData).forEach(category => {
+            const filteredItems = examData[category].filter(item => {
+                // 搜尋項目的 title, subcategory 等欄位
+                const searchFields = [
+                    item.title,
+                    item.subcategory,
+                    category
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                return searchFields.includes(searchTerm);
+            });
+
+            if (filteredItems.length > 0) {
+                searchFilteredData[category] = filteredItems;
+            }
+        });
+
+        return searchFilteredData;
     };
 
     const handleCardClick = (url) => {
@@ -140,32 +189,47 @@ const ExamPage = () => {
         );
     }
 
+    const filteredData = getFilteredData();
+
     return (
         <div className="exam-page">
             <div className="exam-header">
                 <div className="container px-4">
-                    <div className="exam-header-content">
+                <div className="exam-header-content">
+                    <div className="exam-custom-dropdown">
                         <div className="dropdown-container">
-                            <select
-                                className="exam-type-dropdown"
-                                value={selectedType}
-                                onChange={handleTypeChange}
+                            <div 
+                                className="dropdown-header exam-type-dropdown"
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                             >
-                                <option value="類型">類型</option>
-                                {categories.map(category => (
-                                    <option key={category} value={category}>
-                                        {category}
-                                    </option>
-                                ))}
-                            </select>
+                                {selectedType}
+                            </div>
                             <img 
                                 src={chevronUpIcon} 
                                 alt="dropdown arrow" 
                                 className="dropdown-arrow"
                             />
                         </div>
-
-                        <form onSubmit={handleSearch} className="exam-search-container">
+                        {isDropdownOpen && (
+                            <div className="exam-dropdown-menu">
+                                <div
+                                    className={`exam-dropdown-item ${selectedType === "類型" ? 'selected' : ''}`}
+                                    onClick={() => handleTypeChange("類型")}
+                                >
+                                    類型
+                                </div>
+                                {categories.map(category => (
+                                    <div
+                                        key={category}
+                                        className={`exam-dropdown-item ${selectedType === category ? 'selected' : ''}`}
+                                        onClick={() => handleTypeChange(category)}
+                                    >
+                                        {category}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>                        <form onSubmit={handleSearch} className="exam-search-container">
                             <input
                                 type="text"
                                 value={query}
@@ -180,7 +244,7 @@ const ExamPage = () => {
                             />
                         </form></div></div>
             </div>
-            {Object.entries(examData).map(([category, items]) => (
+            {Object.entries(filteredData).map(([category, items]) => (
                 <div key={category} className="exam-section">
                     <div className="container px-4">
                         <h2 
@@ -226,10 +290,10 @@ const ExamPage = () => {
                     </div>
                 </div>
             ))}
-            <div className="text-start mt-4 exam-report-issue">
+            {/* <div className="text-start mt-4 exam-report-issue">
                 <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題
-            </div>
+            </div> */}
         </div>
     );
 };

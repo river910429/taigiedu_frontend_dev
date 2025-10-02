@@ -165,14 +165,10 @@ const FestivalPage = () => {
                     ))}
                 </div>
             )}
-            <div className="text-start mt-4 festival-report-issue">
-                <img 
-                    src={questionMark}
-                    className="festival-question-icon"
-                    alt="問題回報"
-                />
+            {/* <div className="text-start mt-4 exam-report-issue">
+                <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題
-            </div>
+            </div> */}
             <FestivalModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
