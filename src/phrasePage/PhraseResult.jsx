@@ -59,7 +59,7 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 		e.preventDefault(); // 防止預設的連結行為
 		console.log("查看成語詳情:", phraseData);
 		console.log("方音差數據屬性名稱:", Object.keys(phraseData)); // 查看屬性名稱
-		console.log("方音差數據:", phraseData["Pronounciation variants"]); // 顯示實際數據
+		console.log("方音差數據:", phraseData["Pronunciation variants"]); // 顯示實際數據
 		setSelectedPhrase(phraseData);
 		setIsModalOpen(true);
 	};
@@ -216,9 +216,8 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 					type={selectedPhrase.Type}
 					pronunciation={selectedPhrase.Tai_lo}
 					interpretation={selectedPhrase.Explain}
-					pronun_diff={selectedPhrase["Pronounciation variants"]} // 修正屬性名稱
+					pronun_diff={selectedPhrase["Pronunciation variants"]} // 修正屬性名稱
 					audio={selectedPhrase.audio && selectedPhrase.audio.length > 0 ? selectedPhrase.audio[0] : null}
-					type={selectedPhrase.Type}
 				/>
 			)}
 		</div>

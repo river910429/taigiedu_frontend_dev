@@ -113,7 +113,7 @@ const FilePreview = () => {
       // 如果有資源 ID，記錄下載
       if (resourceData.resourceId) {
         await fetch(`https://dev.taigiedu.com/backend/api/resource/download/${resourceData.resourceId}`, {
-          method: "POST",
+          method: "GET",
         });
       }
 

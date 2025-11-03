@@ -7,7 +7,10 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [captcha, setCaptcha] = useState("");
+  const [captchaId, setCaptchaId] = useState("");
+  const [captchaImage, setCaptchaImage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingCaptcha, setIsLoadingCaptcha] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { showToast } = useToast(); // 引入 Toast 功能
@@ -16,6 +19,31 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
   const updateLoginStatus = typeof setIsLoggedIn === 'function' 
     ? setIsLoggedIn 
     : () => console.warn('setIsLoggedIn is not provided or not a function');
+
+  // 取得驗證碼
+  const fetchCaptcha = async () => {
+    setIsLoadingCaptcha(true);
+    try {
+      const response = await fetch("https://dev.taigiedu.com/backend/api/captcha", {
+        method: "GET"
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.id && data.image) {
+        setCaptchaId(data.id);
+        setCaptchaImage(data.image);
+        setCaptcha(""); // 清空輸入的驗證碼
+      } else {
+        showToast("無法載入驗證碼，請重試", "error");
+      }
+    } catch (error) {
+      console.error("取得驗證碼失敗:", error);
+      showToast("取得驗證碼時發生錯誤", "error");
+    } finally {
+      setIsLoadingCaptcha(false);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,6 +54,13 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
       return;
     }
     
+    // 檢查驗證碼 ID
+    if (!captchaId) {
+      showToast("驗證碼無效，請重新整理", "error");
+      fetchCaptcha();
+      return;
+    }
+    
     // 設置提交狀態
     setIsSubmitting(true);
     
@@ -33,7 +68,9 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
       // 準備 API 參數
       const parameters = {
         username: email, // API 接受 username 作為參數，但實際上可以是 email
-        password: password
+        password: password,
+        captchaId: captchaId,
+        captcha: captcha
       };
       
       // 呼叫登入 API
@@ -69,10 +106,14 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
       } else {
         // 登入失敗處理
         showToast(data.message || "登入失敗，請檢查帳號和密碼！", "error");
+        // 登入失敗後重新載入驗證碼
+        fetchCaptcha();
       }
     } catch (error) {
       console.error("登入請求失敗:", error);
       showToast("登入過程中發生錯誤，請稍後再試", "error");
+      // 發生錯誤後重新載入驗證碼
+      fetchCaptcha();
     } finally {
       setIsSubmitting(false);
     }
@@ -92,6 +133,9 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
   };
   
   useEffect(() => {
+    // 組件載入時取得驗證碼
+    fetchCaptcha();
+    
     // 檢查是否已登入，如果已登入且有重定向目標，則導航到該目標
     if (isLoggedIn && location.state?.redirectTo) {
       navigate(location.state.redirectTo, { replace: true });
@@ -162,14 +206,38 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
             <span className="form-label-title">
               <span className="form-label-required">*</span>請輸入驗證碼
             </span>
-            <input 
-              type="text" 
-              value={captcha}
-              onChange={(e) => setCaptcha(e.target.value)}
-              placeholder="請輸入驗證碼"
-              disabled={isSubmitting}
-              required 
-            />
+            <div className="captcha-input-container">
+              <input 
+                type="text" 
+                value={captcha}
+                onChange={(e) => setCaptcha(e.target.value)}
+                placeholder="請輸入驗證碼"
+                disabled={isSubmitting || isLoadingCaptcha}
+                required 
+                className="captcha-input"
+              />
+              {captchaImage && (
+                <div className="captcha-image-wrapper">
+                  <img 
+                    src={captchaImage} 
+                    alt="驗證碼" 
+                    className="captcha-image"
+                  />
+                  <button 
+                    type="button"
+                    className="captcha-refresh-button"
+                    onClick={fetchCaptcha}
+                    disabled={isSubmitting || isLoadingCaptcha}
+                    title="重新整理驗證碼"
+                  >
+                    ↻
+                  </button>
+                </div>
+              )}
+              {isLoadingCaptcha && (
+                <div className="captcha-loading">載入中...</div>
+              )}
+            </div>
           </label>
 
           <button 

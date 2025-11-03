@@ -116,6 +116,70 @@
   border: 1px solid var(--system-btn-outline-d, #a6a6a6);
 }
 
+/* 驗證碼輸入容器 */
+.captcha-input-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.captcha-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 驗證碼圖片包裝器 */
+.captcha-image-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 驗證碼圖片 */
+.captcha-image {
+  height: 40px;
+  border-radius: 4px;
+  border: 1px solid #a6a6a6;
+  background: #f5f5f5;
+  object-fit: contain;
+}
+
+/* 驗證碼重新整理按鈕 */
+.captcha-refresh-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  border: 1px solid #a6a6a6;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  color: #2d92c1;
+  font-weight: bold;
+}
+
+.captcha-refresh-button:hover:not(:disabled) {
+  background-color: #2d92c1;
+  color: #fff;
+  border-color: #2d92c1;
+}
+
+.captcha-refresh-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 驗證碼載入狀態 */
+.captcha-loading {
+  color: #999;
+  font-size: 14px;
+}
+
 .login-submit-button {
   align-self: center;
   width: 40%;

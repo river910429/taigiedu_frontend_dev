@@ -126,13 +126,13 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
             </thead>
             <tbody>
               {pronun_diff.map((wordItem, wordIndex) => {
-                if (!wordItem || !wordItem.pronounciations) {
+                if (!wordItem || !wordItem.pronunciations) {
                   console.log(`跳過無效的方音差項目 ${wordIndex}`);
                   return null;
                 }
 
                 // 獲取所有位置和發音
-                const locations = Object.keys(wordItem.pronounciations || {});
+                const locations = Object.keys(wordItem.pronunciations || {});
 
                 if (locations.length === 0) {
                   console.log(`項目 ${wordIndex} 無發音位置數據`);
@@ -163,11 +163,11 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
                         {wordItem.word} <span className="pronun-location-badge">{locationName}</span>
                       </td>
                       <td>
-                        {wordItem.pronounciations[location]}
+                        {wordItem.pronunciations[location]}
                         <img
                           src={megaphoneIcon}
                           className="pronun-speaker-icon"
-                          onClick={() => playVariationAudio(wordItem.word, wordItem.pronounciations[location])}
+                          onClick={() => playVariationAudio(wordItem.word, wordItem.pronunciations[location])}
                           alt="播放"
                         />
                       </td>
