@@ -5,6 +5,9 @@ import ResourceCard from "./ResourceCard";
 import ConfirmDialog from "./ConfirmDialog";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
+import deleteIcon from "../assets/resourcepage/delete-icon.svg";
+import arrowLeftCircle from "../assets/resourcepage/arrow-left-circle.svg";
+import emptyBox from "../assets/resourcepage/empty-box.svg";
 
 const DeleteResource = () => {
   const navigate = useNavigate();
@@ -60,7 +63,7 @@ const DeleteResource = () => {
         <div className="delete-overlay"></div>
         <button className="delete-button" onClick={() => handleDeleteDialog(card)}>
           <img
-            src="/src/assets/resourcepage/delete-icon.svg"
+            src={deleteIcon}
             alt="Delete"
             className="delete-icon"
           />
@@ -295,7 +298,7 @@ const handleConfirm = () => {
     <div className="delete-resource-page">
       <button className="delete-back-button" onClick={() => navigate("/resource")}>
         <img
-          src="/src/assets/resourcepage/arrow-left-circle.svg"
+          src={arrowLeftCircle}
           alt="Back"
           className="back-icon"
         />
@@ -310,7 +313,7 @@ const handleConfirm = () => {
         <div className="no-resources-container">
           <div className="no-resources-message">
             {/* <img 
-              src="/src/assets/resourcepage/empty-box.svg" 
+              src={emptyBox}
               alt="No Resources" 
               className="no-resources-icon"
             /> */}
