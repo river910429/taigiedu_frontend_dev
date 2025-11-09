@@ -127,14 +127,79 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
     navigate("/register"); // 跳轉到註冊頁面
   };
 
-  const handleThirdPartyLogin = () => {
-    alert("Gmail 登入功能尚未實現");
-    // Gmail 登入邏輯將來再實現
+  // Google 登入 callback 函數
+  const handleGoogleLogin = async (response) => {
+    try {
+      const credential = response.credential; // Google ID Token
+      console.log("Google credential received:", credential);
+      
+      setIsSubmitting(true);
+      
+      // 呼叫後端 API 驗證 Google token
+      const apiResponse = await fetch("https://dev.taigiedu.com/backend/api/user/google_login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        // credentials: "include",
+        body: JSON.stringify({ credential: credential })
+      });
+      
+      const data = await apiResponse.json();
+      console.log("Google 登入 API 回應:", data);
+      
+      if (data.success) {
+        // Google 登入成功
+        showToast("Google 登入成功！", "success");
+        
+        // 儲存用戶資訊到 localStorage
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("isLoggedIn", "true");
+        
+        // 更新登入狀態
+        updateLoginStatus(true);
+        
+        // 導航到之前嘗試訪問的頁面或首頁
+        if (location.state?.redirectTo) {
+          navigate(location.state.redirectTo, { replace: true });
+        } else {
+          navigate(-1); // 返回上一頁
+        }
+      } else {
+        showToast(data.message || "Google 登入失敗", "error");
+      }
+    } catch (error) {
+      console.error("Google 登入失敗:", error);
+      showToast("Google 登入過程中發生錯誤", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   useEffect(() => {
     // 組件載入時取得驗證碼
     fetchCaptcha();
+    
+    // 初始化 Google Sign-In
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: "89678427593-9u5iffjjqb6ls27nn99mu3ehidd38kvb.apps.googleusercontent.com",
+        callback: handleGoogleLogin,
+        auto_select: false
+      });
+      
+      // 渲染 Google 登入按鈕
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleSignInButton"),
+        { 
+          type: "standard",
+          size: "large",
+          theme: "outline",
+          text: "continue_with",
+          width: 250
+        }
+      );
+    }
     
     // 檢查是否已登入，如果已登入且有重定向目標，則導航到該目標
     if (isLoggedIn && location.state?.redirectTo) {
@@ -162,11 +227,7 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
         <div className="third-party-login">
           <div className="separator">&nbsp;</div>
           <p>使用第三方登入：</p>
-          <button
-            className="gmail-login-button"
-            onClick={handleThirdPartyLogin}
-          >
-          </button>
+          <div id="googleSignInButton" style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}></div>
           <p>或是</p>
           <div className="separator">&nbsp;</div>
           <p>本站帳號登入：</p>
