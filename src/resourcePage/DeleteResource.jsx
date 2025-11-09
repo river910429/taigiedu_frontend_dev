@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
 import deleteIcon from "../assets/resourcepage/delete-icon.svg";
 import arrowLeftCircle from "../assets/resourcepage/arrow-left-circle.svg";
-import emptyBox from "../assets/resourcepage/empty-box.svg";
+
 
 const DeleteResource = () => {
   const navigate = useNavigate();
