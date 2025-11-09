@@ -15,6 +15,9 @@ const MainContent = () => {
   const [newsInfo, setNewsInfo] = useState([]); // 存儲活動快訊
   const [examLoading, setExamLoading] = useState(true);
   const [newsLoading, setNewsLoading] = useState(true);
+  const [todayEvents, setTodayEvents] = useState([]); // 存儲今日大事
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState(false);
 
   // 組件掛載時獲取關鍵字和俗語諺
   useEffect(() => {
@@ -22,6 +25,7 @@ const MainContent = () => {
     fetchRandomIdiom();
     fetchExamInfo();
     fetchNewsInfo();
+    fetchTodayEvents();
   }, []);
 
   // 從API獲取隨機俗語諺
@@ -172,6 +176,52 @@ const MainContent = () => {
     }
   };
 
+  // 從API獲取今日大事
+  const fetchTodayEvents = async () => {
+    setEventsLoading(true);
+    setEventsError(false);
+    try {
+      const parameters = {}; // 傳送空的 JSON 物件
+
+      const response = await fetch(
+        "https://dev.taigiedu.com/backend/events",
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(parameters)
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("今日大事API回傳:", data);
+
+      if (data.status === "success" && Array.isArray(data.data)) {
+        setTodayEvents(data.data);
+        setEventsError(false);
+      } else if (data.status === "error") {
+        console.error("今日大事API回傳錯誤:", data.message);
+        setTodayEvents([]);
+        setEventsError(true);
+      } else {
+        console.error("今日大事API回傳格式錯誤:", data);
+        setTodayEvents([]);
+        setEventsError(true);
+      }
+    } catch (error) {
+      console.error("獲取今日大事失敗:", error);
+      setTodayEvents([]);
+      setEventsError(true);
+    } finally {
+      setEventsLoading(false);
+    }
+  };
+
   const handleTagClick = (tag) => {
     navigate(`/search?query=${encodeURIComponent(tag)}`);
   };
@@ -298,10 +348,21 @@ const MainContent = () => {
         <div className="fade-in">
           <div className="content-section">
             <h2 className="section-title">今日大事</h2>
-            <ul className="info-list">
-              <li>王育德生日</li>
-              <li>節慶日</li>
-            </ul>
+            {eventsLoading ? (
+              <div className="text-gray-500">載入今日大事中...</div>
+            ) : eventsError ? (
+              <div className="text-red-500">發生錯誤，無法取得今日大事</div>
+            ) : (
+              <ul className="info-list">
+                {todayEvents.length > 0 ? (
+                  todayEvents.map((event, index) => (
+                    <li key={index}>{event}</li>
+                  ))
+                ) : (
+                  <li>今日無大事</li>
+                )}
+              </ul>
+            )}
           </div>
         </div>
 
