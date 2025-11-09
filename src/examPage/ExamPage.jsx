@@ -71,7 +71,7 @@ const ExamPage = () => {
                             id: index + 1,
                             title: item.title || '',
                             url: item.url || '',
-                            image: item.image || foodImage, // 如果圖片為空，使用預設圖片
+                            image: item.image ? `https://dev.taigiedu.com${item.image}` : foodImage,
                             subcategory: item.subcategory || ''
                         }));
                     }

@@ -142,13 +142,13 @@
 }
 
 /* 修改子選單容器樣式 */
-.social-with-submenu {
+.social-dropdown-item-container {
     position: relative;
-    padding: 0;
 }
 
 /* 修改子選單觸發區域 */
 .social-dropdown-item.with-submenu {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -217,13 +217,15 @@
 
 /* 勾選狀態樣式 */
 .social-dropdown-item.selected,
-.social-submenu-item.selected {
+.social-submenu-item.selected,
+.social-dropdown-item.with-submenu.has-selected-children {
     background-color: #e3f2fd;
     color: #1976d2;
 }
 
 .social-dropdown-item.selected:hover,
-.social-submenu-item.selected:hover {
+.social-submenu-item.selected:hover,
+.social-dropdown-item.with-submenu.has-selected-children:hover {
     background-color: #bbdefb;
 }
 
@@ -241,7 +243,7 @@
 
 /* 添加箭頭樣式 */
 .social-submenu-arrow {
-    margin-left: 8px;
+    margin-left: auto;
     font-size: 18px;
     line-height: 1;
 }

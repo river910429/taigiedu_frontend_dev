@@ -23,25 +23,13 @@ const ReadContent = () => {
     setContent(text);
     setRemainingChars(maxCharLimit - text.length);
 
-    // 如果文字内容不同于生成音档时的内容，则启用按钮
     if (text !== initialContent) {
       setIsButtonDisabled(false);
+      setAudioSrc(null); // 清除音檔，禁用下載按鈕
     }
   };
 
   const handleGenerateAudio = async () => {
-    // if (content.trim() === "") return; // 防止生成空內容
-
-    // setIsProcessing(true); // 顯示“處理中”
-    // setIsButtonDisabled(true); // 禁用按钮
-    // setAudioSrc(null); // 隐藏语音条
-
-    // setTimeout(() => {
-    //   const generatedAudioUrl = "/src/assets/海豬救援隊.mp3"; // 模拟生成音档的 URL
-    //   setAudioSrc(generatedAudioUrl); // 设置音档 URL
-    //   setIsProcessing(false); // 取消“處理中”
-    //   setInitialContent(content); // 保存生成音档时的内容
-    // }, 3000); // 模拟生成过程需要 3 秒
     if (content.trim() === "") return;
 
     setIsProcessing(true);

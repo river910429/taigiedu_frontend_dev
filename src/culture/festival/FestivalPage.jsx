@@ -41,7 +41,7 @@ const FestivalPage = () => {
                         name: festival.name || '',
                         image: festival.image ? `https://dev.taigiedu.com${festival.image}` : festivalN,
                         pron: festival.pron || '',
-                        date: festival.date || '',
+                        date: festival.date_mandarin || '',
                         intro: festival.intro_mandarin || '',
                         intro_taigi: festival.intro_taigi || ''
                     }));
@@ -92,7 +92,7 @@ const FestivalPage = () => {
                         name: festival.name || '',
                         image: festival.image ? `https://dev.taigiedu.com${festival.image}` : festivalN,
                         pron: festival.pron || '',
-                        date: festival.date || '',
+                        date: festival.date_mandarin || '',
                         intro: festival.intro_mandarin || '',
                         intro_taigi: festival.intro_taigi || ''
                     }));

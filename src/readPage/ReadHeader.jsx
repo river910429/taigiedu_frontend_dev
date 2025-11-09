@@ -5,7 +5,7 @@ import { useFontSize, useLang } from "./ReadPage";
 const ReadHeader = () => {
   const { fontSize, setFontSize } = useFontSize();
   const { selectedLang, setSelectedLang } = useLang();
-  const [selectedMode, setSelectedMode] = useState("漢羅");
+  const [selectedMode, setSelectedMode] = useState("台文漢字");
 
   const handleModeChange = (event) => {
     setSelectedMode(event.target.value);
@@ -28,10 +28,10 @@ const ReadHeader = () => {
               type="radio"
               name="mode"
               value="漢羅"
-              checked={selectedMode === "漢羅"}
+              checked={selectedMode === "台文漢字"}
               onChange={handleModeChange}
             />
-            漢羅
+            台文漢字
           </label>
           <label>
             <input

@@ -204,7 +204,7 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
                 </div>
               </div>
               <div className="phrase-interpretation-container">
-                <span className="phrase-interpretation-label">漢羅解讀</span>
+                <span className="phrase-interpretation-label">釋義</span>
                 <div className="phrase-interpretation-text">
                   {interpretation}
                 </div>

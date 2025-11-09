@@ -11,6 +11,7 @@ const TranslateTarget = ({
   setTargetLanguage,
   onFeedbackOpen,
   availableLanguages,
+  isOriginalModified = false, // 新增：原文是否被修改
 }) => {
   const [selectedLanguage, setSelectedLanguage] = useState("台羅");
   const [isCopied, setIsCopied] = useState(false);
@@ -186,7 +187,7 @@ const TranslateTarget = ({
 
         <button
           className={`copy-button-translate ${isCopied ? "copied" : ""}`}
-          disabled={!isEditable || content.trim() === ""}
+          disabled={!isEditable || content.trim() === "" || isOriginalModified}
           onClick={handleCopy}
         >
           {isCopied ? "文字已複製！" : "複製全文"}
@@ -195,7 +196,7 @@ const TranslateTarget = ({
 
       <button
         className="tran-feedback-button"
-        disabled={!isEditable || content.trim() === ""}
+        disabled={!isEditable || content.trim() === "" || isOriginalModified}
         onClick={onFeedbackOpen}
       >
         內容修正回饋

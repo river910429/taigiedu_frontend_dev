@@ -50,11 +50,21 @@ const SocialmediaPage = () => {
                 if (category === "") {
                     // 處理空字串類別，可能是未分類項目
                     if (data[category].length > 0) {
-                        formattedData["其他"] = data[category];
+                        // 為圖片添加前綴
+                        const formattedItems = data[category].map(item => ({
+                            ...item,
+                            image: item.image ? `https://dev.taigiedu.com${item.image}` : null
+                        }));
+                        formattedData["其他"] = formattedItems;
                         dynamicMenuItems["其他"] = { hasSubMenu: false };
                     }
                 } else {
-                    formattedData[category] = data[category];
+                    // 為圖片添加前綴
+                    const formattedItems = data[category].map(item => ({
+                        ...item,
+                        image: item.image ? `https://dev.taigiedu.com${item.image}` : null
+                    }));
+                    formattedData[category] = formattedItems;
                     
                     // 檢查是否有子分類
                     const subCategories = [...new Set(data[category]
@@ -344,59 +354,65 @@ const handleTypeChange = (type, subType = null) => {
                             </div>
                             {isDropdownOpen && (
                                 <div className="social-dropdown-menu">
-                                    {Object.entries(menuItems).map(([type, { hasSubMenu, subItems }]) => (
-                                        <div key={type} className="social-dropdown-item-container">
-                                            {!hasSubMenu ? (
-                                                <div
-                                                    className={`social-dropdown-item ${selectedItems[type] ? 'selected' : ''}`}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleTypeChange(type);
-                                                    }}
-                                                >
-                                                    <span className="checkbox-indicator">
-                                                        {selectedItems[type] ? '✓' : ''}
-                                                    </span>
-                                                    {type}
-                                                </div>
-                                            ) : (
-                                                <div 
-                                                    className="social-dropdown-item with-submenu"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        // 只改變顯示的主類別名稱，不觸發選擇
-                                                        if (selectedType !== type) {
-                                                            setSelectedType(type);
-                                                        }
-                                                    }}
-                                                >
-                                                    <span>{type}</span>
-                                                    <span className="social-submenu-arrow">›</span>
-                                                    <div 
-                                                        className="social-submenu"
-                                                        onClick={(e) => e.stopPropagation()}
+                                    {Object.entries(menuItems).map(([type, { hasSubMenu, subItems }]) => {
+                                        // 檢查該分類是否有選中的子項目
+                                        const hasSelectedChildren = selectedItems[type] && selectedItems[type].length > 0;
+                                        
+                                        return (
+                                            <div key={type} className="social-dropdown-item-container">
+                                                {!hasSubMenu ? (
+                                                    <div
+                                                        className={`social-dropdown-item ${selectedItems[type] ? 'selected' : ''}`}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleTypeChange(type);
+                                                        }}
                                                     >
-                                                        {subItems.map(subItem => (
-                                                            <div
-                                                            key={subItem}
-                                                            className={`social-submenu-item ${isItemSelected(type, subItem) ? 'selected' : ''}`}
-                                                            onMouseDown={(e) => { // 改用 onMouseDown 代替 onClick，反應更靈敏
-                                                              e.preventDefault(); 
-                                                              e.stopPropagation();
-                                                              handleTypeChange(type, subItem);
-                                                            }}
-                                                          >
-                                                            {subItem}
-                                                            {isItemSelected(type, subItem) && (
-                                                              <span className="checkmark">✓</span>
-                                                            )}
-                                                          </div>
-                                                        ))}
+                                                        <span className="checkbox-indicator">
+                                                            {selectedItems[type] ? '✓' : ''}
+                                                        </span>
+                                                        {type}
                                                     </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
+                                                ) : (
+                                                    <div 
+                                                        className={`social-dropdown-item with-submenu ${hasSelectedChildren ? 'has-selected-children' : ''}`}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            // 只改變顯示的主類別名稱，不觸發選擇
+                                                            if (selectedType !== type) {
+                                                                setSelectedType(type);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <span className="checkbox-indicator"></span>
+                                                        <span>{type}</span>
+                                                        <span className="social-submenu-arrow">›</span>
+                                                        <div 
+                                                            className="social-submenu"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            {subItems.map(subItem => (
+                                                                <div
+                                                                key={subItem}
+                                                                className={`social-submenu-item ${isItemSelected(type, subItem) ? 'selected' : ''}`}
+                                                                onMouseDown={(e) => { // 改用 onMouseDown 代替 onClick，反應更靈敏
+                                                                  e.preventDefault(); 
+                                                                  e.stopPropagation();
+                                                                  handleTypeChange(type, subItem);
+                                                                }}
+                                                              >
+                                                                {subItem}
+                                                                {isItemSelected(type, subItem) && (
+                                                                  <span className="checkmark">✓</span>
+                                                                )}
+                                                              </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>

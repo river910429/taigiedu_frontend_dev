@@ -10,34 +10,34 @@ import TranslateFeedback from "./TranslateFeedback";
 
 // 支援的語言選項
 const languageOptions = {
-  漢羅: ["台羅", "華文", "白話字"],
-  華文: ["台羅", "漢羅", "白話字"],
+  台文漢字: ["台羅", "華文", "白話字"],
+  華文: ["台羅", "台文漢字", "白話字"],
   台羅: ["白話字"],
   白話字: ["台羅"],
 };
 
 // API 支援的直接轉換模式
 const directConversionModes = {
-  "漢羅_台羅": "tbn2tl",
-  "漢羅_華文": "tbn2zh",
+  "台文漢字_台羅": "tbn2tl",
+  "台文漢字_華文": "tbn2zh",
   "台羅_白話字": "tl2poj",
   "白話字_台羅": "poj2tl",
-  "華文_漢羅": "zh2tbn"
+  "華文_台文漢字": "zh2tbn"
 };
 
 // 需要中間轉換的路徑（多步驟轉換）
 const conversionPaths = {
-  "漢羅_白話字": [
-    { from: "漢羅", to: "台羅", mode: "tbn2tl" },
+  "台文漢字_白話字": [
+    { from: "台文漢字", to: "台羅", mode: "tbn2tl" },
     { from: "台羅", to: "白話字", mode: "tl2poj" }
   ],
   "華文_台羅": [
-    { from: "華文", to: "漢羅", mode: "zh2tbn" },
-    { from: "漢羅", to: "台羅", mode: "tbn2tl" }
+    { from: "華文", to: "台文漢字", mode: "zh2tbn" },
+    { from: "台文漢字", to: "台羅", mode: "tbn2tl" }
   ],
   "華文_白話字": [
-    { from: "華文", to: "漢羅", mode: "zh2tbn" },
-    { from: "漢羅", to: "台羅", mode: "tbn2tl" },
+    { from: "華文", to: "台文漢字", mode: "zh2tbn" },
+    { from: "台文漢字", to: "台羅", mode: "tbn2tl" },
     { from: "台羅", to: "白話字", mode: "tl2poj" }
   ]
 };
@@ -51,6 +51,7 @@ const TranslatePage = () => {
   const [targetLanguage, setTargetLanguage] = useState(languageOptions["華文"][0]); // 目標語言
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false); // 控制回饋頁面
   const [loading, setLoading] = useState(false); // 控制翻譯請求的 loading 狀態
+  const [isOriginalModified, setIsOriginalModified] = useState(false); // 追蹤原文是否被修改
 
   // 當原始語言變更時，更新目標語言選項
   const handleOriginalLanguageChange = (language) => {
@@ -93,6 +94,7 @@ const TranslatePage = () => {
       showToast(`${originalLanguage}轉${originalLanguage}，同語言轉換`, 'warning');
       setTranslatedContent(originalContent);
       setIsEditable(true);
+      setIsOriginalModified(false); // 翻譯後重置修改狀態
       return;
     }
 
@@ -128,6 +130,7 @@ const TranslatePage = () => {
 
       setTranslatedContent(result);
       setIsEditable(true);
+      setIsOriginalModified(false); // 翻譯後重置修改狀態
     } catch (error) {
       console.error("翻譯失敗:", error);
       showToast("翻譯過程發生錯誤，請稍後再試", 'error');
@@ -154,6 +157,7 @@ const TranslatePage = () => {
       <TranslateOriginal
         setOriginalContent={setOriginalContent}
         setOriginalLanguage={handleOriginalLanguageChange}
+        onContentChange={() => setIsOriginalModified(true)} // 當內容改變時設置為已修改
       />
 
       {/* 翻譯按鈕 */}
