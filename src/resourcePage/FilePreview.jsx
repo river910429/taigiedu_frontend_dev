@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
 import "./FilePreview.css";
+import likesIcon from "../assets/resourcepage/Union (Stroke)(black).svg";
+import downloadsIcon from "../assets/resourcepage/Subtract(black).svg";
+import readAllIcon from "../assets/resourcepage/Vector (Stroke).svg";
+import defaultPreviewImage from "../assets/resourcepage/file_preview_demo.png";
 
 const FilePreview = () => {
   const navigate = useNavigate();
@@ -39,11 +43,11 @@ const FilePreview = () => {
       // 處理圖片和檔案 URL 的函數
       const getFullUrl = (url, isImage = false) => {
         if (!url) {
-          return isImage ? "/src/assets/resourcepage/file_preview_demo.png" : "";
+          return isImage ? defaultPreviewImage : "";
         }
-        // 如果是本地預設圖片路徑，直接返回
+        // 如果是本地預設圖片路徑，使用 import 的圖片
         if (url === "/src/assets/resourcepage/file_preview_demo.png") {
-          return url;
+          return defaultPreviewImage;
         }
         // 如果已經是完整的 HTTP/HTTPS URL，直接返回
         if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -207,7 +211,7 @@ const FilePreview = () => {
 
           <div className="file-likes">
             <img
-              src="/src/assets/resourcepage/Union (Stroke)(black).svg"
+              src={likesIcon}
               alt="Likes"
               className="file-likes-icon"
             />
@@ -215,7 +219,7 @@ const FilePreview = () => {
           </div>
           <div className="file-downloads">
             <img
-              src="/src/assets/resourcepage/Subtract(black).svg"
+              src={downloadsIcon}
               alt="Downloads"
               className="file-downloads-icon"
             />
@@ -250,7 +254,7 @@ const FilePreview = () => {
       </div>
 
       <div className="file-bottom-fixed" onClick={handleViewDownloadPage}>
-        <img src="/src/assets/resourcepage/Vector (Stroke).svg" alt="閱讀全部" />
+        <img src={readAllIcon} alt="閱讀全部" />
         閱讀全部
       </div>
     </div>
