@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 function Component(props) {
 
     console.log(props);
@@ -7,5 +9,9 @@ function Component(props) {
     )
   }
   
+  Component.propTypes = {
+    a: PropTypes.any
+  };
+
   export default Component
   
