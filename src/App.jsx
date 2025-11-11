@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ToastProvider } from './components/Toast';
 import "./App.css";
@@ -19,6 +19,8 @@ import DeleteResource from "./resourcePage/DeleteResource";
 import UploadResource from "./resourcePage/UploadResource";
 import CultureFood from "./culture/food/FoodPage";
 import CultureFestival from "./culture/festival/FestivalPage";
+import AdminFoodPage from "./adminPage/adminContent/adminHome/adminFoodPage";
+import AdminFestivalPage from "./adminPage/adminContent/adminHome/adminFestivalPage";
 import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
 import ExamPage from "./examPage/ExamPage";
 import DownloadPage from "./resourcePage/DownloadPage";
@@ -28,6 +30,7 @@ import CelebrityDetails from "./celebrity/CelebrityDetails";
 import AdminMain from "./adminPage/adminMain";
 import AdminSidebar from "./adminPage/adminSidebar";
 import AdminTestPage from "./adminPage/adminContent/adminHome/adminTestPage";
+import AdminNewsPage from "./adminPage/adminContent/adminHome/adminNewsPage";
 
 const AppLayout = () => {
   const location = useLocation();
@@ -107,6 +110,9 @@ const AppLayout = () => {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/admin" element={<AdminMain />} />
             <Route path="/admin/main-search/test" element={<AdminTestPage />} />
+            <Route path="/admin/main-search/news" element={<AdminNewsPage />} />
+            <Route path="/admin/culture/food" element={<AdminFoodPage />} />
+            <Route path="/admin/culture/festival" element={<AdminFestivalPage />} />
             {/* // 其他 admin 路由 */}
           </Routes>
         </div>
@@ -117,7 +123,6 @@ const AppLayout = () => {
 
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <ToastProvider>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './adminMain.css';
 import bookIcon from '../assets/adminPage/book.svg';
@@ -45,6 +44,9 @@ const AdminMain = () => {
   const navigate = useNavigate();
   const routeMap = {
     "考試資訊": "/admin/main-search/test",
+    "最新消息": "/admin/main-search/news",
+    "飲食": "/admin/culture/food",
+    "節慶": "/admin/culture/festival",
     // ...
   };
 
