@@ -13,9 +13,28 @@ const SearchBar = ({ initialQuery = '', categories = [], selectedCategories = []
     setQuery(initialQuery);
   }, [initialQuery]);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     if (query.trim() === '') return;
+
+    // 呼叫 top_keywords API 來建立統計資料
+    try {
+      const keywordsResponse = await fetch('https://dev.taigiedu.com/backend/top_keywords', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: query })
+      });
+
+      if (keywordsResponse.ok) {
+        const keywordsData = await keywordsResponse.json();
+        console.log('成功呼叫 key_words:', keywordsData);
+      }
+    } catch (error) {
+      console.error('呼叫 top_keywords API 失敗:', error);
+      // 即使失敗也繼續執行搜尋
+    }
 
     // 構建搜尋參數
     const searchParams = new URLSearchParams();
