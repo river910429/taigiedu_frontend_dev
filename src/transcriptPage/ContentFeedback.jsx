@@ -59,7 +59,7 @@ const ContentFeedback = ({ isOpen, onClose, content, onSubmit, audioSource, acti
 
       // 準備語言代碼
       const langMap = {
-        '漢羅': 'tb',
+        '台文漢字': 'tb',
         '台羅': 'tl',
         '白話字': 'poj'
       };

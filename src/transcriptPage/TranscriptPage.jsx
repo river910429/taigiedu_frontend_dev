@@ -28,7 +28,7 @@ const TranscriptPage = () => {
   const [audioRecorder, setAudioRecorder] = useState(null);
   const audioChunksRef = useRef([]);
   const [content, setContent] = useState({
-    漢羅: "",
+    台文漢字: "",
     台羅: "",
     白話字: ""
   });
@@ -172,7 +172,7 @@ audioRecorder.onstop = async () => {
         // 更新各個標籤的內容
         if (responseData.message) {
           setContent({
-            漢羅: responseData.message.tw || "",
+            台文漢字: responseData.message.tw || "",
             台羅: responseData.message.tl || "",
             白話字: responseData.message.poj || ""
           });
@@ -301,7 +301,7 @@ audioRecorder.onstop = async () => {
       // 更新各個標籤的內容
       if (responseData.message) {
         setContent({
-          漢羅: responseData.message.tw || "",
+          台文漢字: responseData.message.tw || "",
           台羅: responseData.message.tl || "",
           白話字: responseData.message.poj || ""
         });
