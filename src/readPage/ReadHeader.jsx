@@ -10,7 +10,7 @@ const ReadHeader = () => {
   const handleModeChange = (event) => {
     setSelectedMode(event.target.value);
     const langMap = {
-      "漢羅": "tb",
+      "台文漢字": "tb",
       "台羅": "tb",
       "白話字": "tb"
     };
@@ -27,7 +27,7 @@ const ReadHeader = () => {
             <input
               type="radio"
               name="mode"
-              value="漢羅"
+              value="台文漢字"
               checked={selectedMode === "台文漢字"}
               onChange={handleModeChange}
             />
