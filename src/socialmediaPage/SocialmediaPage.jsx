@@ -187,7 +187,7 @@ const handleTypeChange = (type, subType = null) => {
       setSelectedType(type);
     }
   } else {
-    // 子選單項目處理 - 允許多個分類同時被選擇
+    // 子選單項目處理 -允許多個分類同時被選擇
     const newSelectedItems = { ...selectedItems };
     
     // 初始化該類別的數組，如果不存在

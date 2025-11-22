@@ -47,6 +47,17 @@ const AdminMain = () => {
     "最新消息": "/admin/main-search/news",
     "飲食": "/admin/culture/food",
     "節慶": "/admin/culture/festival",
+    // 媒體與社群資源：一律導向管理頁
+    "工具": "/admin/socialmedia",
+    "百科": "/admin/socialmedia",
+    "各地教育機構": "/admin/socialmedia",
+    "社群": "/admin/socialmedia",
+    "Youtube": "/admin/socialmedia",
+    "Podcast": "/admin/socialmedia",
+    "遊戲": "/admin/socialmedia",
+    "卡通動漫": "/admin/socialmedia",
+    "音樂": "/admin/socialmedia",
+    "戲劇": "/admin/socialmedia",
     // ...
   };
 

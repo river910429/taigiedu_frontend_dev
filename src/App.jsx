@@ -21,6 +21,7 @@ import CultureFood from "./culture/food/FoodPage";
 import CultureFestival from "./culture/festival/FestivalPage";
 import AdminFoodPage from "./adminPage/adminContent/adminHome/adminFoodPage";
 import AdminFestivalPage from "./adminPage/adminContent/adminHome/adminFestivalPage";
+import AdminSocialmediaPage from "./adminPage/adminContent/adminHome/adminSocialmediaPage";
 import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
 import ExamPage from "./examPage/ExamPage";
 import DownloadPage from "./resourcePage/DownloadPage";
@@ -113,6 +114,7 @@ const AppLayout = () => {
             <Route path="/admin/main-search/news" element={<AdminNewsPage />} />
             <Route path="/admin/culture/food" element={<AdminFoodPage />} />
             <Route path="/admin/culture/festival" element={<AdminFestivalPage />} />
+            <Route path="/admin/socialmedia" element={<AdminSocialmediaPage />} />
             {/* // 其他 admin 路由 */}
           </Routes>
         </div>
