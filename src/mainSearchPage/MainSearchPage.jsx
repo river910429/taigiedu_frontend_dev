@@ -61,12 +61,24 @@ useEffect(() => {
       console.log('API Response:', data);
 
       // 轉換 API 數據為組件所需格式
-      const formattedResults = data.data.documents.map((doc, index) => ({
-        id: index + 1,
-        resource: doc.Source || 'Unknown Source',
-        content: doc.highlight?.Body?.[0] || doc.Body || 'No content available',
-        url: doc.Url || '#',
-      }));
+      const formattedResults = data.data.documents.map((doc, index) => {
+        let content = 'No content available';
+        if (doc.highlight?.Body && doc.highlight.Body.length > 0) {
+          content = doc.highlight.Body[0];
+        } 
+        else if (doc.highlight?.Title && doc.highlight.Title.length > 0) {
+          content = doc.highlight.Title[0];
+        }
+        else if (doc.Body) {
+          content = doc.Body;
+        }
+        return {
+          id: index + 1,
+          resource: doc.Source || 'Unknown Source',
+          content: content,
+          url: doc.Url || '#',
+        };
+      });
 
       // 提取不重複的資源名稱
       const uniqueResources = [...new Set(formattedResults.map(item => item.resource))];
