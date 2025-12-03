@@ -3,7 +3,7 @@ import loadingImage from "/src/assets/record_loading.svg"; // 處理中圖示
 import { useToast } from "../components/Toast";
 import "./UploadResource.css";
 
-const UploadResource = ({ isOpen, onClose }) => {
+const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
   const { showToast } = useToast();
   const [fileName, setFileName] = useState(""); // 儲存檔案名稱
   const [isProcessing, setIsProcessing] = useState(false); // 控制處理中的狀態
@@ -116,11 +116,14 @@ const UploadResource = ({ isOpen, onClose }) => {
       if (response.ok && result.status === "success") {
         setIsSuccess(true);
         showToast(result.data.message || "資源上傳成功！", "success");
-        console.log("上傳成功:", result);
         
         // 延遲關閉視窗，讓用戶看到成功訊息
         setTimeout(() => {
           handleClose();
+          // 調用 onUploadSuccess 通知父組件重新載入資料
+          if (onUploadSuccess) {
+            onUploadSuccess();
+          }
         }, 2000);
       } else {
         showToast(result.message || "上傳失敗，請檢查輸入內容後重試", "error");

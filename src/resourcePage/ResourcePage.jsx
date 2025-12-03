@@ -8,6 +8,7 @@ import "./ResourcePage.css";
 const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [searchParams, setSearchParams] = useState({
     stage: "",
     version: "",
@@ -29,6 +30,12 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
   };
 
   const handleUploadClose = () => {
+    setIsUploadOpen(false);
+  };
+  
+  // 處理上傳成功後的重新載入
+  const handleUploadSuccess = () => {
+    setRefreshKey(prev => prev + 1); // 增加 refreshKey 觸發重新載入
     setIsUploadOpen(false);
   };
   
@@ -112,10 +119,15 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
         onSearch={handleSearch}
       />
       <ResourceContent
+        key={refreshKey}
         searchParams={searchParams}
         onCardClick={handleCardClick}
       />
-      <UploadResource isOpen={isUploadOpen} onClose={handleUploadClose} />
+      <UploadResource 
+        isOpen={isUploadOpen} 
+        onClose={handleUploadClose}
+        onUploadSuccess={handleUploadSuccess}
+      />
     </div>
   );
 };
