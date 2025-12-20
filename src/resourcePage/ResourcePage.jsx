@@ -16,7 +16,7 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
     keyword: "",
     searchContent: ""
   });
-  
+
   // 初始化時從 localStorage 檢查登入狀態
   useEffect(() => {
     const storedLoginStatus = localStorage.getItem("isLoggedIn");
@@ -32,13 +32,13 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
   const handleUploadClose = () => {
     setIsUploadOpen(false);
   };
-  
+
   // 處理上傳成功後的重新載入
   const handleUploadSuccess = () => {
     setRefreshKey(prev => prev + 1); // 增加 refreshKey 觸發重新載入
     setIsUploadOpen(false);
   };
-  
+
   // 處理搜索請求
   const handleSearch = (params) => {
     setSearchParams(params);
@@ -66,7 +66,7 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
         if (url.startsWith('http://') || url.startsWith('https://')) {
           return url;
         }
-        return `https://dev.taigiedu.com/backend/${url}`;
+        return `${import.meta.env.VITE_API_URL}/${url}`;
       };
 
       // 處理檔案 URL
@@ -75,14 +75,14 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
         if (url.startsWith('http://') || url.startsWith('https://')) {
           return url;
         }
-        return `https://dev.taigiedu.com/backend/${url}`;
+        return `${import.meta.env.VITE_API_URL}/${url}`;
       };
 
       // 確保所有數據都被正確編碼並傳遞
       const tagsString = encodeURIComponent(JSON.stringify(resource.tags || []));
-      
+
       // 完整的資源 URL，包含所有必要參數
-      const previewUrl = `${window.location.origin}/file-preview?` + 
+      const previewUrl = `${window.location.origin}/file-preview?` +
         `title=${encodeURIComponent(resource.title || '無標題資源')}` +
         `&imageUrl=${encodeURIComponent(getFullImageUrl(resource.imageUrl))}` +
         `&fileType=${encodeURIComponent(resource.fileType || 'PDF')}` +
@@ -93,10 +93,10 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
         `&date=${encodeURIComponent(resource.date || '')}` +
         `&fileUrl=${encodeURIComponent(getFullFileUrl(resource.fileUrl))}` +
         `&id=${encodeURIComponent(resource.id || '')}`;
-      
+
       // 在新分頁中打開預覽頁面
       window.open(previewUrl, '_blank', 'noopener,noreferrer');
-      
+
       console.log("開啟預覽頁面:", previewUrl);
     } catch (error) {
       console.error("處理卡片點擊時發生錯誤:", error);
@@ -112,8 +112,8 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
 
   return (
     <div className="resource-page">
-      <ResourceHeader 
-        onUploadOpen={handleUploadOpen} 
+      <ResourceHeader
+        onUploadOpen={handleUploadOpen}
         isLoggedIn={isLoggedIn}
         setIsLoggedIn={setIsLoggedIn}
         onSearch={handleSearch}
@@ -123,8 +123,8 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
         searchParams={searchParams}
         onCardClick={handleCardClick}
       />
-      <UploadResource 
-        isOpen={isUploadOpen} 
+      <UploadResource
+        isOpen={isUploadOpen}
         onClose={handleUploadClose}
         onUploadSuccess={handleUploadSuccess}
       />

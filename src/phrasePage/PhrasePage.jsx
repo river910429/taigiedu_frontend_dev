@@ -14,17 +14,17 @@ const PhrasePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isInitialLoad, setIsInitialLoad] = useState(true); // 標記是否為初次載入
-    
+
     // 獲取搜索參數
     const searchKeyword = searchParams.get('query') || '';
     const categories = searchParams.get('categories') ? searchParams.get('categories').split(',') : [];
-    
+
     useEffect(() => {
         const searchKeyword = searchParams.get('query') || '';
         const categories = searchParams.get('categories') ? searchParams.get('categories').split(',') : [];
-        
+
         console.log("搜索參數變化:", { searchKeyword, categories });
-        
+
         // 如果是初次載入且沒有搜尋參數，先獲取所有數據
         if (isInitialLoad && !searchKeyword && categories.length === 0) {
             fetchAllPhrases();
@@ -33,7 +33,7 @@ const PhrasePage = () => {
             fetchPhrases(searchKeyword, categories);
         }
     }, [searchParams, isInitialLoad]);
-    
+
     // 首次載入獲取所有數據並提取類別
     const fetchAllPhrases = async () => {
         setLoading(true);
@@ -42,29 +42,29 @@ const PhrasePage = () => {
                 search_keyword: "",
                 category: ""
             };
-            
+
             console.log("首次載入，獲取所有成語數據");
-            
-            const response = await fetch("https://dev.taigiedu.com/backend/idiom_search", {
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/idiom_search`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(parameters)
             });
-            
+
             if (!response.ok) {
                 throw new Error(`API 請求失敗: ${response.status}`);
             }
-            
+
             const responseData = await response.json();
             console.log("API 返回所有數據:", responseData);
-            
+
             if (responseData.data && Array.isArray(responseData.data.phrases)) {
                 const allPhrasesData = responseData.data.phrases;
                 setAllPhrases(allPhrasesData);
                 setPhrases(allPhrasesData);
-                
+
                 // 提取所有不重複的類別
                 const categoriesSet = new Set();
                 allPhrasesData.forEach(phrase => {
@@ -75,7 +75,7 @@ const PhrasePage = () => {
                         categoryIndex++;
                     }
                 });
-                
+
                 const categoriesList = Array.from(categoriesSet).sort();
                 console.log("提取到的類別:", categoriesList);
                 setAvailableCategories(categoriesList);
@@ -105,31 +105,31 @@ const PhrasePage = () => {
                 search_keyword: keyword || "",
                 category: categories.length > 0 ? categories : [] // API 接受陣列
             };
-            
+
             console.log("搜尋參數:", parameters);
-            
+
             // 發送請求
-            const response = await fetch("https://dev.taigiedu.com/backend/idiom_search", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/idiom_search`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(parameters)
             });
-            
+
             if (!response.ok) {
                 throw new Error(`API 請求失敗: ${response.status}`);
             }
-            
+
             const responseData = await response.json();
             console.log("API 返回數據:", responseData);
-            
+
             // 檢查 data.phrases
             if (responseData.data && Array.isArray(responseData.data.phrases)) {
                 setPhrases(responseData.data.phrases);
                 setError(null);
             } else {
-                console.error("API 返回的 data.phrases 不是陣列:", 
+                console.error("API 返回的 data.phrases 不是陣列:",
                     responseData.data ? responseData.data.phrases : undefined);
                 setPhrases([]);
                 setError("數據格式錯誤：找不到有效的成語列表");
@@ -152,7 +152,7 @@ const PhrasePage = () => {
             setPhrases(allPhrases);
             return;
         }
-        
+
         const filteredPhrases = allPhrases.filter(phrase => {
             // 檢查成語是否屬於任一選中的類別
             let categoryIndex = 1;
@@ -164,7 +164,7 @@ const PhrasePage = () => {
             }
             return false;
         });
-        
+
         console.log("本地篩選結果:", filteredPhrases.length);
         setPhrases(filteredPhrases);
     };
@@ -172,17 +172,17 @@ const PhrasePage = () => {
     return (
         <div className="page-container">
             <div className="search-bar-container">
-                <PhraseSearchBar 
+                <PhraseSearchBar
                     availableCategories={availableCategories}
                     onCategoryFilter={filterPhrasesByCategories}
                     allPhrases={allPhrases}
                 />
             </div>
             <div className="phrase-results-container">
-                <PhraseResult 
-                    phrases={phrases} 
-                    loading={loading} 
-                    error={error} 
+                <PhraseResult
+                    phrases={phrases}
+                    loading={loading}
+                    error={error}
                 />
             </div>
         </div>

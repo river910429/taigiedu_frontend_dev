@@ -16,20 +16,20 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
   const { showToast } = useToast(); // 引入 Toast 功能
 
   // 檢查 setIsLoggedIn 是否為函數，如果不是，創建一個空函數
-  const updateLoginStatus = typeof setIsLoggedIn === 'function' 
-    ? setIsLoggedIn 
+  const updateLoginStatus = typeof setIsLoggedIn === 'function'
+    ? setIsLoggedIn
     : () => console.warn('setIsLoggedIn is not provided or not a function');
 
   // 取得驗證碼
   const fetchCaptcha = async () => {
     setIsLoadingCaptcha(true);
     try {
-      const response = await fetch("https://dev.taigiedu.com/backend/api/captcha", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/captcha`, {
         method: "GET"
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.id && data.image) {
         setCaptchaId(data.id);
         setCaptchaImage(data.image);
@@ -47,23 +47,23 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     // 檢查必填欄位
     if (!email || !password || !captcha) {
       showToast("請填寫所有必填欄位", "error");
       return;
     }
-    
+
     // 檢查驗證碼 ID
     if (!captchaId) {
       showToast("驗證碼無效，請重新整理", "error");
       fetchCaptcha();
       return;
     }
-    
+
     // 設置提交狀態
     setIsSubmitting(true);
-    
+
     try {
       // 準備 API 參數
       const parameters = {
@@ -72,31 +72,31 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
         captchaId: captchaId,
         captcha: captcha
       };
-      
+
       // 呼叫登入 API
-      const response = await fetch("https://dev.taigiedu.com/backend/api/user/login", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(parameters)
       });
-      
+
       const data = await response.json();
 
       if (response.ok && data.success) {
 
         // 登入成功處理
         showToast("登入成功！", "success");
-        
+
         // 儲存 token 和用戶 ID 到 localStorage
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("isLoggedIn", "true");
-        
+
         // 使用安全的方式更新登入狀態
         updateLoginStatus(true);
-        
+
         // 導航到之前嘗試訪問的頁面或首頁
         if (location.state?.redirectTo) {
           navigate(location.state.redirectTo, { replace: true });
@@ -132,11 +132,11 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
     try {
       const credential = response.credential; // Google ID Token
       console.log("Google credential received:", credential);
-      
+
       setIsSubmitting(true);
-      
+
       // 呼叫後端 API 驗證 Google token
-      const apiResponse = await fetch("https://dev.taigiedu.com/backend/api/user/google_login", {
+      const apiResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user/google_login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -144,21 +144,21 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
         // credentials: "include",
         body: JSON.stringify({ credential: credential })
       });
-      
+
       const data = await apiResponse.json();
       console.log("Google 登入 API 回應:", data);
-      
+
       if (data.success) {
         // Google 登入成功
         showToast("Google 登入成功！", "success");
-        
+
         // 儲存用戶資訊到 localStorage
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("isLoggedIn", "true");
-        
+
         // 更新登入狀態
         updateLoginStatus(true);
-        
+
         // 導航到之前嘗試訪問的頁面或首頁
         if (location.state?.redirectTo) {
           navigate(location.state.redirectTo, { replace: true });
@@ -175,11 +175,11 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
       setIsSubmitting(false);
     }
   };
-  
+
   useEffect(() => {
     // 組件載入時取得驗證碼
     fetchCaptcha();
-    
+
     // 初始化 Google Sign-In
     if (window.google) {
       window.google.accounts.id.initialize({
@@ -187,11 +187,11 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
         callback: handleGoogleLogin,
         auto_select: false
       });
-      
+
       // 渲染 Google 登入按鈕
       window.google.accounts.id.renderButton(
         document.getElementById("googleSignInButton"),
-        { 
+        {
           type: "standard",
           size: "large",
           theme: "outline",
@@ -200,19 +200,19 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
         }
       );
     }
-    
+
     // 檢查是否已登入，如果已登入且有重定向目標，則導航到該目標
     if (isLoggedIn && location.state?.redirectTo) {
       navigate(location.state.redirectTo, { replace: true });
     }
-    
+
     // 檢查 localStorage 中是否有登入狀態
     const storedLoginStatus = localStorage.getItem("isLoggedIn");
     if (storedLoginStatus === "true" && !isLoggedIn && typeof setIsLoggedIn === 'function') {
       updateLoginStatus(true);
     }
   }, [isLoggedIn, navigate, location.state, updateLoginStatus]);
- 
+
   return (
     <div className="login-modal-overlay">
       <div className="login-modal-container">
@@ -268,23 +268,23 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
               <span className="form-label-required">*</span>請輸入驗證碼
             </span>
             <div className="captcha-input-container">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={captcha}
                 onChange={(e) => setCaptcha(e.target.value)}
                 placeholder="請輸入驗證碼"
                 disabled={isSubmitting || isLoadingCaptcha}
-                required 
+                required
                 className="captcha-input"
               />
               {captchaImage && (
                 <div className="captcha-image-wrapper">
-                  <img 
-                    src={captchaImage} 
-                    alt="驗證碼" 
+                  <img
+                    src={captchaImage}
+                    alt="驗證碼"
                     className="captcha-image"
                   />
-                  <button 
+                  <button
                     type="button"
                     className="captcha-refresh-button"
                     onClick={fetchCaptcha}
@@ -301,8 +301,8 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
             </div>
           </label>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="login-submit-button"
             disabled={isSubmitting}
           >
@@ -312,8 +312,8 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
 
         {/* 註冊按鈕 */}
         <div className="register-button-container">
-          <button 
-            className="register-button" 
+          <button
+            className="register-button"
             onClick={handleRegister}
             disabled={isSubmitting}
           >

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./ReadContent.css";
-import { useFontSize, useLang  } from "./ReadPage";
+import { useFontSize, useLang } from "./ReadPage";
 import { useToast } from "../components/Toast";
 import loadingImage from "/src/assets/record_loading.svg"; // 處理中圖示
 
@@ -52,7 +52,7 @@ const ReadContent = () => {
       });
 
       // 創建 fetch Promise
-      const fetchPromise = fetch('https://dev.taigiedu.com/backend/synthesize_speech', {
+      const fetchPromise = fetch(`${import.meta.env.VITE_API_URL}/synthesize_speech`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ const ReadContent = () => {
     if (content.trim() !== "") {  // 只有在有內容時才啟用按鈕
       setIsButtonDisabled(false);
     }
-  }, [selectedLang]);  
+  }, [selectedLang]);
   // 音檔生成後的檢查
   useEffect(() => {
     if (audioSrc) {
@@ -120,13 +120,12 @@ const ReadContent = () => {
       {/* 按鈕區域 */}
       <div className="audio-button-container">
         <button
-          className={`generate-audio-button ${
-            isProcessing
+          className={`generate-audio-button ${isProcessing
               ? "processing"
               : content.trim() === "" || isButtonDisabled
-              ? "disabled"
-              : "enabled"
-          }`}
+                ? "disabled"
+                : "enabled"
+            }`}
           onClick={handleGenerateAudio}
           disabled={isProcessing || content.trim() === "" || isButtonDisabled}
         >

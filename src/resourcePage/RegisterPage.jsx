@@ -5,7 +5,7 @@ import "./RegisterPage.css";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { showToast } = useToast(); 
+  const { showToast } = useToast();
   const [isVerificationVisible, setIsVerificationVisible] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(60);
   const [isSubmitting, setIsSubmitting] = useState(false); // 控制表單提交狀態
@@ -55,7 +55,7 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // 基本驗證
     if (formData.password !== formData.confirmPassword) {
       showToast("密碼與確認密碼不一致！", "error");
@@ -107,7 +107,7 @@ const RegisterPage = () => {
     setIsSubmitting(true); // 開始提交
 
     try {
-      const response = await fetch("https://dev.taigiedu.com/backend/api/user/register", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -139,9 +139,9 @@ const RegisterPage = () => {
   const handleResendCode = async () => {
     if (resendCooldown === 0) {
       setResendCooldown(60); // 重置倒數計時
-      
+
       try {
-        const response = await fetch("https://dev.taigiedu.com/backend/api/user/resend-verification", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/resend-verification`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -359,8 +359,8 @@ const RegisterPage = () => {
                 </div>
               </label>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="register-submit-button"
                 disabled={isSubmitting}
               >
