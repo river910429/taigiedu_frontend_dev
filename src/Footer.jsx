@@ -5,17 +5,12 @@ import './Footer.css';
 const Footer = () => {
   const navigate = useNavigate();
 
-  const handleAdminLogin = () => {
-    navigate('/admin');
-  };
-
   return (
     <footer className="footer">
       <div className="footer-buttons">
         <button className="footer-button">Our team</button>
         <button className="footer-button" onClick={() => window.open('/terms', '_blank', 'noopener,noreferrer')}>Terms</button>
         <button className="footer-button" onClick={() => window.open('/policy', '_blank', 'noopener,noreferrer')}>Policy</button>
-        <button className="footer-button" onClick={handleAdminLogin}>Admin Login</button>
       </div>
       <div className="footer-text">
         © 2024 台語文教學共融平台 All Rights Reserved.

@@ -19,11 +19,6 @@ import DeleteResource from "./resourcePage/DeleteResource";
 import UploadResource from "./resourcePage/UploadResource";
 import CultureFood from "./culture/food/FoodPage";
 import CultureFestival from "./culture/festival/FestivalPage";
-import AdminFoodPage from "./adminPage/adminContent/adminHome/adminFoodPage";
-import AdminFestivalPage from "./adminPage/adminContent/adminHome/adminFestivalPage";
-import AdminSocialmediaPage from "./adminPage/adminContent/adminHome/adminSocialmediaPage";
-import AdminResourcePage from "./adminPage/adminContent/adminHome/adminresourcePage/AdminResourcePage.jsx";
-import ResourceHeaderPage from "./adminPage/adminContent/adminHome/adminresourcePage/ResourceHeaderPage.jsx";
 import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
 import ExamPage from "./examPage/ExamPage";
 import DownloadPage from "./resourcePage/DownloadPage";
@@ -32,18 +27,12 @@ import RegisterPage from "./resourcePage/RegisterPage";
 import CelebrityDetails from "./celebrity/CelebrityDetails";
 import TermsPage from "./TermsPage.jsx";
 import PolicyPage from "./PolicyPage.jsx";
-import AdminMain from "./adminPage/adminMain";
-import AdminSidebar from "./adminPage/adminSidebar";
-import AdminTestPage from "./adminPage/adminContent/adminHome/adminTestPage";
-import AdminNewsPage from "./adminPage/adminContent/adminHome/adminNewsPage";
 
 const AppLayout = () => {
   const location = useLocation();
   const isPreviewPage = location.pathname === '/file-preview';
   const isDownloadPage = location.pathname === '/download';
   const isCelebrityDetail = location.pathname === '/celebrity/detail';
-  const isAdminPage = location.pathname === '/admin';
-  const isAdminContent = location.pathname.startsWith('/admin/') && location.pathname !== '/admin';
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   // 檢查登入狀態
   useEffect(() => {
@@ -56,8 +45,8 @@ const AppLayout = () => {
   return (
           <div className="app">
       <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail || isAdminPage ? 'preview-page' : ''}`}>
-      {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && (isAdminContent ? <AdminSidebar /> : isAdminPage ? null : <Sidebar />)}
+      <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail ? 'preview-page' : ''}`}>
+      {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && <Sidebar />}
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/search" element={<MainSearchPage />} />
@@ -115,16 +104,6 @@ const AppLayout = () => {
               element={<LoginPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
             />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/admin" element={<AdminMain />} />
-            <Route path="/admin/main-search/test" element={<AdminTestPage />} />
-            <Route path="/admin/main-search/news" element={<AdminNewsPage />} />
-            <Route path="/admin/culture/food" element={<AdminFoodPage />} />
-            <Route path="/admin/culture/festival" element={<AdminFestivalPage />} />
-            <Route path="/admin/socialmedia" element={<AdminSocialmediaPage />} />
-            <Route path="/admin/resource" element={<AdminResourcePage />} />
-            <Route path="/admin/resource/upload" element={<AdminResourcePage />} />
-            <Route path="/admin/resource/header" element={<ResourceHeaderPage />} />
-            {/* // 其他 admin 路由 */}
           </Routes>
         </div>
       <Footer />
