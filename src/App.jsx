@@ -36,6 +36,9 @@ import AdminMain from "./adminPage/adminMain";
 import AdminSidebar from "./adminPage/adminSidebar";
 import AdminTestPage from "./adminPage/adminContent/adminHome/adminTestPage";
 import AdminNewsPage from "./adminPage/adminContent/adminHome/adminNewsPage";
+import AdminExamInfo from "./adminPage/adminContent/adminHome/examPage/adminExamInfo";
+import AdminExamBooks from "./adminPage/adminContent/adminHome/examPage/adminExamBooks";
+import AdminExamChannels from "./adminPage/adminContent/adminHome/examPage/adminExamChannels";
 
 const AppLayout = () => {
   const location = useLocation();
@@ -124,6 +127,9 @@ const AppLayout = () => {
             <Route path="/admin/resource" element={<AdminResourcePage />} />
             <Route path="/admin/resource/upload" element={<AdminResourcePage />} />
             <Route path="/admin/resource/header" element={<ResourceHeaderPage />} />
+            <Route path="/admin/exam/info" element={<AdminExamInfo />} />
+            <Route path="/admin/exam/books" element={<AdminExamBooks />} />
+            <Route path="/admin/exam/channels" element={<AdminExamChannels />} />
             {/* // 其他 admin 路由 */}
           </Routes>
         </div>

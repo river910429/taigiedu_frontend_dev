@@ -1,0 +1,363 @@
+import { useState, useEffect } from 'react';
+import { useToast } from '../../../../components/Toast';
+import './adminExamInfo.css';
+import editIcon from '../../../../assets/adminPage/pencil.svg';
+import deleteIcon from '../../../../assets/adminPage/trash.svg';
+import addIcon from '../../../../assets/adminPage/plus.svg';
+import uturnIcon from '../../../../assets/adminPage/uturn.svg';
+import jpgIconImage from '../../../../assets/adminPage/jpg icon.svg';
+
+const AdminExamInfo = () => {
+  const { showToast } = useToast();
+  const [examTypes, setExamTypes] = useState([]);
+  const [displayItems, setDisplayItems] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('published');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentEditId, setCurrentEditId] = useState(null);
+  const [sortField, setSortField] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  // Form fields
+  const [newName, setNewName] = useState('');
+  const [newLink, setNewLink] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imageName, setImageName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+
+  useEffect(() => {
+    fetchExamTypes();
+  }, []);
+
+  useEffect(() => {
+    filterAndSortItems();
+  }, [examTypes, statusFilter, sortField, sortDirection]);
+
+  const fetchExamTypes = () => {
+    // Mock data - 將來串接 API
+    const mockData = [
+      {
+        id: 1,
+        name: '教育部閩南語語言能力認證',
+        imageName: 'cert1.jpg',
+        imageUrl: '',
+        link: 'https://example.com/cert1',
+        status: 'published',
+        createdAt: '2024/12/01 10:30:00'
+      },
+      {
+        id: 2,
+        name: '成大台語認證',
+        imageName: 'cert2.jpg',
+        imageUrl: '',
+        link: 'https://example.com/cert2',
+        status: 'published',
+        createdAt: '2024/12/05 14:20:00'
+      }
+    ];
+    setExamTypes(mockData);
+  };
+
+  const filterAndSortItems = () => {
+    let filtered = examTypes.filter(item => item.status === statusFilter);
+    
+    // Sorting
+    filtered.sort((a, b) => {
+      const aValue = a[sortField]?.toString().toLowerCase() || '';
+      const bValue = b[sortField]?.toString().toLowerCase() || '';
+      
+      if (sortDirection === 'asc') {
+        return aValue.localeCompare(bValue, 'zh-TW');
+      } else {
+        return bValue.localeCompare(aValue, 'zh-TW');
+      }
+    });
+    
+    setDisplayItems(filtered);
+  };
+
+  const handleStatusFilterChange = (e) => {
+    setStatusFilter(e.target.value);
+  };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const handleAddClick = () => {
+    setIsEditing(false);
+    setCurrentEditId(null);
+    resetForm();
+    setShowAddModal(true);
+  };
+
+  const handleEditClick = (item) => {
+    setIsEditing(true);
+    setCurrentEditId(item.id);
+    setNewName(item.name);
+    setNewLink(item.link);
+    setImageName(item.imageName);
+    setImageUrl(item.imageUrl);
+    setShowAddModal(true);
+  };
+
+  const handleDeleteClick = (id) => {
+    const updatedItems = examTypes.map(item =>
+      item.id === id ? { ...item, status: 'archived' } : item
+    );
+    setExamTypes(updatedItems);
+    showToast('項目已移至刪除紀錄', 'success');
+  };
+
+  const handleRestoreClick = (id) => {
+    const updatedItems = examTypes.map(item =>
+      item.id === id ? { ...item, status: 'published' } : item
+    );
+    setExamTypes(updatedItems);
+    showToast('項目已恢復', 'success');
+  };
+
+  const validateAndSetImage = (file) => {
+    if (!file) return;
+    
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      showToast('只接受 JPG 或 PNG 格式', 'warning');
+      return;
+    }
+    
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('檔案大小不能超過 2MB', 'warning');
+      return;
+    }
+    
+    setImageFile(file);
+    setImageName(file.name);
+    setImageUrl(URL.createObjectURL(file));
+  };
+
+  const handleModalClose = () => {
+    setShowAddModal(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setNewName('');
+    setNewLink('');
+    setImageFile(null);
+    setImageName('');
+    setImageUrl('');
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+
+    // Validate URL
+    try {
+      new URL(newLink);
+    } catch {
+      showToast('請輸入有效的 URL', 'warning');
+      return;
+    }
+
+    if (!imageName) {
+      showToast('請上傳圖片', 'warning');
+      return;
+    }
+
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+    if (isEditing) {
+      const updatedItems = examTypes.map(item =>
+        item.id === currentEditId
+          ? { ...item, name: newName, link: newLink, imageName, imageUrl }
+          : item
+      );
+      setExamTypes(updatedItems);
+      showToast('認證類型已更新！', 'success');
+    } else {
+      const newItem = {
+        id: Date.now(),
+        name: newName,
+        link: newLink,
+        imageName,
+        imageUrl,
+        status: 'published',
+        createdAt: timestamp
+      };
+      setExamTypes([...examTypes, newItem]);
+      showToast('認證類型已新增！', 'success');
+    }
+
+    handleModalClose();
+  };
+
+  const getSortArrow = (field) => {
+    if (sortField !== field) return '↓';
+    return sortDirection === 'asc' ? '↑' : '↓';
+  };
+
+  return (
+    <div className="admin-exam-info-page p-4">
+      <div className="admin-header-main">
+        <h5 className="mb-3 text-secondary">
+          認證考試 &gt; 認證類型 &gt; <span>{statusFilter === 'published' ? '目前項目' : '刪除紀錄'}</span>
+        </h5>
+        <div className="admin-controls-row">
+          <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
+            <img src={addIcon} alt="上傳項目" />
+            上傳項目
+          </button>
+          <div className="status-filter">
+            <span className="me-2 text-secondary">目前狀態：</span>
+            <select
+              className="form-select admin-status-dropdown"
+              value={statusFilter}
+              onChange={handleStatusFilterChange}
+            >
+              <option value="published">目前項目</option>
+              <option value="archived">刪除紀錄</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-table-responsive">
+        <table className="table table-hover admin-data-table">
+          <thead>
+            <tr>
+              <th style={{ width: '50px' }}></th>
+              <th className="admin-table-header" onClick={() => handleSort('name')}>
+                名稱 <span className="sort-arrow">{getSortArrow('name')}</span>
+              </th>
+              <th style={{ width: '200px' }}>圖片</th>
+              <th>連結</th>
+              <th style={{ width: '50px' }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayItems.map((item) => (
+              <tr key={item.id}>
+                <td>
+                  <button className="admin-action-btn edit-btn" onClick={() => handleEditClick(item)}>
+                    <img src={editIcon} alt="編輯" className="admin-action-icon" />
+                  </button>
+                </td>
+                <td>{item.name}</td>
+                <td>
+                  <div className="image-preview-cell">
+                    <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
+                    <span className="file-name-text">{item.imageName}</span>
+                  </div>
+                </td>
+                <td>
+                  <a href={item.link} target="_blank" rel="noopener noreferrer" className="admin-link">
+                    {item.link}
+                  </a>
+                </td>
+                <td>
+                  {statusFilter === 'published' ? (
+                    <button className="admin-action-btn delete-btn" onClick={() => handleDeleteClick(item.id)}>
+                      <img src={deleteIcon} alt="刪除" className="admin-action-icon" />
+                    </button>
+                  ) : (
+                    <button className="admin-action-btn restore-btn" onClick={() => handleRestoreClick(item.id)}>
+                      <img src={uturnIcon} alt="恢復" className="admin-action-icon" />
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal */}
+      <div
+        className={`modal fade ${showAddModal ? 'show' : ''}`}
+        style={{ display: showAddModal ? 'block' : 'none' }}
+        tabIndex="-1"
+        role="dialog"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content admin-modal-content">
+            <div className="modal-header admin-modal-header">
+              <h5 className="modal-title">{isEditing ? '編輯項目' : '新增項目'}</h5>
+              <button type="button" className="btn-close" onClick={handleModalClose}></button>
+            </div>
+            <form onSubmit={handleFormSubmit}>
+              <div className="modal-body admin-modal-body">
+                <div className="mb-3">
+                  <label htmlFor="newName" className="form-label admin-form-label">
+                    *名稱
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control admin-form-control"
+                    id="newName"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label admin-form-label">*圖片</label>
+                  <div className="upload-wrapper">
+                    <label className="upload-btn">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        className="d-none"
+                        onChange={(e) => validateAndSetImage(e.target.files?.[0])}
+                      />
+                      上傳檔案
+                    </label>
+                    <span className="upload-hint">※限 JPG、PNG 可上傳，限制 2MB。</span>
+                  </div>
+                  {imageName && (
+                    <div className="image-preview-cell" style={{ marginTop: 8 }}>
+                      <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
+                      <span className="file-name-text">{imageName}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="newLink" className="form-label admin-form-label">
+                    *連結
+                  </label>
+                  <input
+                    type="url"
+                    className="form-control admin-form-control"
+                    id="newLink"
+                    value={newLink}
+                    onChange={(e) => setNewLink(e.target.value)}
+                    placeholder="https://example.com"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="modal-footer admin-modal-footer">
+                <button type="button" className="btn btn-secondary admin-btn-cancel" onClick={handleModalClose}>
+                  取消
+                </button>
+                <button type="submit" className="btn btn-primary admin-btn-submit">
+                  送出
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {showAddModal && <div className="modal-backdrop fade show"></div>}
+    </div>
+  );
+};
+
+export default AdminExamInfo;

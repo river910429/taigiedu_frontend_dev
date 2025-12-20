@@ -34,7 +34,7 @@ const MENU_ITEMS = [
     icon: testIcon,
     hasSubmenu: true,
     submenuItems: [
-      { id: 'adminExamInfo', label: "考試資訊", path: "/admin/exam/info" },
+      { id: 'adminExamInfo', label: "認證類型", path: "/admin/exam/info" },
       { id: 'adminBooks', label: "推薦用書", path: "/admin/exam/books" },
       { id: 'adminChannels', label: "教育頻道", path: "/admin/exam/channels" },
     ]
