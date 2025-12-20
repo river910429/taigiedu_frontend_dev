@@ -31,7 +31,7 @@ const ResourceCard = ({
       return url;
     }
     // 否則添加 base URL
-    return `https://dev.taigiedu.com/backend/${url}`;
+    return `${import.meta.env.VITE_API_URL}/${url}`;
   };
 
   return (

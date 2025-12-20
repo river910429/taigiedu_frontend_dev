@@ -4,7 +4,7 @@ import megaphoneIcon from '../assets/megaphone.svg';
 
 const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, pronun_diff, audio, type }) => {
   console.log("Modal 接收的數據:", { phrase, pronunciation, interpretation, pronun_diff, audio });
-  
+
   useEffect(() => {
     if (isOpen) {
       console.log("Modal 打開時的方音差數據:", {
@@ -40,7 +40,7 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
       fetchAndPlayTTS();
     }
   };
-  
+
 
   const fetchAndPlayTTS = async () => {
     try {
@@ -53,7 +53,7 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
 
       console.log('發送 TTS 請求:', parameters);
 
-      const response = await fetch('https://dev.taigiedu.com/backend/synthesize_speech', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/synthesize_speech`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
   const playVariationAudio = async (word, pronun) => {
     try {
       console.log(`播放方音差: ${word} - ${pronun}`);
-      const response = await fetch('https://dev.taigiedu.com/backend/synthesize_speech', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/synthesize_speech`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

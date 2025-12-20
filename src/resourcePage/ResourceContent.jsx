@@ -82,7 +82,7 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
 
       console.log("搜索參數:", parameters);
 
-      const response = await fetch("https://dev.taigiedu.com/backend/api/resource/search", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -183,91 +183,91 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
   };
   // 只更新 return 部分的 JSX 結構
 
-  
-return (
-  <>
-    <div className="resource-container">
-      <div className="resource-content-container"> {/* 新增的置中容器 */}
-        {isLoading ? (
-          <div className="resource-loading">
-            <div className="loading-spinner"></div>
-            <p>載入資源中...</p>
-          </div>
-        ) : allResources.length === 0 ? (
-          <div className="resource-empty">
-            <p>沒有找到符合條件的資源</p>
-          </div>
-        ) : (
-          // 包裝元素來確保固定高度
-          <div className="resource-content-wrapper">
-            <div className="resource-content">
-              {displayedResources.map((resource, index) => {
-                // 如果提供了自定義渲染函數，則使用它
-                if (renderCard) {
-                  return renderCard(resource, index);
-                }
-                
-                // 否則使用默認的卡片渲染
-                return (
-                  <ResourceCard
-                    key={resource.id || index}
-                    imageUrl={resource.imageUrl || "/src/assets/resourcepage/file_preview_demo.png"}
-                    fileType={resource.fileType || "PDF"}
-                    likes={resource.likes || 0}
-                    downloads={resource.downloads || 0}
-                    title={resource.title || "無標題資源"}
-                    uploader={resource.uploader_name || "匿名上傳者"}
-                    tags={resource.tags || []}
-                    date={resource.date || ""}
-                    onCardClick={() => onCardClick && onCardClick(resource)}
-                  />
-                );
-              })}
+
+  return (
+    <>
+      <div className="resource-container">
+        <div className="resource-content-container"> {/* 新增的置中容器 */}
+          {isLoading ? (
+            <div className="resource-loading">
+              <div className="loading-spinner"></div>
+              <p>載入資源中...</p>
             </div>
-          </div>
-        )}
+          ) : allResources.length === 0 ? (
+            <div className="resource-empty">
+              <p>沒有找到符合條件的資源</p>
+            </div>
+          ) : (
+            // 包裝元素來確保固定高度
+            <div className="resource-content-wrapper">
+              <div className="resource-content">
+                {displayedResources.map((resource, index) => {
+                  // 如果提供了自定義渲染函數，則使用它
+                  if (renderCard) {
+                    return renderCard(resource, index);
+                  }
 
-        {!isLoading && allResources.length > 0 && (
-          <div className="pagination-container">
-            <ul className="pagination">
-              <li className="page-item back-button">
-                <a
-                  className={`page-link wide-link ${currentPage <= 1 ? 'invisible' : ''}`}
-                  onClick={handlePreviousPage}
-                >
-                  《 Back
-                </a>
-              </li>
+                  // 否則使用默認的卡片渲染
+                  return (
+                    <ResourceCard
+                      key={resource.id || index}
+                      imageUrl={resource.imageUrl || "/src/assets/resourcepage/file_preview_demo.png"}
+                      fileType={resource.fileType || "PDF"}
+                      likes={resource.likes || 0}
+                      downloads={resource.downloads || 0}
+                      title={resource.title || "無標題資源"}
+                      uploader={resource.uploader_name || "匿名上傳者"}
+                      tags={resource.tags || []}
+                      date={resource.date || ""}
+                      onCardClick={() => onCardClick && onCardClick(resource)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-              {getPageNumbers().map(number => (
-                <li
-                  key={number}
-                  className={`page-item ${currentPage === number ? 'active' : ''}`}
-                >
+          {!isLoading && allResources.length > 0 && (
+            <div className="pagination-container">
+              <ul className="pagination">
+                <li className="page-item back-button">
                   <a
-                    className="page-link"
-                    onClick={() => handlePageChange(number)}
+                    className={`page-link wide-link ${currentPage <= 1 ? 'invisible' : ''}`}
+                    onClick={handlePreviousPage}
                   >
-                    {number}
+                    《 Back
                   </a>
                 </li>
-              ))}
 
-              <li className="page-item next-button">
-                <a
-                  className={`page-link wide-link ${currentPage >= totalPages ? 'invisible' : ''}`}
-                  onClick={handleNextPage}
-                >
-                  Next 》
-                </a>
-              </li>
-            </ul>
-          </div>
-        )}
+                {getPageNumbers().map(number => (
+                  <li
+                    key={number}
+                    className={`page-item ${currentPage === number ? 'active' : ''}`}
+                  >
+                    <a
+                      className="page-link"
+                      onClick={() => handlePageChange(number)}
+                    >
+                      {number}
+                    </a>
+                  </li>
+                ))}
+
+                <li className="page-item next-button">
+                  <a
+                    className={`page-link wide-link ${currentPage >= totalPages ? 'invisible' : ''}`}
+                    onClick={handleNextPage}
+                  >
+                    Next 》
+                  </a>
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
 };
 
 export default ResourceContent;

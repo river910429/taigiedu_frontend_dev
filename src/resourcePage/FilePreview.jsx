@@ -30,7 +30,7 @@ const FilePreview = () => {
   useEffect(() => {
     try {
       const searchParams = new URLSearchParams(location.search);
-      
+
       // 解析標籤
       let parsedTags = [];
       try {
@@ -54,9 +54,9 @@ const FilePreview = () => {
           return url;
         }
         // 否則添加 base URL
-        return `https://dev.taigiedu.com/backend/${url}`;
+        return `${import.meta.env.VITE_API_URL}/${url}`;
       };
-      
+
       // 設置資源數據
       setResourceData({
         imageUrl: getFullUrl(searchParams.get("imageUrl"), true),
@@ -68,15 +68,15 @@ const FilePreview = () => {
         resourceId: searchParams.get("id") || "",
         tags: parsedTags
       });
-      
+
       // 設置計數器
       setLikesCount(parseInt(searchParams.get("likes") || "0", 10));
       setDownloadsCount(parseInt(searchParams.get("downloads") || "0", 10));
-      
+
       // 檢查用戶是否已點讚
       const likedResources = JSON.parse(localStorage.getItem("likedResources") || "[]");
       setIsLiked(likedResources.includes(searchParams.get("id")));
-      
+
       setIsLoading(false);
     } catch (error) {
       console.error("解析 URL 參數時發生錯誤:", error);
@@ -106,7 +106,7 @@ const FilePreview = () => {
       },
     });
   };
-  
+
   const handleDownload = async () => {
     if (!resourceData.fileUrl) {
       showToast("無法下載此資源，檔案連結不可用", "error");
@@ -116,7 +116,7 @@ const FilePreview = () => {
     try {
       // 如果有資源 ID，記錄下載
       if (resourceData.resourceId) {
-        await fetch(`https://dev.taigiedu.com/backend/api/resource/download/${resourceData.resourceId}`, {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/resource/download/${resourceData.resourceId}`, {
           method: "GET",
         });
       }
@@ -124,22 +124,22 @@ const FilePreview = () => {
       // 使用 fetch 下載檔案並保持在當前頁面
       const response = await fetch(resourceData.fileUrl);
       const blob = await response.blob();
-      
+
       // 創建下載連結
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
       link.setAttribute('download', `${resourceData.title}.${resourceData.fileType.toLowerCase()}`);
       link.style.display = 'none';
-      
+
       // 執行下載
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // 清理 URL 物件
       window.URL.revokeObjectURL(downloadUrl);
-      
+
       // 更新下載計數
       setDownloadsCount(prev => prev + 1);
       showToast("資源下載已開始", "success");
@@ -166,26 +166,26 @@ const FilePreview = () => {
       const parameters = {
         id: parseInt(resourceData.resourceId, 10)  // 確保 ID 是整數
       };
-      
+
       // 發送點讚請求
-      const response = await fetch("https://dev.taigiedu.com/backend/api/resource/like", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/like`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(parameters)
       });
-      
+
       const result = await response.json();
       console.log("點讚回應:", result);
-      
+
       // 處理回應結果
       if (response.ok) {
         // 更新本地存儲記錄已點讚的資源
         const likedResources = JSON.parse(localStorage.getItem("likedResources") || "[]");
         likedResources.push(resourceData.resourceId);
         localStorage.setItem("likedResources", JSON.stringify(likedResources));
-        
+
         // 更新 UI 狀態
         setIsLiked(true);
         setLikesCount(prev => prev + 1);
@@ -241,8 +241,8 @@ const FilePreview = () => {
           下載資源
         </button>
 
-        <button 
-          className={`file-like-button ${isLiked ? 'liked' : ''}`} 
+        <button
+          className={`file-like-button ${isLiked ? 'liked' : ''}`}
           onClick={handleLike}
         >
           {isLiked ? '已點讚' : '點讚資源'}

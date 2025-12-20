@@ -35,7 +35,7 @@ const MainContent = () => {
       const parameters = {}; // 無需附帶參數，空物件即可
 
       const response = await fetch(
-        "https://dev.taigiedu.com/backend/idiom_random",
+        `${import.meta.env.VITE_API_URL}/idiom_random`,
         {
           method: 'POST',
           headers: {
@@ -74,7 +74,7 @@ const MainContent = () => {
       };
 
       const response = await fetch(
-        "https://dev.taigiedu.com/backend/top_keywords",
+        `${import.meta.env.VITE_API_URL}/top_keywords`,
         {
           method: 'POST',
           headers: {
@@ -107,7 +107,7 @@ const MainContent = () => {
     setExamLoading(true);
     try {
       const response = await fetch(
-        "https://dev.taigiedu.com/backend/info/test",
+        `${import.meta.env.VITE_API_URL}/info/test`,
         {
           method: 'POST',
           headers: {
@@ -144,7 +144,7 @@ const MainContent = () => {
     setNewsLoading(true);
     try {
       const response = await fetch(
-        "https://dev.taigiedu.com/backend/info/news",
+        `${import.meta.env.VITE_API_URL}/info/news`,
         {
           method: 'POST',
           headers: {
@@ -184,7 +184,7 @@ const MainContent = () => {
       const parameters = {}; // 傳送空的 JSON 物件
 
       const response = await fetch(
-        "https://dev.taigiedu.com/backend/events",
+        `${import.meta.env.VITE_API_URL}/events`,
         {
           method: 'POST',
           headers: {
@@ -232,7 +232,7 @@ const MainContent = () => {
 
     // 呼叫 top_keywords API 來建立統計資料
     try {
-      const keywordsResponse = await fetch('https://dev.taigiedu.com/backend/top_keywords', {
+      const keywordsResponse = await fetch(`${import.meta.env.VITE_API_URL}/top_keywords`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -325,10 +325,10 @@ const MainContent = () => {
                 <div className="text-gray-500">載入俗語諺中...</div>
               ) : idiom ? (
                 <div>
-                  <p 
-                    className="mb-2 text-gray-800" 
-                    style={{ 
-                      fontWeight: 'bold', 
+                  <p
+                    className="mb-2 text-gray-800"
+                    style={{
+                      fontWeight: 'bold',
                       fontSize: '1.125rem',
                       lineHeight: '1.75rem'
                     }}
@@ -341,10 +341,10 @@ const MainContent = () => {
                 </div>
               ) : (
                 <div>
-                  <p 
-                    className="text-gray-800" 
-                    style={{ 
-                      fontWeight: 'bold', 
+                  <p
+                    className="text-gray-800"
+                    style={{
+                      fontWeight: 'bold',
                       fontSize: '1.125rem',
                       lineHeight: '1.75rem'
                     }}
@@ -352,7 +352,7 @@ const MainContent = () => {
                     無魚蝦也好
                   </p>
                   <p className="text-sm text-gray-500">Bô hî, hê mā hó</p>
-                  <button 
+                  <button
                     className="mt-3 text-blue-500 hover:text-blue-700 text-sm underline"
                     onClick={fetchRandomIdiom}
                   >
@@ -398,10 +398,10 @@ const MainContent = () => {
                   examInfo.map((exam) => (
                     <li key={exam.id}>
                       {exam.url ? (
-                        <a 
-                          className="main-link" 
-                          href={exam.url} 
-                          target="_blank" 
+                        <a
+                          className="main-link"
+                          href={exam.url}
+                          target="_blank"
                           rel="noopener noreferrer"
                         >
                           [{exam.category}] {exam.title}
@@ -433,10 +433,10 @@ const MainContent = () => {
                   newsInfo.map((news) => (
                     <li key={news.id}>
                       {news.url ? (
-                        <a 
-                          className="main-link" 
-                          href={news.url} 
-                          target="_blank" 
+                        <a
+                          className="main-link"
+                          href={news.url}
+                          target="_blank"
                           rel="noopener noreferrer"
                         >
                           [{news.category}] {news.title}
