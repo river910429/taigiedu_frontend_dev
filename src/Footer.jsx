@@ -13,8 +13,8 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-buttons">
         <button className="footer-button">Our team</button>
-        <button className="footer-button">Terms</button>
-        <button className="footer-button">Policy</button>
+        <button className="footer-button" onClick={() => window.open('/terms', '_blank', 'noopener,noreferrer')}>Terms</button>
+        <button className="footer-button" onClick={() => window.open('/policy', '_blank', 'noopener,noreferrer')}>Policy</button>
         <button className="footer-button" onClick={handleAdminLogin}>Admin Login</button>
       </div>
       <div className="footer-text">

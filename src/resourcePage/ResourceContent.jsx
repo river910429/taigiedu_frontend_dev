@@ -30,6 +30,16 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
     }
   }, [searchParams]);
 
+  // 監聽後台更新事件，重新抓取前台資源
+  useEffect(() => {
+    const onUpdated = () => {
+      // 保持目前搜尋條件，僅重新拉資料
+      fetchResources();
+    };
+    window.addEventListener('resource-updated', onUpdated);
+    return () => window.removeEventListener('resource-updated', onUpdated);
+  }, []);
+
   // 當頁碼變更時更新顯示的資源
   useEffect(() => {
     updateDisplayedResources();

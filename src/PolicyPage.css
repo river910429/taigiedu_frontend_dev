@@ -1,0 +1,40 @@
+.policy-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px;
+  background: #fff;
+}
+
+.policy-content {
+  max-width: 900px;
+  width: 100%;
+  color: #333;
+  line-height: 1.8;
+  font-family: 'Noto Sans TC', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'LXGW WenKai TC', sans-serif;
+}
+
+.policy-content h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
+  color: #222;
+}
+
+.policy-content h2 {
+  font-size: 20px;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+.policy-content p {
+  margin: 8px 0;
+}
+
+.policy-content ol {
+  margin: 8px 0 8px 20px;
+}
+
+.policy-note {
+  margin-top: 24px;
+  color: #777;
+}

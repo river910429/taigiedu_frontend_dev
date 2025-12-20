@@ -46,7 +46,7 @@ const MENU_ITEMS = [
     hasSubmenu: true,
     submenuItems: [
       { id: 'adminUploadManagement', label: "上傳項目管理", path: "/admin/resource/upload" },
-      { id: 'adminBooks', label: "編輯課本選單", path: "/admin/resource/exam/books" },
+      { id: 'adminHeaderEditor', label: "編輯課本選單", path: "/admin/resource/header" },
     ]
   },
   { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" }

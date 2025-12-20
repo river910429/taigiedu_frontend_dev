@@ -1,134 +1,27 @@
 import { useState, useEffect, useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { useToast } from '../../../components/Toast';
+import { DndContext, closestCenter, DragOverlay, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, useSortable, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './adminSocialmediaPage.css';
+import { useToast } from '../../../components/Toast';
+import PropTypes from 'prop-types';
 
-// 圖標導入
+// 使用真實的圖標
 import editIcon from '../../../assets/adminPage/pencil.svg';
 import deleteIcon from '../../../assets/adminPage/trash.svg';
 import addIcon from '../../../assets/adminPage/plus.svg';
 import uturnIcon from '../../../assets/adminPage/uturn.svg';
-
-// 拖曳功能
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import dragIcon from '../../../assets/adminPage/bars-2.png';
-import jpgIconImage from '../../../assets/adminPage/jpg icon.svg';
-
-const SortableTableRow = ({ item, handleEditClick, handleDeleteClick, statusFilter }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 10 : 0,
-    opacity: isDragging ? 0.8 : 1,
-  };
-
-  const isArchived = statusFilter === 'archived';
-  const actionIcon = isArchived ? uturnIcon : deleteIcon;
-  const actionClass = isArchived ? "admin-action-btn restore-btn" : "admin-action-btn delete-btn";
-
-  return (
-    <tr ref={setNodeRef} style={style} className={isDragging ? 'dragging-row' : ''}>
-      <td className="drag-handle-column">
-        <button className="drag-handle-btn" {...listeners} {...attributes}>
-          <img src={dragIcon} alt="拖曳" className="drag-handle-icon" />
-        </button>
-      </td>
-      <td>
-        <button className="admin-action-btn edit-btn" onClick={() => handleEditClick(item)}>
-          <img src={editIcon} alt="編輯" className="admin-action-icon"/>
-        </button>
-      </td>
-      <td>
-        {item.mainCategory
-          ? (item.subCategory
-            ? `${item.mainCategory} > ${item.subCategory}`
-            : item.mainCategory)
-          : (item.categories && item.categories.length > 0
-            ? item.categories.join(', ')
-            : '—')}
-      </td>
-      <td>{item.name}</td>
-      <td>
-        <a href={item.link} target="_blank" rel="noopener noreferrer">
-          {item.link}
-        </a>
-      </td>
-      <td>
-        {(item.imageUrl || item.imageName) ? (
-          <div className="image-preview-cell">
-            <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-            <span className="file-name-text">
-              {item.imageName || item.imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
-            </span>
-          </div>
-        ) : (
-          <span className="text-muted">無</span>
-        )}
-      </td>
-      <td>
-        <button
-          className={actionClass}
-          onClick={() => handleDeleteClick(item.id)}
-        >
-          <img src={actionIcon} alt={isArchived ? "恢復" : "刪除"} className="admin-action-icon"/>
-        </button>
-      </td>
-      <td>{item.timestamp}</td>
-    </tr>
-  );
-};
-
-SortableTableRow.propTypes = {
-  item: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    name: PropTypes.string.isRequired,
-    categories: PropTypes.arrayOf(PropTypes.string),
-    mainCategory: PropTypes.string,
-    subCategory: PropTypes.string,
-    link: PropTypes.string.isRequired,
-    imageUrl: PropTypes.string,
-    imageName: PropTypes.string,
-    timestamp: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired
-  }).isRequired,
-  handleEditClick: PropTypes.func.isRequired,
-  handleDeleteClick: PropTypes.func.isRequired,
-  statusFilter: PropTypes.string.isRequired
-};
+import jpgIconSvg from '../../../assets/adminPage/jpg icon.svg';
 
 const AdminSocialmediaPage = () => {
-  const { showToast } = useToast();
-  
   // 基本狀態
   const [menuItems, setMenuItems] = useState({});
   const [allItems, setAllItems] = useState([]);
   const [parentFilter, setParentFilter] = useState('全部');
   const [childFilter, setChildFilter] = useState('全部');
   const [statusFilter, setStatusFilter] = useState('published');
+  const { showToast } = useToast();
   
   // Modal 狀態
   const [showModal, setShowModal] = useState(false);
@@ -144,13 +37,9 @@ const AdminSocialmediaPage = () => {
   // DnD 狀態
   const [activePageItem, setActivePageItem] = useState(null);
 
-  // 拖曳感應器
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  // 分頁狀態
+  const PAGE_SIZE = 12;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const resetForm = () => {
     setIsEditing(false);
@@ -264,9 +153,21 @@ const AdminSocialmediaPage = () => {
     return list;
   }, [allItems, parentFilter, childFilter, statusFilter]);
 
+  // 分頁邏輯
+  const totalPages = Math.ceil(filteredItems.length / PAGE_SIZE);
+  const visibleItems = filteredItems.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  // 重置頁碼當篩選改變時
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [parentFilter, childFilter, statusFilter]);
+
   // DnD 處理
   const handleDragStart = (event) => {
-    const pageItem = filteredItems.find(item => item.id === event.active.id);
+    const pageItem = visibleItems.find(item => item.id === event.active.id);
     setActivePageItem(pageItem);
   };
 
@@ -281,27 +182,26 @@ const AdminSocialmediaPage = () => {
       return;
     }
     
-    const oldIndex = filteredItems.findIndex(item => item.id === active.id);
-    const newIndex = filteredItems.findIndex(item => item.id === over.id);
+    const oldIndex = visibleItems.findIndex(item => item.id === active.id);
+    const newIndex = visibleItems.findIndex(item => item.id === over.id);
     
     if (oldIndex === -1 || newIndex === -1) {
       handleDragCancel();
       return;
     }
 
+    const reorderedVisible = [...visibleItems];
+    const [movedItem] = reorderedVisible.splice(oldIndex, 1);
+    reorderedVisible.splice(newIndex, 0, movedItem);
+
     setAllItems(prevItems => {
       const newItems = [...prevItems];
-      const reorderedFiltered = [...filteredItems];
-      const [movedItem] = reorderedFiltered.splice(oldIndex, 1);
-      reorderedFiltered.splice(newIndex, 0, movedItem);
-      
-      reorderedFiltered.forEach((item) => {
+      reorderedVisible.forEach((item) => {
         const globalIndex = newItems.findIndex(i => i.id === item.id);
         if (globalIndex !== -1) {
           newItems[globalIndex] = { ...item };
         }
       });
-      
       return newItems;
     });
 
@@ -373,7 +273,7 @@ const AdminSocialmediaPage = () => {
     setImageUrl(URL.createObjectURL(file));
   };
 
-  const handleDeleteClick = (id) => {
+  const handleDeleteOrRestore = (id) => {
     const item = allItems.find(i => i.id === id);
     if (!item) return;
     
@@ -402,30 +302,56 @@ const AdminSocialmediaPage = () => {
     return arr;
   }, [menuItems]);
 
-  return (
-    <div className="admin-content-wrapper">
-      <div className="admin-header-controls">
-        <h5>
-          首頁搜尋 &gt; 
-          {parentFilter !== '全部' && (
-            <>
-              {parentFilter}
-              {childFilter !== '全部' && ` > ${childFilter}`}
-            </>
-          )}
-          {parentFilter === '全部' && ' 媒體與社群資源'}
-        </h5>
-        <button className="btn btn-primary admin-add-button" onClick={openCreate}>
-          <img src={addIcon} alt="新增" />
-          新增項目
-        </button>
-      </div>
+  // 分頁相關函數
+  const getPageNumbers = () => {
+    const VISIBLE_PAGES = 5;
+    const pages = [];
+    
+    if (totalPages <= VISIBLE_PAGES) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const half = Math.floor(VISIBLE_PAGES / 2);
+      let start = Math.max(1, currentPage - half);
+      let end = Math.min(totalPages, start + VISIBLE_PAGES - 1);
+      
+      if (end - start + 1 < VISIBLE_PAGES) {
+        start = Math.max(1, end - VISIBLE_PAGES + 1);
+      }
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  };
 
-      <div className="admin-controls-row">
+  const handleFirst = () => setCurrentPage(1);
+  const handlePrev = () => setCurrentPage(Math.max(1, currentPage - 1));
+  const handleNext = () => setCurrentPage(Math.min(totalPages, currentPage + 1));
+  const handleLast = () => setCurrentPage(totalPages);
+
+  const getFileName = (url) => {
+    if (!url) return '';
+    try {
+      return url.split('/').pop()?.split('.')[0] || 'image';
+    } catch {
+      return 'image';
+    }
+  };
+
+  return (
+    <div className="admin-container">
+      <h1 className="admin-title">媒體與社群資源管理</h1>
+      
+      <div className="header-top-row">
         <div className="filter-breadcrumb">
-          <span className="breadcrumb-label">篩選：</span>
+          <span className="breadcrumb-title">篩選</span>
+          <span className="breadcrumb-sep">|</span>
           <select
-            className="form-select admin-filter-select"
+            className="pill-select"
             value={parentFilter}
             onChange={(e) => {
               setParentFilter(e.target.value);
@@ -440,9 +366,9 @@ const AdminSocialmediaPage = () => {
           
           {showChildFilter && (
             <>
-              <span className="breadcrumb-separator">&gt;</span>
+              <span className="breadcrumb-sep">&gt;</span>
               <select
-                className="form-select admin-filter-select"
+                className="pill-select"
                 value={childFilter}
                 onChange={(e) => setChildFilter(e.target.value)}
               >
@@ -454,76 +380,75 @@ const AdminSocialmediaPage = () => {
             </>
           )}
         </div>
-
-        <div className="status-filter">
-          <span>目前狀態：</span>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <select
-            className="form-select admin-status-dropdown"
+            className="pill-select"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="published">目前公告</option>
-            <option value="archived">歷史公告</option>
+            <option value="published">已發布</option>
+            <option value="archived">已封存</option>
           </select>
         </div>
       </div>
 
-      <div className="admin-table-responsive">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
-        >
-          <table className="table table-hover admin-data-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>編輯</th>
-                <th>類別</th>
-                <th>內容 (限20字)</th>
-                <th>連結</th>
-                <th>圖片</th>
-                <th>操作</th>
-                <th>建立時間</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="text-center">
-                    <div className="no-data-message-container">
-                      暫無資料
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                <SortableContext
-                  items={filteredItems.map(item => item.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {filteredItems.map((item) => (
-                    <SortableTableRow
-                      key={item.id}
-                      item={item}
-                      handleEditClick={openEdit}
-                      handleDeleteClick={handleDeleteClick}
-                      statusFilter={statusFilter}
-                    />
-                  ))}
-                </SortableContext>
-              )}
-            </tbody>
-          </table>
-
-          <DragOverlay>
-            {activePageItem ? (
-              <table className="drag-overlay-table">
+      <div className="header-second-row">
+        <button className="admin-add-button" onClick={openCreate}>
+          新增項目
+        </button>
+      </div>
+      
+      <DndContext
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>編輯</th>
+              <th>名稱</th>
+              <th>類別</th>
+              <th>連結</th>
+              <th>圖片</th>
+              <th>操作</th>
+              <th>更新時間</th>
+            </tr>
+          </thead>
+          <tbody>
+            <SortableContext
+              items={visibleItems.map(item => item.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {visibleItems.map((item) => (
+                <SortableMediaRow
+                  key={item.id}
+                  item={item}
+                  statusFilter={statusFilter}
+                  openEdit={openEdit}
+                  handleDeleteOrRestore={handleDeleteOrRestore}
+                  getFileName={getFileName}
+                />
+              ))}
+            </SortableContext>
+          </tbody>
+        </table>
+        
+        <DragOverlay>
+          {activePageItem ? (
+            <div style={{
+              background: 'white',
+              padding: '8px',
+              borderRadius: '4px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+            }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <tbody>
-                  <tr className="dragging-overlay-row">
-                    <td></td>
-                    <td></td>
+                  <tr>
+                    <td>{activePageItem.name}</td>
                     <td>
                       {activePageItem.mainCategory
                         ? (activePageItem.subCategory
@@ -533,7 +458,6 @@ const AdminSocialmediaPage = () => {
                           ? activePageItem.categories.join(', ')
                           : '—')}
                     </td>
-                    <td>{activePageItem.name}</td>
                     <td>
                       <a href={activePageItem.link} target="_blank" rel="noopener noreferrer">
                         {activePageItem.link}
@@ -541,23 +465,105 @@ const AdminSocialmediaPage = () => {
                     </td>
                     <td>
                       {(activePageItem.imageUrl || activePageItem.imageName) ? (
-                        <div className="image-preview-cell">
-                          <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-                          <span className="file-name-text">
-                            {activePageItem.imageName || activePageItem.imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
+                        <div className="file-cell">
+                          <span className="file-icon-image">{jpgIcon}</span>
+                          <span className="file-name">
+                            {activePageItem.imageName || getFileName(activePageItem.imageUrl) || '圖片'}
                           </span>
                         </div>
                       ) : '無'}
                     </td>
-                    <td></td>
                     <td>{activePageItem.timestamp}</td>
                   </tr>
                 </tbody>
               </table>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      </div>
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {/* 分頁控制 */}
+      {totalPages > 1 && (
+        <div className="admin-pagination">
+          <ul className="pagination">
+            <li className="page-item">
+              <button
+                className="page-link"
+                onClick={handleFirst}
+                disabled={currentPage === 1}
+              >
+                <img
+                  src={chevronDoubleLeftIcon}
+                  alt="First"
+                  style={{ transform: 'scaleX(-1)' }}
+                />
+              </button>
+            </li>
+            <li className="page-item">
+              <button
+                className="page-link"
+                onClick={handlePrev}
+                disabled={currentPage === 1}
+              >
+                <img src={chevronLeftIcon} alt="Previous" />
+              </button>
+            </li>
+            {getPageNumbers().map(pageNum => (
+              <li key={pageNum} className="page-item">
+                <button
+                  className={`page-link ${currentPage === pageNum ? 'active' : ''}`}
+                  onClick={() => setCurrentPage(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              </li>
+            ))}
+            <li className="page-item">
+              <button
+                className="page-link"
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+              >
+                <img
+                  src={chevronLeftIcon}
+                  alt="Next"
+                  style={{ transform: 'scaleX(-1)' }}
+                />
+              </button>
+            </li>
+            <li className="page-item">
+              <button
+                className="page-link"
+                onClick={handleLast}
+                disabled={currentPage === totalPages}
+              >
+                <img src={chevronDoubleLeftIcon} alt="Last" />
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
+
+      {/* Debug Overlay (開發模式) */}
+      {import.meta.env.DEV && (
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          background: 'black',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          fontSize: '12px',
+          zIndex: 9999
+        }}>
+          <div>當前頁: {currentPage}/{totalPages}</div>
+          <div>頁面項目: {visibleItems.length}</div>
+          <div>總項目: {filteredItems.length}</div>
+          <div>Parent: {parentFilter}</div>
+          <div>Child: {childFilter}</div>
+        </div>
+      )}
 
       {/* Modal */}
       <div className={`modal ${showModal ? 'show d-block' : 'd-none'}`}>
@@ -633,10 +639,10 @@ const AdminSocialmediaPage = () => {
                     </span>
                   </div>
                   {(imageName || imageUrl) && (
-                    <div className="image-preview-cell" style={{ marginTop: 8 }}>
-                      <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-                      <span className="file-name-text">
-                        {imageName || imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
+                    <div className="file-cell" style={{ marginTop: 8 }}>
+                      <span className="file-icon-image">{jpgIcon}</span>
+                      <span className="file-name">
+                        {imageName || getFileName(imageUrl) || '圖片'}
                       </span>
                     </div>
                   )}
@@ -681,6 +687,93 @@ const AdminSocialmediaPage = () => {
       {showModal && <div className="modal-backdrop fade show"></div>}
     </div>
   );
+};
+
+const SortableMediaRow = ({ item, statusFilter, openEdit, handleDeleteOrRestore, getFileName }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id
+  });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 0,
+    opacity: isDragging ? 0.8 : 1
+  };
+  
+  const isArchived = statusFilter === 'archived';
+  const actionIcon = isArchived ? uturnIcon : deleteIcon;
+  const actionClass = isArchived ? 'admin-action-btn restore-btn' : 'admin-action-btn delete-btn';
+  
+  return (
+    <tr ref={setNodeRef} style={style} className={isDragging ? 'dragging-row' : ''}>
+      <td className="drag-handle-column">
+        <button className="drag-handle-btn" {...listeners} {...attributes}>
+          <span className="drag-handle-icon">{dragIcon}</span>
+        </button>
+      </td>
+      <td>
+        <button className="admin-action-btn edit-btn" onClick={() => openEdit(item)}>
+          <span className="admin-action-icon">{editIcon}</span>
+        </button>
+      </td>
+      <td>{item.name}</td>
+      <td>
+        {item.mainCategory
+          ? (item.subCategory
+            ? `${item.mainCategory} > ${item.subCategory}`
+            : item.mainCategory)
+          : (item.categories && item.categories.length > 0
+            ? item.categories.join(', ')
+            : '—')}
+      </td>
+      <td>
+        <a href={item.link} target="_blank" rel="noopener noreferrer">
+          {item.link}
+        </a>
+      </td>
+      <td>
+        {(item.imageUrl || item.imageName) ? (
+          <div className="file-cell">
+            <span className="file-icon-image">{jpgIcon}</span>
+            <span className="file-name">
+              {item.imageName || getFileName(item.imageUrl) || '圖片'}
+            </span>
+          </div>
+        ) : (
+          <span className="text-muted">無</span>
+        )}
+      </td>
+      <td>
+        <button
+          className={actionClass}
+          onClick={() => handleDeleteOrRestore(item.id)}
+        >
+          <span className="admin-action-icon">{actionIcon}</span>
+        </button>
+      </td>
+      <td>{item.timestamp}</td>
+    </tr>
+  );
+};
+
+SortableMediaRow.propTypes = {
+  item: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    name: PropTypes.string.isRequired,
+    categories: PropTypes.arrayOf(PropTypes.string),
+    mainCategory: PropTypes.string,
+    subCategory: PropTypes.string,
+    link: PropTypes.string.isRequired,
+    imageUrl: PropTypes.string,
+    imageName: PropTypes.string,
+    timestamp: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired
+  }).isRequired,
+  statusFilter: PropTypes.string.isRequired,
+  openEdit: PropTypes.func.isRequired,
+  handleDeleteOrRestore: PropTypes.func.isRequired,
+  getFileName: PropTypes.func.isRequired
 };
 
 export default AdminSocialmediaPage;

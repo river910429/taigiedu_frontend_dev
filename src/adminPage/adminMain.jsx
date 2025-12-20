@@ -22,7 +22,7 @@ const AdminMain = () => {
     {
       title: "台語教學資源共享平台",
       icon: cloudIcon,
-      functions: ["上傳項目", "編輯課本清單"]
+      functions: ["上傳項目", "編輯課本選單"]
     },
     {
       title: "認證考試",
@@ -47,6 +47,9 @@ const AdminMain = () => {
     "最新消息": "/admin/main-search/news",
     "飲食": "/admin/culture/food",
     "節慶": "/admin/culture/festival",
+    // 台語教學資源共享平台
+    "上傳項目": "/admin/resource",
+    "編輯課本選單": "/admin/resource/header",
     // 媒體與社群資源：一律導向管理頁
     "工具": "/admin/socialmedia",
     "百科": "/admin/socialmedia",
