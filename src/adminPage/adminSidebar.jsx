@@ -1,4 +1,4 @@
-import React, { useState,useEffect  } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./adminSidebar.css";
 import bookIcon from '../assets/adminPage/book.svg';
@@ -9,75 +9,78 @@ import testIcon from '../assets/adminPage/test.svg';
 import userIcon from '../assets/adminPage/userCircle.svg';
 import chevronUpIcon from "../assets/chevron-up.svg";
 
-const AdminSidebar = () => {
-  const basePath = import.meta.env.BASE_URL || '/';
-  const [activeItem, setActiveItem] = useState(null); // 用於追蹤哪個選單被選取
-  const [activeSubItem, setActiveSubItem] = useState(null);
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState({});
-  const navigate = useNavigate(); // 使用 React Router 的 navigate
-  const location = useLocation(); // 監聽當前路由變化
+// 靜態選單定義搬到組件外，避免每次 render 重新建立引用，減少 useEffect 依賴問題
+const MENU_ITEMS = [
+  { id: 1,
+    label: "主頁搜尋",
+    icon: houseIcon,
+    hasSubmenu: true,
+    submenuItems: [
+      { id: 'adminTestInfo', label: "考試資訊", path: "/admin/main-search/test" },
+      { id: 'adminNewsInfo', label: "活動快訊", path: "/admin/main-search/news" }
+    ]
+  },
+  { id: 2,
+    label: "台灣文化",
+    icon: bookIcon,
+    hasSubmenu: true,
+    submenuItems: [
+      { id: 'food', label: "飲食", path: "/admin/culture/food" },
+      { id: 'festival', label: "節慶", path: "/admin/culture/festival" }
+    ]
+  },
+  { id: 3,
+    label: "認證考試",
+    icon: testIcon,
+    hasSubmenu: true,
+    submenuItems: [
+      { id: 'adminExamInfo', label: "考試資訊", path: "/admin/exam/info" },
+      { id: 'adminBooks', label: "推薦用書", path: "/admin/exam/books" },
+      { id: 'adminChannels', label: "教育頻道", path: "/admin/exam/channels" },
+    ]
+  },
+  { id: 4, label: "媒體與社群資源", icon: playIcon, path: "/admin/socialmedia" },
+  { id: 5,
+    label: "台語教學資源共享平台",
+    icon: cloudIcon,
+    hasSubmenu: true,
+    submenuItems: [
+      { id: 'adminUploadManagement', label: "上傳項目管理", path: "/admin/resource/upload" },
+      { id: 'adminHeaderEditor', label: "編輯課本選單", path: "/admin/resource/header" },
+    ]
+  },
+  { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" }
+];
 
-  const menuItems = [
-    { id: 1, 
-      label: "主頁搜尋", 
-      icon: houseIcon,
-      hasSubmenu: true,
-      submenuItems: [
-        { id: 'adminTestInfo', label: "考試資訊", path: "/admin/main-search/test" },
-        { id: 'adminNewsInfo', label: "活動快訊", path: "/admin/main-search/news" }
-      ]
-    },
-    { id: 2, 
-      label: "台灣文化", 
-      icon: bookIcon, 
-      hasSubmenu: true,
-      submenuItems: [
-        { id: 'food', label: "飲食", path: "/admin/culture/food" },
-        { id: 'festival', label: "節慶", path: "/admin/culture/festival" }
-      ]
-    },
-    { id: 3, 
-      label: "認證考試", 
-      icon: testIcon, 
-      hasSubmenu: true,
-      submenuItems: [
-        { id: 'adminExamInfo', label: "考試資訊", path: "/admin/exam/info" },
-        { id: 'adminBooks', label: "推薦用書", path: "/admin/exam/books" },
-        { id: 'adminChannels', label: "教育頻道", path: "/admin/exam/channels" },
-      ]
-    },
-    { id: 4, label: "媒體與社群資源", icon: playIcon, path: "/admin/socialmedia" },
-    { id: 5, 
-      label: "台語教學資源共享平台", 
-      icon: cloudIcon, 
-      hasSubmenu: true,
-      submenuItems: [
-        { id: 'adminUploadManagement', label: "上傳項目管理", path: "/admin/resource/upload" },
-        { id: 'adminBooks', label: "編輯課本選單", path: "/admin/resource/exam/books" },
-      ]
-    },
-    { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" }
-    ];
+const AdminSidebar = () => {
+  const [activeItem, setActiveItem] = useState(null); // 目前展開或被點擊的主選單 id
+  const [activeSubItem, setActiveSubItem] = useState(null); // 被選取的子選單 id
+  const [isSubMenuOpen, setIsSubMenuOpen] = useState({}); // { [主選單id]: true/false }
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
+  // 根據目前路徑決定哪個主選單/子選單高亮與展開
   useEffect(() => {
-    const matchedItem = menuItems.find(item => item.path === location.pathname);
-    if (matchedItem) {
-      setActiveItem(matchedItem.id);
-      setIsSubMenuOpen(matchedItem.hasSubmenu || false);
-    } else {
-      // 檢查是否為子選單
-      const parentItem = menuItems.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.path === location.pathname));
-      if (parentItem) {
-        setActiveItem(parentItem.id);
-        setIsSubMenuOpen(prev => ({ ...prev, [parentItem.id]: true }));
-        setActiveSubItem(parentItem.submenuItems.find(sub => sub.path === location.pathname).id);
-      } else {
-        setActiveItem(null);
-        setActiveSubItem(null);
-      }
+    // 1. 先找是否直接匹配單層（無子選單）
+    const direct = MENU_ITEMS.find(item => item.path && item.path === location.pathname);
+    if (direct) {
+      setActiveItem(direct.id);
+      setActiveSubItem(null);
+      return;
     }
-  }, [location.pathname]); // 監聽 location.pathname 變化
+    // 2. 找子選單
+    const parent = MENU_ITEMS.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.path === location.pathname));
+    if (parent) {
+      const sub = parent.submenuItems.find(s => s.path === location.pathname);
+      setActiveItem(parent.id);
+      setActiveSubItem(sub.id);
+      setIsSubMenuOpen(prev => ({ ...prev, [parent.id]: true }));
+      return;
+    }
+    // 3. 沒有匹配，重置
+    setActiveItem(null); setActiveSubItem(null);
+  }, [location.pathname]);
 
    const handleClick = (id, path, hasSubmenu) => {
     if (hasSubmenu) {
@@ -87,20 +90,19 @@ const AdminSidebar = () => {
     } else {
       setActiveItem(id);
       setActiveSubItem(null);
-      navigate(path);
+      if (path) navigate(path);
     }
   };
-
-    const handleSubItemClick = (subItemId, path, parentId) => {
+  const handleSubItemClick = (subItemId, path, parentId) => {
     setActiveSubItem(subItemId);
-    setActiveItem(null);
-    setIsSubMenuOpen(prev => ({ ...prev, [parentId]: true })); // Keep submenu open when submenu item is active
+    setActiveItem(parentId); // 保留父選單高亮
+    setIsSubMenuOpen(prev => ({ ...prev, [parentId]: true }));
     navigate(path);
   };
 
   return (
     <div className="sidebar">
-      {menuItems.map((item) => (
+  {MENU_ITEMS.map((item) => (
         <div key={item.id}>
           <button
             className={`menu-item ${activeItem === item.id ? "active" : ""}`}
@@ -124,7 +126,7 @@ const AdminSidebar = () => {
                 <div
                   key={subItem.id}
                   className={`submenu-item ${activeSubItem === subItem.id ? "active" : ""}`}
-                  onClick={() => handleSubItemClick(subItem.id, subItem.path)}
+                  onClick={() => handleSubItemClick(subItem.id, subItem.path, item.id)}
                 >
                   {subItem.label}
                 </div>

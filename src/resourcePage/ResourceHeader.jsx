@@ -13,15 +13,34 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
   const [isGradeOpen, setIsGradeOpen] = useState(false);
   const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]); // 多選下拉選單
-  
-  const contentTypeOptions = ["學習單", "簡報", "教案", "其他"];
+
+  // 從本機設定讀取（由後台 ResourceHeaderPage 控制），並有預設值
+  const STORAGE_KEY = 'resourceHeaderConfig';
+  const loadConfig = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed;
+    } catch {
+      return null;
+    }
+  };
+  const config = loadConfig();
+  const fallbackContentTypes = ["學習單", "簡報", "教案", "其他"];
+  const contentTypeOptions = Array.isArray(config?.contentTypes) && config.contentTypes.length > 0 ? config.contentTypes : fallbackContentTypes;
   const [selectedContentTypes, setSelectedContentTypes] = useState([...contentTypeOptions]); // 預設全選內容類型
 
   // 定義版本選項映射
-  const gradeToVersions = {
+  const defaultVersions = {
     國小: ["真平", "康軒"],
     國中: ["真平", "康軒", "奇異果", "師昀", "全華", "豪風", "長鴻"],
     高中: ["真平", "育達", "泰宇", "奇異果", "創新"],
+  };
+  const gradeToVersions = {
+    國小: config?.versions?.['國小'] || defaultVersions.國小,
+    國中: config?.versions?.['國中'] || defaultVersions.國中,
+    高中: config?.versions?.['高中'] || defaultVersions.高中,
   };
 
   const getVersionOptions = (grade) => {
@@ -31,18 +50,7 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
     return gradeToVersions[grade] || [];
   };
 
-  const allVersions = [
-    "真平",
-    "康軒",
-    "奇異果",
-    "師昀",
-    "全華",
-    "豪風",
-    "長鴻",
-    "育達",
-    "泰宇",
-    "創新",
-  ];
+  const allVersions = Array.from(new Set([...(gradeToVersions.國小||[]),...(gradeToVersions.國中||[]),...(gradeToVersions.高中||[])]));
 
   const handleCategoryChange = (selected) => {
     setSelectedCategories(selected);
@@ -51,6 +59,20 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, setIsLoggedIn, onSearch }) =
   const handleContentTypeChange = (selected) => {
     setSelectedContentTypes(selected);
   };
+
+  // 若後台調整了設定，動態刷新當前選項
+  useEffect(() => {
+    const onCfg = () => {
+      const latest = loadConfig();
+      const latestTypes = Array.isArray(latest?.contentTypes) && latest.contentTypes.length>0 ? latest.contentTypes : fallbackContentTypes;
+      setSelectedContentTypes([...latestTypes]);
+      // 若目前選的階段不是「階段」，同步更新版本清單
+      if (selectedGrade === '全部') setSelectedCategories(Array.from(new Set([...(latest?.versions?.['國小']||[]),...(latest?.versions?.['國中']||[]),...(latest?.versions?.['高中']||[])])));
+      else if (selectedGrade !== '階段') setSelectedCategories([...(latest?.versions?.[selectedGrade]||defaultVersions[selectedGrade]||[])]);
+    };
+    window.addEventListener('resource-config-updated', onCfg);
+    return () => window.removeEventListener('resource-config-updated', onCfg);
+  }, [selectedGrade]);
 
   const handleGradeChange = (e) => {
     const grade = e.target.value;

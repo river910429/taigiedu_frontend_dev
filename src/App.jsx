@@ -21,12 +21,17 @@ import CultureFood from "./culture/food/FoodPage";
 import CultureFestival from "./culture/festival/FestivalPage";
 import AdminFoodPage from "./adminPage/adminContent/adminHome/adminFoodPage";
 import AdminFestivalPage from "./adminPage/adminContent/adminHome/adminFestivalPage";
+import AdminSocialmediaPage from "./adminPage/adminContent/adminHome/adminSocialmediaPage";
+import AdminResourcePage from "./adminPage/adminContent/adminHome/adminresourcePage/AdminResourcePage.jsx";
+import ResourceHeaderPage from "./adminPage/adminContent/adminHome/adminresourcePage/ResourceHeaderPage.jsx";
 import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
 import ExamPage from "./examPage/ExamPage";
 import DownloadPage from "./resourcePage/DownloadPage";
 import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
 import CelebrityDetails from "./celebrity/CelebrityDetails";
+import TermsPage from "./TermsPage.jsx";
+import PolicyPage from "./PolicyPage.jsx";
 import AdminMain from "./adminPage/adminMain";
 import AdminSidebar from "./adminPage/adminSidebar";
 import AdminTestPage from "./adminPage/adminContent/adminHome/adminTestPage";
@@ -71,6 +76,8 @@ const AppLayout = () => {
           />
           <Route path="/file-preview" element={<FilePreview />} />
           <Route path="/download" element={<DownloadPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/policy" element={<PolicyPage />} />
           <Route
             path="/delete-resource"
             element={
@@ -113,6 +120,10 @@ const AppLayout = () => {
             <Route path="/admin/main-search/news" element={<AdminNewsPage />} />
             <Route path="/admin/culture/food" element={<AdminFoodPage />} />
             <Route path="/admin/culture/festival" element={<AdminFestivalPage />} />
+            <Route path="/admin/socialmedia" element={<AdminSocialmediaPage />} />
+            <Route path="/admin/resource" element={<AdminResourcePage />} />
+            <Route path="/admin/resource/upload" element={<AdminResourcePage />} />
+            <Route path="/admin/resource/header" element={<ResourceHeaderPage />} />
             {/* // 其他 admin 路由 */}
           </Routes>
         </div>

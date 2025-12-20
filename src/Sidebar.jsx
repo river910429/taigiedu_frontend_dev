@@ -84,7 +84,8 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
-    handleClick(1,"/"); // 預設點擊 "主頁搜尋"
+    // 預設選取主頁，但不進行導頁，避免非主頁路由被強制跳回首頁
+    setActiveItem(1);
   }, []);
 
 
