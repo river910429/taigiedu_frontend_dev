@@ -1,0 +1,242 @@
+/* ===== AdminDataTable 通用表格樣式 ===== */
+
+/* 表格容器 */
+.admin-table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* 表格主體 */
+.admin-data-table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0 0.5px;
+}
+
+/* 表頭樣式 */
+.admin-data-table thead th {
+    background-color: #2D92C1;
+    color: #fff;
+    font-weight: normal;
+    vertical-align: middle;
+    padding: 0.75rem;
+    border-color: #dee2e6;
+    border-bottom: none;
+    border-top: none;
+    white-space: nowrap;
+}
+
+.admin-data-table thead th:first-child {
+    background-color: #f5f5f5;
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.admin-data-table thead th:last-child {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+}
+
+.admin-table-header {
+    user-select: none;
+}
+
+.admin-table-header.sortable:hover {
+    background-color: #258db8;
+}
+
+/* 排序箭頭 */
+.sort-arrow {
+    margin-left: 3px;
+    color: #fff;
+    font-size: 0.85em;
+}
+
+/* 表格行樣式 */
+.admin-data-table tbody tr {
+    background-color: #DFEAF2;
+    border: 1px solid #dee2e6;
+    border-radius: .25rem;
+    margin-bottom: 8px;
+    transition: all 0.2s ease-in-out;
+}
+
+.admin-data-table tbody tr:hover {
+    background-color: #e2f0fa;
+    box-shadow: 0 .25rem .5rem rgba(0,0,0,.1);
+    transform: translateY(-2px);
+}
+
+.admin-data-table tbody tr td {
+    vertical-align: middle;
+    padding: 0.5rem;
+}
+
+.admin-data-table tbody tr:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+.admin-data-table tbody tr td:first-child {
+    background-color: #f5f5f5;
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.admin-data-table tbody tr td:last-child {
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+    text-align: center;
+}
+
+/* 連結樣式 */
+.admin-data-table a {
+    word-break: break-all;
+    color: #2D92C1;
+    text-decoration: none;
+}
+
+.admin-data-table a:hover {
+    text-decoration: underline;
+}
+
+/* ===== 拖曳相關樣式 ===== */
+.drag-handle-column {
+    width: 40px;
+    text-align: center;
+    cursor: grab;
+}
+
+.drag-handle-btn {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.drag-handle-btn:active {
+    cursor: grabbing;
+}
+
+.drag-handle-icon {
+    width: 18px;
+    height: 18px;
+    filter: invert(30%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0.6) contrast(0.8);
+}
+
+/* 拖曳中的行樣式 */
+.dragging-row {
+    opacity: 0.5;
+    border-style: dashed !important;
+    background-color: #f0f0f0 !important;
+    box-shadow: none !important;
+}
+
+/* 拖曳覆層樣式 */
+.drag-overlay-table {
+    width: auto;
+    position: absolute;
+    z-index: 9999;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+.dragging-overlay-row {
+    background-color: #e6f7ff !important;
+    border: 1px solid #1890ff !important;
+    border-radius: 8px;
+    color: #333;
+    display: table-row;
+}
+
+.dragging-overlay-row td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-top: none;
+    border-bottom: none;
+}
+
+.dragging-overlay-row button,
+.dragging-overlay-row a {
+    pointer-events: none;
+}
+
+/* ===== 載入與空狀態樣式 ===== */
+.admin-table-loading {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #6c757d;
+}
+
+.admin-table-loading .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: admin-table-spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes admin-table-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.admin-table-empty {
+    background-color: #fff;
+    border-radius: .25rem;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    padding: 3rem 1rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+/* ===== 操作按鈕樣式 ===== */
+.admin-action-btn {
+    border: none;
+    background: none;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.admin-action-btn:hover {
+    background-color: #e9ecef;
+}
+
+.admin-action-btn.edit-btn:hover {
+    background-color: #e3f2fd;
+}
+
+.admin-action-btn.delete-btn:hover {
+    background-color: #ffebee;
+}
+
+.admin-action-btn.restore-btn:hover {
+    background-color: #e8f5e9;
+}
+
+.admin-action-icon {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
