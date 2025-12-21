@@ -113,9 +113,15 @@ const AppLayout = () => {
 
 
 const App = () => {
+  // 獲取 Vite 的 BASE_URL,確保 React Router 使用正確的 base path
+  const basename = import.meta.env.BASE_URL || '/';
+
   return (
     <ToastProvider>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter
+        basename={basename}
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <AppLayout />
       </BrowserRouter>
     </ToastProvider>
