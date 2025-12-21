@@ -43,10 +43,10 @@ const AppLayout = () => {
   }, [isLoggedIn]);
 
   return (
-          <div className="app">
+    <div className="app">
       <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail ? 'preview-page' : ''}`}>
-      {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && <Sidebar />}
+        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && <Sidebar />}
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/search" element={<MainSearchPage />} />
@@ -93,31 +93,31 @@ const AppLayout = () => {
               )
             }
           />
-            <Route path="/celebrity" element={<CelebrityPage />} />
-            <Route path="/celebrity/detail" element={<CelebrityDetails />} />
-            <Route path="/culture/food" element={<CultureFood />} />
-            <Route path="/culture/festival" element={<CultureFestival />} />
-            <Route path="/socialmedia" element={<SocialmediaPage />} />
-            <Route path="/exam" element={<ExamPage />} />
-            <Route
-              path="/login"
-              element={<LoginPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
-            />
-            <Route path="/register" element={<RegisterPage />} />
-          </Routes>
-        </div>
-      <Footer />
+          <Route path="/celebrity" element={<CelebrityPage />} />
+          <Route path="/celebrity/detail" element={<CelebrityDetails />} />
+          <Route path="/culture/food" element={<CultureFood />} />
+          <Route path="/culture/festival" element={<CultureFestival />} />
+          <Route path="/socialmedia" element={<SocialmediaPage />} />
+          <Route path="/exam" element={<ExamPage />} />
+          <Route
+            path="/login"
+            element={<LoginPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+          />
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
       </div>
+      <Footer />
+    </div>
   );
-  }
+}
 
 
 const App = () => {
   return (
     <ToastProvider>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppLayout />
-    </BrowserRouter>
+      </BrowserRouter>
     </ToastProvider>
 
   );

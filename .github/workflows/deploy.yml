@@ -39,6 +39,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          VITE_BASE_PATH: /taiwaneseOMG/
           VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://dev.taigiedu.com/backend' }}
           VITE_IMAGE_URL: ${{ secrets.VITE_IMAGE_URL || 'https://dev.taigiedu.com' }}
 
