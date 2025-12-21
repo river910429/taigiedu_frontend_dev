@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
     useReactTable,
@@ -44,8 +44,8 @@ const SortableTableRow = ({ row, children }) => {
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
+        position: 'relative',
         zIndex: isDragging ? 10 : 0,
-        opacity: isDragging ? 0.5 : 1,
     };
 
     return (
@@ -62,6 +62,7 @@ const SortableTableRow = ({ row, children }) => {
         </tr>
     );
 };
+
 
 SortableTableRow.propTypes = {
     row: PropTypes.object.isRequired,
@@ -97,6 +98,8 @@ const AdminDataTable = ({
 }) => {
     const [sorting, setSorting] = useState([]);
     const [activeId, setActiveId] = useState(null);
+    const [columnWidths, setColumnWidths] = useState([]);
+    const tableRef = useRef(null);
 
     // 拖曳感應器設定
     const sensors = useSensors(
@@ -122,9 +125,16 @@ const AdminDataTable = ({
         enableSorting,
     });
 
-    // 拖曳事件處理
+    // 拖曳事件處理 - 捕獲實際欄寬
     const handleDragStart = useCallback((event) => {
         setActiveId(event.active.id);
+
+        // 捕獲當前表格的實際欄寬
+        if (tableRef.current) {
+            const headerCells = tableRef.current.querySelectorAll('thead th');
+            const widths = Array.from(headerCells).map(cell => cell.getBoundingClientRect().width);
+            setColumnWidths(widths);
+        }
     }, []);
 
     const handleDragEnd = useCallback((event) => {
@@ -180,7 +190,7 @@ const AdminDataTable = ({
 
     // 渲染表格內容
     const renderTableContent = () => (
-        <table className={`table admin-data-table ${tableClassName}`}>
+        <table ref={tableRef} className={`table admin-data-table ${tableClassName}`}>
             <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id}>
@@ -252,28 +262,59 @@ const AdminDataTable = ({
         </table>
     );
 
-    // 渲染拖曳覆層
+    // 渲染拖曳覆層 - 使用從原始表格捕獲的實際欄寬
     const renderDragOverlay = () => {
-        if (!activeItem) return null;
+        if (!activeItem || columnWidths.length === 0) return null;
+
+        // 使用捕獲的實際欄寬計算總寬度
+        const totalWidth = columnWidths.reduce((sum, w) => sum + w, 0);
 
         return (
-            <table className="table admin-data-table drag-overlay-table">
+            <table
+                className="table admin-data-table drag-overlay-table"
+                style={{ width: `${totalWidth}px`, minWidth: `${totalWidth}px` }}
+            >
                 <tbody>
                     <tr className="dragging-overlay-row">
-                        <td className="drag-handle-column">
+                        {/* 拖曳句柄欄 - 使用第一個欄位的寬度 */}
+                        <td
+                            className="drag-handle-column"
+                            style={{
+                                width: `${columnWidths[0] || 40}px`,
+                                minWidth: `${columnWidths[0] || 40}px`,
+                                maxWidth: `${columnWidths[0] || 40}px`
+                            }}
+                        >
                             <img src={dragIcon} alt="拖曳" className="drag-handle-icon" />
                         </td>
-                        {columns.map((column) => (
-                            <td key={column.id || column.accessorKey}>
-                                {column.cell
-                                    ? column.cell({
-                                        row: { original: activeItem },
-                                        getValue: () => activeItem[column.accessorKey]
-                                    })
-                                    : activeItem[column.accessorKey]
-                                }
-                            </td>
-                        ))}
+                        {/* 資料欄 - 使用各自捕獲的實際寬度 */}
+                        {columns.map((column, index) => {
+                            // columnWidths[0] 是拖曳欄，所以資料欄從 index + 1 開始
+                            const colWidth = columnWidths[index + 1] || 150;
+                            return (
+                                <td
+                                    key={column.id || column.accessorKey}
+                                    style={{
+                                        width: `${colWidth}px`,
+                                        minWidth: `${colWidth}px`,
+                                        maxWidth: `${colWidth}px`,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        padding: '0.5rem 0.75rem',
+                                        boxSizing: 'border-box'
+                                    }}
+                                >
+                                    {column.cell
+                                        ? column.cell({
+                                            row: { original: activeItem },
+                                            getValue: () => activeItem[column.accessorKey]
+                                        })
+                                        : activeItem[column.accessorKey]
+                                    }
+                                </td>
+                            );
+                        })}
                     </tr>
                 </tbody>
             </table>

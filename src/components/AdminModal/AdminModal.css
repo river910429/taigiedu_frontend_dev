@@ -1,10 +1,19 @@
 /* ===== AdminModal 通用 Modal 樣式 ===== */
 
+/* Modal 對話框容器 - 設置最大高度 */
+.modal-dialog.modal-dialog-centered {
+    max-height: calc(100vh - 3.5rem);
+    margin: 1.75rem auto;
+}
+
 /* Modal 內容容器 */
 .admin-modal-content {
     border-radius: 8px;
     border: none;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    max-height: calc(100vh - 3.5rem);
+    display: flex;
+    flex-direction: column;
 }
 
 /* Modal Header */
@@ -12,6 +21,7 @@
     background-color: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
     padding: 1rem 1.5rem;
+    flex-shrink: 0;
 }
 
 .admin-modal-header .modal-title {
@@ -19,9 +29,13 @@
     color: #333;
 }
 
-/* Modal Body - 移除不必要的 padding */
+/* Modal Body - 可滾動區域 */
 .admin-modal-body {
     padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    max-height: calc(100vh - 12rem);
+    /* 扣除 header、footer 和邊距 */
 }
 
 /* Modal Footer */
@@ -29,6 +43,7 @@
     padding: 1rem 1.5rem;
     border-top: 1px solid #e9ecef;
     background-color: #f8f9fa;
+    flex-shrink: 0;
 }
 
 /* 表單標籤 */
