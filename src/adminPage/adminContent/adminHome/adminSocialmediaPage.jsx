@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import PropTypes from 'prop-types';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useToast } from '../../../components/Toast';
+import AdminModal from '../../../components/AdminModal';
+import AdminDataTable from '../../../components/AdminDataTable';
 import './adminSocialmediaPage.css';
 
 // 圖標導入
@@ -8,128 +9,20 @@ import editIcon from '../../../assets/adminPage/pencil.svg';
 import deleteIcon from '../../../assets/adminPage/trash.svg';
 import addIcon from '../../../assets/adminPage/plus.svg';
 import uturnIcon from '../../../assets/adminPage/uturn.svg';
-
-// 拖曳功能
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import dragIcon from '../../../assets/adminPage/bars-2.png';
 import jpgIconImage from '../../../assets/adminPage/jpg icon.svg';
-
-const SortableTableRow = ({ item, handleEditClick, handleDeleteClick, statusFilter }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 10 : 0,
-    opacity: isDragging ? 0.8 : 1,
-  };
-
-  const isArchived = statusFilter === 'archived';
-  const actionIcon = isArchived ? uturnIcon : deleteIcon;
-  const actionClass = isArchived ? "admin-action-btn restore-btn" : "admin-action-btn delete-btn";
-
-  return (
-    <tr ref={setNodeRef} style={style} className={isDragging ? 'dragging-row' : ''}>
-      <td className="drag-handle-column">
-        <button className="drag-handle-btn" {...listeners} {...attributes}>
-          <img src={dragIcon} alt="拖曳" className="drag-handle-icon" />
-        </button>
-      </td>
-      <td>
-        <button className="admin-action-btn edit-btn" onClick={() => handleEditClick(item)}>
-          <img src={editIcon} alt="編輯" className="admin-action-icon"/>
-        </button>
-      </td>
-      <td>
-        {item.mainCategory
-          ? (item.subCategory
-            ? `${item.mainCategory} > ${item.subCategory}`
-            : item.mainCategory)
-          : (item.categories && item.categories.length > 0
-            ? item.categories.join(', ')
-            : '—')}
-      </td>
-      <td>{item.name}</td>
-      <td>
-        <a href={item.link} target="_blank" rel="noopener noreferrer">
-          {item.link}
-        </a>
-      </td>
-      <td>
-        {(item.imageUrl || item.imageName) ? (
-          <div className="image-preview-cell">
-            <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-            <span className="file-name-text">
-              {item.imageName || item.imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
-            </span>
-          </div>
-        ) : (
-          <span className="text-muted">無</span>
-        )}
-      </td>
-      <td>
-        <button
-          className={actionClass}
-          onClick={() => handleDeleteClick(item.id)}
-        >
-          <img src={actionIcon} alt={isArchived ? "恢復" : "刪除"} className="admin-action-icon"/>
-        </button>
-      </td>
-      <td>{item.timestamp}</td>
-    </tr>
-  );
-};
-
-SortableTableRow.propTypes = {
-  item: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    name: PropTypes.string.isRequired,
-    categories: PropTypes.arrayOf(PropTypes.string),
-    mainCategory: PropTypes.string,
-    subCategory: PropTypes.string,
-    link: PropTypes.string.isRequired,
-    imageUrl: PropTypes.string,
-    imageName: PropTypes.string,
-    timestamp: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired
-  }).isRequired,
-  handleEditClick: PropTypes.func.isRequired,
-  handleDeleteClick: PropTypes.func.isRequired,
-  statusFilter: PropTypes.string.isRequired
-};
 
 const AdminSocialmediaPage = () => {
   const { showToast } = useToast();
-  
+
   // 基本狀態
   const [menuItems, setMenuItems] = useState({});
   const [allItems, setAllItems] = useState([]);
   const [parentFilter, setParentFilter] = useState('全部');
   const [childFilter, setChildFilter] = useState('全部');
   const [statusFilter, setStatusFilter] = useState('published');
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   // Modal 狀態
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -140,17 +33,6 @@ const AdminSocialmediaPage = () => {
   const [imageName, setImageName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
-
-  // DnD 狀態
-  const [activePageItem, setActivePageItem] = useState(null);
-
-  // 拖曳感應器
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   const resetForm = () => {
     setIsEditing(false);
@@ -190,61 +72,67 @@ const AdminSocialmediaPage = () => {
   };
 
   // 取得資料
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('https://dev.taigiedu.com/backend/media', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('https://dev.taigiedu.com/backend/media', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('載入失敗');
+      const result = await response.json();
+
+      const dynamicMenu = {};
+      const items = [];
+
+      Object.keys(result).forEach(rawCategory => {
+        const mainCategory = rawCategory === '' ? '其他' : rawCategory;
+        const records = result[rawCategory] || [];
+        const subSet = new Set();
+
+        records.forEach(item => {
+          if (item.subcategory && item.subcategory.trim() !== '') {
+            subSet.add(item.subcategory.trim());
+          }
         });
-        if (!response.ok) throw new Error('載入失敗');
-        const result = await response.json();
-        
-        const dynamicMenu = {};
-        const items = [];
-        
-        Object.keys(result).forEach(rawCategory => {
-          const mainCategory = rawCategory === '' ? '其他' : rawCategory;
-          const records = result[rawCategory] || [];
-          const subSet = new Set();
-          
-          records.forEach(item => {
-            if (item.subcategory && item.subcategory.trim() !== '') {
-              subSet.add(item.subcategory.trim());
-            }
-          });
-          
-          const subItems = Array.from(subSet).sort();
-          dynamicMenu[mainCategory] = {
-            hasSubMenu: subItems.length > 0,
-            subItems
-          };
-          
-          records.forEach(item => {
-            items.push({
-              id: item.id || `media-${Date.now()}-${Math.random()}`,
-              mainCategory,
-              subCategory: item.subcategory && item.subcategory.trim() !== '' ? item.subcategory.trim() : '',
-              categories: item.subcategory && item.subcategory.trim() !== '' ? [item.subcategory.trim()] : [],
-              name: item.title || '未命名',
-              link: item.url || '#',
-              imageUrl: item.image || '',
-              imageName: '',
-              status: 'published',
-              timestamp: new Date().toLocaleDateString('zh-TW')
-            });
+
+        const subItems = Array.from(subSet).sort();
+        dynamicMenu[mainCategory] = {
+          hasSubMenu: subItems.length > 0,
+          subItems
+        };
+
+        records.forEach(item => {
+          items.push({
+            id: item.id || `media-${Date.now()}-${Math.random()}`,
+            mainCategory,
+            subCategory: item.subcategory && item.subcategory.trim() !== '' ? item.subcategory.trim() : '',
+            categories: item.subcategory && item.subcategory.trim() !== '' ? [item.subcategory.trim()] : [],
+            name: item.title || '未命名',
+            link: item.url || '#',
+            imageUrl: item.image || '',
+            imageName: '',
+            status: 'published',
+            timestamp: new Date().toLocaleDateString('zh-TW')
           });
         });
-        
-        setMenuItems(dynamicMenu);
-        setAllItems(items);
-      } catch (error) {
-        console.error('載入失敗:', error);
-        showToast('載入資料失敗', 'error');
-      }
-    };
-    fetchData();
+      });
+
+      setMenuItems(dynamicMenu);
+      setAllItems(items);
+    } catch (err) {
+      console.error('載入失敗:', err);
+      setError(err.message);
+      showToast('載入資料失敗', 'error');
+    } finally {
+      setIsLoading(false);
+    }
   }, [showToast]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // 取得子選項
   const childOptions = useMemo(() => {
@@ -264,77 +152,59 @@ const AdminSocialmediaPage = () => {
     return list;
   }, [allItems, parentFilter, childFilter, statusFilter]);
 
-  // DnD 處理
-  const handleDragStart = (event) => {
-    const pageItem = filteredItems.find(item => item.id === event.active.id);
-    setActivePageItem(pageItem);
-  };
+  // 拖曳處理
+  const handleDragEnd = useCallback((activeId, overId) => {
+    if (!overId || activeId === overId) return;
 
-  const handleDragCancel = () => {
-    setActivePageItem(null);
-  };
+    const oldIndex = filteredItems.findIndex(item => item.id === activeId);
+    const newIndex = filteredItems.findIndex(item => item.id === overId);
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) {
-      handleDragCancel();
-      return;
-    }
-    
-    const oldIndex = filteredItems.findIndex(item => item.id === active.id);
-    const newIndex = filteredItems.findIndex(item => item.id === over.id);
-    
-    if (oldIndex === -1 || newIndex === -1) {
-      handleDragCancel();
-      return;
-    }
+    if (oldIndex === -1 || newIndex === -1) return;
 
     setAllItems(prevItems => {
       const newItems = [...prevItems];
       const reorderedFiltered = [...filteredItems];
       const [movedItem] = reorderedFiltered.splice(oldIndex, 1);
       reorderedFiltered.splice(newIndex, 0, movedItem);
-      
+
       reorderedFiltered.forEach((item) => {
         const globalIndex = newItems.findIndex(i => i.id === item.id);
         if (globalIndex !== -1) {
           newItems[globalIndex] = { ...item };
         }
       });
-      
+
       return newItems;
     });
-
-    handleDragCancel();
-  };
+  }, [filteredItems]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setAttemptedSubmit(true);
-    
+
     if (!name.trim()) {
       showToast('請輸入名稱', 'warning');
       return;
     }
-    
+
     if (pickedCategories.length === 0) {
       showToast('請至少選擇一個類別', 'warning');
       return;
     }
-    
+
     try {
       new URL(link);
     } catch {
       showToast('請輸入有效的連結 URL', 'warning');
       return;
     }
-    
+
     const now = new Date();
     const ts = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-    
+
     if (isEditing && currentEditId) {
-      setAllItems(prev => prev.map(i => 
-        i.id === currentEditId 
+      setAllItems(prev => prev.map(i =>
+        i.id === currentEditId
           ? { ...i, name, link, categories: pickedCategories, imageName: imageName || i.imageName, imageUrl: imageUrl || i.imageUrl }
           : i
       ));
@@ -352,23 +222,23 @@ const AdminSocialmediaPage = () => {
       }, ...prev]);
       showToast('項目已新增', 'success');
     }
-    
+
     setShowModal(false);
   };
 
   const validateAndSetImage = (file) => {
     if (!file) return;
-    
+
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
       showToast('只接受 JPG 或 PNG 格式', 'warning');
       return;
     }
-    
+
     if (file.size > 2 * 1024 * 1024) {
       showToast('檔案大小不能超過 2MB', 'warning');
       return;
     }
-    
+
     setImageName(file.name);
     setImageUrl(URL.createObjectURL(file));
   };
@@ -376,7 +246,7 @@ const AdminSocialmediaPage = () => {
   const handleDeleteClick = (id) => {
     const item = allItems.find(i => i.id === id);
     if (!item) return;
-    
+
     const newStatus = item.status === 'published' ? 'archived' : 'published';
     setAllItems(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));
     showToast(newStatus === 'archived' ? '項目已封存' : '項目已恢復', 'success');
@@ -402,11 +272,91 @@ const AdminSocialmediaPage = () => {
     return arr;
   }, [menuItems]);
 
+  // 定義表格欄位
+  const columns = useMemo(() => [
+    {
+      id: 'edit',
+      header: '編輯',
+      size: 50,
+      enableSorting: false,
+      cell: ({ row }) => (
+        <button className="admin-action-btn edit-btn" onClick={() => openEdit(row.original)}>
+          <img src={editIcon} alt="編輯" className="admin-action-icon" />
+        </button>
+      )
+    },
+    {
+      id: 'category',
+      header: '類別',
+      enableSorting: false,
+      cell: ({ row }) => (
+        row.original.mainCategory
+          ? (row.original.subCategory
+            ? `${row.original.mainCategory} > ${row.original.subCategory}`
+            : row.original.mainCategory)
+          : (row.original.categories && row.original.categories.length > 0
+            ? row.original.categories.join(', ')
+            : '—')
+      )
+    },
+    {
+      accessorKey: 'name',
+      header: '內容 (限20字)',
+      enableSorting: true,
+    },
+    {
+      accessorKey: 'link',
+      header: '連結',
+      enableSorting: false,
+      cell: ({ row }) => (
+        <a href={row.original.link} target="_blank" rel="noopener noreferrer">
+          {row.original.link}
+        </a>
+      )
+    },
+    {
+      id: 'image',
+      header: '圖片',
+      enableSorting: false,
+      cell: ({ row }) => (
+        (row.original.imageUrl || row.original.imageName) ? (
+          <div className="image-preview-cell">
+            <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
+            <span className="file-name-text">
+              {row.original.imageName || row.original.imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
+            </span>
+          </div>
+        ) : (
+          <span className="text-muted">無</span>
+        )
+      )
+    },
+    {
+      id: 'action',
+      header: '操作',
+      size: 50,
+      enableSorting: false,
+      cell: ({ row }) => (
+        <button
+          className={row.original.status === 'archived' ? "admin-action-btn restore-btn" : "admin-action-btn delete-btn"}
+          onClick={() => handleDeleteClick(row.original.id)}
+        >
+          <img src={row.original.status === 'archived' ? uturnIcon : deleteIcon} alt={row.original.status === 'archived' ? "恢復" : "刪除"} className="admin-action-icon" />
+        </button>
+      )
+    },
+    {
+      accessorKey: 'timestamp',
+      header: '建立時間',
+      enableSorting: true,
+    }
+  ], []);
+
   return (
     <div className="admin-content-wrapper">
       <div className="admin-header-controls">
         <h5>
-          首頁搜尋 &gt; 
+          首頁搜尋 &gt;
           {parentFilter !== '全部' && (
             <>
               {parentFilter}
@@ -437,7 +387,7 @@ const AdminSocialmediaPage = () => {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-          
+
           {showChildFilter && (
             <>
               <span className="breadcrumb-separator">&gt;</span>
@@ -468,217 +418,109 @@ const AdminSocialmediaPage = () => {
         </div>
       </div>
 
-      <div className="admin-table-responsive">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
-        >
-          <table className="table table-hover admin-data-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>編輯</th>
-                <th>類別</th>
-                <th>內容 (限20字)</th>
-                <th>連結</th>
-                <th>圖片</th>
-                <th>操作</th>
-                <th>建立時間</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="text-center">
-                    <div className="no-data-message-container">
-                      暫無資料
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                <SortableContext
-                  items={filteredItems.map(item => item.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {filteredItems.map((item) => (
-                    <SortableTableRow
-                      key={item.id}
-                      item={item}
-                      handleEditClick={openEdit}
-                      handleDeleteClick={handleDeleteClick}
-                      statusFilter={statusFilter}
-                    />
-                  ))}
-                </SortableContext>
-              )}
-            </tbody>
-          </table>
+      <AdminDataTable
+        data={filteredItems}
+        columns={columns}
+        enableDragging={true}
+        enableSorting={true}
+        onDragEnd={handleDragEnd}
+        isLoading={isLoading}
+        error={error}
+        onRetry={fetchData}
+        emptyState={{ message: '暫無資料' }}
+      />
 
-          <DragOverlay>
-            {activePageItem ? (
-              <table className="drag-overlay-table">
-                <tbody>
-                  <tr className="dragging-overlay-row">
-                    <td></td>
-                    <td></td>
-                    <td>
-                      {activePageItem.mainCategory
-                        ? (activePageItem.subCategory
-                          ? `${activePageItem.mainCategory} > ${activePageItem.subCategory}`
-                          : activePageItem.mainCategory)
-                        : (activePageItem.categories && activePageItem.categories.length > 0
-                          ? activePageItem.categories.join(', ')
-                          : '—')}
-                    </td>
-                    <td>{activePageItem.name}</td>
-                    <td>
-                      <a href={activePageItem.link} target="_blank" rel="noopener noreferrer">
-                        {activePageItem.link}
-                      </a>
-                    </td>
-                    <td>
-                      {(activePageItem.imageUrl || activePageItem.imageName) ? (
-                        <div className="image-preview-cell">
-                          <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-                          <span className="file-name-text">
-                            {activePageItem.imageName || activePageItem.imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
-                          </span>
-                        </div>
-                      ) : '無'}
-                    </td>
-                    <td></td>
-                    <td>{activePageItem.timestamp}</td>
-                  </tr>
-                </tbody>
-              </table>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      </div>
-
-      {/* Modal */}
-      <div className={`modal ${showModal ? 'show d-block' : 'd-none'}`}>
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header admin-modal-header">
-              <h5 className="modal-title admin-modal-title">
-                {isEditing ? '編輯' : '新增'}項目
-              </h5>
-              <button
-                type="button"
-                className="btn-close admin-btn-close"
-                onClick={closeModal}
-              ></button>
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className="modal-body admin-modal-body">
-                <div className="mb-3">
-                  <label className="form-label admin-form-label">*名稱</label>
-                  <input
-                    type="text"
-                    className={`form-control admin-form-control ${
-                      attemptedSubmit && !name.trim() ? 'is-invalid' : ''
-                    }`}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="form-label admin-form-label">
-                    *類別（至少勾選一個類別）
-                  </label>
-                  {flatCategoryOptions.length === 0 ? (
-                    <div className="text-muted" style={{ fontSize: '0.9rem' }}>
-                      尚無可選分類
-                    </div>
-                  ) : (
-                    <div className="category-grid">
-                      {flatCategoryOptions.map(opt => (
-                        <label key={opt.key} className="form-check-label category-option">
-                          <input
-                            type="checkbox"
-                            className="form-check-input"
-                            checked={pickedCategories.includes(opt.key)}
-                            onChange={() => togglePicked(opt.key)}
-                          />
-                          {' '}
-                          {opt.label}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                  {attemptedSubmit && pickedCategories.length === 0 && (
-                    <div className="invalid-hint">請至少勾選一個類別</div>
-                  )}
-                </div>
-                
-                <div className="mb-3">
-                  <label className="form-label admin-form-label">*圖片</label>
-                  <div className="upload-wrapper">
-                    <label className="upload-btn">
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png"
-                        className="d-none"
-                        onChange={(e) => validateAndSetImage(e.target.files?.[0])}
-                      />
-                      上傳檔案
-                    </label>
-                    <span className="upload-hint">
-                      ※限 JPG、PNG 可上傳，限制 2MB。
-                    </span>
-                  </div>
-                  {(imageName || imageUrl) && (
-                    <div className="image-preview-cell" style={{ marginTop: 8 }}>
-                      <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-                      <span className="file-name-text">
-                        {imageName || imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="mb-3">
-                  <label className="form-label admin-form-label">*連結</label>
-                  <input
-                    type="url"
-                    className={`form-control admin-form-control ${
-                      attemptedSubmit && (() => {
-                        try {
-                          new URL(link);
-                          return false;
-                        } catch {
-                          return true;
-                        }
-                      })() ? 'is-invalid' : ''
-                    }`}
-                    value={link}
-                    onChange={(e) => setLink(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="modal-footer admin-modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary admin-btn-cancel"
-                  onClick={closeModal}
-                >
-                  取消
-                </button>
-                <button type="submit" className="btn btn-primary admin-btn-submit">
-                  送出
-                </button>
-              </div>
-            </form>
-          </div>
+      {/* 使用 AdminModal 組件 */}
+      <AdminModal
+        isOpen={showModal}
+        onClose={closeModal}
+        title={isEditing ? '編輯項目' : '新增項目'}
+        onSubmit={handleSubmit}
+      >
+        <div className="mb-3">
+          <label className="form-label admin-form-label">*名稱</label>
+          <input
+            type="text"
+            className={`form-control admin-form-control ${attemptedSubmit && !name.trim() ? 'is-invalid' : ''
+              }`}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
-      </div>
-      {showModal && <div className="modal-backdrop fade show"></div>}
+
+        <div className="mb-3">
+          <label className="form-label admin-form-label">
+            *類別（至少勾選一個類別）
+          </label>
+          {flatCategoryOptions.length === 0 ? (
+            <div className="text-muted" style={{ fontSize: '0.9rem' }}>
+              尚無可選分類
+            </div>
+          ) : (
+            <div className="category-grid">
+              {flatCategoryOptions.map(opt => (
+                <label key={opt.key} className="form-check-label category-option">
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    checked={pickedCategories.includes(opt.key)}
+                    onChange={() => togglePicked(opt.key)}
+                  />
+                  {' '}
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          )}
+          {attemptedSubmit && pickedCategories.length === 0 && (
+            <div className="invalid-hint">請至少勾選一個類別</div>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label admin-form-label">*圖片</label>
+          <div className="upload-wrapper">
+            <label className="upload-btn">
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                className="d-none"
+                onChange={(e) => validateAndSetImage(e.target.files?.[0])}
+              />
+              上傳檔案
+            </label>
+            <span className="upload-hint">
+              ※限 JPG、PNG 可上傳，限制 2MB。
+            </span>
+          </div>
+          {(imageName || imageUrl) && (
+            <div className="image-preview-cell" style={{ marginTop: 8 }}>
+              <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
+              <span className="file-name-text">
+                {imageName || imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label admin-form-label">*連結</label>
+          <input
+            type="url"
+            className={`form-control admin-form-control ${attemptedSubmit && (() => {
+                try {
+                  new URL(link);
+                  return false;
+                } catch {
+                  return true;
+                }
+              })() ? 'is-invalid' : ''
+              }`}
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+          />
+        </div>
+      </AdminModal>
     </div>
   );
 };

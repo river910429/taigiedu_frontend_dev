@@ -64,7 +64,7 @@
 
 .admin-data-table tbody tr:hover {
     background-color: #e2f0fa;
-    box-shadow: 0 .25rem .5rem rgba(0,0,0,.1);
+    box-shadow: 0 .25rem .5rem rgba(0, 0, 0, .1);
     transform: translateY(-2px);
 }
 
@@ -102,9 +102,10 @@
 
 /* ===== 拖曳相關樣式 ===== */
 .drag-handle-column {
-    width: 40px;
+    /* width: 40px; */
     text-align: center;
     cursor: grab;
+    background-color: #e2e2e2 !important;
 }
 
 .drag-handle-btn {
@@ -144,7 +145,7 @@
     z-index: 9999;
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     opacity: 0.95;
     pointer-events: none;
 }
@@ -196,14 +197,19 @@
 }
 
 @keyframes admin-table-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .admin-table-empty {
     background-color: #fff;
     border-radius: .25rem;
-    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
     padding: 3rem 1rem;
     color: #6c757d;
     font-size: 1.1rem;

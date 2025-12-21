@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useToast } from '../../../../components/Toast';
+import AdminModal from '../../../../components/AdminModal';
+import AdminDataTable from '../../../../components/AdminDataTable';
 import './adminExamInfo.css';
 import editIcon from '../../../../assets/adminPage/pencil.svg';
 import deleteIcon from '../../../../assets/adminPage/trash.svg';
@@ -10,31 +12,25 @@ import jpgIconImage from '../../../../assets/adminPage/jpg icon.svg';
 const AdminExamInfo = () => {
   const { showToast } = useToast();
   const [examTypes, setExamTypes] = useState([]);
-  const [displayItems, setDisplayItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('published');
   const [showAddModal, setShowAddModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
-  const [sortField, setSortField] = useState('name');
-  const [sortDirection, setSortDirection] = useState('asc');
 
   // Form fields
   const [newName, setNewName] = useState('');
   const [newLink, setNewLink] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [imageFile, setImageFile] = useState(null);
   const [imageName, setImageName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     fetchExamTypes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    filterAndSortItems();
-  }, [examTypes, statusFilter, sortField, sortDirection]);
-
   const fetchExamTypes = () => {
-    // Mock data - 將來串接 API
     const mockData = [
       {
         id: 1,
@@ -58,35 +54,13 @@ const AdminExamInfo = () => {
     setExamTypes(mockData);
   };
 
-  const filterAndSortItems = () => {
-    let filtered = examTypes.filter(item => item.status === statusFilter);
-    
-    // Sorting
-    filtered.sort((a, b) => {
-      const aValue = a[sortField]?.toString().toLowerCase() || '';
-      const bValue = b[sortField]?.toString().toLowerCase() || '';
-      
-      if (sortDirection === 'asc') {
-        return aValue.localeCompare(bValue, 'zh-TW');
-      } else {
-        return bValue.localeCompare(aValue, 'zh-TW');
-      }
-    });
-    
-    setDisplayItems(filtered);
-  };
+  // 過濾資料
+  const displayItems = useMemo(() => {
+    return examTypes.filter(item => item.status === statusFilter);
+  }, [examTypes, statusFilter]);
 
   const handleStatusFilterChange = (e) => {
     setStatusFilter(e.target.value);
-  };
-
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
   };
 
   const handleAddClick = () => {
@@ -124,17 +98,17 @@ const AdminExamInfo = () => {
 
   const validateAndSetImage = (file) => {
     if (!file) return;
-    
+
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
       showToast('只接受 JPG 或 PNG 格式', 'warning');
       return;
     }
-    
+
     if (file.size > 2 * 1024 * 1024) {
       showToast('檔案大小不能超過 2MB', 'warning');
       return;
     }
-    
+
     setImageFile(file);
     setImageName(file.name);
     setImageUrl(URL.createObjectURL(file));
@@ -156,7 +130,6 @@ const AdminExamInfo = () => {
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
-    // Validate URL
     try {
       new URL(newLink);
     } catch {
@@ -197,10 +170,80 @@ const AdminExamInfo = () => {
     handleModalClose();
   };
 
-  const getSortArrow = (field) => {
-    if (sortField !== field) return '↓';
-    return sortDirection === 'asc' ? '↑' : '↓';
-  };
+  // 拖曳處理
+  const handleDragEnd = useCallback((activeId, overId) => {
+    if (!overId) return;
+
+    setExamTypes(prev => {
+      const oldIndex = prev.findIndex(i => i.id === activeId);
+      const newIndex = prev.findIndex(i => i.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+
+      const newItems = [...prev];
+      const [removed] = newItems.splice(oldIndex, 1);
+      newItems.splice(newIndex, 0, removed);
+      return newItems;
+    });
+  }, []);
+
+  // 定義表格欄位
+  const columns = useMemo(() => [
+    {
+      id: 'edit',
+      header: '',
+      size: 50,
+      enableSorting: false,
+      cell: ({ row }) => (
+        <button className="admin-action-btn edit-btn" onClick={() => handleEditClick(row.original)}>
+          <img src={editIcon} alt="編輯" className="admin-action-icon" />
+        </button>
+      )
+    },
+    {
+      accessorKey: 'name',
+      header: '名稱',
+      enableSorting: true,
+    },
+    {
+      id: 'image',
+      header: '圖片',
+      size: 200,
+      enableSorting: false,
+      cell: ({ row }) => (
+        <div className="image-preview-cell">
+          <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
+          <span className="file-name-text">{row.original.imageName}</span>
+        </div>
+      )
+    },
+    {
+      accessorKey: 'link',
+      header: '連結',
+      enableSorting: false,
+      cell: ({ row }) => (
+        <a href={row.original.link} target="_blank" rel="noopener noreferrer" className="admin-link">
+          {row.original.link}
+        </a>
+      )
+    },
+    {
+      id: 'action',
+      header: '',
+      size: 50,
+      enableSorting: false,
+      cell: ({ row }) => (
+        statusFilter === 'published' ? (
+          <button className="admin-action-btn delete-btn" onClick={() => handleDeleteClick(row.original.id)}>
+            <img src={deleteIcon} alt="刪除" className="admin-action-icon" />
+          </button>
+        ) : (
+          <button className="admin-action-btn restore-btn" onClick={() => handleRestoreClick(row.original.id)}>
+            <img src={uturnIcon} alt="恢復" className="admin-action-icon" />
+          </button>
+        )
+      )
+    }
+  ], [statusFilter]);
 
   return (
     <div className="admin-exam-info-page p-4">
@@ -227,135 +270,73 @@ const AdminExamInfo = () => {
         </div>
       </div>
 
-      <div className="admin-table-responsive">
-        <table className="table table-hover admin-data-table">
-          <thead>
-            <tr>
-              <th style={{ width: '50px' }}></th>
-              <th className="admin-table-header" onClick={() => handleSort('name')}>
-                名稱 <span className="sort-arrow">{getSortArrow('name')}</span>
-              </th>
-              <th style={{ width: '200px' }}>圖片</th>
-              <th>連結</th>
-              <th style={{ width: '50px' }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayItems.map((item) => (
-              <tr key={item.id}>
-                <td>
-                  <button className="admin-action-btn edit-btn" onClick={() => handleEditClick(item)}>
-                    <img src={editIcon} alt="編輯" className="admin-action-icon" />
-                  </button>
-                </td>
-                <td>{item.name}</td>
-                <td>
-                  <div className="image-preview-cell">
-                    <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-                    <span className="file-name-text">{item.imageName}</span>
-                  </div>
-                </td>
-                <td>
-                  <a href={item.link} target="_blank" rel="noopener noreferrer" className="admin-link">
-                    {item.link}
-                  </a>
-                </td>
-                <td>
-                  {statusFilter === 'published' ? (
-                    <button className="admin-action-btn delete-btn" onClick={() => handleDeleteClick(item.id)}>
-                      <img src={deleteIcon} alt="刪除" className="admin-action-icon" />
-                    </button>
-                  ) : (
-                    <button className="admin-action-btn restore-btn" onClick={() => handleRestoreClick(item.id)}>
-                      <img src={uturnIcon} alt="恢復" className="admin-action-icon" />
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <AdminDataTable
+        data={displayItems}
+        columns={columns}
+        enableDragging={true}
+        enableSorting={true}
+        onDragEnd={handleDragEnd}
+        emptyState={{ message: '目前沒有認證類型資料' }}
+      />
 
-      {/* Modal */}
-      <div
-        className={`modal fade ${showAddModal ? 'show' : ''}`}
-        style={{ display: showAddModal ? 'block' : 'none' }}
-        tabIndex="-1"
-        role="dialog"
+      {/* 使用 AdminModal 組件 */}
+      <AdminModal
+        isOpen={showAddModal}
+        onClose={handleModalClose}
+        title={isEditing ? '編輯項目' : '新增項目'}
+        onSubmit={handleFormSubmit}
       >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content admin-modal-content">
-            <div className="modal-header admin-modal-header">
-              <h5 className="modal-title">{isEditing ? '編輯項目' : '新增項目'}</h5>
-              <button type="button" className="btn-close" onClick={handleModalClose}></button>
-            </div>
-            <form onSubmit={handleFormSubmit}>
-              <div className="modal-body admin-modal-body">
-                <div className="mb-3">
-                  <label htmlFor="newName" className="form-label admin-form-label">
-                    *名稱
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control admin-form-control"
-                    id="newName"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label admin-form-label">*圖片</label>
-                  <div className="upload-wrapper">
-                    <label className="upload-btn">
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png"
-                        className="d-none"
-                        onChange={(e) => validateAndSetImage(e.target.files?.[0])}
-                      />
-                      上傳檔案
-                    </label>
-                    <span className="upload-hint">※限 JPG、PNG 可上傳，限制 2MB。</span>
-                  </div>
-                  {imageName && (
-                    <div className="image-preview-cell" style={{ marginTop: 8 }}>
-                      <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-                      <span className="file-name-text">{imageName}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mb-3">
-                  <label htmlFor="newLink" className="form-label admin-form-label">
-                    *連結
-                  </label>
-                  <input
-                    type="url"
-                    className="form-control admin-form-control"
-                    id="newLink"
-                    value={newLink}
-                    onChange={(e) => setNewLink(e.target.value)}
-                    placeholder="https://example.com"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="modal-footer admin-modal-footer">
-                <button type="button" className="btn btn-secondary admin-btn-cancel" onClick={handleModalClose}>
-                  取消
-                </button>
-                <button type="submit" className="btn btn-primary admin-btn-submit">
-                  送出
-                </button>
-              </div>
-            </form>
-          </div>
+        <div className="mb-3">
+          <label htmlFor="newName" className="form-label admin-form-label">
+            *名稱
+          </label>
+          <input
+            type="text"
+            className="form-control admin-form-control"
+            id="newName"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            required
+          />
         </div>
-      </div>
-      {showAddModal && <div className="modal-backdrop fade show"></div>}
+
+        <div className="mb-3">
+          <label className="form-label admin-form-label">*圖片</label>
+          <div className="upload-wrapper">
+            <label className="upload-btn">
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                className="d-none"
+                onChange={(e) => validateAndSetImage(e.target.files?.[0])}
+              />
+              上傳檔案
+            </label>
+            <span className="upload-hint">※限 JPG、PNG 可上傳，限制 2MB。</span>
+          </div>
+          {imageName && (
+            <div className="image-preview-cell" style={{ marginTop: 8 }}>
+              <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
+              <span className="file-name-text">{imageName}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="newLink" className="form-label admin-form-label">
+            *連結
+          </label>
+          <input
+            type="url"
+            className="form-control admin-form-control"
+            id="newLink"
+            value={newLink}
+            onChange={(e) => setNewLink(e.target.value)}
+            placeholder="https://example.com"
+            required
+          />
+        </div>
+      </AdminModal>
     </div>
   );
 };

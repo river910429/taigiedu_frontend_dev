@@ -1,0 +1,82 @@
+/* ===== AdminModal 通用 Modal 樣式 ===== */
+
+/* Modal 內容容器 */
+.admin-modal-content {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal Header */
+.admin-modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 1.5rem;
+}
+
+.admin-modal-header .modal-title {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Modal Body - 移除不必要的 padding */
+.admin-modal-body {
+    padding: 1.5rem;
+}
+
+/* Modal Footer */
+.admin-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+/* 表單標籤 */
+.admin-form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+/* 表單控制項 */
+.admin-form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 0.75rem;
+}
+
+.admin-form-control:focus {
+    border-color: #2D92C1;
+    box-shadow: 0 0 0 0.2rem rgba(45, 146, 193, 0.25);
+}
+
+/* 取消按鈕 */
+.admin-btn-cancel {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.admin-btn-cancel:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* 送出按鈕 */
+.admin-btn-submit {
+    background-color: #2D92C1;
+    border-color: #2D92C1;
+}
+
+.admin-btn-submit:hover {
+    background-color: #258db8;
+    border-color: #2387b0;
+}
+
+/* 表單群組間距 */
+.admin-modal-body .mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.admin-modal-body .mb-3:last-child {
+    margin-bottom: 0 !important;
+}

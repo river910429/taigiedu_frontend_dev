@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { createColumnHelper } from '@tanstack/react-table';
 import { useToast } from '../../../components/Toast';
 import AdminDataTable from '../../../components/AdminDataTable';
+import AdminModal from '../../../components/AdminModal';
 import './adminTestPage.css';
 import editIcon from '../../../assets/adminPage/pencil.svg';
 import deleteIcon from '../../../assets/adminPage/trash.svg';
 import addIcon from '../../../assets/adminPage/plus.svg';
 import uturnIcon from '../../../assets/adminPage/uturn.svg';
+
 
 const columnHelper = createColumnHelper();
 
@@ -381,90 +383,56 @@ const AdminTestPage = () => {
                 emptyState={{ message: '目前沒有公告資料' }}
             />
 
-            {/* 新增/編輯 Modal */}
-            <div
-                className={`modal fade ${showAddModal ? 'show' : ''}`}
-                style={{ display: showAddModal ? 'block' : 'none' }}
-                tabIndex="-1"
-                role="dialog"
-                aria-labelledby="addModalLabel"
-                aria-hidden={!showAddModal}
+            {/* 使用 AdminModal 組件 */}
+            <AdminModal
+                isOpen={showAddModal}
+                onClose={handleModalClose}
+                title={isEditing ? '編輯項目' : '新增項目'}
+                onSubmit={handleFormSubmit}
             >
-                <div className="modal-dialog modal-dialog-centered" role="document">
-                    <div className="modal-content admin-modal-content">
-                        <div className="modal-header admin-modal-header">
-                            <h5 className="modal-title" id="addModalLabel">
-                                {isEditing ? '編輯項目' : '新增項目'}
-                            </h5>
-                            <button
-                                type="button"
-                                className="btn-close"
-                                aria-label="Close"
-                                onClick={handleModalClose}
-                            ></button>
-                        </div>
-                        <form onSubmit={handleFormSubmit}>
-                            <div className="modal-body admin-modal-body">
-                                <div className="mb-3">
-                                    <label htmlFor="newCategory" className="form-label admin-form-label">
-                                        *類別
-                                    </label>
-                                    <select
-                                        className="form-select admin-form-control"
-                                        id="newCategory"
-                                        value={newCategory}
-                                        onChange={(e) => setNewCategory(e.target.value)}
-                                        required
-                                    >
-                                        <option value="" disabled>請選擇類別</option>
-                                        <option value="教育部">教育部</option>
-                                        <option value="成大">成大</option>
-                                    </select>
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="newContent" className="form-label admin-form-label">
-                                        *內容 (限20字)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="form-control admin-form-control"
-                                        id="newContent"
-                                        value={newContent}
-                                        onChange={(e) => setNewContent(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="newLink" className="form-label admin-form-label">
-                                        *連結
-                                    </label>
-                                    <input
-                                        type="url"
-                                        className="form-control admin-form-control"
-                                        id="newLink"
-                                        value={newLink}
-                                        onChange={(e) => setNewLink(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="modal-footer admin-modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary admin-btn-cancel"
-                                    onClick={handleModalClose}
-                                >
-                                    取消
-                                </button>
-                                <button type="submit" className="btn btn-primary admin-btn-submit">
-                                    送出
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                <div className="mb-3">
+                    <label htmlFor="newCategory" className="form-label admin-form-label">
+                        *類別
+                    </label>
+                    <select
+                        className="form-select admin-form-control"
+                        id="newCategory"
+                        value={newCategory}
+                        onChange={(e) => setNewCategory(e.target.value)}
+                        required
+                    >
+                        <option value="" disabled>請選擇類別</option>
+                        <option value="教育部">教育部</option>
+                        <option value="成大">成大</option>
+                    </select>
                 </div>
-            </div>
-            {showAddModal && <div className="modal-backdrop fade show"></div>}
+                <div className="mb-3">
+                    <label htmlFor="newContent" className="form-label admin-form-label">
+                        *內容 (限20字)
+                    </label>
+                    <input
+                        type="text"
+                        className="form-control admin-form-control"
+                        id="newContent"
+                        value={newContent}
+                        onChange={(e) => setNewContent(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="newLink" className="form-label admin-form-label">
+                        *連結
+                    </label>
+                    <input
+                        type="url"
+                        className="form-control admin-form-control"
+                        id="newLink"
+                        value={newLink}
+                        onChange={(e) => setNewLink(e.target.value)}
+                        required
+                    />
+                </div>
+            </AdminModal>
         </div>
     );
 };

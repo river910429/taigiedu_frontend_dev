@@ -50,11 +50,13 @@ const SortableTableRow = ({ row, children }) => {
 
     return (
         <tr ref={setNodeRef} style={style} className={isDragging ? 'dragging-row' : ''}>
-            {/* 拖曳句柄 */}
-            <td className="drag-handle-column">
-                <button className="drag-handle-btn" {...listeners} {...attributes}>
-                    <img src={dragIcon} alt="拖曳" className="drag-handle-icon" />
-                </button>
+            {/* 拖曳句柄 - 整個 cell 都可以拖曳 */}
+            <td
+                className="drag-handle-column"
+                {...listeners}
+                {...attributes}
+            >
+                <img src={dragIcon} alt="拖曳" className="drag-handle-icon" />
             </td>
             {children}
         </tr>
@@ -183,7 +185,7 @@ const AdminDataTable = ({
                 {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id}>
                         {/* 拖曳列的空表頭 */}
-                        {enableDragging && <th style={{ width: '40px' }}></th>}
+                        {enableDragging && <th className="drag-handle-column" style={{ width: '40px' }}></th>}
                         {headerGroup.headers.map((header) => (
                             <th
                                 key={header.id}
