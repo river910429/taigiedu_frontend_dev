@@ -16,8 +16,12 @@ const TermsDialog = ({ isOpen, onClose, onAccept, type = 'terms' }) => {
 
     useEffect(() => {
         if (isOpen) {
+            const baseUrl = import.meta.env.BASE_URL.endsWith('/')
+                ? import.meta.env.BASE_URL.slice(0, -1)
+                : import.meta.env.BASE_URL;
+
             // 讀取 markdown 文件
-            fetch(markdownFile)
+            fetch(`${baseUrl}${markdownFile}`)
                 .then((response) => response.text())
                 .then((text) => setContent(text))
                 .catch((error) => console.error('Error loading document:', error));
