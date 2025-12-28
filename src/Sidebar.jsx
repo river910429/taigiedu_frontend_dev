@@ -83,12 +83,6 @@ const Sidebar = () => {
     navigate(path);
   };
 
-  useEffect(() => {
-    // 預設選取主頁，但不進行導頁，避免非主頁路由被強制跳回首頁
-    setActiveItem(1);
-  }, []);
-
-
   return (
     <div className="sidebar">
       {menuItems.map((item) => (
