@@ -23,7 +23,11 @@ const TermsDialog = ({ isOpen, onClose, onAccept, type = 'terms' }) => {
             // 讀取 markdown 文件
             fetch(`${baseUrl}${markdownFile}`)
                 .then((response) => response.text())
-                .then((text) => setContent(text))
+                .then((text) => {
+                    // 移除第一行的 H1 大標題，因為對話框已經有標題了
+                    const processedText = text.replace(/^#\s+.*(\r?\n)*/, '').trim();
+                    setContent(processedText);
+                })
                 .catch((error) => console.error('Error loading document:', error));
 
             // 重置狀態
