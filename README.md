@@ -1,8 +1,204 @@
-# React + Vite
+# 臺語文學習平台 (TaiwaneseOMG)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+這是一個專為臺語文學習而設計的互動式網頁平台，提供豐富的學習資源、翻譯工具、以及文化內容，幫助使用者深入了解並學習臺灣本土語言。
 
-Currently, two official plugins are available:
+## 專案特色
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎯 **多功能學習工具**：包含翻譯、轉譯、詞彙查詢等實用功能
+- 📚 **豐富的教育資源**：提供認證考試、推薦用書、教育頻道等學習資源
+- 🎭 **文化內容**：介紹臺灣節慶、飲食文化、名人等在地文化
+- 📱 **響應式設計**：支援各種裝置，隨時隨地學習
+- 🔐 **會員系統**：個人化學習體驗與進度追蹤
+
+## 技術棧
+
+- **前端框架**：React 18.3+ with Vite
+- **路由管理**：React Router DOM 6.27+
+- **樣式**：原生 CSS
+- **Markdown 渲染**：React Markdown
+- **拖放功能**：@dnd-kit
+
+## 本地開發環境設置
+
+### 前置需求
+
+確保您的系統已安裝以下工具：
+
+- **Node.js**: 建議版本 18.0 或以上
+- **npm**: 隨 Node.js 一起安裝
+
+### 安裝步驟
+
+1. **克隆專案**
+
+```bash
+git clone https://github.com/your-username/taiwaneseOMG.git
+cd taiwaneseOMG
+```
+
+2. **安裝依賴套件**
+
+```bash
+npm install
+```
+
+3. **設定環境變數**
+
+根據您的開發需求，設置對應的環境變數檔案：
+
+#### 開發環境 (.env.development)
+
+在專案根目錄建立 `.env.development` 檔案：
+
+```env
+# 開發環境設定
+VITE_BASE_PATH=/
+VITE_API_URL=https://dev.taigiedu.com/backend
+VITE_IMAGE_URL=https://dev.taigiedu.com
+```
+
+#### 正式環境 (.env.production)
+
+在專案根目錄建立 `.env.production` 檔案：
+
+```env
+# 正式環境設定
+VITE_BASE_PATH=/
+VITE_API_URL=https://api.taigiedu.com/backend
+VITE_IMAGE_URL=https://taigiedu.com
+```
+
+**環境變數說明：**
+
+- `VITE_BASE_PATH`: 應用程式的基礎路徑
+  - 本地/正式環境：`/`
+  - GitHub Pages 部署：`/taiwaneseOMG/`
+- `VITE_API_URL`: 後端 API 伺服器位址
+- `VITE_IMAGE_URL`: 圖片資源伺服器位址
+
+💡 **提示**：可以參考 `.env.example` 檔案查看完整的環境變數範例
+
+### 啟動開發伺服器
+
+```bash
+npm run dev
+```
+
+開發伺服器將在 `http://localhost:5173` 啟動（預設埠號可能會根據可用性而變化）
+
+### 建置專案
+
+**開發環境建置：**
+```bash
+npm run build
+```
+
+**GitHub Pages 建置：**
+```bash
+npm run build:github
+```
+
+**正式環境建置：**
+```bash
+npm run build:prod
+```
+
+建置完成後，產出檔案將位於 `dist/` 目錄。
+
+### 預覽建置結果
+
+```bash
+npm run preview
+```
+
+## 專案結構
+
+```
+taiwaneseOMG/
+├── src/
+│   ├── components/         # 可重用元件
+│   ├── assets/            # 靜態資源（圖片、圖示等）
+│   ├── styles/            # 共用樣式檔案
+│   ├── celebrity/         # 名人介紹頁面
+│   ├── culture/           # 文化相關頁面
+│   ├── examPage/          # 認證考試頁面
+│   ├── resourcePage/      # 學習資源頁面
+│   ├── translatePage/     # 翻譯工具頁面
+│   ├── transcriptPage/    # 轉譯工具頁面
+│   ├── phrasePage/        # 詞彙頁面
+│   ├── readPage/          # 閱讀頁面
+│   ├── socialmediaPage/   # 社群媒體頁面
+│   ├── App.jsx            # 主應用程式元件
+│   └── main.jsx           # 應用程式入口
+├── public/                # 公開靜態檔案
+├── docs/                  # 文件資料
+│   └── legal/            # 法律文件（條款、隱私政策）
+├── .env.example          # 環境變數範例
+├── package.json          # 專案配置與依賴
+└── vite.config.js        # Vite 配置檔案
+```
+
+## 開發指引
+
+### 程式碼風格
+
+本專案使用 ESLint 進行程式碼檢查：
+
+```bash
+npm run lint
+```
+
+### 新增頁面
+
+1. 在對應的資料夾中建立新的 `.jsx` 和 `.css` 檔案
+2. 在 `App.jsx` 中註冊新路由
+3. 更新 `Sidebar.jsx` 以加入導航連結（如需要）
+
+### 環境變數使用
+
+在程式碼中使用環境變數：
+
+```javascript
+const apiUrl = import.meta.env.VITE_API_URL;
+const imagePath = `${import.meta.env.VITE_IMAGE_URL}/path/to/image.jpg`;
+```
+
+## 部署
+
+### GitHub Pages
+
+使用 GitHub Actions 自動部署：
+
+1. 確保 `.github/workflows/` 中有正確的部署配置
+2. 推送到指定分支（如 `main` 或 `develop`）
+3. GitHub Actions 將自動建置並部署
+
+### 其他平台
+
+1. 執行對應的建置指令
+2. 將 `dist/` 目錄的內容部署到目標伺服器
+
+## 貢獻指南
+
+歡迎提交 Issue 和 Pull Request！
+
+1. Fork 本專案
+2. 建立您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 開啟一個 Pull Request
+
+## 授權
+
+本專案採用 MIT 授權條款 - 詳見 LICENSE 檔案
+
+## 聯絡方式
+
+如有任何問題或建議，歡迎透過以下方式聯繫：
+
+- 專案 Issue: [GitHub Issues](https://github.com/your-username/taiwaneseOMG/issues)
+- Email: your-email@example.com
+
+---
+
+**用心學習，傳承臺語文化** 🇹🇼

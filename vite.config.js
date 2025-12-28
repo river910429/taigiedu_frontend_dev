@@ -11,7 +11,7 @@ export default defineConfig({
     allowedHosts: ['dev.taigiedu.com']
   },
 
-  base: '/',
+  base: process.env.VITE_BASE_PATH || '/',
   server: {
     host: true, // 添加這行
     port: 3000, // 可以指定端口

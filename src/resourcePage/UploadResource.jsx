@@ -63,60 +63,60 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
       showToast("請上傳檔案！", "error");
       return;
     }
-    
+
     setIsProcessing(true);
 
     try {
       // 從 localStorage 獲取用戶 ID
       const userId = localStorage.getItem("userId") || "1"; // 如果沒有 userId，默認為 1
-      
+
       // 準備 FormData
       const apiFormData = new FormData();
-      
+
       // 上傳者資訊
       apiFormData.append("uploader_id", userId);
       apiFormData.append("uploader_name", "使用者"); // 可以從 localStorage 獲取或設置為固定值
-      
+
       // 資源資訊
       apiFormData.append("title", formData.name);
       apiFormData.append("grade", formData.grade);
-      
+
       // 處理版本，如果是其他則使用自定義輸入
       const version = formData.version === "其他" ? formData.versionOther : formData.version;
       apiFormData.append("version", version);
-      
+
       apiFormData.append("book", formData.book);
-      
+
       // 處理內容類型，如果是其他則使用自定義輸入
       const contentType = formData.contentType === "其他" ? formData.contentTypeOther : formData.contentType;
       apiFormData.append("contentType", contentType);
-      
+
       // 從檔案擴展名獲取檔案類型
       const fileType = formData.file.name.split('.').pop().toLowerCase();
       apiFormData.append("fileType", fileType);
-      
+
       // 初始統計
       apiFormData.append("likes", 0);
       apiFormData.append("downloads", 0);
-      
+
       // 標籤 (可以從其他字段構建，這裡用名稱和版本作為示例)
       apiFormData.append("tags", `${formData.grade},${version},${contentType}`);
-      
+
       // 主檔案
       apiFormData.append("file", formData.file);
-      
+
       // 發送 API 請求
-      const response = await fetch("https://dev.taigiedu.com/backend/api/resource/upload", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/upload`, {
         method: "POST",
         body: apiFormData,
       });
-      
+
       const result = await response.json();
-      
+
       if (response.ok && result.status === "success") {
         setIsSuccess(true);
         showToast(result.data.message || "資源上傳成功！", "success");
-        
+
         // 延遲關閉視窗，讓用戶看到成功訊息
         setTimeout(() => {
           handleClose();
@@ -348,20 +348,19 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
           <div className="upload-resource-footer">
             <button
               type="submit"
-              className={`submit-button ${
-                isProcessing
+              className={`submit-button ${isProcessing
                   ? "processing"
                   : isSuccess
-                  ? "success-button"
-                  : formData.name &&
-                    formData.grade &&
-                    formData.version &&
-                    formData.book &&
-                    formData.contentType &&
-                    formData.file
-                  ? "enabled"
-                  : "disabled"
-              }`}
+                    ? "success-button"
+                    : formData.name &&
+                      formData.grade &&
+                      formData.version &&
+                      formData.book &&
+                      formData.contentType &&
+                      formData.file
+                      ? "enabled"
+                      : "disabled"
+                }`}
               disabled={isProcessing || isSuccess} // 處理中或成功時禁用按鈕
             >
               {isProcessing ? (
@@ -373,9 +372,9 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
                     className="loading-icon"
                   />
                 </>
-              )  : isSuccess ? (
+              ) : isSuccess ? (
                 "上傳成功！"
-              ): (
+              ) : (
                 "送出"
               )}
             </button>
