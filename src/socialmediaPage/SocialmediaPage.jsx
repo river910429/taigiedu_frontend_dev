@@ -16,6 +16,7 @@ const SocialmediaPage = () => {
     // 新增 API 相關狀態
     const [socialMediaData, setSocialMediaData] = useState({});
     const [menuItems, setMenuItems] = useState({});
+    const [categoryOrder, setCategoryOrder] = useState([]);  // 新增：儲存類別順序
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -38,57 +39,62 @@ const SocialmediaPage = () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
-            const data = await response.json();
-            console.log('Social Media API Response:', data);
-
+            
+            const apiResponse = await response.json();
+            console.log('Social Media API Response:', apiResponse);
+            
+            // 解構 API 回應，支援新格式和舊格式
+            const { category_order, data } = apiResponse;
+            const actualData = data || apiResponse;  // 向後相容：如果沒有 data 欄位，使用整個回應
+            
+            // 決定類別順序：使用 category_order 或 fallback 到 Object.keys()
+            const orderedCategories = category_order || Object.keys(actualData);
+            
             // 將 API 回傳的資料格式化為適合顯示的格式
             const formattedData = {};
             const dynamicMenuItems = {};
-
-            Object.keys(data).forEach(category => {
-                if (category === "") {
-                    // 處理空字串類別，可能是未分類項目
-                    if (data[category].length > 0) {
-                        // 為圖片添加前綴
-                        const formattedItems = data[category].map(item => ({
-                            ...item,
-                            image: item.image ? `${import.meta.env.VITE_IMAGE_URL}${item.image}` : null
-                        }));
-                        formattedData["其他"] = formattedItems;
-                        dynamicMenuItems["其他"] = { hasSubMenu: false };
-                    }
+            
+            // 使用 orderedCategories 來迭代，確保順序正確
+            orderedCategories.forEach(category => {
+                // 如果該類別在 data 中不存在，跳過（顯示空白）
+                if (!actualData[category]) {
+                    return;
+                }
+                
+                // 為圖片添加前綴
+                const formattedItems = actualData[category].map(item => ({
+                    ...item,
+                    image: item.image ? `https://dev.taigiedu.com${item.image}` : null
+                }));
+                
+                // 保持類別名稱不變（包括空字串）
+                formattedData[category] = formattedItems;
+                
+                // 檢查是否有子分類
+                const subCategories = [...new Set(actualData[category]
+                    .filter(item => item.subcategory && item.subcategory.trim() !== "")
+                    .map(item => item.subcategory))];
+                
+                if (subCategories.length > 0) {
+                    dynamicMenuItems[category] = {
+                        hasSubMenu: true,
+                        subItems: subCategories
+                    };
                 } else {
-                    // 為圖片添加前綴
-                    const formattedItems = data[category].map(item => ({
-                        ...item,
-                        image: item.image ? `${import.meta.env.VITE_IMAGE_URL}${item.image}` : null
-                    }));
-                    formattedData[category] = formattedItems;
-
-                    // 檢查是否有子分類
-                    const subCategories = [...new Set(data[category]
-                        .filter(item => item.subcategory && item.subcategory.trim() !== "")
-                        .map(item => item.subcategory))];
-
-                    if (subCategories.length > 0) {
-                        dynamicMenuItems[category] = {
-                            hasSubMenu: true,
-                            subItems: subCategories
-                        };
-                    } else {
-                        dynamicMenuItems[category] = { hasSubMenu: false };
-                    }
+                    dynamicMenuItems[category] = { hasSubMenu: false };
                 }
             });
 
             setSocialMediaData(formattedData);
             setMenuItems(dynamicMenuItems);
-
+            setCategoryOrder(orderedCategories.filter(cat => actualData[cat]));  // 只保存存在的類別
+            
             // 為每個分類創建 ref
             const refs = {};
-            Object.keys(formattedData).forEach(category => {
-                refs[category] = React.createRef();
+            orderedCategories.forEach(category => {
+                if (actualData[category]) {
+                    refs[category] = React.createRef();
+                }
             });
             categoryRefs.current = refs;
 
@@ -132,17 +138,18 @@ const SocialmediaPage = () => {
 
         Object.keys(selectedItemsObj).forEach(category => {
             const subItems = selectedItemsObj[category];
+            const displayCategory = category || "（空白類別）";  // 處理空字串顯示
             if (subItems.length === 0) {
                 // 無子選單的主分類
                 totalSelectedCount += 1;
-                categoryDetails.push(category);
+                categoryDetails.push(displayCategory);
             } else {
                 // 有子選單的分類
                 totalSelectedCount += subItems.length;
                 if (subItems.length === 1) {
-                    categoryDetails.push(`${category} > ${subItems[0]}`);
+                    categoryDetails.push(`${displayCategory} > ${subItems[0]}`);
                 } else {
-                    categoryDetails.push(`${category} > ${subItems.length} 個選項`);
+                    categoryDetails.push(`${displayCategory} > ${subItems.length} 個選項`);
                 }
             }
         });
@@ -354,8 +361,12 @@ const SocialmediaPage = () => {
                             </div>
                             {isDropdownOpen && (
                                 <div className="social-dropdown-menu">
-                                    {Object.entries(menuItems).map(([type, { hasSubMenu, subItems }]) => {
-                                        // 檢查該分類是否有選中的子項目
+                                    {/* 使用 categoryOrder 來控制顯示順序 */}
+                                    {categoryOrder.map(type => {
+                                        const menuItem = menuItems[type];
+                                        if (!menuItem) return null;  // 如果 menuItem 不存在，跳過
+                                        
+                                        const { hasSubMenu, subItems } = menuItem;
                                         const hasSelectedChildren = selectedItems[type] && selectedItems[type].length > 0;
 
                                         return (
@@ -371,7 +382,7 @@ const SocialmediaPage = () => {
                                                         <span className="checkbox-indicator">
                                                             {selectedItems[type] ? '✓' : ''}
                                                         </span>
-                                                        {type}
+                                                        {type || "（空白類別）"}
                                                     </div>
                                                 ) : (
                                                     <div
@@ -385,7 +396,7 @@ const SocialmediaPage = () => {
                                                         }}
                                                     >
                                                         <span className="checkbox-indicator"></span>
-                                                        <span>{type}</span>
+                                                        <span>{type || "（空白類別）"}</span>
                                                         <span className="social-submenu-arrow">›</span>
                                                         <div
                                                             className="social-submenu"
@@ -434,34 +445,40 @@ const SocialmediaPage = () => {
                     </div>
                 </div>
             </div>
-            {Object.entries(filteredData).map(([category, items]) => (
-                <div key={category} className="socialmedia-section" ref={categoryRefs.current[category]}>
-                    <div className="container px-4">
-                        <h2 className="social-category-title">{category}</h2>
-                        <div className="row g-4">
-                            {items.map(item => (
-                                <div key={item.id}
-                                    className="col-12 col-sm-6 col-md-4 col-lg-3"
-                                    onClick={() => handleCardClick(item.url)}>
-                                    <div className="socialmedia-card">
-                                        <div className="social-image-container">
-                                            <img
-                                                src={item.image || noPics}
-                                                alt={item.title}
-                                                className="socialmedia-image"
-                                                onError={(e) => {
-                                                    e.target.src = noPics;
-                                                }}
-                                            />
+            {/* 使用 categoryOrder 來控制顯示順序 */}
+            {categoryOrder.map(category => {
+                const items = filteredData[category];
+                if (!items || items.length === 0) return null;  // 如果沒有項目，不顯示該分類
+                
+                return (
+                    <div key={category} className="socialmedia-section" ref={categoryRefs.current[category]}>
+                        <div className="container px-4">
+                            <h2 className="social-category-title">{category || "（空白類別）"}</h2>
+                            <div className="row g-4">
+                                {items.map(item => (
+                                    <div key={item.id}
+                                        className="col-12 col-sm-6 col-md-4 col-lg-3"
+                                        onClick={() => handleCardClick(item.url)}>
+                                        <div className="socialmedia-card">
+                                            <div className="social-image-container">
+                                                <img
+                                                    src={item.image || noPics}
+                                                    alt={item.title}
+                                                    className="socialmedia-image"
+                                                    onError={(e) => {
+                                                        e.target.src = noPics;
+                                                    }}
+                                                />
+                                            </div>
+                                            <h5 className="text-center mt-2">{item.title}</h5>
                                         </div>
-                                        <h5 className="text-center mt-2">{item.title}</h5>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
             {/* <div className="text-start mt-4 socialmedia-report-issue">
                 <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題
