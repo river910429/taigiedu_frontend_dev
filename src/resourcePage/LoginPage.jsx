@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
+import ForgetPassword from "./ForgetPassword";
 import "./LoginPage.css";
 
 const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
@@ -11,6 +12,7 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
   const [captchaImage, setCaptchaImage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingCaptcha, setIsLoadingCaptcha] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { showToast } = useToast(); // 引入 Toast 功能
@@ -320,7 +322,23 @@ const LoginPage = ({ setIsLoggedIn, isLoggedIn }) => {
             沒有帳號？進行註冊
           </button>
         </div>
+
+        {/* 忘記密碼連結 */}
+        <div className="forgot-password-container">
+          <span 
+            className="forgot-password-link"
+            onClick={() => setIsForgotPasswordOpen(true)}
+          >
+            忘記密碼
+          </span>
+        </div>
       </div>
+
+      {/* 忘記密碼 Modal */}
+      <ForgetPassword 
+        isOpen={isForgotPasswordOpen} 
+        onClose={() => setIsForgotPasswordOpen(false)} 
+      />
     </div>
   );
 };
