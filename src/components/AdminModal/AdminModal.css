@@ -7,13 +7,31 @@
 }
 
 /* Modal 內容容器 */
-.admin-modal-content {
+.admin-modal-content.modal-content {
+    background-color: #fff;
     border-radius: 8px;
-    border: none;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     max-height: calc(100vh - 3.5rem);
     display: flex;
+    padding: 0 !important;
+    /* 強制覆蓋全域 .modal-content 可能有的 padding 衝突 */
     flex-direction: column;
+    overflow: hidden;
+    /* 確保內容不超出圓角 */
+    background-clip: padding-box;
+    /* 防止背景滲出邊界 */
+}
+
+/* 確保 form 不會造成額外間距 */
+.admin-modal-content form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
 }
 
 /* Modal Header */

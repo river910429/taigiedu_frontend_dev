@@ -196,30 +196,52 @@ const AdminDataTable = ({
                     <tr key={headerGroup.id}>
                         {/* 拖曳列的空表頭 */}
                         {enableDragging && <th className="drag-handle-column" style={{ width: '40px' }}></th>}
-                        {headerGroup.headers.map((header) => (
-                            <th
-                                key={header.id}
-                                className={header.column.getCanSort() ? 'admin-table-header sortable' : 'admin-table-header'}
-                                onClick={header.column.getToggleSortingHandler()}
-                                style={{
-                                    cursor: header.column.getCanSort() ? 'pointer' : 'default',
-                                    width: header.column.columnDef.size || 'auto',
-                                }}
-                            >
-                                {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                )}
-                                {header.column.getCanSort() && (
-                                    <span className="sort-arrow">
-                                        {{
-                                            asc: '↑',
-                                            desc: '↓',
-                                        }[header.column.getIsSorted()] ?? '↓'}
-                                    </span>
-                                )}
-                            </th>
-                        ))}
+                        {headerGroup.headers.map((header) => {
+                            // 獲取目前的欄位 ID
+                            const colId = (header.column.id || "").toLowerCase();
+
+                            // 獲取渲染後的內容
+                            const renderedHeader = flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                            );
+
+                            // 如果表頭為空，或是特定的操作欄位，且沒有提供實質內容
+                            let finalHeader = renderedHeader;
+                            const isHeaderEmpty = !renderedHeader ||
+                                (typeof renderedHeader === 'string' && renderedHeader.trim() === '') ||
+                                (Array.isArray(renderedHeader) && renderedHeader.length === 0);
+
+                            if (isHeaderEmpty) {
+                                if (colId.includes('edit')) finalHeader = '修改';
+                                else if (colId.includes('delete') || colId.includes('action')) finalHeader = '刪除';
+                            }
+
+                            return (
+                                <th
+                                    key={header.id}
+                                    className={`${header.column.getCanSort() ? 'admin-table-header sortable' : 'admin-table-header'} ${colId.includes('edit') || colId.includes('delete') || colId.includes('action') ? 'action-column' : ''}`}
+                                    onClick={header.column.getToggleSortingHandler()}
+                                    style={{
+                                        cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                                        width: header.column.columnDef.size !== 150 ? `${header.column.columnDef.size}px` : 'auto',
+                                        minWidth: header.column.columnDef.size !== 150 ? `${header.column.columnDef.size}px` : 'auto',
+                                    }}
+                                >
+                                    <div className="header-content">
+                                        {finalHeader}
+                                        {header.column.getCanSort() && (
+                                            <span className="sort-arrow">
+                                                {{
+                                                    asc: '↑',
+                                                    desc: '↓',
+                                                }[header.column.getIsSorted()] ?? '↓'}
+                                            </span>
+                                        )}
+                                    </div>
+                                </th>
+                            );
+                        })}
                     </tr>
                 ))}
             </thead>
@@ -232,11 +254,20 @@ const AdminDataTable = ({
                         {table.getRowModel().rows.map((row) => (
                             <SortableTableRow key={row.id} row={row}>
                                 {row.getVisibleCells().map((cell) => (
-                                    <td key={cell.id}>
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
+                                    <td
+                                        key={cell.id}
+                                        className={cell.column.id.toLowerCase().includes('edit') || cell.column.id.toLowerCase().includes('delete') || cell.column.id.toLowerCase().includes('action') ? 'action-column' : ''}
+                                        style={{
+                                            width: cell.column.columnDef.size !== 150 ? `${cell.column.columnDef.size}px` : 'auto',
+                                            minWidth: cell.column.columnDef.size !== 150 ? `${cell.column.columnDef.size}px` : 'auto',
+                                        }}
+                                    >
+                                        <div className="cell-content">
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </div>
                                     </td>
                                 ))}
                             </SortableTableRow>
@@ -248,11 +279,20 @@ const AdminDataTable = ({
                     {table.getRowModel().rows.map((row) => (
                         <tr key={row.id}>
                             {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id}>
-                                    {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                    )}
+                                <td
+                                    key={cell.id}
+                                    className={cell.column.id.toLowerCase().includes('edit') || cell.column.id.toLowerCase().includes('delete') || cell.column.id.toLowerCase().includes('action') ? 'action-column' : ''}
+                                    style={{
+                                        width: cell.column.columnDef.size !== 150 ? `${cell.column.columnDef.size}px` : 'auto',
+                                        minWidth: cell.column.columnDef.size !== 150 ? `${cell.column.columnDef.size}px` : 'auto',
+                                    }}
+                                >
+                                    <div className="cell-content">
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
+                                        )}
+                                    </div>
                                 </td>
                             ))}
                         </tr>

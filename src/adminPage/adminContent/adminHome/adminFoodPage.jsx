@@ -355,7 +355,7 @@ const AdminFoodPage = () => {
   const columns = useMemo(() => [
     {
       id: 'edit',
-      header: '',
+      header: '修改',
       size: 50,
       enableSorting: false,
       cell: ({ row }) => (
@@ -418,7 +418,7 @@ const AdminFoodPage = () => {
     },
     {
       id: 'action',
-      header: '',
+      header: '刪除',
       size: 50,
       enableSorting: false,
       cell: ({ row }) => (

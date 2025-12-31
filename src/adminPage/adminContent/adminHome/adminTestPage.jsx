@@ -71,54 +71,47 @@ const AdminTestPage = () => {
         }
     }, [statusFilter, showToast]);
 
-    // 使用 useMemo 定義表格欄位，避免每次渲染都重新創建
+    // 定義表格欄位
     const columns = useMemo(() => {
         const isArchived = statusFilter === 'archived';
 
         return [
-            // 編輯按鈕欄位
-            columnHelper.display({
+            {
                 id: 'edit',
+                header: '修改',
                 size: 50,
                 enableSorting: false,
-                header: () => null,
                 cell: ({ row }) => (
-                    <button
-                        className="admin-action-btn edit-btn"
-                        onClick={() => handleEditClick(row.original)}
-                    >
+                    <button className="admin-action-btn edit-btn" onClick={() => handleEditClick(row.original)}>
                         <img src={editIcon} alt="編輯" className="admin-action-icon" />
                     </button>
-                ),
-            }),
-            // 類別欄位
-            columnHelper.accessor('category', {
+                )
+            },
+            {
+                accessorKey: 'category',
                 header: '類別',
-                cell: info => info.getValue(),
                 enableSorting: true,
-            }),
-            // 內容欄位
-            columnHelper.accessor('content', {
+            },
+            {
+                accessorKey: 'content',
                 header: '內容 (限20字)',
-                cell: info => info.getValue(),
                 enableSorting: true,
-            }),
-            // 連結欄位
-            columnHelper.accessor('link', {
+            },
+            {
+                accessorKey: 'link',
                 header: '連結',
+                enableSorting: true,
                 cell: info => (
-                    <a href={info.getValue()} target="_blank" rel="noopener noreferrer">
+                    <a href={info.getValue()} target="_blank" rel="noopener noreferrer" className="admin-link">
                         {info.getValue()}
                     </a>
                 ),
-                enableSorting: true,
-            }),
-            // 刪除/恢復按鈕欄位
-            columnHelper.display({
-                id: 'delete',
+            },
+            {
+                id: 'action',
+                header: '刪除',
                 size: 50,
                 enableSorting: false,
-                header: () => null,
                 cell: ({ row }) => (
                     <button
                         className={isArchived ? "admin-action-btn restore-btn" : "admin-action-btn delete-btn"}
@@ -130,19 +123,13 @@ const AdminTestPage = () => {
                             className="admin-action-icon"
                         />
                     </button>
-                ),
-            }),
-            // 建立時間欄位
-            columnHelper.accessor('timestamp', {
+                )
+            },
+            {
+                accessorKey: 'timestamp',
                 header: '建立時間',
-                cell: info => info.getValue(),
                 enableSorting: true,
-                sortingFn: (rowA, rowB) => {
-                    const dateA = new Date(rowA.original.timestamp);
-                    const dateB = new Date(rowB.original.timestamp);
-                    return dateA.getTime() - dateB.getTime();
-                },
-            }),
+            }
         ];
     }, [statusFilter, handleEditClick, handleDeleteClick]);
 

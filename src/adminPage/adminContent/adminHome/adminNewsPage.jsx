@@ -80,7 +80,7 @@ const AdminNewsPage = () => {
         id: 'edit',
         size: 50,
         enableSorting: false,
-        header: () => null,
+        header: '修改',
         cell: ({ row }) => (
           <button
             className="admin-action-btn edit-btn"
@@ -117,7 +117,7 @@ const AdminNewsPage = () => {
         id: 'delete',
         size: 50,
         enableSorting: false,
-        header: () => null,
+        header: '刪除',
         cell: ({ row }) => (
           <button
             className={isArchived ? "admin-action-btn restore-btn" : "admin-action-btn delete-btn"}

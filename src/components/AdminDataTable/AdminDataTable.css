@@ -12,8 +12,8 @@
     margin-bottom: 0;
     border-collapse: separate;
     border-spacing: 0 0.5px;
-    table-layout: fixed;
-    /* 固定表格佈局，確保欄位寬度一致 */
+    table-layout: auto;
+    /* 改為 auto，讓欄位根據內容調整寬度 */
 }
 
 /* 表頭樣式 */
@@ -27,8 +27,25 @@
     border-bottom: none;
     border-top: none;
     white-space: nowrap;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: inherit;
+    /* 繼承 th 的 justify-content */
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.admin-data-table thead th.action-column {
+    text-align: center;
+}
+
+.admin-data-table thead th.action-column .header-content {
+    justify-content: center;
 }
 
 .admin-data-table thead th:first-child {
@@ -59,6 +76,7 @@
     margin-left: 3px;
     color: #fff;
     font-size: 0.85em;
+    flex-shrink: 0;
 }
 
 /* 表格行樣式 */
@@ -78,9 +96,23 @@
 .admin-data-table tbody tr td {
     vertical-align: middle;
     padding: 0.5rem 0.75rem;
+}
+
+.admin-data-table tbody tr td.action-column {
+    text-align: center;
+}
+
+.admin-data-table tbody tr td.action-column .cell-content {
+    display: flex;
+    justify-content: center;
+}
+
+.cell-content {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 500px;
+    /* 這裡給一個較大的上限，確保在 auto 佈局下能截斷 */
 }
 
 .admin-data-table tbody tr:not(:last-child) {
@@ -100,7 +132,6 @@
 .admin-data-table tbody tr td:last-child {
     border-top-right-radius: .25rem;
     border-bottom-right-radius: .25rem;
-    text-align: center;
 }
 
 /* 連結樣式 - 文字截斷 */

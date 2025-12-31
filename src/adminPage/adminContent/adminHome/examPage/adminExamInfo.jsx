@@ -190,7 +190,7 @@ const AdminExamInfo = () => {
   const columns = useMemo(() => [
     {
       id: 'edit',
-      header: '',
+      header: '修改',
       size: 50,
       enableSorting: false,
       cell: ({ row }) => (
@@ -228,7 +228,7 @@ const AdminExamInfo = () => {
     },
     {
       id: 'action',
-      header: '',
+      header: '刪除',
       size: 50,
       enableSorting: false,
       cell: ({ row }) => (
