@@ -1,0 +1,96 @@
+/* 會員管理後台頁面樣式 */
+/* 注意：表格、載入、空狀態等通用樣式由 AdminDataTable 組件提供 */
+/* 此檔案僅定義該頁面特定的樣式 */
+
+/* 頁面容器 */
+.admin-member-page {
+    padding: 1rem;
+}
+
+/* 頁面標頭區 */
+.admin-header-main {
+    margin-bottom: 1.5rem;
+}
+
+.admin-header-main h5 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.admin-header-main h5 span {
+    color: #333;
+    font-weight: 500;
+}
+
+/* 控制項區域 */
+.admin-controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* 搜尋輸入框 */
+.admin-search-input {
+    max-width: 420px;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-search-input:focus {
+    border-color: #2D92C1;
+    box-shadow: 0 0 0 3px rgba(45, 146, 193, 0.1);
+    outline: none;
+}
+
+/* 狀態篩選區 */
+.status-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-filter span {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.admin-status-dropdown {
+    width: 160px;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.admin-status-dropdown:focus {
+    border-color: #2D92C1;
+    outline: none;
+}
+
+/* Modal 表單樣式 */
+.admin-form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.admin-form-control {
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    padding: 0.625rem 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-form-control:focus {
+    border-color: #2D92C1;
+    box-shadow: 0 0 0 3px rgba(45, 146, 193, 0.1);
+}
