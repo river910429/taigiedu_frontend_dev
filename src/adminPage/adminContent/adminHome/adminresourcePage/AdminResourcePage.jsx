@@ -43,7 +43,7 @@ const reportedCard = {
   downloads: 20,
   title: '112南一版四年級上學期國語課講義',
   uploader: 'Wynnie',
-  tags: ['國中','真平','上冊','投影片'],
+  tags: ['國中', '真平', '上冊', '投影片'],
   status: '被檢舉'
 };
 if (!mockResources.find(r => r.id === reportedCard.id)) {
@@ -58,8 +58,8 @@ export default function AdminResourcePage() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   // 從後台設定讀取內容類型，預設為前台一樣：學習單、簡報、教案、其他
   const CONFIG_KEY = 'resourceHeaderConfig';
-  const cfg = (() => { try { const raw = localStorage.getItem(CONFIG_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }})();
-  const contentTypeOptions = Array.isArray(cfg?.contentTypes) && cfg.contentTypes.length>0 ? cfg.contentTypes : ['學習單','簡報','教案','其他'];
+  const cfg = (() => { try { const raw = localStorage.getItem(CONFIG_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; } })();
+  const contentTypeOptions = Array.isArray(cfg?.contentTypes) && cfg.contentTypes.length > 0 ? cfg.contentTypes : ['學習單', '簡報', '教案', '其他'];
   // 預設選滿四類，與需求一致
   const [selectedContentTypes, setSelectedContentTypes] = useState([...contentTypeOptions]);
   const [query, setQuery] = useState('');
@@ -69,7 +69,7 @@ export default function AdminResourcePage() {
   const [reason, setReason] = useState('不雅內容');
   const [page, setPage] = useState(1);
   const pageSize = 12; // 與前台相近的每頁數量
-  
+
   // 版本選項映射（與 ResourceHeader 相同）
   const defaultVersions = {
     '國小': ['真平', '康軒'],
@@ -81,7 +81,7 @@ export default function AdminResourcePage() {
     '國中': cfg?.versions?.['國中'] || defaultVersions['國中'],
     '高中': cfg?.versions?.['高中'] || defaultVersions['高中']
   };
-  const allVersions = Array.from(new Set([...(gradeToVersions['國小']||[]),...(gradeToVersions['國中']||[]),...(gradeToVersions['高中']||[])]));
+  const allVersions = Array.from(new Set([...(gradeToVersions['國小'] || []), ...(gradeToVersions['國中'] || []), ...(gradeToVersions['高中'] || [])]));
   const getVersionOptions = (grade) => grade === '全部' ? allVersions : (gradeToVersions[grade] || []);
   const statuses = ['目前項目', '已下架項目'];
 
@@ -142,7 +142,7 @@ export default function AdminResourcePage() {
         if (url.startsWith('http://') || url.startsWith('https://')) return url;
         return `https://dev.taigiedu.com/backend/${url}`;
       };
-      const previewUrl = `${window.location.origin}/file-preview?` +
+      const previewUrl = `${window.location.origin}/admin/file-preview?` +
         `title=${encodeURIComponent(resource.title || '無標題資源')}` +
         `&imageUrl=${encodeURIComponent(getFullImageUrl(resource.imageUrl))}` +
         `&fileType=${encodeURIComponent(resource.fileType || 'PDF')}` +
@@ -151,10 +151,12 @@ export default function AdminResourcePage() {
         `&uploader=${encodeURIComponent(resource.uploader || '匿名上傳者')}` +
         `&tags=${encodeURIComponent(JSON.stringify(resource.tags || []))}` +
         `&date=${encodeURIComponent(resource.date || '')}` +
-        `&id=${encodeURIComponent(resource.id || '')}`;
+        `&id=${encodeURIComponent(resource.id || '')}` +
+        `&status=${encodeURIComponent(resource.status || '目前項目')}`;
       window.open(previewUrl, '_blank', 'noopener,noreferrer');
-    } catch {}
+    } catch { }
   };
+
   const closeAction = () => { setActionOpen(false); setReason('不雅內容'); setSelected(null); };
   const confirmAction = () => {
     // 更新本頁資源狀態為「已下架項目」
@@ -166,7 +168,7 @@ export default function AdminResourcePage() {
       window.dispatchEvent(new CustomEvent('resource-updated', {
         detail: { action: 'down', id: selected?.id, reason }
       }));
-    } catch {}
+    } catch { }
     closeAction();
   };
 
@@ -177,12 +179,12 @@ export default function AdminResourcePage() {
       window.dispatchEvent(new CustomEvent('resource-updated', {
         detail: { action: 'undown', id: resource.id }
       }));
-    } catch {}
+    } catch { }
   };
 
   return (
     <div className="admin-content-wrapper">
-      <div className="admin-banner"><span className="dot"/> 您現在使用管理員權限檢視角度</div>
+      <div className="admin-banner"><span className="dot" /> 您現在使用管理員權限檢視角度</div>
 
       <div className="admin-toolbar">
         <div className="admin-filters left">
@@ -309,9 +311,9 @@ export default function AdminResourcePage() {
               <button className="admin-modal-close" onClick={closeAction}>×</button>
             </div>
             <div className="admin-modal-body">
-              {['不雅內容','涉及著作權侵權','政治不中立','旁白或文稿問題','重複上傳','廣告內容','侵害隱私','涉及恐怖、脅迫或血腥'].map(r => (
+              {['不雅內容', '涉及著作權侵權', '政治不中立', '旁白或文稿問題', '重複上傳', '廣告內容', '侵害隱私', '涉及恐怖、脅迫或血腥'].map(r => (
                 <label key={r} className="admin-radio">
-                  <input type="radio" name="reason" value={r} checked={reason===r} onChange={() => setReason(r)} />
+                  <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} />
                   <span>{r}</span>
                 </label>
               ))}
