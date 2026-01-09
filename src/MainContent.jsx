@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./MainContent.css";
 import heroImage from "./assets/Rectangle 7310.svg";
 import searchIcon from "./assets/home/search_logo.svg";
+import todayEventsIcon from "./assets/todayEvents.svg";
 
 const MainContent = () => {
   const navigate = useNavigate(); // 使用 useNavigate 來進行頁面跳轉
@@ -18,6 +19,10 @@ const MainContent = () => {
   const [todayEvents, setTodayEvents] = useState([]); // 存儲今日大事
   const [eventsLoading, setEventsLoading] = useState(true);
   const [eventsError, setEventsError] = useState(false);
+
+  // 今日大事彈窗狀態
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   // 組件掛載時獲取關鍵字和俗語諺
   useEffect(() => {
@@ -376,7 +381,30 @@ const MainContent = () => {
               <ul className="info-list">
                 {todayEvents.length > 0 ? (
                   todayEvents.map((event, index) => (
-                    <li key={index}>{event}</li>
+                    <li key={index}>
+                      <a
+                        href="#"
+                        className="event-link"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // 解析事件資料（假設 API 回傳格式為 "歷史上的今天：1998年10月28日 抗暴牧師 黃彰輝逝世日"）
+                          const eventData = {
+                            date: '1998 年 10 月 28 日',
+                            title: '抗暴牧師 黃彰輝逝世日',
+                            content: `黃彰輝，出生於一九一四年八月二十日,彰化人, 因此被取名「彰輝」。父親為長老教會牧師，幼時就讀於台南師範附屬公學校與台南長老教中學。一九三四年就讀東京帝國大學哲學科，一九三八年獲得教會的補助而得以到英國劍橋的衛斯敏斯特神學院就讀神學。一九四一年在倫敦大學教授日文，同年也成為長老教會牧師，後來因為珍珠港事件爆發，被視為敵國人士(日本籍)而被限制行動。
+
+一九四七年，黃彰輝坐船從英國返回台灣擔任台南神學院院長，並與黃武東牧師參與東海大學籌設，開啟他在台灣宣教的生涯。當時以蔣介石為首的中華民國政府正實施戒嚴統治，社會瀰漫白色恐怖的氛圍，許多台灣人遭受迫害。`,
+                            footnote: '美國務卿杜勒斯表示日本未將台灣割讓中國　1954.10.28',
+                            source: '台灣獨曆',
+                            sourceUrl: 'https://www.facebook.com/indepcalendar/?locale=zh_TW'
+                          };
+                          setSelectedEvent(eventData);
+                          setShowEventModal(true);
+                        }}
+                      >
+                        {event}
+                      </a>
+                    </li>
                   ))
                 ) : (
                   <li>今日無大事</li>
@@ -456,6 +484,48 @@ const MainContent = () => {
           </div>
         </div>
       </div>
+
+      {/* 今日大事詳細資訊彈窗 */}
+      {showEventModal && selectedEvent && (
+        <div className="event-modal-overlay" onClick={() => setShowEventModal(false)}>
+          <div className="event-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="event-modal-close"
+              onClick={() => setShowEventModal(false)}
+            >
+              ×
+            </button>
+
+            <div className="event-modal-header">
+              <img src={todayEventsIcon} alt="今日大事" className="event-modal-icon" />
+              <div className="event-modal-title-section">
+                <div className="event-modal-date">{selectedEvent.date}</div>
+                <h2 className="event-modal-title">{selectedEvent.title}</h2>
+              </div>
+            </div>
+
+            <div className="event-modal-content">
+              <div className="event-content-text">
+                {selectedEvent.content.split('\n\n').map((paragraph, idx) => (
+                  <p key={idx}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
+
+            {selectedEvent.footnote && (
+              <div className="event-modal-footnote">
+                <span className="footnote-icon">ⓘ</span>
+                <span>{selectedEvent.footnote}</span>
+              </div>
+            )}
+
+            <div className="event-modal-source">
+              <p>資料來源：{selectedEvent.source}</p>
+              <p>官方粉專：<a href={selectedEvent.sourceUrl} target="_blank" rel="noopener noreferrer">{selectedEvent.sourceUrl}</a></p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
