@@ -1,11 +1,13 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { createPortal } from 'react-dom';
 import { createColumnHelper } from '@tanstack/react-table';
 import { useToast } from '../../../components/Toast';
 import AdminDataTable from '../../../components/AdminDataTable';
 import '../../../components/AdminDataTable/AdminDataTable.css';
 import AdminModal from '../../../components/AdminModal';
 import './adminMemberPage.css';
-import deleteIcon from '../../../assets/adminPage/trash.svg';
+import './adminMemberPage.css';
+import adjustmentsIcon from '../../../assets/adjustments-horizontal.svg';
 import uturnIcon from '../../../assets/adminPage/uturn.svg';
 
 const columnHelper = createColumnHelper();
@@ -36,6 +38,33 @@ const AdminMemberPage = () => {
   const [newMotivation, setNewMotivation] = useState('');
   const [newRole, setNewRole] = useState('member');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeMenuId, setActiveMenuId] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+
+  // 停用上傳資格彈窗狀態
+  const [showDisableModal, setShowDisableModal] = useState(false);
+  const [disableTarget, setDisableTarget] = useState(null);
+  const [disableReason, setDisableReason] = useState('');
+  const [disableNote, setDisableNote] = useState('');
+
+  // 指定管理員彈窗狀態
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminTarget, setAdminTarget] = useState(null);
+
+  // 點擊外部關閉選單
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // 檢查是否點擊在選單容器或下拉選單內
+      const isInsideContainer = event.target.closest('.action-menu-container');
+      const isInsideDropdown = event.target.closest('.action-menu-dropdown');
+
+      if (activeMenuId && !isInsideContainer && !isInsideDropdown) {
+        setActiveMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeMenuId]);
 
   // 判斷超級管理員：
   // 1) 從 localStorage 讀取 currentUser（若存在 isSuperAdmin=true，則為超管）
@@ -67,13 +96,7 @@ const AdminMemberPage = () => {
 
     const isRestoreAction = viewFilter === 'archivedMembers';
 
-    const confirmMessage = isRestoreAction
-      ? "確定要啟用此帳號嗎？"
-      : "確定要停用此帳號嗎？";
-
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    // 直接執行，不使用 confirm 對話框
 
     try {
       setAllMembers(prevInfo => {
@@ -96,6 +119,58 @@ const AdminMemberPage = () => {
       showToast(`${isRestoreAction ? "啟用" : "停用"}失敗: ${error.message}`, 'error');
     }
   }, [viewFilter, isSuperAdmin, showToast]);
+
+  // 停用上傳資格
+  const handleDisableUpload = useCallback((member) => {
+    // 開啟停用彈窗
+    setDisableTarget(member);
+    setDisableReason('');
+    setDisableNote('');
+    setShowDisableModal(true);
+    setActiveMenuId(null);
+  }, []);
+
+  // 確認停用上傳資格
+  const confirmDisableUpload = useCallback(() => {
+    if (!disableReason) {
+      showToast('請選擇停用理由', 'warning');
+      return;
+    }
+
+    const now = new Date();
+    const archivedAt = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+    const fullReason = disableNote ? `${disableReason}（${disableNote}）` : disableReason;
+
+    setAllMembers(prevMembers => prevMembers.map(m =>
+      m.id === disableTarget.id
+        ? { ...m, status: 'archived', archivedReason: fullReason, archivedAt }
+        : m
+    ));
+    showToast(`已停用 ${disableTarget.name} 的上傳資格`, 'success');
+    setShowDisableModal(false);
+    setDisableTarget(null);
+  }, [disableTarget, disableReason, disableNote, showToast]);
+
+  // 指定擔任管理員
+  const handleAssignAdmin = useCallback((member) => {
+    // 開啟確認彈窗
+    setAdminTarget(member);
+    setShowAdminModal(true);
+    setActiveMenuId(null);
+  }, []);
+
+  // 確認指定擔任管理員
+  const confirmAssignAdmin = useCallback(() => {
+    setAllMembers(prevMembers => prevMembers.map(m =>
+      m.id === adminTarget.id
+        ? { ...m, role: 'admin' }
+        : m
+    ));
+    showToast(`已將 ${adminTarget.name} 指定為管理員`, 'success');
+    setShowAdminModal(false);
+    setAdminTarget(null);
+  }, [adminTarget, showToast]);
 
   // 欄位定義
   const columns = useMemo(() => {
@@ -212,20 +287,113 @@ const AdminMemberPage = () => {
         size: 50,
         enableSorting: false,
         header: () => null,
-        cell: ({ row }) => (
-          viewFilter === 'admins' && !isSuperAdmin ? (
-            <button className="admin-action-btn" disabled title="僅超級管理員可操作">
-              <img src={deleteIcon} alt="停用" className="admin-action-icon" />
-            </button>
-          ) : (
-            <button className="admin-action-btn delete-btn" onClick={() => handleDeleteClick(row.original.id)}>
-              <img src={deleteIcon} alt="停用" className="admin-action-icon" />
-            </button>
-          )
-        ),
+        cell: ({ row }) => {
+          const buttonRef = useRef(null);
+
+          const handleClick = (e) => {
+            e.stopPropagation();
+            if (buttonRef.current) {
+              const rect = buttonRef.current.getBoundingClientRect();
+              const menuWidth = 160;
+
+              // Calculate left position, ensuring menu doesn't go off-screen
+              let left = rect.right - menuWidth;
+
+              // If menu would go off the left edge, align it to the left of the button
+              if (left < 0) {
+                left = rect.left;
+              }
+
+              // If menu would go off the right edge, adjust it
+              if (left + menuWidth > window.innerWidth) {
+                left = window.innerWidth - menuWidth - 10; // 10px margin from edge
+              }
+
+              setMenuPosition({
+                top: rect.bottom + window.scrollY,
+                left: left + window.scrollX
+              });
+            }
+            setActiveMenuId(activeMenuId === row.original.id ? null : row.original.id);
+          };
+
+          // 停用會員名單：顯示恢復按鈕
+          if (viewFilter === 'archivedMembers') {
+            return (
+              <div className="action-menu-container">
+                <button
+                  className="admin-action-btn restore-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(row.original.id);
+                  }}
+                  title="恢復上傳資格"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                    <path d="M3 3v5h5" />
+                  </svg>
+                </button>
+              </div>
+            );
+          }
+
+          // 會員名單與管理員名單：顯示下拉選單
+          return (
+            <div className="action-menu-container">
+              {viewFilter === 'admins' && !isSuperAdmin ? (
+                <button className="admin-action-btn menu-btn" disabled title="僅超級管理員可操作">
+                  <img src={adjustmentsIcon} alt="管理" className="admin-action-icon" style={{ opacity: 0.5 }} />
+                </button>
+              ) : (
+                <>
+                  <button
+                    ref={buttonRef}
+                    className="admin-action-btn menu-btn"
+                    onClick={handleClick}
+                  >
+                    <img src={adjustmentsIcon} alt="管理" className="admin-action-icon" />
+                  </button>
+
+                  {activeMenuId === row.original.id && createPortal(
+                    <div
+                      className="action-menu-dropdown"
+                      style={{
+                        position: 'absolute',
+                        top: `${menuPosition.top}px`,
+                        left: `${menuPosition.left}px`,
+                        zIndex: 9999
+                      }}
+                    >
+                      <button
+                        className="action-menu-item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDisableUpload(row.original);
+                        }}
+                      >
+                        停用上傳資格
+                      </button>
+                      <button
+                        className="action-menu-item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAssignAdmin(row.original);
+                        }}
+                      >
+                        指定擔任管理員
+                      </button>
+                    </div>,
+                    document.body
+                  )}
+                </>
+              )}
+            </div>
+          );
+        },
       }),
     ];
-  }, [viewFilter, isSuperAdmin, handleDeleteClick]);
+  }, [viewFilter, isSuperAdmin, handleDeleteClick, activeMenuId, handleDisableUpload, handleAssignAdmin]);
 
   // 拖曳結束處理（僅前端排序預覽）
   const handleDragEnd = useCallback((activeId, overId) => {
@@ -503,6 +671,107 @@ const AdminMemberPage = () => {
           </select>
         </div>
       </AdminModal>
+
+      {/* 停用上傳資格彈窗 */}
+      {showDisableModal && (
+        <div className="disable-modal-overlay" onClick={() => setShowDisableModal(false)}>
+          <div className="disable-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="disable-modal-header">
+              <h3>停用會員上傳資格</h3>
+              <button
+                className="disable-modal-close"
+                onClick={() => setShowDisableModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="disable-modal-body">
+              <div className="disable-modal-left">
+                <label className="disable-form-label">*停用理由：</label>
+                <div className="disable-radio-group">
+                  {[
+                    '散佈不雅內容',
+                    '冒用他人身份',
+                    '違規張貼內容',
+                    '攻擊講師或平台',
+                    '依舉報結果而定',
+                    '帳號交易或共享',
+                    '其他（請寫在補充說明）'
+                  ].map((reason) => (
+                    <label key={reason} className="disable-radio-label">
+                      <input
+                        type="radio"
+                        name="disableReason"
+                        value={reason}
+                        checked={disableReason === reason}
+                        onChange={(e) => setDisableReason(e.target.value)}
+                      />
+                      <span>{reason}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="disable-modal-right">
+                <label className="disable-form-label">補充說明（非必填）：</label>
+                <textarea
+                  className="disable-textarea"
+                  value={disableNote}
+                  onChange={(e) => setDisableNote(e.target.value)}
+                  placeholder=""
+                />
+              </div>
+            </div>
+            <div className="disable-modal-footer">
+              <button
+                className="disable-confirm-btn"
+                onClick={confirmDisableUpload}
+              >
+                確定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 指定管理員彈窗 */}
+      {showAdminModal && adminTarget && (
+        <div className="admin-modal-overlay" onClick={() => setShowAdminModal(false)}>
+          <div className="admin-assign-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3>指定管理員</h3>
+              <button
+                className="admin-modal-close"
+                onClick={() => setShowAdminModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="admin-modal-body">
+              <p className="admin-confirm-text">
+                *您確定要將此會員指定為「管理員」？
+              </p>
+              <p className="admin-permission-note">
+                （其管理權限包含：使用者內容審查與下架處理、管理會員名單與權限指派）
+              </p>
+              <div className="admin-member-info">
+                <p><span>姓名：</span>{adminTarget.name}</p>
+                <p><span>信箱：</span>{adminTarget.email}</p>
+                <p><span>服務單位：</span>{adminTarget.organization}</p>
+                <p><span>職業：</span>{adminTarget.occupation}</p>
+                <p><span>使用網站動機：</span>{adminTarget.motivation}</p>
+              </div>
+            </div>
+            <div className="admin-modal-footer">
+              <button
+                className="admin-confirm-btn"
+                onClick={confirmAssignAdmin}
+              >
+                確定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
