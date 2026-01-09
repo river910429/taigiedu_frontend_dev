@@ -7,6 +7,7 @@ import MultiSelect from '../../../../phrasePage/multiselect';
 import chevronUpIcon from '../../../../assets/chevron-up.svg';
 import Pagination from '../../../../mainSearchPage/Pagination.jsx';
 import shieldIcon from '../../../../assets/adminPage/shield-exclamation.svg';
+import defaultPreviewImage from '../../../../assets/resourcepage/file_preview_demo.png';
 
 // Mock Data：之後會用 API 取代
 const baseResources = [
@@ -137,7 +138,7 @@ export default function AdminResourcePage() {
     try {
       const getFullImageUrl = (url) => {
         if (!url || url === '/src/assets/resourcepage/file_preview_demo.png') {
-          return '/src/assets/resourcepage/file_preview_demo.png';
+          return defaultPreviewImage;
         }
         if (url.startsWith('http://') || url.startsWith('https://')) return url;
         return `https://dev.taigiedu.com/backend/${url}`;

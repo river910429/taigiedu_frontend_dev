@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import './AdminFilePreview.css';
 
 // 預設預覽圖
-const defaultPreviewImage = '/src/assets/resourcepage/file_preview_demo.png';
+import defaultPreviewImage from '../../../../assets/resourcepage/file_preview_demo.png';
 
 // 管理軌跡模擬資料（只保留第一筆 demo）
 const mockManagementHistory = [
