@@ -39,6 +39,8 @@ import AdminNewsPage from "./adminPage/adminContent/adminHome/adminNewsPage";
 import AdminExamInfo from "./adminPage/adminContent/adminHome/examPage/adminExamInfo";
 import AdminExamBooks from "./adminPage/adminContent/adminHome/examPage/adminExamBooks";
 import AdminExamChannels from "./adminPage/adminContent/adminHome/examPage/adminExamChannels";
+import AdminMemberPage from "./adminPage/adminContent/adminHome/adminMemberPage";
+import AdminFilePreview from "./adminPage/adminContent/adminHome/adminresourcePage/AdminFilePreview";
 
 const AppLayout = () => {
   const location = useLocation();
@@ -57,10 +59,10 @@ const AppLayout = () => {
   }, [isLoggedIn]);
 
   return (
-          <div className="app">
+    <div className="app">
       <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail || isAdminPage ? 'preview-page' : ''}`}>
-      {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && (isAdminContent ? <AdminSidebar /> : isAdminPage ? null : <Sidebar />)}
+        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && (isAdminContent ? <AdminSidebar /> : isAdminPage ? null : <Sidebar />)}
         <Routes>
           <Route path="/" element={<MainContent />} />
           <Route path="/search" element={<MainSearchPage />} />
@@ -107,44 +109,46 @@ const AppLayout = () => {
               )
             }
           />
-            <Route path="/celebrity" element={<CelebrityPage />} />
-            <Route path="/celebrity/detail" element={<CelebrityDetails />} />
-            <Route path="/culture/food" element={<CultureFood />} />
-            <Route path="/culture/festival" element={<CultureFestival />} />
-            <Route path="/socialmedia" element={<SocialmediaPage />} />
-            <Route path="/exam" element={<ExamPage />} />
-            <Route
-              path="/login"
-              element={<LoginPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
-            />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/admin" element={<AdminMain />} />
-            <Route path="/admin/main-search/test" element={<AdminTestPage />} />
-            <Route path="/admin/main-search/news" element={<AdminNewsPage />} />
-            <Route path="/admin/culture/food" element={<AdminFoodPage />} />
-            <Route path="/admin/culture/festival" element={<AdminFestivalPage />} />
-            <Route path="/admin/socialmedia" element={<AdminSocialmediaPage />} />
-            <Route path="/admin/resource" element={<AdminResourcePage />} />
-            <Route path="/admin/resource/upload" element={<AdminResourcePage />} />
-            <Route path="/admin/resource/header" element={<ResourceHeaderPage />} />
-            <Route path="/admin/exam/info" element={<AdminExamInfo />} />
-            <Route path="/admin/exam/books" element={<AdminExamBooks />} />
-            <Route path="/admin/exam/channels" element={<AdminExamChannels />} />
-            {/* // 其他 admin 路由 */}
-          </Routes>
-        </div>
-      <Footer />
+          <Route path="/celebrity" element={<CelebrityPage />} />
+          <Route path="/celebrity/detail" element={<CelebrityDetails />} />
+          <Route path="/culture/food" element={<CultureFood />} />
+          <Route path="/culture/festival" element={<CultureFestival />} />
+          <Route path="/socialmedia" element={<SocialmediaPage />} />
+          <Route path="/exam" element={<ExamPage />} />
+          <Route
+            path="/login"
+            element={<LoginPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+          />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/admin" element={<AdminMain />} />
+          <Route path="/admin/main-search/test" element={<AdminTestPage />} />
+          <Route path="/admin/main-search/news" element={<AdminNewsPage />} />
+          <Route path="/admin/culture/food" element={<AdminFoodPage />} />
+          <Route path="/admin/culture/festival" element={<AdminFestivalPage />} />
+          <Route path="/admin/socialmedia" element={<AdminSocialmediaPage />} />
+          <Route path="/admin/resource" element={<AdminResourcePage />} />
+          <Route path="/admin/resource/upload" element={<AdminResourcePage />} />
+          <Route path="/admin/resource/header" element={<ResourceHeaderPage />} />
+          <Route path="/admin/exam/info" element={<AdminExamInfo />} />
+          <Route path="/admin/exam/books" element={<AdminExamBooks />} />
+          <Route path="/admin/exam/channels" element={<AdminExamChannels />} />
+          <Route path="/admin/member" element={<AdminMemberPage />} />
+          <Route path="/admin/file-preview" element={<AdminFilePreview />} />
+          {/* // 其他 admin 路由 */}
+        </Routes>
       </div>
+      <Footer />
+    </div>
   );
-  }
+}
 
 
 const App = () => {
   return (
     <ToastProvider>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppLayout />
-    </BrowserRouter>
+      </BrowserRouter>
     </ToastProvider>
 
   );

@@ -37,7 +37,7 @@ const AdminMain = () => {
     {
       title: "會員",
       icon: userIcon,
-      functions: ["暫無內容"]
+      functions: ["會員管理"]
     }
   ];
 
@@ -64,16 +64,16 @@ const AdminMain = () => {
     "認證類型": "/admin/exam/info",
     "推薦用書": "/admin/exam/books",
     "教育頻道": "/admin/exam/channels",
-    "暫無內容": "#"
+    "會員管理": "/admin/member"
     // ...
   };
 
   const handleFunctionClick = (functionName) => {
     const path = routeMap[functionName];
-    if(path && path !== "#") {
+    if (path && path !== "#") {
       navigate(path);
     }
-    else if(path === "#") {
+    else if (path === "#") {
       alert(`此功能尚未開放`);
     }
     else {
@@ -86,7 +86,7 @@ const AdminMain = () => {
       <div className="admin-header">
         <h1>後台管理</h1>
       </div>
-      
+
       <div className="admin-content">
         <div className="function-grid">
           {functionGroups.map((group, index) => (
@@ -98,9 +98,9 @@ const AdminMain = () => {
               <hr className="card-divider" />
               <div className="function-links">
                 {group.functions.map((func, funcIndex) => (
-                  <a 
-                    key={funcIndex} 
-                    href="#" 
+                  <a
+                    key={funcIndex}
+                    href="#"
                     className="function-link"
                     onClick={(e) => {
                       e.preventDefault();

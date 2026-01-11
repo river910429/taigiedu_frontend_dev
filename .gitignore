@@ -27,3 +27,4 @@ Thumbs.db
 # Env files (通常包含敏感資訊)
 .env
 .env.*
+.vercel
