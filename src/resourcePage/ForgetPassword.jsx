@@ -11,7 +11,7 @@ const ForgetPassword = ({ isOpen, onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-  
+
   // Refs for OTP input fields
   const otpRefs = useRef([]);
 
@@ -41,7 +41,7 @@ const ForgetPassword = ({ isOpen, onClose }) => {
   // Handle Step 1: Request password reset
   const handleRequestReset = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       showToast("請輸入電子郵件", "error");
       return;
@@ -51,7 +51,7 @@ const ForgetPassword = ({ isOpen, onClose }) => {
 
     try {
       const response = await fetch(
-        "https://dev.taigiedu.com/backend/api/user/request_password_reset",
+        `${import.meta.env.VITE_API_URL}/api/user/request_password_reset`,
         {
           method: "POST",
           headers: {
@@ -111,7 +111,7 @@ const ForgetPassword = ({ isOpen, onClose }) => {
 
     try {
       const response = await fetch(
-        "https://dev.taigiedu.com/backend/api/user/confirm_password_reset",
+        `${import.meta.env.VITE_API_URL}/api/user/confirm_password_reset`,
         {
           method: "POST",
           headers: {
@@ -146,7 +146,7 @@ const ForgetPassword = ({ isOpen, onClose }) => {
   const handleOtpChange = (index, value) => {
     // Only allow single digit
     if (value.length > 1) return;
-    
+
     // Only allow numbers
     if (value && !/^\d$/.test(value)) return;
 
@@ -177,14 +177,14 @@ const ForgetPassword = ({ isOpen, onClose }) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text");
     const digits = pastedData.replace(/\D/g, "").slice(0, 6);
-    
+
     if (digits.length > 0) {
       const newOtp = [...otp];
       for (let i = 0; i < digits.length && i < 6; i++) {
         newOtp[i] = digits[i];
       }
       setOtp(newOtp);
-      
+
       // Focus the last filled input or the next empty one
       const nextIndex = Math.min(digits.length, 5);
       otpRefs.current[nextIndex]?.focus();
@@ -235,8 +235,8 @@ const ForgetPassword = ({ isOpen, onClose }) => {
               {cooldown > 0
                 ? `請稍候 ${cooldown} 秒再試`
                 : isSubmitting
-                ? "送出中..."
-                : "送出"}
+                  ? "送出中..."
+                  : "送出"}
             </button>
           </form>
         ) : (

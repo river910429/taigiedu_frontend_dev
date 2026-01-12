@@ -18,6 +18,7 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
     contentTypeOther: "",
     file: null,
   });
+  const [versionMapping, setVersionMapping] = useState({}); // 儲存年級與版本的映射
 
   useEffect(() => {
     const handlePopState = (event) => {
@@ -40,9 +41,37 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    const fetchVersions = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/versions`);
+        const result = await response.json();
+        if (response.ok) {
+          setVersionMapping(result);
+        } else {
+          console.error("無法取得版本列表:", result);
+        }
+      } catch (error) {
+        console.error("取得版本列表時發生錯誤:", error);
+      }
+    };
+
+    if (isOpen) {
+      fetchVersions();
+    }
+  }, [isOpen]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: value };
+      // 如果年級改變，重置版本
+      if (name === "grade") {
+        newData.version = "";
+        newData.versionOther = "";
+      }
+      return newData;
+    });
   };
 
   const handleFileChange = (e) => {
@@ -230,12 +259,13 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
               <span className="form-label-required">*</span>版本
             </span>
             <div className="radio-group">
-              {["真平", "育達", "泰宇", "奇異果", "創新"].map((version) => (
+              {(versionMapping[formData.grade] || []).map((version) => (
                 <label key={version}>
                   <input
                     type="radio"
                     name="version"
                     value={version}
+                    checked={formData.version === version}
                     onChange={handleInputChange}
                     required
                     disabled={isProcessing || isSuccess}
@@ -248,8 +278,9 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
                   type="radio"
                   name="version"
                   value="其他"
+                  checked={formData.version === "其他"}
                   onChange={handleInputChange}
-                  disabled={isProcessing || isSuccess}
+                  disabled={!formData.grade || isProcessing || isSuccess}
                 />
                 其他
                 <input
@@ -349,17 +380,17 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
             <button
               type="submit"
               className={`submit-button ${isProcessing
-                  ? "processing"
-                  : isSuccess
-                    ? "success-button"
-                    : formData.name &&
-                      formData.grade &&
-                      formData.version &&
-                      formData.book &&
-                      formData.contentType &&
-                      formData.file
-                      ? "enabled"
-                      : "disabled"
+                ? "processing"
+                : isSuccess
+                  ? "success-button"
+                  : formData.name &&
+                    formData.grade &&
+                    formData.version &&
+                    formData.book &&
+                    formData.contentType &&
+                    formData.file
+                    ? "enabled"
+                    : "disabled"
                 }`}
               disabled={isProcessing || isSuccess} // 處理中或成功時禁用按鈕
             >
