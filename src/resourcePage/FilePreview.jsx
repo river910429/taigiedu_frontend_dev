@@ -5,6 +5,7 @@ import "./FilePreview.css";
 import likesIcon from "../assets/resourcepage/Union (Stroke)(black).svg";
 import downloadsIcon from "../assets/resourcepage/Subtract(black).svg";
 import readAllIcon from "../assets/resourcepage/Vector (Stroke).svg";
+import reportIcon from "../assets/report1.svg";
 import defaultPreviewImage from "../assets/resourcepage/file_preview_demo.png";
 
 const FilePreview = () => {
@@ -15,6 +16,8 @@ const FilePreview = () => {
   const [likesCount, setLikesCount] = useState(0);
   const [downloadsCount, setDownloadsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("不雅內容");
   const [resourceData, setResourceData] = useState({
     imageUrl: "",
     fileType: "",
@@ -25,6 +28,19 @@ const FilePreview = () => {
     resourceId: "",
     tags: []
   });
+
+  // 檢舉理由選項
+  const reportReasons = [
+    "不雅內容",
+    "涉及著作權疑慮",
+    "政治不中立",
+    "非台語文相關",
+    "重複上傳",
+    "廣告內容",
+    "推廣管制商品",
+    "涉及隱私",
+    "涉及詐騙、詐欺或假冒"
+  ];
 
   // 從 URL 查詢參數取得資料
   useEffect(() => {
@@ -54,7 +70,7 @@ const FilePreview = () => {
           return url;
         }
         // 否則添加 base URL
-        return `${import.meta.env.VITE_API_URL}/${url}`;
+        return `https://dev.taigiedu.com/backend/${url}`;
       };
 
       // 設置資源數據
@@ -116,7 +132,7 @@ const FilePreview = () => {
     try {
       // 如果有資源 ID，記錄下載
       if (resourceData.resourceId) {
-        await fetch(`${import.meta.env.VITE_API_URL}/api/resource/download/${resourceData.resourceId}`, {
+        await fetch(`https://dev.taigiedu.com/backend/api/resource/download/${resourceData.resourceId}`, {
           method: "GET",
         });
       }
@@ -168,7 +184,7 @@ const FilePreview = () => {
       };
 
       // 發送點讚請求
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/like`, {
+      const response = await fetch("https://dev.taigiedu.com/backend/api/resource/like", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -197,6 +213,25 @@ const FilePreview = () => {
       console.error("點讚操作錯誤:", error);
       showToast("網絡連接錯誤，請稍後再試", "error");
     }
+  };
+
+  // 檢舉功能 - 開啟 modal
+  const handleReport = () => {
+    setShowReportModal(true);
+  };
+
+  // 確認檢舉
+  const handleConfirmReport = () => {
+    // 這裡可以加入 API 調用將檢舉資料送到後端
+    console.log("檢舉資料:", {
+      resourceId: resourceData.resourceId,
+      title: resourceData.title,
+      reason: reportReason,
+      reportedAt: new Date().toISOString()
+    });
+
+    setShowReportModal(false);
+    showToast("檢舉已提交，感謝您的回報", "success");
   };
 
   return (
@@ -253,10 +288,47 @@ const FilePreview = () => {
         <img src={resourceData.imageUrl} alt={resourceData.title} />
       </div>
 
+      {/* 檢舉按鈕 - 右下角 */}
+      <button className="file-report-button" onClick={handleReport}>
+        <img src={reportIcon} alt="檢舉" className="report-icon" />
+        <span>檢舉資源</span>
+      </button>
+
       <div className="file-bottom-fixed" onClick={handleViewDownloadPage}>
         <img src={readAllIcon} alt="閱讀全部" />
         閱讀全部
       </div>
+
+      {/* 檢舉 Modal */}
+      {showReportModal && (
+        <div className="report-modal-backdrop" onClick={() => setShowReportModal(false)}>
+          <div className="report-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="report-modal-close" onClick={() => setShowReportModal(false)}>
+              ×
+            </button>
+            <div className="report-modal-title">
+              <span className="required">*</span>檢舉理由：
+            </div>
+            <div className="report-modal-options">
+              {reportReasons.map((reason) => (
+                <label key={reason} className="report-option">
+                  <input
+                    type="radio"
+                    name="reportReason"
+                    value={reason}
+                    checked={reportReason === reason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                  />
+                  <span>{reason}</span>
+                </label>
+              ))}
+            </div>
+            <button className="report-modal-submit" onClick={handleConfirmReport}>
+              確定
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
