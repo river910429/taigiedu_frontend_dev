@@ -8,7 +8,7 @@ export default defineConfig({
     // If you want to bind the server to all network interfaces
     host: true,
     // Specify which hosts are allowed to access the preview server
-    allowedHosts: ['dev.taigiedu.com']
+    allowedHosts: ['dev.taigiedu.com', 'www.taigiedu.com']
   },
 
   base: process.env.VITE_BASE_PATH || '/',
