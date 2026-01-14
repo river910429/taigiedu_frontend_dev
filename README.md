@@ -188,10 +188,6 @@ const imagePath = `${import.meta.env.VITE_IMAGE_URL}/path/to/image.jpg`;
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 開啟一個 Pull Request
 
-## 授權
-
-本專案採用 MIT 授權條款 - 詳見 LICENSE 檔案
-
 ## 聯絡方式
 
 如有任何問題或建議，歡迎透過以下方式聯繫：
