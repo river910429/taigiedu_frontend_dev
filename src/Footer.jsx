@@ -13,7 +13,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="footer">
+    <footer className="footer" data-testid="footer">
       <div className="footer-buttons">
         <button className="footer-button">Our team</button>
         <button className="footer-button" onClick={() => handleLinkClick('terms')}>Terms</button>

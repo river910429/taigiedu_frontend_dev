@@ -1,4 +1,4 @@
-import React, { useState,useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Sidebar.css";
 import homeIcon from "./assets/sidebar_icon/主頁.svg";
@@ -29,9 +29,9 @@ const Sidebar = () => {
     { id: 5, label: "台語教學資源共享平台", icon: resourceIcon, path: "/resource" },
     { id: 6, label: "台語俗諺語", icon: phraseIcon, path: "/phrase" },
     { id: 7, label: "台語名人堂", icon: celebrityIcon, path: "/celebrity" },
-    { 
-      id: 8, 
-      label: "台語文化", 
+    {
+      id: 8,
+      label: "台語文化",
       icon: cultureIcon,
       hasSubmenu: true,
       submenuItems: [
@@ -41,7 +41,7 @@ const Sidebar = () => {
     },
     { id: 9, label: "媒體與社群資源", icon: socialMediaIcon, path: "/socialmedia" },
     { id: 10, label: "認證考試", icon: examIcon, path: "/exam" },
-    ];
+  ];
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
   useEffect(() => {
@@ -64,7 +64,7 @@ const Sidebar = () => {
     }
   }, [location.pathname]); // 監聽 location.pathname 變化
 
-   const handleClick = (id, path, hasSubmenu) => {
+  const handleClick = (id, path, hasSubmenu) => {
     if (hasSubmenu) {
       setIsSubMenuOpen(!isSubMenuOpen);
       setActiveItem(id);
@@ -76,7 +76,7 @@ const Sidebar = () => {
     }
   };
 
-    const handleSubItemClick = (subItemId, path) => {
+  const handleSubItemClick = (subItemId, path) => {
     setActiveSubItem(subItemId);
     setActiveItem(null);
     setIsSubMenuOpen(true); // Keep submenu open when submenu item is active
@@ -84,7 +84,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar">
+    <div className="sidebar" data-testid="sidebar">
       {menuItems.map((item) => (
         <div key={item.id}>
           <button
@@ -99,8 +99,8 @@ const Sidebar = () => {
             {item.label}
             {item.hasSubmenu && (
               <span className={`arrow ${isSubMenuOpen ? 'up' : 'down'}`}>
-              <img src={chevronUpIcon} />
-            </span>
+                <img src={chevronUpIcon} />
+              </span>
             )}
           </button>
           {item.hasSubmenu && isSubMenuOpen && (

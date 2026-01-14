@@ -260,7 +260,7 @@ const MainContent = () => {
   return (
     <main className="main-content">
       {/* Hero Image Section with gradient background and text overlay */}
-      <section className="hero-section px-0 pt-6">
+      <section className="hero-section px-0 pt-6" data-testid="home-hero-section">
         <div className="w-full max-w-[1600px] mx-auto h-[450px] relative bg-gradient-to-r from-[#4AA3BA] to-[#96D0B3] overflow-hidden rounded-lg">
           <img
             src={heroImage}
@@ -294,11 +294,13 @@ const MainContent = () => {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="搜尋..."
             className="search-input"
+            data-testid="home-search-input"
           />
           <img
             src={searchIcon}
             className="search-icon"
             onClick={handleSearch} // 點擊圖片觸發搜尋跳轉
+            data-testid="home-search-button"
           />
         </form>
 
