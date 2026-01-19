@@ -40,7 +40,7 @@ const ReadContent = () => {
       showError(null); // 重置錯誤狀態
       const parameters = {
         tts_lang: selectedLang,
-        tts_data: content
+        tts_data: content.replace(/\n/g, " ") // 過濾掉換行符號，替換為空格
       };
       console.log('API Parameters:', parameters);
 
@@ -48,7 +48,7 @@ const ReadContent = () => {
       const timeout = new Promise((_, reject) => {
         setTimeout(() => {
           reject(new Error('請求超時，伺服器回應時間過長'));
-        }, 10000); // 10 秒超時
+        }, 60000); // 60 秒超時
       });
 
       // 創建 fetch Promise
@@ -121,10 +121,10 @@ const ReadContent = () => {
       <div className="audio-button-container">
         <button
           className={`generate-audio-button ${isProcessing
-              ? "processing"
-              : content.trim() === "" || isButtonDisabled
-                ? "disabled"
-                : "enabled"
+            ? "processing"
+            : content.trim() === "" || isButtonDisabled
+              ? "disabled"
+              : "enabled"
             }`}
           onClick={handleGenerateAudio}
           disabled={isProcessing || content.trim() === "" || isButtonDisabled}
