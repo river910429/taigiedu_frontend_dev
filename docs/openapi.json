@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "taiwaneseOMG Frontend-Inferred API",
+    "title": "taigiedu.com Frontend-Inferred API",
     "version": "0.1.0",
     "description": "Inferred from frontend fetch calls (VITE_API_URL)."
   },
@@ -11,35 +11,63 @@
       "description": "Base URL aligned with VITE_API_URL",
       "variables": {
         "apiBaseUrl": {
-          "default": "http://localhost:3000"
+          "default": "https://dev.taigiedu.com/backend"
         }
       }
     }
   ],
   "tags": [
-    { "name": "TTS" },
-    { "name": "Translation" },
-    { "name": "STT" },
-    { "name": "Search" },
-    { "name": "Idiom" },
-    { "name": "Resource" },
-    { "name": "User" },
-    { "name": "Culture" },
-    { "name": "Celebrity" },
-    { "name": "Social" },
-    { "name": "Exam" },
-    { "name": "Info" }
+    {
+      "name": "TTS"
+    },
+    {
+      "name": "Translation"
+    },
+    {
+      "name": "STT"
+    },
+    {
+      "name": "Search"
+    },
+    {
+      "name": "Idiom"
+    },
+    {
+      "name": "Resource"
+    },
+    {
+      "name": "User"
+    },
+    {
+      "name": "Culture"
+    },
+    {
+      "name": "Celebrity"
+    },
+    {
+      "name": "Social"
+    },
+    {
+      "name": "Exam"
+    },
+    {
+      "name": "Info"
+    }
   ],
   "paths": {
     "/synthesize_speech": {
       "post": {
-        "tags": ["TTS"],
-        "summary": "Synthesize speech from text",
+        "tags": [
+          "TTS"
+        ],
+        "summary": "文字轉語音",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/TtsRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/TtsRequest"
+              }
             }
           }
         },
@@ -48,7 +76,10 @@
             "description": "Base64 audio (wav) string",
             "content": {
               "text/plain": {
-                "schema": { "type": "string", "description": "Base64 audio content" }
+                "schema": {
+                  "type": "string",
+                  "description": "Base64 audio content"
+                }
               }
             }
           }
@@ -57,13 +88,17 @@
     },
     "/convert_taibun": {
       "post": {
-        "tags": ["Translation"],
-        "summary": "Convert Taiwanese text between writing systems",
+        "tags": [
+          "Translation"
+        ],
+        "summary": "台語文字轉換",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/TaibunConvertRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/TaibunConvertRequest"
+              }
             }
           }
         },
@@ -71,7 +106,11 @@
           "200": {
             "description": "Converted text",
             "content": {
-              "text/plain": { "schema": { "type": "string" } }
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
@@ -79,33 +118,47 @@
     },
     "/submit_tc_feedback": {
       "post": {
-        "tags": ["Translation"],
-        "summary": "Submit translation correction feedback",
+        "tags": [
+          "Translation"
+        ],
+        "summary": "內容修正回饋提交",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/TcFeedbackRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/TcFeedbackRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Feedback accepted",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/transcribe_speech": {
       "post": {
-        "tags": ["STT"],
-        "summary": "Transcribe speech audio (base64) to text",
+        "tags": [
+          "STT"
+        ],
+        "summary": "語音轉文字",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SttTranscribeRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/SttTranscribeRequest"
+              }
             }
           }
         },
@@ -113,7 +166,11 @@
           "200": {
             "description": "Transcription result",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/SttTranscribeResponse" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SttTranscribeResponse"
+                }
+              }
             }
           }
         }
@@ -121,420 +178,675 @@
     },
     "/submit_stt_feedback": {
       "post": {
-        "tags": ["STT"],
-        "summary": "Submit STT correction feedback",
+        "tags": [
+          "STT"
+        ],
+        "summary": "語音辨識回饋提交",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SttFeedbackRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/SttFeedbackRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Feedback accepted",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/top_keywords": {
       "post": {
-        "tags": ["Search"],
-        "summary": "Collect keyword statistics from input text",
+        "tags": [
+          "Search"
+        ],
+        "summary": "熱門關鍵字統計",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/TopKeywordsRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/TopKeywordsRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Keyword list",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TopKeywordsResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopKeywordsResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/sentence_search": {
       "post": {
-        "tags": ["Search"],
-        "summary": "Search sentences/documents",
+        "tags": [
+          "Search"
+        ],
+        "summary": "句子搜尋",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SentenceSearchRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/SentenceSearchRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Search results",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SentenceSearchResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SentenceSearchResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/idiom_random": {
       "post": {
-        "tags": ["Idiom"],
-        "summary": "Get a random idiom",
+        "tags": [
+          "Idiom"
+        ],
+        "summary": "隨機俗語諺",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "type": "object" } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
             "description": "Random idiom",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdiomRandomResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdiomRandomResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/idiom_search": {
       "post": {
-        "tags": ["Idiom"],
-        "summary": "Search idioms by keyword/category",
+        "tags": [
+          "Idiom"
+        ],
+        "summary": "俗語諺搜尋",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/IdiomSearchRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/IdiomSearchRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Idiom search results",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdiomSearchResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdiomSearchResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/info/test": {
       "post": {
-        "tags": ["Info"],
-        "summary": "Get exam info list",
+        "tags": [
+          "Info"
+        ],
+        "summary": "考試資訊",
         "responses": {
           "200": {
             "description": "Exam info list",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "type": "object" } } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/info/news": {
       "post": {
-        "tags": ["Info"],
-        "summary": "Get news info list",
+        "tags": [
+          "Info"
+        ],
+        "summary": "活動快訊",
         "responses": {
           "200": {
             "description": "News info list",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "type": "object" } } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/events": {
       "post": {
-        "tags": ["Info"],
-        "summary": "Get today events",
+        "tags": [
+          "Info"
+        ],
+        "summary": "今日大事",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "type": "object" } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
             "description": "Events list",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EventsResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/media": {
       "post": {
-        "tags": ["Social"],
-        "summary": "Get social media resources",
+        "tags": [
+          "Social"
+        ],
+        "summary": "社群媒體資源",
         "responses": {
           "200": {
             "description": "Social media data",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/exam_list": {
       "post": {
-        "tags": ["Exam"],
-        "summary": "Get exam list by category",
+        "tags": [
+          "Exam"
+        ],
+        "summary": "考試列表",
         "responses": {
           "200": {
             "description": "Exam list data",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/culture/food": {
       "post": {
-        "tags": ["Culture"],
-        "summary": "Get food culture list",
+        "tags": [
+          "Culture"
+        ],
+        "summary": "食物文化列表",
         "responses": {
           "200": {
             "description": "Food list",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "type": "object" } } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/culture/festival": {
       "post": {
-        "tags": ["Culture"],
-        "summary": "Get festival culture list",
+        "tags": [
+          "Culture"
+        ],
+        "summary": "節慶文化列表",
         "responses": {
           "200": {
             "description": "Festival list",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "type": "object" } } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/celebrity/list": {
       "post": {
-        "tags": ["Celebrity"],
-        "summary": "Get celebrity list",
+        "tags": [
+          "Celebrity"
+        ],
+        "summary": "名人列表",
         "responses": {
           "200": {
             "description": "Celebrity list",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "type": "object" } } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/celebrity/detail": {
       "post": {
-        "tags": ["Celebrity"],
-        "summary": "Get celebrity detail by name",
+        "tags": [
+          "Celebrity"
+        ],
+        "summary": "名人詳情",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CelebrityDetailRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CelebrityDetailRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Celebrity detail data",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CelebrityDetailResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CelebrityDetailResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/resource/versions": {
       "get": {
-        "tags": ["Resource"],
-        "summary": "Get resource versions mapping",
+        "tags": [
+          "Resource"
+        ],
+        "summary": "資源版本列表",
         "responses": {
           "200": {
             "description": "Version mapping",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/resource/search": {
       "post": {
-        "tags": ["Resource"],
-        "summary": "Search resources",
+        "tags": [
+          "Resource"
+        ],
+        "summary": "資源搜尋",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ResourceSearchRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/ResourceSearchRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Resource search result",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ResourceSearchResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceSearchResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/resource/upload": {
       "post": {
-        "tags": ["Resource"],
-        "summary": "Upload a resource (multipart)",
+        "tags": [
+          "Resource"
+        ],
+        "summary": "資源上傳",
         "requestBody": {
           "required": true,
           "content": {
             "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/ResourceUploadRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/ResourceUploadRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Upload result",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/resource/delete": {
       "post": {
-        "tags": ["Resource"],
-        "summary": "Delete a resource",
+        "tags": [
+          "Resource"
+        ],
+        "summary": "資源刪除",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ResourceDeleteRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/ResourceDeleteRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Delete result",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/user/register": {
       "post": {
-        "tags": ["User"],
-        "summary": "Register new user",
+        "tags": [
+          "User"
+        ],
+        "summary": "會員註冊",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/RegisterRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Register result",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/user/resend-verification": {
       "post": {
-        "tags": ["User"],
-        "summary": "Resend verification email",
+        "tags": [
+          "User"
+        ],
+        "summary": "重新發送驗證信",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ResendVerificationRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Resend result",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/captcha": {
       "get": {
-        "tags": ["User"],
-        "summary": "Get captcha",
+        "tags": [
+          "User"
+        ],
+        "summary": "取得驗證碼",
         "responses": {
           "200": {
             "description": "Captcha payload",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CaptchaResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptchaResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/user/login": {
       "post": {
-        "tags": ["User"],
-        "summary": "User login",
+        "tags": [
+          "User"
+        ],
+        "summary": "會員登入",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Login result",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/user/google_login": {
       "post": {
-        "tags": ["User"],
-        "summary": "Google login",
+        "tags": [
+          "User"
+        ],
+        "summary": "Google 登入",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/GoogleLoginRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Google login result",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/user/request_password_reset": {
       "post": {
-        "tags": ["User"],
-        "summary": "Request password reset (send OTP)",
+        "tags": [
+          "User"
+        ],
+        "summary": "忘記密碼-發送驗證碼",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/RequestPasswordResetRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordResetRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Request result",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/user/confirm_password_reset": {
       "post": {
-        "tags": ["User"],
-        "summary": "Confirm password reset with OTP",
+        "tags": [
+          "User"
+        ],
+        "summary": "忘記密碼-重設密碼",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/ConfirmPasswordResetRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPasswordResetRequest"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Reset result",
-            "content": { "application/json": { "schema": { "type": "object" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         }
       }
@@ -544,36 +856,77 @@
     "schemas": {
       "TtsRequest": {
         "type": "object",
-        "required": ["tts_lang", "tts_data"],
+        "required": [
+          "tts_lang",
+          "tts_data"
+        ],
         "properties": {
-          "tts_lang": { "type": "string", "description": "Language code, e.g. tb/tl/poj" },
-          "tts_data": { "type": "string", "description": "Text to synthesize" }
+          "tts_lang": {
+            "type": "string",
+            "description": "Language code, e.g. tb/tl/poj"
+          },
+          "tts_data": {
+            "type": "string",
+            "description": "Text to synthesize"
+          }
         }
       },
       "TaibunConvertRequest": {
         "type": "object",
-        "required": ["taibun_mode", "taibun_data"],
+        "required": [
+          "taibun_mode",
+          "taibun_data"
+        ],
         "properties": {
-          "taibun_mode": { "type": "string", "description": "Conversion mode, e.g. tbn2tl" },
-          "taibun_data": { "type": "string" }
+          "taibun_mode": {
+            "type": "string",
+            "description": "Conversion mode, e.g. tbn2tl"
+          },
+          "taibun_data": {
+            "type": "string"
+          }
         }
       },
       "TcFeedbackRequest": {
         "type": "object",
-        "required": ["mode", "inputText", "correctedText"],
+        "required": [
+          "mode",
+          "inputText",
+          "correctedText"
+        ],
         "properties": {
-          "mode": { "type": "string", "description": "e.g. zh_to_tl" },
-          "inputText": { "type": "string" },
-          "correctedText": { "type": "string" }
+          "mode": {
+            "type": "string",
+            "description": "e.g. zh_to_tl"
+          },
+          "inputText": {
+            "type": "string"
+          },
+          "correctedText": {
+            "type": "string"
+          }
         }
       },
       "SttTranscribeRequest": {
         "type": "object",
-        "required": ["stt_type", "stt_lang", "stt_data"],
+        "required": [
+          "stt_type",
+          "stt_lang",
+          "stt_data"
+        ],
         "properties": {
-          "stt_type": { "type": "string", "description": "base64" },
-          "stt_lang": { "type": "string", "description": "tw" },
-          "stt_data": { "type": "string", "description": "Base64 audio content" }
+          "stt_type": {
+            "type": "string",
+            "description": "base64"
+          },
+          "stt_lang": {
+            "type": "string",
+            "description": "tw"
+          },
+          "stt_data": {
+            "type": "string",
+            "description": "Base64 audio content"
+          }
         }
       },
       "SttTranscribeResponse": {
@@ -582,55 +935,97 @@
           "message": {
             "type": "object",
             "properties": {
-              "tw": { "type": "string" },
-              "tl": { "type": "string" },
-              "poj": { "type": "string" }
+              "tw": {
+                "type": "string"
+              },
+              "tl": {
+                "type": "string"
+              },
+              "poj": {
+                "type": "string"
+              }
             }
           }
         }
       },
       "SttFeedbackRequest": {
         "type": "object",
-        "required": ["audio_text", "audio_lang", "audio_data"],
+        "required": [
+          "audio_text",
+          "audio_lang",
+          "audio_data"
+        ],
         "properties": {
-          "audio_text": { "type": "string" },
-          "audio_lang": { "type": "string", "description": "tb/tl/poj" },
-          "audio_data": { "type": "string", "description": "Base64 audio content" }
+          "audio_text": {
+            "type": "string"
+          },
+          "audio_lang": {
+            "type": "string",
+            "description": "tb/tl/poj"
+          },
+          "audio_data": {
+            "type": "string",
+            "description": "Base64 audio content"
+          }
         }
       },
       "TopKeywordsRequest": {
         "type": "object",
-        "required": ["text"],
+        "required": [
+          "text"
+        ],
         "properties": {
-          "text": { "type": "string" }
+          "text": {
+            "type": "string"
+          }
         }
       },
       "TopKeywordsResponse": {
         "type": "object",
         "properties": {
-          "status": { "type": "string" },
+          "status": {
+            "type": "string"
+          },
           "data": {
             "type": "array",
-            "items": { "type": "string" }
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
       "IdiomRandomResponse": {
         "type": "object",
         "properties": {
-          "status": { "type": "string" },
-          "data": { "type": "object" }
+          "status": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
         }
       },
       "IdiomSearchRequest": {
         "type": "object",
-        "required": ["search_keyword", "category"],
+        "required": [
+          "search_keyword",
+          "category"
+        ],
         "properties": {
-          "search_keyword": { "type": "string" },
+          "search_keyword": {
+            "type": "string"
+          },
           "category": {
             "oneOf": [
-              { "type": "string" },
-              { "type": "array", "items": { "type": "string" } }
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             ]
           }
         }
@@ -641,20 +1036,47 @@
           "data": {
             "type": "object",
             "properties": {
-              "phrases": { "type": "array", "items": { "type": "object" } }
+              "phrases": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
             }
           }
         }
       },
       "SentenceSearchRequest": {
         "type": "object",
-        "required": ["text", "size", "mark", "tags", "lang"],
+        "required": [
+          "text",
+          "size",
+          "mark",
+          "tags",
+          "lang"
+        ],
         "properties": {
-          "text": { "type": "string" },
-          "size": { "type": "integer" },
-          "mark": { "type": "boolean" },
-          "tags": { "type": "array", "items": { "type": "string" } },
-          "lang": { "type": "array", "items": { "type": "string" } }
+          "text": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "mark": {
+            "type": "boolean"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lang": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       },
       "SentenceSearchResponse": {
@@ -663,7 +1085,12 @@
           "data": {
             "type": "object",
             "properties": {
-              "documents": { "type": "array", "items": { "type": "object" } }
+              "documents": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
             }
           }
         }
@@ -671,35 +1098,73 @@
       "EventsResponse": {
         "type": "object",
         "properties": {
-          "status": { "type": "string" },
-          "data": { "type": "array", "items": { "type": "string" } }
+          "status": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       },
       "ResourceSearchRequest": {
         "type": "object",
-        "required": ["stage", "version", "keyword", "searchContent", "page", "limit"],
+        "required": [
+          "stage",
+          "version",
+          "keyword",
+          "searchContent",
+          "page",
+          "limit"
+        ],
         "properties": {
-          "stage": { "type": "string" },
+          "stage": {
+            "type": "string"
+          },
           "version": {
             "oneOf": [
-              { "type": "string" },
-              { "type": "array", "items": { "type": "string" } }
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             ]
           },
-          "keyword": { "type": "string" },
-          "searchContent": { "type": "string" },
-          "page": { "type": "integer" },
-          "limit": { "type": "integer" }
+          "keyword": {
+            "type": "string"
+          },
+          "searchContent": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          }
         }
       },
       "ResourceSearchResponse": {
         "type": "object",
         "properties": {
-          "status": { "type": "string" },
+          "status": {
+            "type": "string"
+          },
           "data": {
             "type": "object",
             "properties": {
-              "resources": { "type": "array", "items": { "type": "object" } }
+              "resources": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
             }
           }
         }
@@ -721,26 +1186,59 @@
           "file"
         ],
         "properties": {
-          "uploader_id": { "type": "string" },
-          "uploader_name": { "type": "string" },
-          "title": { "type": "string" },
-          "grade": { "type": "string" },
-          "version": { "type": "string" },
-          "book": { "type": "string" },
-          "contentType": { "type": "string" },
-          "fileType": { "type": "string" },
-          "likes": { "type": "integer" },
-          "downloads": { "type": "integer" },
-          "tags": { "type": "string" },
-          "file": { "type": "string", "format": "binary" }
+          "uploader_id": {
+            "type": "string"
+          },
+          "uploader_name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "grade": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "book": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "fileType": {
+            "type": "string"
+          },
+          "likes": {
+            "type": "integer"
+          },
+          "downloads": {
+            "type": "integer"
+          },
+          "tags": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary"
+          }
         }
       },
       "ResourceDeleteRequest": {
         "type": "object",
-        "required": ["resourceId", "username"],
+        "required": [
+          "resourceId",
+          "username"
+        ],
         "properties": {
-          "resourceId": { "type": "integer" },
-          "username": { "type": "integer", "description": "Actually userId per frontend" }
+          "resourceId": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "integer",
+            "description": "Actually userId per frontend"
+          }
         }
       },
       "RegisterRequest": {
@@ -756,22 +1254,44 @@
           "usagePurpose"
         ],
         "properties": {
-          "email": { "type": "string" },
-          "password": { "type": "string" },
-          "confirmPassword": { "type": "string" },
-          "lastName": { "type": "string" },
-          "firstName": { "type": "string" },
-          "profession": { "type": "string" },
-          "professionOther": { "type": "string" },
-          "organization": { "type": "string" },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "confirmPassword": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "profession": {
+            "type": "string"
+          },
+          "professionOther": {
+            "type": "string"
+          },
+          "organization": {
+            "type": "string"
+          },
           "usagePurpose": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["type"],
+              "required": [
+                "type"
+              ],
               "properties": {
-                "type": { "type": "string" },
-                "custom": { "type": "string" }
+                "type": {
+                  "type": "string"
+                },
+                "custom": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -779,78 +1299,161 @@
       },
       "ResendVerificationRequest": {
         "type": "object",
-        "required": ["email"],
+        "required": [
+          "email"
+        ],
         "properties": {
-          "email": { "type": "string" }
+          "email": {
+            "type": "string"
+          }
         }
       },
       "CaptchaResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "image": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
         }
       },
       "LoginRequest": {
         "type": "object",
-        "required": ["username", "password", "captchaId", "captcha"],
+        "required": [
+          "username",
+          "password",
+          "captchaId",
+          "captcha"
+        ],
         "properties": {
-          "username": { "type": "string" },
-          "password": { "type": "string" },
-          "captchaId": { "type": "string" },
-          "captcha": { "type": "string" }
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "captchaId": {
+            "type": "string"
+          },
+          "captcha": {
+            "type": "string"
+          }
         }
       },
       "LoginResponse": {
         "type": "object",
         "properties": {
-          "success": { "type": "boolean" },
-          "token": { "type": "string" },
-          "userId": { "type": "string" },
-          "message": { "type": "string" }
+          "success": {
+            "type": "boolean"
+          },
+          "token": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
         }
       },
       "GoogleLoginRequest": {
         "type": "object",
-        "required": ["credential"],
+        "required": [
+          "credential"
+        ],
         "properties": {
-          "credential": { "type": "string" }
+          "credential": {
+            "type": "string"
+          }
         }
       },
       "RequestPasswordResetRequest": {
         "type": "object",
-        "required": ["email"],
+        "required": [
+          "email"
+        ],
         "properties": {
-          "email": { "type": "string" }
+          "email": {
+            "type": "string"
+          }
         }
       },
       "ConfirmPasswordResetRequest": {
         "type": "object",
-        "required": ["email", "otp", "newPassword", "confirmPassword"],
+        "required": [
+          "email",
+          "otp",
+          "newPassword",
+          "confirmPassword"
+        ],
         "properties": {
-          "email": { "type": "string" },
-          "otp": { "type": "integer" },
-          "newPassword": { "type": "string" },
-          "confirmPassword": { "type": "string" }
+          "email": {
+            "type": "string"
+          },
+          "otp": {
+            "type": "integer"
+          },
+          "newPassword": {
+            "type": "string"
+          },
+          "confirmPassword": {
+            "type": "string"
+          }
         }
       },
       "CelebrityDetailRequest": {
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
-          "name": { "type": "string" }
+          "name": {
+            "type": "string"
+          }
         }
       },
       "CelebrityDetailResponse": {
         "type": "object",
         "properties": {
-          "basicInfo": { "type": "object" },
-          "experience": { "type": "array", "items": { "type": "string" } },
-          "works_categories": { "type": "array", "items": { "type": "string" } },
-          "works_items": { "type": "object" },
-          "resources": { "type": "array", "items": { "type": "object" } },
-          "metaverse": { "type": "array", "items": { "type": "string" } },
-          "awards": { "type": "array", "items": { "type": "string" } }
+          "basicInfo": {
+            "type": "object"
+          },
+          "experience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "works_categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "works_items": {
+            "type": "object"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "metaverse": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "awards": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       }
     }
