@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import "./ResourceContent.css";
 import ResourceCard from "./ResourceCard";
 import { useToast } from "../components/Toast";
@@ -18,17 +19,33 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
   const [totalPages, setTotalPages] = useState(1);
   const VISIBLE_PAGES = 10;
 
+  const [searchParamsFromRouter, setSearchParamsFromRouter] = useSearchParams();
+  const pageFromUrl = parseInt(searchParamsFromRouter.get("page") || "1", 10);
+
   // 當搜索參數變更時重新獲取數據
   useEffect(() => {
     // 檢查搜索參數是否變化
     const isParamsChanged = JSON.stringify(searchParams) !== JSON.stringify(lastSearchParams);
     if (isParamsChanged) {
       console.log("搜索參數已變更，重新獲取資源");
-      setCurrentPage(1); // 重置到第一頁
+      // 如果不是初次讀取（lastSearchParams 不為 null），且搜尋條件變了，則重置頁碼到 1
+      if (lastSearchParams !== null && pageFromUrl !== 1) {
+        const newParams = new URLSearchParams(searchParamsFromRouter);
+        newParams.set("page", "1");
+        setSearchParamsFromRouter(newParams);
+      } else {
+        fetchResources();
+      }
       setLastSearchParams(searchParams);
-      fetchResources();
     }
   }, [searchParams]);
+
+  // 同步 URL 中的頁碼到 currentPage 狀態
+  useEffect(() => {
+    if (pageFromUrl !== currentPage) {
+      setCurrentPage(pageFromUrl);
+    }
+  }, [pageFromUrl, currentPage]);
 
   // 監聽後台更新事件，重新抓取前台資源
   useEffect(() => {
@@ -42,7 +59,9 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
 
   // 當頁碼變更時更新顯示的資源
   useEffect(() => {
-    updateDisplayedResources();
+    if (allResources.length > 0) {
+      updateDisplayedResources();
+    }
   }, [currentPage, allResources]);
 
   // 更新當前頁顯示的資源
@@ -50,12 +69,14 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, allResources.length);
 
-    if (startIndex < allResources.length) {
+    if (startIndex < allResources.length && startIndex >= 0) {
       const resourcesForCurrentPage = allResources.slice(startIndex, endIndex);
       setDisplayedResources(resourcesForCurrentPage);
-    } else {
-      // 如果當前頁已經超出範圍，重置到第一頁
-      setCurrentPage(1);
+    } else if (allResources.length > 0) {
+      // 只有在有資源的情況下，且頁碼超出範圍時才重置
+      const newParams = new URLSearchParams(searchParamsFromRouter);
+      newParams.set("page", "1");
+      setSearchParamsFromRouter(newParams);
     }
   };
 
@@ -96,7 +117,7 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
         console.log("搜索結果:", result);
 
         if (result.data && Array.isArray(result.data.resources)) {
-          const resourcesList = result.data.resources;
+          const resourcesList = [...result.data.resources].reverse();
           setAllResources(resourcesList);
           setTotalItems(resourcesList.length);
 
@@ -150,21 +171,21 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
 
   // 分頁處理函數
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    const newParams = new URLSearchParams(searchParamsFromRouter);
+    newParams.set("page", pageNumber.toString());
+    setSearchParamsFromRouter(newParams);
     window.scrollTo(0, 0); // 滾動到頁面頂部
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-      window.scrollTo(0, 0);
+      handlePageChange(currentPage - 1);
     }
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-      window.scrollTo(0, 0);
+      handlePageChange(currentPage + 1);
     }
   };
 
