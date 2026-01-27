@@ -74,14 +74,11 @@ const PhrasePage = () => {
                 setAllPhrases(allPhrasesData);
                 setPhrases(allPhrasesData);
 
-                // 提取所有不重複的類別
+                // 提取所有不重複的類別（僅使用 Category1）
                 const categoriesSet = new Set();
                 allPhrasesData.forEach(phrase => {
-                    // 檢查 Category1, Category2, ... 等屬性
-                    let categoryIndex = 1;
-                    while (phrase[`Category${categoryIndex}`]) {
-                        categoriesSet.add(phrase[`Category${categoryIndex}`]);
-                        categoryIndex++;
+                    if (phrase.Category1) {
+                        categoriesSet.add(phrase.Category1);
                     }
                 });
 
@@ -163,15 +160,8 @@ const PhrasePage = () => {
         }
 
         const filteredPhrases = allPhrases.filter(phrase => {
-            // 檢查成語是否屬於任一選中的類別
-            let categoryIndex = 1;
-            while (phrase[`Category${categoryIndex}`]) {
-                if (selectedCategories.includes(phrase[`Category${categoryIndex}`])) {
-                    return true;
-                }
-                categoryIndex++;
-            }
-            return false;
+            // 僅使用 Category1 進行篩選
+            return phrase.Category1 && selectedCategories.includes(phrase.Category1);
         });
 
         console.log("本地篩選結果:", filteredPhrases.length);
