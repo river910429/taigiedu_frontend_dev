@@ -22,17 +22,26 @@ const PhrasePage = () => {
     useEffect(() => {
         const searchKeyword = searchParams.get('query') || '';
         const categories = searchParams.get('categories') ? searchParams.get('categories').split(',') : [];
+        const hasKeyword = searchKeyword.trim() !== '';
+        const hasCategories = categories.length > 0;
 
         console.log("搜索參數變化:", { searchKeyword, categories });
 
-        // 如果是初次載入且沒有搜尋參數，先獲取所有數據
-        if (isInitialLoad && !searchKeyword && categories.length === 0) {
-            fetchAllPhrases();
-        } else if (!isInitialLoad || searchKeyword || categories.length > 0) {
-            // 否則根據參數搜尋（包括初次載入但有參數的情況）
-            fetchPhrases(searchKeyword, categories);
+        // 沒有搜尋參數時：初次載入走全量 API；之後直接用本地資料，避免重複呼叫
+        if (!hasKeyword && !hasCategories) {
+            if (isInitialLoad) {
+                fetchAllPhrases();
+            } else {
+                setPhrases(allPhrases);
+                setError(null);
+                setLoading(false);
+            }
+            return;
         }
-    }, [searchParams, isInitialLoad]);
+
+        // 有搜尋參數才走 API 搜尋
+        fetchPhrases(searchKeyword, categories);
+    }, [searchParams, isInitialLoad, allPhrases]);
 
     // 首次載入獲取所有數據並提取類別
     const fetchAllPhrases = async () => {
