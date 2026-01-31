@@ -18,6 +18,7 @@ const Footer = () => {
         <button className="footer-button">Our team</button>
         <button className="footer-button" onClick={() => handleLinkClick('terms')}>Terms</button>
         <button className="footer-button" onClick={() => handleLinkClick('policy')}>Policy</button>
+        <button className="footer-button" onClick={() => handleLinkClick('admin')}>Admin</button>
       </div>
       <div className="footer-text">
         © 2024 台語文教學共融平台 All Rights Reserved.
