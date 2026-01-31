@@ -16,12 +16,20 @@ body {
     margin: 0;
     padding: 0;
     height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    /* 防止水平滾動條導致的白邊 */
+}
+
+body {
+    font-family: 'NotoSansTC', Arial, sans-serif;
 }
 
 .app {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
+    /* 改為 min-height 確保內容過多時能正常捲動 */
 }
 
 .maincontent {
@@ -29,10 +37,16 @@ body {
     grid-template-columns: 230px 1fr;
     /* 左側Sidebar寬度固定，右側MainContent填滿剩餘空間 */
     min-height: 100vh;
+    grid-template-columns: 230px 1fr;
+    /* 左側Sidebar寬度固定，右側MainContent填滿剩餘空間 */
+    min-height: 100vh;
     background-color: #f5f5f5;
 }
 
+
 .maincontent.preview-page {
+    display: block !important;
+    /* 覆蓋原本的 grid 布局 */
     display: block !important;
     /* 覆蓋原本的 grid 布局 */
     grid-template-columns: none;
@@ -40,7 +54,11 @@ body {
 
 }
 
+}
+
 .main-content {
+    padding: 20px;
+    /* 調整間距 */
     padding: 20px;
     /* 調整間距 */
 }
