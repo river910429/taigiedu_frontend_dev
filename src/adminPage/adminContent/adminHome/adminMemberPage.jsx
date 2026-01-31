@@ -18,6 +18,127 @@ const SUPER_ADMIN_WHITELIST = [
   'root@example.com'
 ];
 
+/**
+ * 操作欄位組件 - 解決 Hooks 順序問題
+ */
+const ActionCell = ({
+  row,
+  viewFilter,
+  isSuperAdmin,
+  handleDeleteClick,
+  handleDisableUpload,
+  handleAssignAdmin,
+  activeMenuId,
+  setActiveMenuId,
+  menuPosition,
+  setMenuPosition,
+  adjustmentsIcon,
+  uturnIcon
+}) => {
+  const buttonRef = useRef(null);
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const menuWidth = 160;
+
+      // Calculate left position, ensuring menu doesn't go off-screen
+      let left = rect.right - menuWidth;
+
+      // If menu would go off the left edge, align it to the left of the button
+      if (left < 0) {
+        left = rect.left;
+      }
+
+      // If menu would go off the right edge, adjust it
+      if (left + menuWidth > window.innerWidth) {
+        left = window.innerWidth - menuWidth - 10; // 10px margin from edge
+      }
+
+      setMenuPosition({
+        top: rect.bottom + window.scrollY,
+        left: left + window.scrollX
+      });
+    }
+    setActiveMenuId(activeMenuId === row.original.id ? null : row.original.id);
+  };
+
+  // 停用會員名單：顯示恢復按鈕
+  if (viewFilter === 'archivedMembers') {
+    return (
+      <div className="action-menu-container">
+        <button
+          className="admin-action-btn restore-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteClick(row.original.id);
+          }}
+          title="恢復上傳資格"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
+
+  // 會員名單與管理員名單：顯示下拉選單
+  return (
+    <div className="action-menu-container">
+      {viewFilter === 'admins' && !isSuperAdmin ? (
+        <button className="admin-action-btn menu-btn" disabled title="僅超級管理員可操作">
+          <img src={adjustmentsIcon} alt="管理" className="admin-action-icon" style={{ opacity: 0.5 }} />
+        </button>
+      ) : (
+        <>
+          <button
+            ref={buttonRef}
+            className="admin-action-btn menu-btn"
+            onClick={handleClick}
+          >
+            <img src={adjustmentsIcon} alt="管理" className="admin-action-icon" />
+          </button>
+
+          {activeMenuId === row.original.id && createPortal(
+            <div
+              className="action-menu-dropdown"
+              style={{
+                position: 'absolute',
+                top: `${menuPosition.top}px`,
+                left: `${menuPosition.left}px`,
+                zIndex: 9999
+              }}
+            >
+              <button
+                className="action-menu-item"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDisableUpload(row.original);
+                }}
+              >
+                停用上傳資格
+              </button>
+              <button
+                className="action-menu-item"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAssignAdmin(row.original);
+                }}
+              >
+                指定擔任管理員
+              </button>
+            </div>,
+            document.body
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
 const AdminMemberPage = () => {
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -287,110 +408,22 @@ const AdminMemberPage = () => {
         size: 50,
         enableSorting: false,
         header: () => null,
-        cell: ({ row }) => {
-          const buttonRef = useRef(null);
-
-          const handleClick = (e) => {
-            e.stopPropagation();
-            if (buttonRef.current) {
-              const rect = buttonRef.current.getBoundingClientRect();
-              const menuWidth = 160;
-
-              // Calculate left position, ensuring menu doesn't go off-screen
-              let left = rect.right - menuWidth;
-
-              // If menu would go off the left edge, align it to the left of the button
-              if (left < 0) {
-                left = rect.left;
-              }
-
-              // If menu would go off the right edge, adjust it
-              if (left + menuWidth > window.innerWidth) {
-                left = window.innerWidth - menuWidth - 10; // 10px margin from edge
-              }
-
-              setMenuPosition({
-                top: rect.bottom + window.scrollY,
-                left: left + window.scrollX
-              });
-            }
-            setActiveMenuId(activeMenuId === row.original.id ? null : row.original.id);
-          };
-
-          // 停用會員名單：顯示恢復按鈕
-          if (viewFilter === 'archivedMembers') {
-            return (
-              <div className="action-menu-container">
-                <button
-                  className="admin-action-btn restore-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClick(row.original.id);
-                  }}
-                  title="恢復上傳資格"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                    <path d="M3 3v5h5" />
-                  </svg>
-                </button>
-              </div>
-            );
-          }
-
-          // 會員名單與管理員名單：顯示下拉選單
-          return (
-            <div className="action-menu-container">
-              {viewFilter === 'admins' && !isSuperAdmin ? (
-                <button className="admin-action-btn menu-btn" disabled title="僅超級管理員可操作">
-                  <img src={adjustmentsIcon} alt="管理" className="admin-action-icon" style={{ opacity: 0.5 }} />
-                </button>
-              ) : (
-                <>
-                  <button
-                    ref={buttonRef}
-                    className="admin-action-btn menu-btn"
-                    onClick={handleClick}
-                  >
-                    <img src={adjustmentsIcon} alt="管理" className="admin-action-icon" />
-                  </button>
-
-                  {activeMenuId === row.original.id && createPortal(
-                    <div
-                      className="action-menu-dropdown"
-                      style={{
-                        position: 'absolute',
-                        top: `${menuPosition.top}px`,
-                        left: `${menuPosition.left}px`,
-                        zIndex: 9999
-                      }}
-                    >
-                      <button
-                        className="action-menu-item"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDisableUpload(row.original);
-                        }}
-                      >
-                        停用上傳資格
-                      </button>
-                      <button
-                        className="action-menu-item"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAssignAdmin(row.original);
-                        }}
-                      >
-                        指定擔任管理員
-                      </button>
-                    </div>,
-                    document.body
-                  )}
-                </>
-              )}
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <ActionCell
+            row={row}
+            viewFilter={viewFilter}
+            isSuperAdmin={isSuperAdmin}
+            handleDeleteClick={handleDeleteClick}
+            handleDisableUpload={handleDisableUpload}
+            handleAssignAdmin={handleAssignAdmin}
+            activeMenuId={activeMenuId}
+            setActiveMenuId={setActiveMenuId}
+            menuPosition={menuPosition}
+            setMenuPosition={setMenuPosition}
+            adjustmentsIcon={adjustmentsIcon}
+            uturnIcon={uturnIcon}
+          />
+        ),
       }),
     ];
   }, [viewFilter, isSuperAdmin, handleDeleteClick, activeMenuId, handleDisableUpload, handleAssignAdmin]);

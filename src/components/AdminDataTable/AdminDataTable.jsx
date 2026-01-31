@@ -345,13 +345,15 @@ const AdminDataTable = ({
                                         boxSizing: 'border-box'
                                     }}
                                 >
-                                    {column.cell
-                                        ? column.cell({
+                                    {flexRender(
+                                        column.cell,
+                                        {
                                             row: { original: activeItem },
-                                            getValue: () => activeItem[column.accessorKey]
-                                        })
-                                        : activeItem[column.accessorKey]
-                                    }
+                                            column: column,
+                                            getValue: () => activeItem[column.accessorKey || column.id],
+                                            table: table
+                                        }
+                                    ) || activeItem[column.accessorKey || column.id]}
                                 </td>
                             );
                         })}
