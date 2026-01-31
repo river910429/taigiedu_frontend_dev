@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import ResourceHeader from "./ResourceHeader";
 import ResourceContent from "./ResourceContent";
 import UploadResource from "./UploadResource";
 import "./ResourcePage.css";
 
-const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
+const ResourcePage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchParams, setSearchParams] = useState({
@@ -16,14 +18,6 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
     keyword: "",
     searchContent: ""
   });
-
-  // 初始化時從 localStorage 檢查登入狀態
-  useEffect(() => {
-    const storedLoginStatus = localStorage.getItem("isLoggedIn");
-    if (storedLoginStatus === "true" && !isLoggedIn && typeof setIsLoggedIn === 'function') {
-      setIsLoggedIn(true);
-    }
-  }, [isLoggedIn, setIsLoggedIn]);
 
   const handleUploadOpen = () => {
     setIsUploadOpen(true);
@@ -43,17 +37,6 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
   const handleSearch = (params) => {
     setSearchParams(params);
   };
-  // const navigate = useNavigate();
-  // const handleCardClick = (card) => {
-  //   navigate("/file-preview", {
-  //     state: { ...card }, // 傳遞所有卡片資料到目標頁面
-  //   });
-  // };
-
-  // const handleCardClick = (card) => {
-  //   const previewUrl = `/file-preview?title=${encodeURIComponent(card.title)}&imageUrl=${encodeURIComponent(card.imageUrl)}&fileType=${encodeURIComponent(card.fileType)}&likes=${card.likes}&downloads=${card.downloads}&uploader=${encodeURIComponent(card.uploader)}&tags=${encodeURIComponent(JSON.stringify(card.tags))}&date=${encodeURIComponent(card.date)}`;
-  //   window.open(previewUrl, '_blank');
-  // };
 
   // 處理資源卡片點擊 - 在新分頁開啟並傳遞完整數據
   const handleCardClick = (resource) => {
@@ -103,19 +86,11 @@ const ResourcePage = ({ isLoggedIn, setIsLoggedIn }) => {
     }
   };
 
-  // const handleCardClick = (card) => {
-  //   const tags = JSON.stringify(card.tags);
-  //   const previewUrl = `${window.location.protocol}/${window.location.host}/file-preview?title=${encodeURIComponent(card.title)}&imageUrl=${encodeURIComponent(card.imageUrl)}&fileType=${encodeURIComponent(card.fileType)}&likes=${card.likes}&downloads=${card.downloads}&uploader=${encodeURIComponent(card.uploader)}&tags=${encodeURIComponent(tags)}&date=${encodeURIComponent(card.date)}`;
-  //   window.open(previewUrl, '_blank', 'noopener,noreferrer');
-  //   console.log("網址："+previewUrl);
-  // };
-
   return (
     <div className="resource-page">
       <ResourceHeader
         onUploadOpen={handleUploadOpen}
-        isLoggedIn={isLoggedIn}
-        setIsLoggedIn={setIsLoggedIn}
+        isLoggedIn={isAuthenticated}
         onSearch={handleSearch}
       />
       <ResourceContent

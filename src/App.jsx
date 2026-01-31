@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ToastProvider } from './components/Toast';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import ProtectedRoute, { AdminRoute } from './components/ProtectedRoute';
 import "./App.css";
 
 import Sidebar from "./Sidebar";
@@ -44,23 +46,17 @@ import ResourceHeaderPage from "./adminPage/adminContent/adminHome/adminresource
 
 const AppLayout = () => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+
   const isPreviewPage = location.pathname === '/file-preview';
   const isDownloadPage = location.pathname === '/download';
   const isCelebrityDetail = location.pathname === '/celebrity/detail';
   const isAdminPage = location.pathname === '/admin';
   const isAdminContent = location.pathname.startsWith('/admin/');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // 檢查登入狀態
-  useEffect(() => {
-    const storedLoginStatus = localStorage.getItem("isLoggedIn");
-    if (storedLoginStatus === "true" && !isLoggedIn) {
-      setIsLoggedIn(true);
-    }
-  }, [isLoggedIn]);
 
   return (
     <div className="app">
-      <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+      <Header />
       <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail || isAdminPage ? 'preview-page' : ''}`}>
         {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && (isAdminContent ? <AdminSidebar /> : isAdminPage ? null : <Sidebar />)}
         <Routes>
@@ -70,15 +66,7 @@ const AppLayout = () => {
           <Route path="/phrase" element={<PhrasePage />} />
           <Route path="/read" element={<ReadPage />} />
           <Route path="/translate" element={<TranslatePage />} />
-          <Route
-            path="/resource"
-            element={
-              <ResourcePage
-                isLoggedIn={isLoggedIn}
-                setIsLoggedIn={setIsLoggedIn}
-              />
-            }
-          />
+          <Route path="/resource" element={<ResourcePage />} />
           <Route path="/file-preview" element={<FilePreview />} />
           <Route path="/download" element={<DownloadPage />} />
           <Route path="/terms" element={<TermsPage />} />
@@ -86,27 +74,17 @@ const AppLayout = () => {
           <Route
             path="/delete-resource"
             element={
-              isLoggedIn ? (
+              <ProtectedRoute requireAuth={true}>
                 <DeleteResource />
-              ) : (
-                <Navigate
-                  to="/login"
-                  state={{ redirectTo: "/delete-resource" }}
-                />
-              )
+              </ProtectedRoute>
             }
           />
           <Route
             path="/upload-resource"
             element={
-              isLoggedIn ? (
+              <ProtectedRoute requireAuth={true}>
                 <UploadResource />
-              ) : (
-                <Navigate
-                  to="/login"
-                  state={{ redirectTo: "/upload-resource" }}
-                />
-              )
+              </ProtectedRoute>
             }
           />
           <Route path="/celebrity" element={<CelebrityPage />} />
@@ -115,26 +93,122 @@ const AppLayout = () => {
           <Route path="/culture/festival" element={<CultureFestival />} />
           <Route path="/socialmedia" element={<SocialmediaPage />} />
           <Route path="/exam" element={<ExamPage />} />
-          <Route
-            path="/login"
-            element={<LoginPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
-          />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin" element={<AdminMain />} />
-          <Route path="/admin/main-search/test" element={<AdminTestPage />} />
-          <Route path="/admin/main-search/news" element={<AdminNewsPage />} />
-          <Route path="/admin/culture/food" element={<AdminFoodPage />} />
-          <Route path="/admin/culture/festival" element={<AdminFestivalPage />} />
-          <Route path="/admin/socialmedia" element={<AdminSocialmediaPage />} />
-          <Route path="/admin/resource" element={<AdminResourcePage />} />
-          <Route path="/admin/resource/upload" element={<AdminResourcePage />} />
-          <Route path="/admin/resource/header" element={<ResourceHeaderPage />} />
-          <Route path="/admin/exam/info" element={<AdminExamInfo />} />
-          <Route path="/admin/exam/books" element={<AdminExamBooks />} />
-          <Route path="/admin/exam/channels" element={<AdminExamChannels />} />
-          <Route path="/admin/member" element={<AdminMemberPage />} />
-          <Route path="/admin/file-preview" element={<AdminFilePreview />} />
-          {/* // 其他 admin 路由 */}
+
+          {/* Admin 路由 - 需要管理員權限 */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminMain />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/main-search/test"
+            element={
+              <AdminRoute>
+                <AdminTestPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/main-search/news"
+            element={
+              <AdminRoute>
+                <AdminNewsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/culture/food"
+            element={
+              <AdminRoute>
+                <AdminFoodPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/culture/festival"
+            element={
+              <AdminRoute>
+                <AdminFestivalPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/socialmedia"
+            element={
+              <AdminRoute>
+                <AdminSocialmediaPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/resource"
+            element={
+              <AdminRoute>
+                <AdminResourcePage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/resource/upload"
+            element={
+              <AdminRoute>
+                <AdminResourcePage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/resource/header"
+            element={
+              <AdminRoute>
+                <ResourceHeaderPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/exam/info"
+            element={
+              <AdminRoute>
+                <AdminExamInfo />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/exam/books"
+            element={
+              <AdminRoute>
+                <AdminExamBooks />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/exam/channels"
+            element={
+              <AdminRoute>
+                <AdminExamChannels />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/member"
+            element={
+              <AdminRoute>
+                <AdminMemberPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/file-preview"
+            element={
+              <AdminRoute>
+                <AdminFilePreview />
+              </AdminRoute>
+            }
+          />
         </Routes>
       </div>
       <Footer />
@@ -153,73 +227,12 @@ const App = () => {
         basename={basename}
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
-        <AppLayout />
+        <AuthProvider>
+          <AppLayout />
+        </AuthProvider>
       </BrowserRouter>
-    </ToastProvider >
-
+    </ToastProvider>
   );
 };
-
-// const App = () => {
-//   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-//   return (
-//     <BrowserRouter>
-//       <div className="app">
-//         <Header />
-//         <div className="maincontent">
-//           <Sidebar />
-//           <Routes>
-//             <Route path="/" element={<MainContent />} />
-//             <Route path="/search" element={<MainSearchPage />} />
-//             <Route path="/transcript" element={<TranscriptPage />} />
-//             <Route path="/phrase" element={<PhrasePage />} />
-//             <Route path="/read" element={<ReadPage />} />
-//             <Route path="/translate" element={<TranslatePage />} />
-//             <Route
-//               path="/resource"
-//               element={
-//                 <ResourcePage
-//                   //isLoggedIn={isLoggedIn}
-//                   //setIsLoggedIn={setIsLoggedIn}
-//                 />
-//               }
-//             />
-//             <Route path="/file-preview" element={<FilePreview />} />
-//             <Route path="/download" element={<DownloadPage />} />
-//             <Route
-//               path="/delete-resource"
-//               element={<DeleteResource />} 
-//               // element={
-//               //   isLoggedIn ? (
-//               //     <DeleteResource />
-//               //   ) : (
-//               //     <Navigate
-//               //       to="/login"
-//               //       state={{ redirectTo: "/delete-resource" }}
-//               //     />
-//               //   )
-//               // }
-//             />
-//             <Route path="/upload-resource" element={<UploadResource />} />
-//             <Route path="/celebrity" element={<CelebrityPage />} />
-//             <Route path="/culture/food" element={<CultureFood />} />
-//             <Route path="/culture/festival" element={<CultureFestival />} />
-//             <Route path="/socialmedia" element={<SocialmediaPage />} />
-//             <Route path="/exam" element={<ExamPage />} />
-//             <Route
-//               path="/login"
-//               element={<Login 
-//                 //setIsLoggedIn={setIsLoggedIn} 
-//                 />}
-//             />
-//             <Route path="/register" element={<RegisterPage />} />
-//           </Routes>
-//         </div>
-//         <Footer />
-//       </div>
-//     </BrowserRouter>
-//   );
-// };
 
 export default App;
