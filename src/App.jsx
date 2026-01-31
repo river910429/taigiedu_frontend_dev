@@ -36,12 +36,19 @@ import AdminExamBooks from "./adminPage/adminContent/adminHome/examPage/adminExa
 import AdminExamChannels from "./adminPage/adminContent/adminHome/examPage/adminExamChannels";
 import AdminMemberPage from "./adminPage/adminContent/adminHome/adminMemberPage";
 import AdminFilePreview from "./adminPage/adminContent/adminHome/adminresourcePage/AdminFilePreview";
+import AdminFoodPage from "./adminPage/adminContent/adminHome/adminFoodPage";
+import AdminFestivalPage from "./adminPage/adminContent/adminHome/adminFestivalPage";
+import AdminSocialmediaPage from "./adminPage/adminContent/adminHome/adminSocialmediaPage";
+import AdminResourcePage from "./adminPage/adminContent/adminHome/adminresourcePage/AdminResourcePage";
+import ResourceHeaderPage from "./adminPage/adminContent/adminHome/adminresourcePage/ResourceHeaderPage";
 
 const AppLayout = () => {
   const location = useLocation();
   const isPreviewPage = location.pathname === '/file-preview';
   const isDownloadPage = location.pathname === '/download';
   const isCelebrityDetail = location.pathname === '/celebrity/detail';
+  const isAdminPage = location.pathname === '/admin';
+  const isAdminContent = location.pathname.startsWith('/admin/');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   // 檢查登入狀態
   useEffect(() => {
@@ -148,7 +155,6 @@ const App = () => {
       >
         <AppLayout />
       </BrowserRouter>
-    </BrowserRouter>
     </ToastProvider >
 
   );
