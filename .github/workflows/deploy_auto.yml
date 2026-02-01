@@ -24,15 +24,24 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
 
-      # 3. [關鍵] 去抓原始作者的更新 (Sync)
+      # 3. [關鍵修正] 去抓原始作者的更新 (Sync)
       - name: Sync from Upstream
         run: |
-          # ↓↓↓ 請確認這裡是你想要跟隨的「前端原始專案」網址 ↓↓↓
+          # --- [關鍵修正開始] ---
+          # 1. 取消 GitHub Actions 預設的 Authorization Header
+          # 這樣 Git 才會乖乖使用我們寫在 URL 裡的 Token，而不是被預設的蓋掉
+          git config --global --unset http.https://github.com/.extraheader
+          
+          # 2. 因為取消了預設權限，原本的 origin (你的 repo) 也會失去權限
+          # 所以我們要幫 origin 也換上你的萬能 Token
+          git remote set-url origin https://oauth2:${{ secrets.SYNC_TOKEN }}@github.com/${{ github.repository }}.git
+          
+          # 3. 設定 Upstream (前端原始專案)
           git remote add upstream https://oauth2:${{ secrets.SYNC_TOKEN }}@github.com/Taigiedu/taiwaneseOMG.git
+          # --- [關鍵修正結束] ---
+
           git fetch upstream
           
-          # 檢查有無更新，有更新才繼續，沒更新就顯示訊息並結束
-          # 這裡用一個簡單的邏輯：比較本地和遠端的 hash
           UPSTREAM_HASH=$(git rev-parse upstream/develop)
           LOCAL_HASH=$(git rev-parse HEAD)
           
@@ -42,6 +51,8 @@ jobs:
           else
             echo "發現新版本！準備同步..."
             git reset --hard upstream/develop
+            
+            # 因為上面已經幫 origin 換過 Token 了，這裡就可以直接 push
             git push origin develop --force
             echo "HAS_UPDATE=true" >> $GITHUB_ENV
           fi
