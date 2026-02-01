@@ -1,0 +1,71 @@
+name: Auto Sync and Deploy
+
+on:
+  # 每 15 分鐘檢查一次
+  schedule:
+    - cron: '*/15 * * * *'
+  # 讓你現在可以手動按按鈕測試
+  workflow_dispatch:
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 切換到 develop 分支
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      # 2. 設定 Git 身分
+      - name: Configure Git
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+
+      # 3. [關鍵] 去抓原始作者的更新 (Sync)
+      - name: Sync from Upstream
+        run: |
+          # ↓↓↓ 請確認這裡是你想要跟隨的「前端原始專案」網址 ↓↓↓
+          git remote add upstream https://github.com/Taigiedu/taiwaneseOMG.git
+          git fetch upstream
+          
+          # 檢查有無更新，有更新才繼續，沒更新就顯示訊息並結束
+          # 這裡用一個簡單的邏輯：比較本地和遠端的 hash
+          UPSTREAM_HASH=$(git rev-parse upstream/develop)
+          LOCAL_HASH=$(git rev-parse HEAD)
+          
+          if [ "$UPSTREAM_HASH" = "$LOCAL_HASH" ]; then
+            echo "沒有新版本，跳過部署。"
+            echo "HAS_UPDATE=false" >> $GITHUB_ENV
+          else
+            echo "發現新版本！準備同步..."
+            git reset --hard upstream/develop
+            git push origin develop --force
+            echo "HAS_UPDATE=true" >> $GITHUB_ENV
+          fi
+
+      # 4. 只有在有更新 (或是手動觸發) 時才打包部署
+      - name: Setup Node.js
+        if: env.HAS_UPDATE == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install and Build
+        if: env.HAS_UPDATE == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to Server via SSH
+        if: env.HAS_UPDATE == 'true' || github.event_name == 'workflow_dispatch'
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "dist/*"
+          target: "/home/p76131092/taigiedu_frontend" # 記得確認這個資料夾在 Server 上存在
+          strip_components: 1
