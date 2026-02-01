@@ -77,15 +77,20 @@ export const AuthProvider = ({ children }) => {
 
             if (result.success) {
                 saveToken(result.accessToken);
-                setUser(result.user);
+
+                // 取得完整的用戶資訊，確保有 name 欄位
+                const userResult = await authService.getCurrentUser();
+                const fullUser = userResult.success ? userResult.user : result.user;
+
+                setUser(fullUser);
                 setIsAuthenticated(true);
                 localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('user', JSON.stringify(result.user));
+                localStorage.setItem('user', JSON.stringify(fullUser));
 
                 // 設定 token 自動刷新 (預設 15 分鐘)
                 setupTokenRefresh(result.expiresIn || 900);
 
-                return { success: true, user: result.user };
+                return { success: true, user: fullUser };
             } else {
                 return { success: false, message: result.message };
             }
@@ -96,11 +101,23 @@ export const AuthProvider = ({ children }) => {
     }, [saveToken, setupTokenRefresh]);
 
     // 處理已經取得資料的登入 (例如 Google 或是註冊後直接登入)
-    const loginWithData = useCallback((data) => {
+    const loginWithData = useCallback(async (data) => {
         if (data.accessToken) saveToken(data.accessToken);
-        if (data.user) {
-            setUser(data.user);
-            localStorage.setItem('user', JSON.stringify(data.user));
+
+        // 取得完整的用戶資訊，確保有 name 欄位
+        let fullUser = data.user;
+        try {
+            const userResult = await authService.getCurrentUser();
+            if (userResult.success) {
+                fullUser = userResult.user;
+            }
+        } catch (error) {
+            console.error('取得使用者資訊失敗:', error);
+        }
+
+        if (fullUser) {
+            setUser(fullUser);
+            localStorage.setItem('user', JSON.stringify(fullUser));
         }
         setIsAuthenticated(true);
         localStorage.setItem('isLoggedIn', 'true');
@@ -164,10 +181,15 @@ export const AuthProvider = ({ children }) => {
                     if (result.success) {
                         console.log('Token 刷新成功');
                         saveToken(result.accessToken);
-                        setUser(result.user);
+
+                        // 取得完整的用戶資訊，確保有 name 欄位
+                        const userResult = await authService.getCurrentUser();
+                        const fullUser = userResult.success ? userResult.user : result.user;
+
+                        setUser(fullUser);
                         setIsAuthenticated(true);
                         localStorage.setItem('isLoggedIn', 'true');
-                        localStorage.setItem('user', JSON.stringify(result.user));
+                        localStorage.setItem('user', JSON.stringify(fullUser));
 
                         // 設定自動刷新
                         if (result.expiresIn) {
