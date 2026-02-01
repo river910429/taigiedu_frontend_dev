@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import loadingImage from "/src/assets/record_loading.svg"; // 處理中圖示
 import { useToast } from "../components/Toast";
+import { useAuth } from "../contexts/AuthContext";
+import { getAccessToken, refreshToken } from "../services/authService";
 import "./UploadResource.css";
 
 const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
   const { showToast } = useToast();
+  const { user, isAuthenticated } = useAuth();
   const [fileName, setFileName] = useState(""); // 儲存檔案名稱
   const [isProcessing, setIsProcessing] = useState(false); // 控制處理中的狀態
   const [isSuccess, setIsSuccess] = useState(false); // 上傳成功狀態
@@ -93,18 +96,21 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
       return;
     }
 
+    // 檢查用戶是否已登入
+    if (!isAuthenticated || !user?.id) {
+      showToast("請先登入後再上傳資源", "error");
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
-      // 從 localStorage 獲取用戶 ID
-      const userId = localStorage.getItem("userId") || "1"; // 如果沒有 userId，默認為 1
-
       // 準備 FormData
       const apiFormData = new FormData();
 
-      // 上傳者資訊
-      apiFormData.append("uploader_id", userId);
-      apiFormData.append("uploader_name", "使用者"); // 可以從 localStorage 獲取或設置為固定值
+      // 上傳者資訊 - 從 auth context 獲取用戶資訊
+      apiFormData.append("uploader_id", user.id);
+      apiFormData.append("uploader_name", user.name || user.email?.split('@')[0] || "使用者");
 
       // 資源資訊
       apiFormData.append("title", formData.name);
@@ -134,13 +140,57 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
       // 主檔案
       apiFormData.append("file", formData.file);
 
-      // 發送 API 請求
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/upload`, {
-        method: "POST",
-        body: apiFormData,
-      });
+      // 取得 Access Token 並建立帶有 OAuth2 驗證的請求
+      let token = getAccessToken();
 
-      const result = await response.json();
+      // 建立發送請求的函數
+      const sendUploadRequest = async (accessToken) => {
+        const headers = {};
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        return fetch(`${import.meta.env.VITE_API_URL}/api/resource/upload`, {
+          method: "POST",
+          headers,
+          body: apiFormData,
+          credentials: 'include', // 確保 cookie 被傳送
+        });
+      };
+
+      // 發送 API 請求
+      let response = await sendUploadRequest(token);
+      let result = await response.json();
+
+      // 處理 401 錯誤或 Missing Authorization Header，嘗試刷新 token 並重試
+      if (response.status === 401 ||
+        result.message?.includes("Missing Authorization Header") ||
+        result.error?.message?.includes("Missing Authorization Header")) {
+        console.log("Token 可能已失效，嘗試刷新...");
+        const refreshResult = await refreshToken();
+
+        if (refreshResult.success) {
+          // 重試上傳請求
+          token = getAccessToken();
+          response = await sendUploadRequest(token);
+          result = await response.json();
+        } else {
+          // Token 刷新失敗，視為驗證錯誤
+          showToast("登入狀態已失效，請重新登入", "error");
+          console.error("Token 刷新失敗:", refreshResult.message);
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // 再次檢查是否有 Missing Authorization Header 錯誤
+      const authErrorMessage = result.message || result.error?.message || "";
+      if (authErrorMessage.includes("Missing Authorization Header")) {
+        showToast("驗證失敗：缺少認證標頭，請重新登入", "error");
+        console.error("上傳失敗 - 缺少認證標頭:", result);
+        setIsProcessing(false);
+        return;
+      }
 
       if (response.ok && result.status === "success") {
         setIsSuccess(true);

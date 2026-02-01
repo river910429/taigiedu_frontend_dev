@@ -54,9 +54,18 @@ export default defineConfig({
             testMatch: '**/smoke/**/*.spec.js',
             use: { ...devices['Desktop Chrome'] },
         },
+        // 認證設置專案 - 執行登入測試並保存認證狀態
+        {
+            name: 'auth-setup',
+            testMatch: '**/regression/auth/login.spec.js',
+            use: { ...devices['Desktop Chrome'] },
+        },
+        // Regression 測試 - 依賴 auth-setup，確保登入狀態已準備好
         {
             name: 'regression',
             testMatch: '**/regression/**/*.spec.js',
+            testIgnore: '**/regression/auth/login.spec.js', // 排除登入測試，因為已在 auth-setup 執行
+            dependencies: ['auth-setup'],
             use: { ...devices['Desktop Chrome'] },
         },
     ],
