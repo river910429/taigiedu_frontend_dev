@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('user', JSON.stringify(result.user));
 
                 // 設定 token 自動刷新 (預設 15 分鐘)
-                setupTokenRefresh(900);
+                setupTokenRefresh(result.expiresIn || 900);
 
                 return { success: true, user: result.user };
             } else {
@@ -93,6 +93,20 @@ export const AuthProvider = ({ children }) => {
             console.error('登入失敗:', error);
             return { success: false, message: error.message || '登入失敗' };
         }
+    }, [saveToken, setupTokenRefresh]);
+
+    // 處理已經取得資料的登入 (例如 Google 或是註冊後直接登入)
+    const loginWithData = useCallback((data) => {
+        if (data.accessToken) saveToken(data.accessToken);
+        if (data.user) {
+            setUser(data.user);
+            localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        setIsAuthenticated(true);
+        localStorage.setItem('isLoggedIn', 'true');
+
+        // 設定 token 自動刷新
+        setupTokenRefresh(data.expiresIn || 900);
     }, [saveToken, setupTokenRefresh]);
 
     // 登出處理
@@ -138,29 +152,41 @@ export const AuthProvider = ({ children }) => {
         const initAuth = async () => {
             setIsLoading(true);
 
+            // 檢查是否曾經登入過
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
             try {
-                // 嘗試使用 refresh token 刷新 access token
-                const result = await authService.refreshToken();
+                if (isLoggedIn) {
+                    console.log('偵測到已登入狀態，嘗試刷新 Token...');
+                    // 嘗試使用 refresh token 刷新 access token
+                    const result = await authService.refreshToken();
 
-                if (result.success) {
-                    saveToken(result.accessToken);
-                    setUser(result.user);
-                    setIsAuthenticated(true);
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('user', JSON.stringify(result.user));
+                    if (result.success) {
+                        console.log('Token 刷新成功');
+                        saveToken(result.accessToken);
+                        setUser(result.user);
+                        setIsAuthenticated(true);
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('user', JSON.stringify(result.user));
 
-                    // 設定自動刷新
-                    if (result.expiresIn) {
-                        setupTokenRefresh(result.expiresIn);
+                        // 設定自動刷新
+                        if (result.expiresIn) {
+                            setupTokenRefresh(result.expiresIn);
+                        } else {
+                            setupTokenRefresh(900);
+                        }
                     } else {
-                        setupTokenRefresh(900);
+                        // 刷新失敗且原本認為已登入，才清除狀態
+                        console.warn('Token 刷新失敗，Session 可能已過期');
+                        clearAuth();
                     }
                 } else {
-                    // 清除可能過期的 localStorage
-                    clearAuth();
+                    // 未登入狀態，直接結束載入
+                    setIsLoading(false);
+                    return;
                 }
             } catch (error) {
-                console.error('初始化認證失敗:', error);
+                console.error('初始化認證時發生錯誤:', error);
                 clearAuth();
             } finally {
                 setIsLoading(false);
@@ -184,6 +210,7 @@ export const AuthProvider = ({ children }) => {
         isLoading,
         accessToken,
         login,
+        loginWithData,
         logout,
         isAdmin,
         isSuperAdmin,

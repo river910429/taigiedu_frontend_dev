@@ -20,6 +20,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true
+      },
+      '/backend': {
+        target: 'https://dev.taigiedu.com',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

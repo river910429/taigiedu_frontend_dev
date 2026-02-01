@@ -17,7 +17,7 @@ const LoginPage = ({ onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { login, isAuthenticated } = useAuth();
+  const { login, loginWithData, isAuthenticated } = useAuth();
 
   // 判斷是否為彈窗模式（從 Header 開啟）
   const isModalMode = typeof onClose === 'function';
@@ -142,8 +142,21 @@ const LoginPage = ({ onClose }) => {
         // Google 登入成功
         showToast("Google 登入成功！", "success");
 
-        // 重新載入頁面以更新認證狀態
-        window.location.reload();
+        // 使用 AuthContext 的 loginWithData 保存狀態並更新 UI
+        loginWithData({
+          accessToken: data.accessToken,
+          user: data.user,
+          expiresIn: data.expiresIn
+        });
+
+        // 如果是彈窗模式，關閉彈窗
+        if (isModalMode) {
+          onClose();
+        } else if (location.state?.redirectTo) {
+          navigate(location.state.redirectTo, { replace: true });
+        } else {
+          navigate("/");
+        }
       } else {
         showToast(data.message || "Google 登入失敗", "error");
       }
