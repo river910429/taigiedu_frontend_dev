@@ -3,7 +3,7 @@
   "info": {
     "title": "台語教育平台 API",
     "description": "台語教育平台完整 API 文件,包含使用者認證、教學資源、台語工具、文化資源等功能",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "contact": {
       "name": "台語教育平台",
       "url": "https://dev.taigiedu.com"
@@ -512,6 +512,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -564,6 +565,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -619,6 +621,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -679,6 +682,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -1056,6 +1060,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -1107,6 +1112,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -1927,6 +1933,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -2007,6 +2014,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -2044,6 +2052,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -2116,6 +2125,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -2173,6 +2183,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -2224,6 +2235,7 @@
         },
         "security": [
           {
+            "OAuth2Auth": [],
             "BearerAuth": []
           }
         ]
@@ -3412,6 +3424,20 @@
         "scheme": "bearer",
         "bearerFormat": "JWT",
         "description": "使用 JWT Access Token 進行認證。格式: `Authorization: Bearer <token>`"
+      },
+      "OAuth2Auth": {
+        "type": "oauth2",
+        "description": "用於 Apidog 等工具自動處理 Token 刷新。當 Access Token 過期時,工具會自動呼叫 /auth/refresh 獲取新 Token。",
+        "flows": {
+          "password": {
+            "tokenUrl": "/api/user/login",
+            "refreshUrl": "/auth/refresh",
+            "scopes": {
+              "admin": "管理員權限",
+              "user": "一般使用者權限"
+            }
+          }
+        }
       }
     }
   },
