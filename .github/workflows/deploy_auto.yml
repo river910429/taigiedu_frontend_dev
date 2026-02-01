@@ -28,7 +28,7 @@ jobs:
       - name: Sync from Upstream
         run: |
           # ↓↓↓ 請確認這裡是你想要跟隨的「前端原始專案」網址 ↓↓↓
-          git remote add upstream https://${{ secrets.SYNC_TOKEN }}@github.com/Taigiedu/taiwaneseOMG.git
+          git remote add upstream https://oauth2:${{ secrets.SYNC_TOKEN }}@github.com/Taigiedu/taiwaneseOMG.git
           git fetch upstream
           
           # 檢查有無更新，有更新才繼續，沒更新就顯示訊息並結束
