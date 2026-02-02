@@ -40,7 +40,7 @@ const MainContent = () => {
       const parameters = {}; // 無需附帶參數，空物件即可
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/idiom_random`,
+        "https://dev.taigiedu.com/backend/idiom_random",
         {
           method: 'POST',
           headers: {
@@ -79,7 +79,7 @@ const MainContent = () => {
       };
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/top_keywords`,
+        "https://dev.taigiedu.com/backend/top_keywords",
         {
           method: 'POST',
           headers: {
@@ -112,7 +112,7 @@ const MainContent = () => {
     setExamLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/info/test`,
+        "https://dev.taigiedu.com/backend/info/test",
         {
           method: 'POST',
           headers: {
@@ -149,7 +149,7 @@ const MainContent = () => {
     setNewsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/info/news`,
+        "https://dev.taigiedu.com/backend/info/news",
         {
           method: 'POST',
           headers: {
@@ -189,7 +189,7 @@ const MainContent = () => {
       const parameters = {}; // 傳送空的 JSON 物件
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/events`,
+        "https://dev.taigiedu.com/backend/events",
         {
           method: 'POST',
           headers: {
@@ -237,7 +237,7 @@ const MainContent = () => {
 
     // 呼叫 top_keywords API 來建立統計資料
     try {
-      const keywordsResponse = await fetch(`${import.meta.env.VITE_API_URL}/top_keywords`, {
+      const keywordsResponse = await fetch('https://dev.taigiedu.com/backend/top_keywords', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -377,37 +377,75 @@ const MainContent = () => {
             <h2 className="section-title">今日大事</h2>
             {eventsLoading ? (
               <div className="text-gray-500">載入今日大事中...</div>
-            ) : eventsError ? (
-              <div className="text-red-500">發生錯誤，無法取得今日大事</div>
             ) : (
               <ul className="info-list">
-                {todayEvents.length > 0 ? (
-                  todayEvents.map((event, index) => (
-                    <li key={index}>
-                      <a
-                        href="#"
-                        className="event-link"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // 解析事件資料（假設 API 回傳格式為 "歷史上的今天：1998年10月28日 抗暴牧師 黃彰輝逝世日"）
-                          const eventData = {
-                            date: '1998 年 10 月 28 日',
-                            title: '抗暴牧師 黃彰輝逝世日',
-                            content: `黃彰輝，出生於一九一四年八月二十日,彰化人, 因此被取名「彰輝」。父親為長老教會牧師，幼時就讀於台南師範附屬公學校與台南長老教中學。一九三四年就讀東京帝國大學哲學科，一九三八年獲得教會的補助而得以到英國劍橋的衛斯敏斯特神學院就讀神學。一九四一年在倫敦大學教授日文，同年也成為長老教會牧師，後來因為珍珠港事件爆發，被視為敵國人士(日本籍)而被限制行動。
+                {todayEvents.length > 0 || true ? ( // 強制進入渲染邏輯以顯示多元範例資料
+                  (todayEvents.length > 0 && !todayEvents[0].includes("今日無大事") ? todayEvents : [
+                    { title: "OO節", content: "" },
+                    { title: "OOO生日", content: "" },
+                    { title: "歷史上的今天：蕭泰然誕生日 (1938 年 1 月 1 日)", content: "" },
+                    {
+                      title: "歷史上的今天：柯旗化誕生日 (1929 年 1 月 1 日)",
+                      content: "柯旗化，台灣高雄人，是著名的英語教育家、詩人及作家。曾因政治案件入獄多年，在獄中完成了著名的《新英文法》。",
+                      date: "1929 年 1 月 1 日"
+                    },
+                    {
+                      title: "歷史上的今天：台灣人的自由台灣成立 (1956 年 1 月 1 日)",
+                      content: "1956年元旦，廖文毅等人在日本東京成立「台灣共和國臨時政府」，主張台灣主權獨立。",
+                      date: "1956 年 1 月 1 日"
+                    }
+                  ]).map((item, index) => {
+                    // 相容處理：如果是純字串，將其轉為基本物件
+                    const eventObj = typeof item === 'string' ? { title: item, content: "" } : item;
 
-一九四七年，黃彰輝坐船從英國返回台灣擔任台南神學院院長，並與黃武東牧師參與東海大學籌設，開啟他在台灣宣教的生涯。當時以蔣介石為首的中華民國政府正實施戒嚴統治，社會瀰漫白色恐怖的氛圍，許多台灣人遭受迫害。`,
-                            footnote: '美國務卿杜勒斯表示日本未將台灣割讓中國　1954.10.28',
-                            source: '台灣獨曆',
-                            sourceUrl: 'https://www.facebook.com/indepcalendar/?locale=zh_TW'
-                          };
-                          setSelectedEvent(eventData);
-                          setShowEventModal(true);
-                        }}
-                      >
-                        {event}
-                      </a>
-                    </li>
-                  ))
+                    // 根據您目前的字串處理邏輯解析標題（若是字串格式則解析，若是物件則優先使用 title 欄位）
+                    let displayTitle = eventObj.title;
+                    let displayDate = eventObj.date || "";
+
+                    if (typeof item === 'string' && item.includes(' ')) {
+                      const parts = item.split(' ');
+                      const firstPart = parts[0] || '';
+                      const fullDateStr = firstPart.includes('：') ? firstPart.split('：')[1] : firstPart;
+                      displayTitle = parts.slice(1).join(' ') || item;
+                      displayDate = fullDateStr.replace(/(\d{4})年(\d{1,2})月(\d{1,2})日/, '$1 年 $2 月 $3 日');
+                    }
+
+                    // 判斷是否具備細節內容 (以此決定黑色或藍色)
+                    const hasDetail = eventObj.content && eventObj.content.trim() !== "";
+
+                    return (
+                      <li key={index}>
+                        {hasDetail ? (
+                          // 有資料：藍色連結
+                          <a
+                            href="#"
+                            className="event-link"
+                            style={{ color: '#2d92c1', cursor: 'pointer', textDecoration: 'none' }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const eventData = {
+                                date: displayDate || '1998 年 10 月 28 日',
+                                title: displayTitle,
+                                content: eventObj.content,
+                                footnote: eventObj.footnote || '歷史大事記',
+                                source: eventObj.source || '台灣獨曆',
+                                sourceUrl: eventObj.sourceUrl || 'https://www.facebook.com/indepcalendar/'
+                              };
+                              setSelectedEvent(eventData);
+                              setShowEventModal(true);
+                            }}
+                          >
+                            {displayTitle}
+                          </a>
+                        ) : (
+                          // 無資料：黑色純文字
+                          <span style={{ color: '#424242', cursor: 'default' }}>
+                            {displayTitle}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })
                 ) : (
                   <li>今日無大事</li>
                 )}
@@ -513,13 +551,6 @@ const MainContent = () => {
                 ))}
               </div>
             </div>
-
-            {selectedEvent.footnote && (
-              <div className="event-modal-footnote">
-                <span className="footnote-icon">ⓘ</span>
-                <span>{selectedEvent.footnote}</span>
-              </div>
-            )}
 
             <div className="event-modal-source">
               <p>資料來源：{selectedEvent.source}</p>
