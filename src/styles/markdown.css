@@ -1,6 +1,6 @@
 /* Markdown 內容共用樣式 */
 .markdown-content {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Huninn', 'NotoSansTC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     color: #333;
     line-height: 1.6;
 }

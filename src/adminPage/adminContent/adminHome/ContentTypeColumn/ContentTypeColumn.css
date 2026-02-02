@@ -3,15 +3,15 @@
 .ct-header{background:#a7f3d0}
 .ct-list{background:#f3f4f8}
 .ct-row{display:flex;align-items:center;justify-content:space-between;height:48px;padding:12px 24px;border-bottom:1px solid #58bca5}
-.ct-label{font-family:'Noto Sans TC','Inter',sans-serif;font-size:18px;line-height:18px;color:#424242}
+.ct-label{font-family:'Huninn', 'NotoSansTC', sans-serif,'Inter',sans-serif;font-size:18px;line-height:18px;color:#424242}
 /* 防止中文字分行，確保由左到右呈現 */
 .ct-label{white-space:nowrap;word-break:keep-all}
 .ct-icon-btn{background:transparent;border:none;padding:0;cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
 .ct-icon{width:24px;height:24px}
 /* 新增列（加號 + 文字） */
 .ct-add-row{display:flex;align-items:center;gap:12px;height:48px;padding:12px 24px;border-bottom:1px solid #58bca5;cursor:pointer}
-.ct-plus{font-family:'Noto Sans TC','Inter',sans-serif;font-weight:600;font-size:24px;line-height:24px;color:#202d47}
-.ct-add-label{font-family:'Noto Sans TC','Inter',sans-serif;font-size:18px;line-height:18px;color:#424242}
+.ct-plus{font-family:'Huninn', 'NotoSansTC', sans-serif,'Inter',sans-serif;font-weight:600;font-size:24px;line-height:24px;color:#202d47}
+.ct-add-label{font-family:'Huninn', 'NotoSansTC', sans-serif,'Inter',sans-serif;font-size:18px;line-height:18px;color:#424242}
 /* 切換為輸入模式時的區塊 */
 .ct-add-edit{display:flex;align-items:center;background:#f3f4f8;padding:0 24px;height:48px;border-bottom:1px solid #58bca5}
 .ct-input{flex:1;border:1px solid #e5e7eb;border-radius:8px;padding:6px 8px;font-size:16px}
