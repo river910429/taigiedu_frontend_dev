@@ -8,7 +8,18 @@ import dotenv from 'dotenv';
  * 📌 架構決策說明：
  * - 使用 Page Helpers 模式而非完整 POM，因為專案規模適中且頁面結構相對簡單
  * - 固定 1440x900 viewport（桌面版專用，無 RWD 測試需求）
- * - 透過環境變數支援 local/staging 環境切換
+ * - 透過環境變數支援 local/staging/production 環境切換
+ * - 使用測試專案分組（smoke/auth-setup/regression）提升測試效率
+ * 
+ * 📝 使用方式：
+ * - 執行所有測試: npm run test:e2e
+ * - 執行冒煙測試: npm run test:e2e:smoke
+ * - UI 模式除錯: npm run test:e2e:ui
+ * 
+ * 🔐 環境變數設定：
+ * - 請在專案根目錄建立 .env.local 檔案
+ * - 設定 BASE_URL、TEST_USER、TEST_PASS
+ * - 參考 .env.example 查看完整範例
  */
 
 dotenv.config({ path: '.env.local' });
