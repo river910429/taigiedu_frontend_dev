@@ -17,7 +17,7 @@ jobs:
         with:
           ref: develop
           fetch-depth: 0
-          # ↓↓↓ [新增這行] 告訴它不要儲存預設 Token，這樣我們後面才能自己用 Token
+          # ↓↓↓ 告訴它不要儲存預設 Token，這樣我們後面才能自己用 Token
           persist-credentials: false
 
       # 2. 設定 Git 身分
@@ -26,15 +26,13 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
 
-      # 3. [最終修正版] 去抓原始作者的更新 (Sync)
+      # 3. 去抓原始作者的更新 (Sync) - 這部分保持不變
       - name: Sync from Upstream
         run: |
-          # 1. 因為我們關掉了 persist-credentials，origin 現在沒有任何權限
-          # 所以要手動幫 origin 裝上你的萬能 Token (這樣等下才能 push)
+          # 1. 手動幫 origin 裝上你的萬能 Token
           git remote set-url origin https://oauth2:${{ secrets.SYNC_TOKEN }}@github.com/river910429/taigiedu_frontend_dev.git
           
           # 2. 設定 Upstream (前端原始專案)
-          # 因為環境乾淨，Git 會乖乖讀取這裡面的 Token
           git remote add upstream https://oauth2:${{ secrets.SYNC_TOKEN }}@github.com/Taigiedu/taiwaneseOMG.git
           
           git fetch upstream
@@ -49,7 +47,7 @@ jobs:
             echo "發現新版本！準備同步..."
             git reset --hard upstream/develop
             
-            # 這裡直接 push，因為上面 origin 已經設好 Token 了
+            # 這裡直接 push
             git push origin develop --force
             echo "HAS_UPDATE=true" >> $GITHUB_ENV
           fi
@@ -65,6 +63,11 @@ jobs:
         if: env.HAS_UPDATE == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           npm install
+          
+          # 🔥【關鍵修改 1】在打包前，強制建立 .env 檔案
+          # 這是為了確保打包出來的程式碼會呼叫 "/api" 而不是別的網址
+          echo "VITE_API_URL=/api" > .env
+          
           npm run build
 
       - name: Deploy to Server via SSH
@@ -74,6 +77,11 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
           source: "dist/*"
-          target: "/home/p76131092/taigiedu_frontend" # 記得確認這個資料夾在 Server 上存在
+          
+          # 🔥【關鍵修改 2】部署路徑改到系統公用目錄
+          # 確保你的伺服器已經執行過 sudo chown p76131092 ...
+          target: "/var/www/taigiedu/dist"
+          
           strip_components: 1
