@@ -6,11 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
 import deleteIcon from "../assets/resourcepage/delete-icon.svg";
 import arrowLeftCircle from "../assets/resourcepage/arrow-left-circle.svg";
+import { authenticatedFetch } from "../services/authService";
+import { useAuth } from "../contexts/AuthContext";
 
 
 const DeleteResource = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { isLoading: isAuthLoading } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -44,9 +47,17 @@ const DeleteResource = () => {
     setUserId(currentUserId);
     setUsername(currentUsername);
 
-    // 載入資源
-    fetchResources(currentUserId, currentUsername);
-  }, [navigate, showToast]);
+    if (!isAuthLoading) {
+      // 載入資源
+      fetchResources(currentUserId, currentUsername);
+    }
+  }, [navigate, showToast, isAuthLoading]);
+
+  useEffect(() => {
+    if (!isAuthLoading && userId && username) {
+      fetchResources(userId, username);
+    }
+  }, [isAuthLoading, userId, username]);
 
   // 當使用者資源變化時更新分頁
   useEffect(() => {
@@ -77,11 +88,8 @@ const DeleteResource = () => {
         limit: 1000 // 獲取所有資源
       };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/search`, {
+      const response = await authenticatedFetch(`${import.meta.env.VITE_API_URL}/api/resource/search`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
         body: JSON.stringify(parameters)
       });
 
@@ -191,11 +199,8 @@ const DeleteResource = () => {
     };
 
     // 使用 fetch API 發送刪除請求
-    fetch(`${import.meta.env.VITE_API_URL}/api/resource/delete`, {
+    authenticatedFetch(`${import.meta.env.VITE_API_URL}/api/resource/delete`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify(parameters)
     })
       .then(response => {
@@ -287,6 +292,7 @@ const DeleteResource = () => {
                       uploader={resource.uploader_name || "匿名上傳者"}
                       tags={resource.tags || []}
                       date={resource.date || ""}
+                      isLiked={Boolean(resource.is_like)}
                       onCardClick={null} // 關閉跳轉
                     />
                     <div className="delete-overlay"></div>

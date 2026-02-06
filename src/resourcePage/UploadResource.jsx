@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import loadingImage from "/src/assets/record_loading.svg"; // 處理中圖示
 import { useToast } from "../components/Toast";
 import { useAuth } from "../contexts/AuthContext";
-import { getAccessToken, refreshToken } from "../services/authService";
+import { authenticatedFetch, getAccessToken, refreshToken } from "../services/authService";
 import "./UploadResource.css";
 
 const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
@@ -47,7 +47,7 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
   useEffect(() => {
     const fetchVersions = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/versions`);
+        const response = await authenticatedFetch(`${import.meta.env.VITE_API_URL}/api/resource/versions`);
         const result = await response.json();
         if (response.ok) {
           setVersionMapping(result);

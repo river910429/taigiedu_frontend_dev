@@ -42,6 +42,23 @@ const ResourcePage = () => {
   const handleCardClick = (resource) => {
     try {
       // 處理圖片 URL
+      const joinUrl = (base, path) => {
+        const normalizedBase = String(base || "").replace(/\/+$/, "");
+        let normalizedPath = String(path || "").replace(/^\/+/, "");
+
+        normalizedPath = normalizedPath.replace(/\/{2,}/g, "/");
+
+        if (normalizedPath.startsWith("backend/")) {
+          normalizedPath = normalizedPath.replace(/^backend\//, "");
+        }
+
+        if (normalizedBase.endsWith("/backend") && normalizedPath.startsWith("backend/")) {
+          normalizedPath = normalizedPath.replace(/^backend\//, "");
+        }
+
+        return `${normalizedBase}/${normalizedPath}`;
+      };
+
       const getFullImageUrl = (url) => {
         if (!url || url === "/src/assets/resourcepage/file_preview_demo.png") {
           return "/src/assets/resourcepage/file_preview_demo.png";
@@ -49,7 +66,7 @@ const ResourcePage = () => {
         if (url.startsWith('http://') || url.startsWith('https://')) {
           return url;
         }
-        return `${import.meta.env.VITE_API_URL}/${url}`;
+        return joinUrl(import.meta.env.VITE_API_URL, url);
       };
 
       // 處理檔案 URL
@@ -58,7 +75,7 @@ const ResourcePage = () => {
         if (url.startsWith('http://') || url.startsWith('https://')) {
           return url;
         }
-        return `${import.meta.env.VITE_API_URL}/${url}`;
+        return joinUrl(import.meta.env.VITE_API_URL, url);
       };
 
       // 確保所有數據都被正確編碼並傳遞
@@ -75,7 +92,8 @@ const ResourcePage = () => {
         `&tags=${tagsString}` +
         `&date=${encodeURIComponent(resource.date || '')}` +
         `&fileUrl=${encodeURIComponent(getFullFileUrl(resource.fileUrl))}` +
-        `&id=${encodeURIComponent(resource.id || '')}`;
+        `&id=${encodeURIComponent(resource.id || '')}` +
+        `&is_like=${encodeURIComponent(Boolean(resource.is_like))}`;
 
       // 在新分頁中打開預覽頁面
       window.open(previewUrl, '_blank', 'noopener,noreferrer');

@@ -3,10 +3,13 @@ import { useSearchParams } from "react-router-dom";
 import "./ResourceContent.css";
 import ResourceCard from "./ResourceCard";
 import { useToast } from "../components/Toast";
+import { authenticatedFetch } from "../services/authService";
+import { useAuth } from "../contexts/AuthContext";
 
 // 添加 renderCard 到組件參數中
 const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoaded }) => {
   const { showToast } = useToast();
+  const { isLoading: isAuthLoading } = useAuth();
   const [allResources, setAllResources] = useState([]); // 存儲所有資源
   const [displayedResources, setDisplayedResources] = useState([]); // 當前頁顯示的資源
   const [totalItems, setTotalItems] = useState(0);
@@ -33,12 +36,12 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
         const newParams = new URLSearchParams(searchParamsFromRouter);
         newParams.set("page", "1");
         setSearchParamsFromRouter(newParams);
-      } else {
+      } else if (!isAuthLoading) {
         fetchResources();
       }
       setLastSearchParams(searchParams);
     }
-  }, [searchParams]);
+  }, [searchParams, isAuthLoading]);
 
   // 同步 URL 中的頁碼到 currentPage 狀態
   useEffect(() => {
@@ -50,12 +53,20 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
   // 監聽後台更新事件，重新抓取前台資源
   useEffect(() => {
     const onUpdated = () => {
-      // 保持目前搜尋條件，僅重新拉資料
-      fetchResources();
+      if (!isAuthLoading) {
+        // 保持目前搜尋條件，僅重新拉資料
+        fetchResources();
+      }
     };
     window.addEventListener('resource-updated', onUpdated);
     return () => window.removeEventListener('resource-updated', onUpdated);
-  }, []);
+  }, [isAuthLoading]);
+
+  useEffect(() => {
+    if (!isAuthLoading && lastSearchParams) {
+      fetchResources();
+    }
+  }, [isAuthLoading, lastSearchParams]);
 
   // 當頁碼變更時更新顯示的資源
   useEffect(() => {
@@ -103,11 +114,8 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
 
       console.log("搜索參數:", parameters);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/resource/search`, {
+      const response = await authenticatedFetch(`${import.meta.env.VITE_API_URL}/api/resource/search`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
         body: JSON.stringify(parameters)
       });
 
@@ -240,6 +248,7 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
                       uploader={resource.uploader_name || "匿名上傳者"}
                       tags={resource.tags || []}
                       date={resource.date || ""}
+                      isLiked={Boolean(resource.is_like)}
                       onCardClick={() => onCardClick && onCardClick(resource)}
                     />
                   );
