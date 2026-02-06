@@ -309,7 +309,7 @@ npx playwright show-report playwright-report
 如有任何問題或建議，歡迎透過以下方式聯繫：
 
 - 專案 Issue: [GitHub Issues](https://github.com/your-username/taiwaneseOMG/issues)
-- Email: your-email@example.com
+- Email: taigiedu@gmail.com
 
 ---
 
