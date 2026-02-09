@@ -7,13 +7,15 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
   return (
     <div className="ct-row">
       {isEditing ? (
-        <input
-          className="ct-input"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onBlur={onCommit}
-          onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
-        />
+        <>
+          <input
+            className="ct-input"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
+          />
+          <button className="ct-submit" onClick={onCommit}>確認</button>
+        </>
       ) : (
         <span className="ct-label">{value}</span>
       )}
@@ -101,7 +103,7 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
               onChange={(e) => setAdding(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') addItem(); }}
             />
-            <button className="ct-submit" onClick={addItem}>送出</button>
+            <button className="ct-submit" onClick={addItem}>確認</button>
           </div>
         ) : (
           <div className="ct-add-row" onClick={addNewRow}>

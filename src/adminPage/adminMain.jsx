@@ -15,7 +15,7 @@ const AdminMain = () => {
       functions: ["考試資訊", "最新消息"]
     },
     {
-      title: "台灣文化",
+      title: "台語文化",
       icon: bookIcon,
       functions: ["飲食", "節慶"]
     },

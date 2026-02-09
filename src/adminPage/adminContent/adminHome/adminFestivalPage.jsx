@@ -160,7 +160,7 @@ const AdminFestivalPage = () => {
   };
 
   const handleGenerateTTS = () => {
-    if (!newTwName) { showToast('請先輸入「名稱(臺羅)」', 'warning'); return; }
+    if (!newTwName) { showToast('請先輸入「名稱(台羅)」', 'warning'); return; }
     if (!('speechSynthesis' in window)) { showToast('此瀏覽器不支援語音播放', 'warning'); return; }
     try { window.speechSynthesis.cancel(); } catch { /* ignore */ }
     setTtsGenerated(true); setTtsPlaying(false); setUsingRecording(false); setTtsProgress(0);
@@ -327,7 +327,7 @@ const AdminFestivalPage = () => {
     },
     {
       accessorKey: 'twName',
-      header: '名稱(臺羅)',
+      header: '名稱(台羅)',
       enableSorting: true,
     },
     {
@@ -346,7 +346,7 @@ const AdminFestivalPage = () => {
     },
     {
       accessorKey: 'zhDesc',
-      header: '華語釋義',
+      header: '華文釋義',
       enableSorting: false,
       cell: ({ row }) => <span title={row.original.zhDesc}>{row.original.zhDesc}</span>
     },
@@ -393,7 +393,7 @@ const AdminFestivalPage = () => {
   return (
     <div className="admin-test-page p-4">
       <div className="admin-header-main">
-        <h5 className="mb-3 text-secondary">台灣文化 &gt; 節慶 &gt; <span>{statusFilter === 'published' ? '目前項目' : '下架記錄'}</span></h5>
+        <h5 className="mb-3 text-secondary">台語文化 &gt; 節慶 &gt; <span>{statusFilter === 'published' ? '目前項目' : '刪除紀錄'}</span></h5>
         <div className="admin-controls-row">
           <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
             <img src={addIcon} alt="新增項目" />新增項目
@@ -402,7 +402,7 @@ const AdminFestivalPage = () => {
             <span className="me-2 text-secondary">目前狀態：</span>
             <select className="form-select admin-status-dropdown" value={statusFilter} onChange={handleStatusFilterChange}>
               <option value="published">目前項目</option>
-              <option value="archived">下架記錄</option>
+              <option value="archived">刪除紀錄</option>
             </select>
           </div>
         </div>
@@ -432,7 +432,7 @@ const AdminFestivalPage = () => {
           <input type="text" className="form-control admin-form-control" id="newZhName" value={newZhName} onChange={(e) => setNewZhName(e.target.value)} required />
         </div>
         <div className="mb-3">
-          <label htmlFor="newTwName" className="form-label admin-form-label">*名稱(臺羅)</label>
+          <label htmlFor="newTwName" className="form-label admin-form-label">*名稱(台羅)</label>
           <div className="d-flex gap-2 align-items-center flex-wrap">
             <input type="text" className="form-control admin-form-control" id="newTwName" value={newTwName} onChange={(e) => setNewTwName(e.target.value)} required style={{ maxWidth: '240px' }} />
             {!ttsGenerated && !usingRecording && (
@@ -498,7 +498,7 @@ const AdminFestivalPage = () => {
           <div className="form-text">*限 JPG、PNG可上傳，限制 2MB。</div>
         </div>
         <div className="mb-3">
-          <label htmlFor="newZhDesc" className="form-label admin-form-label">*華語釋義</label>
+          <label htmlFor="newZhDesc" className="form-label admin-form-label">*華文釋義</label>
           <textarea className="form-control admin-form-control" id="newZhDesc" rows="3" value={newZhDesc} onChange={(e) => setNewZhDesc(e.target.value)} required />
         </div>
         <div className="mb-3">

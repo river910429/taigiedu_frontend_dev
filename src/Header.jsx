@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import "./Header.css";
 import logo from "./assets/new_logo_1111.svg";
+import adminLogo from "./assets/adminPage/Logo + Title2.svg";
 
 // 導入原本的 LoginPage
 import LoginPage from "./resourcePage/LoginPage";
@@ -13,6 +14,9 @@ const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   // 處理登出
   const handleLogout = async () => {
@@ -68,8 +72,13 @@ const Header = () => {
   return (
     <>
       <header className="header" data-testid="header">
-        <Link to="/">
-          <img src={logo} alt="Logo" className="logo" data-testid="header-logo" />
+        <Link to={isAdminPage ? "/admin" : "/"}>
+          <img
+            src={isAdminPage ? adminLogo : logo}
+            alt="Logo"
+            className="logo"
+            data-testid="header-logo"
+          />
         </Link>
 
         <div className="header-right">
@@ -146,13 +155,15 @@ const Header = () => {
               )}
             </div>
           ) : (
-            // 未登入：顯示登入按鈕 (使用 Footer 按鈕樣式)
-            <button
-              className="header-login-button"
-              onClick={handleLoginClick}
-            >
-              登入
-            </button>
+            // 未登入：顯示登入按鈕 (若不在登入頁面才顯示)
+            !location.pathname.includes('/login') && (
+              <button
+                className="header-login-button"
+                onClick={handleLoginClick}
+              >
+                登入
+              </button>
+            )
           )}
         </div>
       </header>

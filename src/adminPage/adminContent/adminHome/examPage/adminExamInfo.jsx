@@ -253,8 +253,8 @@ const AdminExamInfo = () => {
         </h5>
         <div className="admin-controls-row">
           <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
-            <img src={addIcon} alt="上傳項目" />
-            上傳項目
+            <img src={addIcon} alt="新增項目" />
+            新增項目
           </button>
           <div className="status-filter">
             <span className="me-2 text-secondary">目前狀態：</span>

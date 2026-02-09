@@ -290,12 +290,12 @@ const AdminNewsPage = () => {
       <div className="admin-header-main">
         <h5 className="mb-3 text-secondary">
           首頁搜尋 &gt; 最新消息 &gt;
-          <span>{statusFilter === 'published' ? "目前快訊" : "下架記錄"}</span>
+          <span>{statusFilter === 'published' ? "活動快訊" : "刪除紀錄"}</span>
         </h5>
         <div className="admin-controls-row">
           <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
-            <img src={addIcon} alt="新增快訊" />
-            新增快訊
+            <img src={addIcon} alt="新增項目" />
+            新增項目
           </button>
           <div className="status-filter">
             <span className="me-2 text-secondary">目前狀態：</span>
@@ -304,8 +304,8 @@ const AdminNewsPage = () => {
               value={statusFilter}
               onChange={handleStatusFilterChange}
             >
-              <option value="published">目前快訊</option>
-              <option value="archived">下架記錄</option>
+              <option value="published">活動快訊</option>
+              <option value="archived">刪除紀錄</option>
             </select>
           </div>
         </div>
@@ -328,7 +328,7 @@ const AdminNewsPage = () => {
       <AdminModal
         isOpen={showAddModal}
         onClose={handleModalClose}
-        title={isEditing ? '編輯快訊' : '新增快訊'}
+        title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleFormSubmit}
       >
         <div className="mb-3">
