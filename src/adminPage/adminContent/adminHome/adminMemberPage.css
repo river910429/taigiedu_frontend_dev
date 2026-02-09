@@ -5,6 +5,9 @@
 /* 頁面容器 */
 .admin-member-page {
     padding: 1rem;
+    overflow-x: auto !important;
+    overflow-y: visible;
+    max-width: 100%;
 }
 
 /* 頁面標頭區 */
@@ -430,4 +433,25 @@
 
 .admin-confirm-btn:hover {
     background-color: #3A7A8E;
+}
+
+/* ===== 會員管理頁面 - 表格滾動覆寫樣式 ===== */
+
+/* 確保表格容器可以水平滾動 */
+.admin-member-page .admin-table-responsive {
+    overflow-x: auto !important;
+    overflow-y: visible;
+    max-width: 100%;
+    width: 100%;
+    display: block;
+    -webkit-overflow-scrolling: touch;
+    /* iOS 平滑滾動 */
+}
+
+/* 確保表格有足夠的最小寬度來顯示所有欄位 */
+.admin-member-page .admin-data-table {
+    min-width: 1400px;
+    /* 增加最小寬度確保所有欄位可見 */
+    width: max-content;
+    table-layout: auto;
 }

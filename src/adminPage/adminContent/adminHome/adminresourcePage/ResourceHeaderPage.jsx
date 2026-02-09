@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import './ResourceHeaderPage.css';
 import TableHeaderCell from '../TableHeaderCell/TableHeaderCell.jsx';
 import HighSchoolColumn from '../HighSchoolColumn/HighSchoolColumn.jsx';
 import MiddleSchoolColumn from '../MiddleSchoolColumn/MiddleSchoolColumn.jsx';
 import ElementarySchoolColumn from '../ElementarySchoolColumn/ElementarySchoolColumn.jsx';
 import ContentTypeColumn from '../ContentTypeColumn/ContentTypeColumn.jsx';
+import { authenticatedFetch } from '../../../../services/authService';
+import { useToast } from '../../../../components/Toast';
 
 const STORAGE_KEY = 'resourceHeaderConfig';
 
@@ -88,6 +90,10 @@ export default function ResourceHeaderPage() {
   const [baseline, setBaseline] = useState(loadConfig());
   const [config, setConfig] = useState(baseline);
   const [pending, setPending] = useState(false);
+  const { showToast } = useToast();
+
+  // API base URL
+  const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://dev.taigiedu.com/backend';
 
   const setStage = (stage, nextList) => {
     setConfig((prev) => ({ ...prev, versions: { ...prev.versions, [stage]: nextList } }));
@@ -96,12 +102,63 @@ export default function ResourceHeaderPage() {
 
   const allStages = useMemo(() => ['高中', '國中', '國小'], []);
 
+  // 呼叫 API 新增課本版本
+  const handleAddBook = useCallback(async (stage, bookName) => {
+    try {
+      const response = await authenticatedFetch(`${apiBaseUrl}/admin/resource/add-book`, {
+        method: 'POST',
+        body: JSON.stringify({
+          stage: stage,
+          book: bookName
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        showToast(result.message || `已成功新增「${bookName}」到${stage}`, 'success');
+        return true;
+      } else {
+        throw new Error(result.message || '新增失敗');
+      }
+    } catch (error) {
+      console.error('新增課本版本失敗:', error);
+      showToast(`新增失敗: ${error.message}`, 'error');
+      return false;
+    }
+  }, [apiBaseUrl, showToast]);
+
+  // 呼叫 API 新增內容類型
+  const handleAddContentType = useCallback(async (typeName) => {
+    try {
+      const response = await authenticatedFetch(`${apiBaseUrl}/admin/resource/add-content-type`, {
+        method: 'POST',
+        body: JSON.stringify({
+          type: typeName
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        showToast(result.message || `已成功新增內容類型「${typeName}」`, 'success');
+        return true;
+      } else {
+        throw new Error(result.message || '新增失敗');
+      }
+    } catch (error) {
+      console.error('新增內容類型失敗:', error);
+      showToast(`新增失敗: ${error.message}`, 'error');
+      return false;
+    }
+  }, [apiBaseUrl, showToast]);
+
   const handleSave = () => {
     saveConfig(config);
     setBaseline(config);
     setPending(false);
     // 觸發前台與後台同步刷新（若打開中）
-    try { window.dispatchEvent(new Event('resource-config-updated')); } catch {}
+    try { window.dispatchEvent(new Event('resource-config-updated')); } catch { }
     alert('已儲存設定');
   };
 
@@ -122,18 +179,22 @@ export default function ResourceHeaderPage() {
         <HighSchoolColumn
           items={config.versions['高中']}
           onChange={(next) => setStage('高中', next)}
+          onAddItem={(bookName) => handleAddBook('高中', bookName)}
         />
         <MiddleSchoolColumn
           items={config.versions['國中']}
           onChange={(next) => setStage('國中', next)}
+          onAddItem={(bookName) => handleAddBook('國中', bookName)}
         />
         <ElementarySchoolColumn
           items={config.versions['國小']}
           onChange={(next) => setStage('國小', next)}
+          onAddItem={(bookName) => handleAddBook('國小', bookName)}
         />
         <ContentTypeColumn
           items={config.contentTypes}
           onChange={setTypes}
+          onAddItem={handleAddContentType}
         />
       </div>
       <div className="resconf-footer">

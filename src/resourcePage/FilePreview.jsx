@@ -15,7 +15,7 @@ const FilePreview = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { showToast } = useToast();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [downloadsCount, setDownloadsCount] = useState(0);
@@ -196,6 +196,10 @@ const FilePreview = () => {
   };
 
   const handleLike = async () => {
+    if (!isAuthenticated) {
+      showToast("請先登入後再進行點讚", "error");
+      return;
+    }
     if (!resourceData.resourceId) {
       showToast("無法點讚此資源", "error");
       return;
@@ -257,6 +261,10 @@ const FilePreview = () => {
 
   // 檢舉功能 - 開啟 modal
   const handleReport = () => {
+    if (!isAuthenticated) {
+      showToast("請先登入後再進行檢舉", "error");
+      return;
+    }
     setShowReportModal(true);
   };
 

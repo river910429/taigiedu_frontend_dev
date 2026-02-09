@@ -26,11 +26,12 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
   );
 };
 
-export default function ContentTypeColumn({ items = [], onChange }) {
+export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
   const [editIndex, setEditIndex] = useState(-1);
   const [editValue, setEditValue] = useState('');
   const [addingMode, setAddingMode] = useState(false);
   const [adding, setAdding] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const startEdit = (idx) => {
     setEditIndex(idx);
@@ -44,14 +45,31 @@ export default function ContentTypeColumn({ items = [], onChange }) {
     setEditValue('');
   };
 
-  const addItem = () => {
+  const addItem = async () => {
     const v = adding.trim();
     if (!v) return;
     if (items.includes(v)) return;
-    const next = [...items, v];
-    onChange?.(next);
-    setAdding('');
-    setAddingMode(false);
+
+    setIsSubmitting(true);
+    try {
+      // 如果有提供 onAddItem callback，呼叫它（會處理 API）
+      if (onAddItem) {
+        const success = await onAddItem(v);
+        if (!success) {
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      // 更新本地狀態
+      const next = [...items, v];
+      onChange?.(next);
+      setAdding('');
+      setAddingMode(false);
+    } catch (error) {
+      console.error('新增失敗:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const addNewRow = () => {

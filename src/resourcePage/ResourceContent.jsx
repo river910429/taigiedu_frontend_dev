@@ -125,7 +125,11 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
         console.log("搜索結果:", result);
 
         if (result.data && Array.isArray(result.data.resources)) {
-          const resourcesList = [...result.data.resources].reverse();
+          // 過濾掉已下架的資源 (deleted 或 removed)
+          const resourcesList = result.data.resources
+            .filter(r => r.status !== 'deleted' && r.status !== 'removed')
+            .reverse();
+
           setAllResources(resourcesList);
           setTotalItems(resourcesList.length);
 

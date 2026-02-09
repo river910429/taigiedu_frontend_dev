@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createPortal } from 'react-dom';
 import { createColumnHelper } from '@tanstack/react-table';
 import { useToast } from '../../../components/Toast';
+import { authenticatedFetch } from '../../../services/authService';
 import AdminDataTable from '../../../components/AdminDataTable';
 import '../../../components/AdminDataTable/AdminDataTable.css';
 import AdminModal from '../../../components/AdminModal';
@@ -17,6 +18,52 @@ const SUPER_ADMIN_WHITELIST = [
   'admin@example.com',
   'root@example.com'
 ];
+
+/**
+ * 解析並格式化「使用網站動機」欄位
+ * API 回傳格式可能是：
+ * - JSON 陣列：[{"type": "編課"}, {"type": "自學"}, {"type": "其他", "custom": "測試"}]
+ * - JSON 字串："[{\"type\": \"編課\"}]"
+ * - 純文字："編課、自學"
+ * @param {any} reason - 原始 reason 資料
+ * @returns {string} 格式化後的文字
+ */
+const formatReasonDisplay = (reason) => {
+  if (!reason) return '';
+
+  // 如果已經是字串，嘗試解析 JSON
+  let reasonArray = reason;
+  if (typeof reason === 'string') {
+    try {
+      reasonArray = JSON.parse(reason);
+    } catch {
+      // 如果解析失敗，直接回傳原始字串
+      return reason;
+    }
+  }
+
+  // 如果不是陣列，直接轉換為字串
+  if (!Array.isArray(reasonArray)) {
+    return String(reason);
+  }
+
+  // 解析陣列並格式化
+  const formatted = reasonArray.map(item => {
+    if (typeof item === 'string') return item;
+    if (item && typeof item === 'object') {
+      const type = item.type || '';
+      const custom = item.custom || '';
+      // 如果是「其他」且有自訂內容，顯示為「其他：XXX」
+      if (type === '其他' && custom) {
+        return `${type}：${custom}`;
+      }
+      return type;
+    }
+    return '';
+  }).filter(Boolean);
+
+  return formatted.join('、');
+};
 
 /**
  * 操作欄位組件 - 解決 Hooks 順序問題
@@ -154,9 +201,8 @@ const AdminMemberPage = () => {
 
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
-  const [newOrganization, setNewOrganization] = useState('');
-  const [newOccupation, setNewOccupation] = useState('');
-  const [newMotivation, setNewMotivation] = useState('');
+  const [newDept, setNewDept] = useState('');
+  const [newReason, setNewReason] = useState('');
   const [newRole, setNewRole] = useState('member');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMenuId, setActiveMenuId] = useState(null);
@@ -205,10 +251,53 @@ const AdminMemberPage = () => {
     return flag || (role === 'admin' && SUPER_ADMIN_WHITELIST.includes(email));
   }, [currentUser]);
 
+  // API base URL
+  const apiBaseUrl = import.meta.env.VITE_API_URL || "https://dev.taigiedu.com/backend";
+
+  // 載入會員資料
+  const fetchMembers = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await authenticatedFetch(`${apiBaseUrl}/admin/member/list`, {
+        method: 'GET',
+      });
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // 將 API 資料映射到前端格式
+        const members = (result.members || []).map(member => ({
+          ...member,
+          // 確保 id 是數字或字串
+          id: member.id,
+          // 保留 API 原始欄位名稱
+          name: member.name,
+          email: member.email,
+          dept: member.dept || '',
+          reason: member.reason || '',
+          timestamp: member.timestamp || '',
+          status: member.status || '會員',
+          // 額外欄位（如果需要）
+          role: member.status === '管理員' ? 'admin' : 'member',
+        }));
+        setAllMembers(members);
+      } else {
+        throw new Error(result.message || '載入會員資料失敗');
+      }
+    } catch (error) {
+      console.error('載入會員資料錯誤:', error);
+      showToast(`載入會員資料失敗: ${error.message}`, 'error');
+      setMemberList([]);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [showToast, apiBaseUrl]);
+
   //（已移除獨立編輯入口）
 
   // 刪除/恢復按鈕點擊（停用/啟用）
-  const handleDeleteClick = useCallback((itemId) => {
+  const handleDeleteClick = useCallback(async (itemId) => {
     // 管理員名單下僅允許超級管理員停用/啟用
     if (viewFilter === 'admins' && !isSuperAdmin) {
       showToast('僅超級管理員可停用/啟用管理員', 'warning');
@@ -216,30 +305,34 @@ const AdminMemberPage = () => {
     }
 
     const isRestoreAction = viewFilter === 'archivedMembers';
-
-    // 直接執行，不使用 confirm 對話框
+    const action = isRestoreAction ? '恢復會員' : '停用會員';
 
     try {
-      setAllMembers(prevInfo => {
-        const now = new Date();
-        const archivedAt = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-        const updated = prevInfo.map(item => {
-          if (item.id !== itemId) return item;
-          if (isRestoreAction) {
-            return { ...item, status: 'active', archivedReason: '', archivedAt: '' };
-          }
-          return { ...item, status: 'archived', archivedReason: item.archivedReason || '系統停用', archivedAt };
-        });
-        return updated;
+      // 呼叫 API
+      const response = await authenticatedFetch(`${apiBaseUrl}/admin/member/status`, {
+        method: 'POST',
+        body: JSON.stringify({
+          id: String(itemId),
+          action: action,
+          reason: isRestoreAction ? '管理員恢復' : '系統停用',
+          detail: ''
+        })
       });
 
-      const successMessage = isRestoreAction ? '帳號已成功啟用！' : '帳號已成功停用！';
-      showToast(successMessage, 'success');
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        showToast(result.message || (isRestoreAction ? '帳號已成功啟用！' : '帳號已成功停用！'), 'success');
+        // 重新載入會員列表以確保資料同步
+        fetchMembers();
+      } else {
+        throw new Error(result.message || `${action}失敗`);
+      }
     } catch (error) {
       console.error(isRestoreAction ? "啟用失敗:" : "停用失敗:", error);
       showToast(`${isRestoreAction ? "啟用" : "停用"}失敗: ${error.message}`, 'error');
     }
-  }, [viewFilter, isSuperAdmin, showToast]);
+  }, [viewFilter, isSuperAdmin, showToast, apiBaseUrl, fetchMembers]);
 
   // 停用上傳資格
   const handleDisableUpload = useCallback((member) => {
@@ -252,26 +345,45 @@ const AdminMemberPage = () => {
   }, []);
 
   // 確認停用上傳資格
-  const confirmDisableUpload = useCallback(() => {
+  const confirmDisableUpload = useCallback(async () => {
     if (!disableReason) {
       showToast('請選擇停用理由', 'warning');
       return;
     }
 
-    const now = new Date();
-    const archivedAt = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-
     const fullReason = disableNote ? `${disableReason}（${disableNote}）` : disableReason;
 
-    setAllMembers(prevMembers => prevMembers.map(m =>
-      m.id === disableTarget.id
-        ? { ...m, status: 'archived', archivedReason: fullReason, archivedAt }
-        : m
-    ));
-    showToast(`已停用 ${disableTarget.name} 的上傳資格`, 'success');
-    setShowDisableModal(false);
-    setDisableTarget(null);
-  }, [disableTarget, disableReason, disableNote, showToast]);
+    try {
+      // 呼叫 API
+      const response = await authenticatedFetch(`${apiBaseUrl}/admin/member/status`, {
+        method: 'POST',
+        body: JSON.stringify({
+          id: String(disableTarget.id),
+          action: '停用會員',
+          reason: fullReason,
+          detail: disableNote || ''
+        })
+      });
+
+      const result = await response.json();
+
+      console.log('停用會員 API 回應:', { status: response.status, result });
+
+      if (response.ok && result.success) {
+        showToast(result.message || `已停用 ${disableTarget.name} 的上傳資格`, 'success');
+        setShowDisableModal(false);
+        setDisableTarget(null);
+        // 重新載入會員列表以確保資料同步
+        fetchMembers();
+      } else {
+        throw new Error(result.message || result.error || '停用失敗');
+      }
+    } catch (error) {
+      console.error('停用會員失敗:', error);
+      console.error('停用會員請求參數:', { id: disableTarget?.id, action: '停用會員', reason: fullReason });
+      showToast(`停用失敗: ${error.message}`, 'error');
+    }
+  }, [disableTarget, disableReason, disableNote, showToast, apiBaseUrl, fetchMembers]);
 
   // 指定擔任管理員
   const handleAssignAdmin = useCallback((member) => {
@@ -282,16 +394,35 @@ const AdminMemberPage = () => {
   }, []);
 
   // 確認指定擔任管理員
-  const confirmAssignAdmin = useCallback(() => {
-    setAllMembers(prevMembers => prevMembers.map(m =>
-      m.id === adminTarget.id
-        ? { ...m, role: 'admin' }
-        : m
-    ));
-    showToast(`已將 ${adminTarget.name} 指定為管理員`, 'success');
-    setShowAdminModal(false);
-    setAdminTarget(null);
-  }, [adminTarget, showToast]);
+  const confirmAssignAdmin = useCallback(async () => {
+    try {
+      // 呼叫 API
+      const response = await authenticatedFetch(`${apiBaseUrl}/admin/member/status`, {
+        method: 'POST',
+        body: JSON.stringify({
+          id: String(adminTarget.id),
+          action: '設置管理員',
+          reason: '指定為管理員',
+          detail: ''
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        showToast(result.message || `已將 ${adminTarget.name} 指定為管理員`, 'success');
+        setShowAdminModal(false);
+        setAdminTarget(null);
+        // 重新載入會員列表以確保資料同步
+        fetchMembers();
+      } else {
+        throw new Error(result.message || '指定管理員失敗');
+      }
+    } catch (error) {
+      console.error('指定管理員失敗:', error);
+      showToast(`指定管理員失敗: ${error.message}`, 'error');
+    }
+  }, [adminTarget, showToast, apiBaseUrl, fetchMembers]);
 
   // 欄位定義
   const columns = useMemo(() => {
@@ -315,21 +446,15 @@ const AdminMemberPage = () => {
           cell: info => (<a href={`mailto:${info.getValue()}`}>{info.getValue()}</a>),
           enableSorting: true,
         }),
-        columnHelper.accessor('organization', {
+        columnHelper.accessor('dept', {
           header: '服務單位',
           cell: info => (<span className="text-truncate-cell">{info.getValue()}</span>),
           enableSorting: true,
           size: 180,
         }),
-        columnHelper.accessor('occupation', {
-          header: '職業',
-          cell: info => (<span className="text-truncate-cell">{info.getValue()}</span>),
-          enableSorting: true,
-          size: 160,
-        }),
-        columnHelper.accessor('motivation', {
+        columnHelper.accessor('reason', {
           header: '使用網站動機',
-          cell: info => (<span className="text-truncate-cell">{info.getValue()}</span>),
+          cell: info => (<span className="text-truncate-cell">{formatReasonDisplay(info.getValue())}</span>),
           enableSorting: true,
           size: 220,
         }),
@@ -375,21 +500,15 @@ const AdminMemberPage = () => {
         cell: info => (<a href={`mailto:${info.getValue()}`}>{info.getValue()}</a>),
         enableSorting: true,
       }),
-      columnHelper.accessor('organization', {
+      columnHelper.accessor('dept', {
         header: '服務單位',
         cell: info => (<span className="text-truncate-cell">{info.getValue()}</span>),
         enableSorting: true,
         size: 180,
       }),
-      columnHelper.accessor('occupation', {
-        header: '職業',
-        cell: info => (<span className="text-truncate-cell">{info.getValue()}</span>),
-        enableSorting: true,
-        size: 160,
-      }),
-      columnHelper.accessor('motivation', {
+      columnHelper.accessor('reason', {
         header: '使用網站動機',
-        cell: info => (<span className="text-truncate-cell">{info.getValue()}</span>),
+        cell: info => (<span className="text-truncate-cell">{formatReasonDisplay(info.getValue())}</span>),
         enableSorting: true,
         size: 220,
       }),
@@ -454,45 +573,23 @@ const AdminMemberPage = () => {
     });
   }, []);
 
-  // 模擬載入會員資料
-  const fetchMembers = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-    setTimeout(() => {
-      try {
-        const mockData = [
-          { id: 1, name: "陳小明", email: "a123456@gmail.com", organization: "台南一中", occupation: "台語兼任教師", motivation: "備課需求", role: "member", timestamp: "2025/04/01 23:55:00", status: "active" },
-          { id: 2, name: "李小華", email: "hua@example.com", organization: "台北市教育局", occupation: "教研員", motivation: "教材製作", role: "admin", timestamp: "2024/03/14 14:20:00", status: "active" },
-          { id: 3, name: "王超管", email: "admin@example.com", organization: "系統管理部", occupation: "系統管理員", motivation: "平台維護", role: "admin", timestamp: "2024/03/13 09:15:00", status: "active" },
-          { id: 4, name: "林小美", email: "mei@example.com", organization: "高雄女中", occupation: "國文教師", motivation: "課程設計", role: "member", timestamp: "2024/03/12 16:45:00", status: "active" },
-          { id: 5, name: "謝阿德", email: "de@example.com", organization: "台南市教育局", occupation: "行政人員", motivation: "專案管理", role: "member", timestamp: "2024/03/11 11:30:00", status: "archived", archivedReason: "系統停用", archivedAt: "2025/04/01 23:55:00" },
-          { id: 6, name: "張阿杰", email: "jie@example.com", organization: "成大附中", occupation: "教師", motivation: "補充教材", role: "member", timestamp: "2024/03/10 15:20:00", status: "archived", archivedReason: "系統停用", archivedAt: "2025/04/01 23:55:00" },
-        ];
-        setAllMembers(mockData);
-      } catch (error) {
-        showToast(`載入會員資料失敗: ${error.message}`, 'error');
-        setMemberList([]);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }, 800);
-  }, [showToast]);
-
   useEffect(() => {
     fetchMembers();
   }, [fetchMembers]);
 
-  // 根據狀態篩選資料
+  // 根據狀態篩選資料（使用 API 回傳的 status 字串）
   useEffect(() => {
     if (allMembers.length > 0 || isLoading === false) {
       let filtered = [];
       if (viewFilter === 'admins') {
-        filtered = allMembers.filter(item => item.role === 'admin' && item.status === 'active');
+        // 管理員名單：status 為 "管理員"
+        filtered = allMembers.filter(item => item.status === '管理員');
       } else if (viewFilter === 'members') {
-        filtered = allMembers.filter(item => item.role !== 'admin' && item.status === 'active');
+        // 會員名單：status 為 "會員"
+        filtered = allMembers.filter(item => item.status === '會員');
       } else if (viewFilter === 'archivedMembers') {
-        filtered = allMembers.filter(item => item.role !== 'admin' && item.status === 'archived');
+        // 停用會員名單：status 為 "停用" 或 "已停用"
+        filtered = allMembers.filter(item => item.status === '停用' || item.status === '已停用');
       }
 
       // 文字搜尋過濾：僅姓名
@@ -515,16 +612,15 @@ const AdminMemberPage = () => {
     setCurrentEditItem(null);
     setNewName('');
     setNewEmail('');
-    setNewOrganization('');
-    setNewOccupation('');
-    setNewMotivation('');
+    setNewDept('');
+    setNewReason('');
     setNewRole('member');
   };
 
   // 送出表單
   const handleFormSubmit = (event) => {
     event.preventDefault();
-    if (!newName || !newEmail || !newOrganization || !newOccupation || !newMotivation || !newRole) {
+    if (!newName || !newEmail || !newDept || !newReason || !newRole) {
       showToast('請填寫所有欄位', 'warning');
       return;
     }
@@ -545,7 +641,7 @@ const AdminMemberPage = () => {
     if (isEditing && currentEditItem) {
       setAllMembers(prevInfo => prevInfo.map(item =>
         item.id === currentEditItem.id
-          ? { ...item, name: newName, email: newEmail, organization: newOrganization, occupation: newOccupation, motivation: newMotivation, role: newRole }
+          ? { ...item, name: newName, email: newEmail, dept: newDept, reason: newReason, role: newRole }
           : item
       ));
       showToast('會員資料已成功更新！', 'success');
@@ -555,12 +651,11 @@ const AdminMemberPage = () => {
         id: newId,
         name: newName,
         email: newEmail,
-        organization: newOrganization,
-        occupation: newOccupation,
-        motivation: newMotivation,
+        dept: newDept,
+        reason: newReason,
         role: newRole,
         timestamp,
-        status: 'active',
+        status: '會員',
       };
       setAllMembers(prevInfo => [newItem, ...prevInfo]);
       showToast('新會員已成功新增！', 'success');
@@ -650,41 +745,28 @@ const AdminMemberPage = () => {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="newOrganization" className="form-label admin-form-label">
+          <label htmlFor="newDept" className="form-label admin-form-label">
             *服務單位
           </label>
           <input
             type="text"
             className="form-control admin-form-control"
-            id="newOrganization"
-            value={newOrganization}
-            onChange={(e) => setNewOrganization(e.target.value)}
+            id="newDept"
+            value={newDept}
+            onChange={(e) => setNewDept(e.target.value)}
             required
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="newOccupation" className="form-label admin-form-label">
-            *職業
-          </label>
-          <input
-            type="text"
-            className="form-control admin-form-control"
-            id="newOccupation"
-            value={newOccupation}
-            onChange={(e) => setNewOccupation(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="newMotivation" className="form-label admin-form-label">
+          <label htmlFor="newReason" className="form-label admin-form-label">
             *使用網站動機
           </label>
           <input
             type="text"
             className="form-control admin-form-control"
-            id="newMotivation"
-            value={newMotivation}
-            onChange={(e) => setNewMotivation(e.target.value)}
+            id="newReason"
+            value={newReason}
+            onChange={(e) => setNewReason(e.target.value)}
             required
           />
         </div>
@@ -789,9 +871,8 @@ const AdminMemberPage = () => {
               <div className="admin-member-info">
                 <p><span>姓名：</span>{adminTarget.name}</p>
                 <p><span>信箱：</span>{adminTarget.email}</p>
-                <p><span>服務單位：</span>{adminTarget.organization}</p>
-                <p><span>職業：</span>{adminTarget.occupation}</p>
-                <p><span>使用網站動機：</span>{adminTarget.motivation}</p>
+                <p><span>服務單位：</span>{adminTarget.dept}</p>
+                <p><span>使用網站動機：</span>{formatReasonDisplay(adminTarget.reason)}</p>
               </div>
             </div>
             <div className="admin-modal-footer">
