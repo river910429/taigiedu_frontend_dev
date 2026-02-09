@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import './AdminResourcePage.css';
 import '../../../../resourcePage/ResourceHeader.css';
 // 使用前台的 ResourceCard 以符合視覺樣式
@@ -8,50 +8,17 @@ import chevronUpIcon from '../../../../assets/chevron-up.svg';
 import Pagination from '../../../../mainSearchPage/Pagination.jsx';
 import shieldIcon from '../../../../assets/adminPage/shield-exclamation.svg';
 import defaultPreviewImage from '../../../../assets/resourcepage/file_preview_demo.png';
+import { authenticatedFetch } from '../../../../services/authService';
+import { useToast } from '../../../../components/Toast';
+import { useAuth } from '../../../../contexts/AuthContext';
 
-// Mock Data：之後會用 API 取代
-const baseResources = [
-  { id: 'r1', stage: '國小', version: '康軒', contentType: '學習單', imageUrl: '', fileType: 'PDF', likes: 100, downloads: 29, title: '112海一版四年級上學期國語學習單', uploader: 'Wynnie', tags: ['國小', '康軒', '上冊'], status: '目前項目' },
-  { id: 'r2', stage: '國中', version: '翰林', contentType: '其他', imageUrl: '', fileType: 'MP3', likes: 88, downloads: 45, title: '海豬救援隊 - 片頭曲', uploader: 'Wynnie', tags: ['音檔'], status: '目前項目' },
-  { id: 'r3', stage: '國小', version: '康軒', contentType: '教案', imageUrl: '', fileType: 'MP4', likes: 64, downloads: 12, title: '台語文化課第1集（教案影片）', uploader: 'Admin', tags: ['影片'], status: '待審核' },
-  { id: 'r4', stage: '高中', version: '龍騰', contentType: '學習單', imageUrl: '', fileType: 'PDF', likes: 20, downloads: 5, title: '校園活動同意書(範本)', uploader: 'Editor', tags: ['文件'], status: '被檢舉' },
-  { id: 'r5', stage: '國小', version: '康軒', contentType: '學習單', imageUrl: '', fileType: 'PDF', likes: 101, downloads: 30, title: '台語俗語學習單(上)', uploader: 'Teacher', tags: ['教材'], status: '目前項目' },
-  { id: 'r6', stage: '國小', version: '康軒', contentType: '其他', imageUrl: '', fileType: 'JPG', likes: 40, downloads: 1, title: '台灣文化展海報', uploader: 'Designer', tags: ['海報'], status: '目前項目' },
-  { id: 'r7', stage: '國中', version: '南一', contentType: '其他', imageUrl: '', fileType: 'WAV', likes: 24, downloads: 8, title: '台語發音練習 - 母音', uploader: 'Admin', tags: ['練習'], status: '目前項目' },
-  { id: 'r8', stage: '國中', version: '翰林', contentType: '學習單', imageUrl: '', fileType: 'PDF', likes: 9, downloads: 2, title: '後台操作學習單 v1.2', uploader: 'Editor', tags: ['手冊'], status: '目前項目' },
-];
-
-// 產生 18 張卡片以符合截圖數量
-let mockResources = Array.from({ length: 18 }, (_, i) => {
-  const b = baseResources[i % baseResources.length];
-  return {
-    ...b,
-    id: `${b.id}_${i + 1}`,
-    likes: b.likes + (i % 7),
-    downloads: b.downloads + (i % 5)
-  };
-});
-
-// 插入第13張（page2 的第一張）被檢舉卡片
-const reportedCard = {
-  id: 'reported_special_13',
-  stage: '國中',
-  version: '真平',
-  contentType: '學習單',
-  imageUrl: '',
-  fileType: 'PDF',
-  likes: 100,
-  downloads: 20,
-  title: '112南一版四年級上學期國語課講義',
-  uploader: 'Wynnie',
-  tags: ['國中', '真平', '上冊', '投影片'],
-  status: '被檢舉'
-};
-if (!mockResources.find(r => r.id === reportedCard.id)) {
-  mockResources.splice(12, 0, reportedCard);
-}
+// API base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dev.taigiedu.com/backend';
 
 export default function AdminResourcePage() {
+  const { showToast } = useToast();
+  const { user } = useAuth();
+
   // 與 ResourcePage 同款的篩選與搜尋狀態
   const [selectedGrade, setSelectedGrade] = useState('階段');
   const [isGradeOpen, setIsGradeOpen] = useState(false);
@@ -70,6 +37,7 @@ export default function AdminResourcePage() {
   const [reason, setReason] = useState('不雅內容');
   const [page, setPage] = useState(1);
   const pageSize = 12; // 與前台相近的每頁數量
+  const [isLoading, setIsLoading] = useState(true);
 
   // 版本選項映射（與 ResourceHeader 相同）
   const defaultVersions = {
@@ -86,7 +54,67 @@ export default function AdminResourcePage() {
   const getVersionOptions = (grade) => grade === '全部' ? allVersions : (gradeToVersions[grade] || []);
   const statuses = ['目前項目', '已下架項目'];
 
-  const [resources, setResources] = useState(mockResources);
+  // 從 API 取得的真實資源列表
+  const [resources, setResources] = useState([]);
+
+  // 將 API 回傳的資料轉換為前端格式
+  const transformResource = (apiResource) => {
+    // 將 API 的 status 轉換為前端使用的 status
+    let frontendStatus = '目前項目';
+    if (apiResource.status === 'reported') {
+      frontendStatus = '被檢舉';
+    } else if (apiResource.status === 'deleted' || apiResource.status === 'removed') {
+      frontendStatus = '已下架項目';
+    } else if (apiResource.status === 'publish') {
+      frontendStatus = '目前項目';
+    }
+
+    return {
+      id: apiResource.id,
+      stage: apiResource.grade || '',
+      version: apiResource.version || '',
+      contentType: apiResource.contentType || '',
+      imageUrl: apiResource.imageUrl || '',
+      fileType: (apiResource.fileType || 'pdf').toUpperCase(),
+      likes: apiResource.likes || 0,
+      downloads: apiResource.downloads || 0,
+      title: apiResource.title || '無標題',
+      uploader: apiResource.uploader_name || '匿名',
+      tags: apiResource.tags || [],
+      status: frontendStatus,
+      date: apiResource.date || '',
+      reason: apiResource.reason || [],
+      fileUrl: apiResource.fileUrl || ''
+    };
+  };
+
+  // 從 API 載入資源列表
+  const fetchResources = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await authenticatedFetch(`${API_BASE_URL}/admin/resource/list`);
+      const data = await response.json();
+
+      if (response.ok && data.resources) {
+        const transformedResources = data.resources.map(transformResource);
+        setResources(transformedResources);
+        console.log('從 API 載入資源列表:', transformedResources.length, '筆');
+      } else {
+        console.error('載入資源列表失敗:', data);
+        showToast('載入資源列表失敗', 'error');
+      }
+    } catch (error) {
+      console.error('載入資源列表失敗:', error);
+      showToast('載入資源列表失敗: ' + error.message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [showToast]);
+
+  // 初始載入
+  useEffect(() => {
+    fetchResources();
+  }, [fetchResources]);
 
   const filtered = useMemo(() => {
     return resources.filter((r) => {
@@ -159,28 +187,91 @@ export default function AdminResourcePage() {
   };
 
   const closeAction = () => { setActionOpen(false); setReason('不雅內容'); setSelected(null); };
-  const confirmAction = () => {
-    // 更新本頁資源狀態為「已下架項目」
-    if (selected?.id) {
-      setResources(prev => prev.map(r => r.id === selected.id ? { ...r, status: '已下架項目', downReason: reason } : r));
-    }
-    // 通知前台重新載入資源（事件機制）
+
+  // 下架資源
+  const confirmAction = async () => {
+    if (!selected?.id) return;
+
+    const body = {
+      id: selected.id,
+      action: '1',
+      reason: reason,
+      userID: user?.id || user?.email || 'admin'
+    };
+    console.log('送出下架請求:', body);
+
     try {
-      window.dispatchEvent(new CustomEvent('resource-updated', {
-        detail: { action: 'down', id: selected?.id, reason }
-      }));
-    } catch { }
+      const response = await authenticatedFetch(`${API_BASE_URL}/admin/resource/status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+      console.log('下架 API 回應:', data);
+
+      if (response.ok && data.success) {
+        // 更新本地狀態
+        setResources(prev => prev.map(r => r.id === selected.id ? { ...r, status: '已下架項目', downReason: reason } : r));
+        showToast('資源已成功下架', 'success');
+
+        // 通知前台重新載入資源
+        window.dispatchEvent(new CustomEvent('resource-updated', {
+          detail: { action: 'down', id: selected?.id, reason }
+        }));
+      } else {
+        showToast(data.message || '下架失敗', 'error');
+      }
+    } catch (error) {
+      console.error('下架資源失敗:', error);
+      showToast('下架失敗: ' + error.message, 'error');
+    }
+
     closeAction();
   };
 
-  const handleUndown = (resource) => {
+  // 復原資源（取消下架）
+  const handleUndown = async (resource) => {
     if (!resource?.id) return;
-    setResources(prev => prev.map(r => r.id === resource.id ? { ...r, status: '目前項目', downReason: undefined } : r));
+
+    const body = {
+      id: resource.id,
+      action: '2',
+      reason: '管理員取消下架',
+      userID: user?.id || user?.email || 'admin'
+    };
+    console.log('送出復原請求:', body);
+
     try {
-      window.dispatchEvent(new CustomEvent('resource-updated', {
-        detail: { action: 'undown', id: resource.id }
-      }));
-    } catch { }
+      const response = await authenticatedFetch(`${API_BASE_URL}/admin/resource/status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+      console.log('復原 API 回應:', data);
+
+      if (response.ok && data.success) {
+        // 更新本地狀態
+        setResources(prev => prev.map(r => r.id === resource.id ? { ...r, status: '目前項目', downReason: undefined } : r));
+        showToast('資源已成功復原', 'success');
+
+        // 通知前台重新載入資源
+        window.dispatchEvent(new CustomEvent('resource-updated', {
+          detail: { action: 'undown', id: resource.id }
+        }));
+      } else {
+        showToast(data.message || '復原失敗', 'error');
+      }
+    } catch (error) {
+      console.error('復原資源失敗:', error);
+      showToast('復原失敗: ' + error.message, 'error');
+    }
   };
 
   return (
@@ -248,7 +339,9 @@ export default function AdminResourcePage() {
       </div>
 
       <div className={`admin-card-grid four-cols ${status === '已下架項目' ? 'down-mode' : ''}`}>
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <div className="empty-state">載入中...</div>
+        ) : filtered.length === 0 ? (
           <div className="empty-state">沒有符合條件的資料。</div>
         ) : (
           pagedItems.map((r) => (
@@ -267,6 +360,15 @@ export default function AdminResourcePage() {
                   <div className="reported-controls">
                     <button className="reported-button" onClick={(e) => { e.stopPropagation(); openPreview(r); }}>預覽</button>
                     <button className="reported-button" onClick={(e) => { e.stopPropagation(); openAction(r); }}>下架</button>
+                  </div>
+                </>
+              )}
+              {status === '目前項目' && r.status !== '被檢舉' && (
+                <>
+                  <div className="normal-overlay" />
+                  <div className="normal-controls">
+                    <button className="normal-button primary" onClick={(e) => { e.stopPropagation(); openPreview(r); }}>預覽</button>
+                    <button className="normal-button" onClick={(e) => { e.stopPropagation(); openAction(r); }}>下架</button>
                   </div>
                 </>
               )}
