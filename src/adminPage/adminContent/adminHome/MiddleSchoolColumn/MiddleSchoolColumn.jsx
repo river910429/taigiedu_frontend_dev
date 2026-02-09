@@ -7,13 +7,15 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
   return (
     <div className="ms-row">
       {isEditing ? (
-        <input
-          className="ms-input"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onBlur={onCommit}
-          onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
-        />
+        <>
+          <input
+            className="ms-input"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
+          />
+          <button className="ms-submit" onClick={onCommit}>確認</button>
+        </>
       ) : (
         <span className="ms-label">{value}</span>
       )}
@@ -101,7 +103,7 @@ export default function MiddleSchoolColumn({ items = [], onChange, onAddItem }) 
               onChange={(e) => setAdding(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') addItem(); }}
             />
-            <button className="ms-submit" onClick={addItem}>送出</button>
+            <button className="ms-submit" onClick={addItem}>確認</button>
           </div>
         ) : (
           <div className="ms-add-row" onClick={addNewRow}>

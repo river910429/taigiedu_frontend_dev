@@ -13,7 +13,7 @@ import { useAuth } from "../contexts/AuthContext";
 const DeleteResource = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -33,31 +33,22 @@ const DeleteResource = () => {
 
   // 組件掛載時檢查登入狀態並載入資源
   useEffect(() => {
-    // 檢查用戶是否登入
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    const currentUserId = localStorage.getItem("userId");
-    const currentUsername = localStorage.getItem("username");
-
-    if (!isLoggedIn || !currentUserId) {
-      showToast("您需要登入才能查看自己的資源", "warning");
-      navigate("/login", { state: { redirectTo: "/delete-resource" } });
-      return;
-    }
-
-    setUserId(currentUserId);
-    setUsername(currentUsername);
-
     if (!isAuthLoading) {
-      // 載入資源
-      fetchResources(currentUserId, currentUsername);
-    }
-  }, [navigate, showToast, isAuthLoading]);
+      if (!isAuthenticated) {
+        showToast("您需要登入才能查看自己的資源", "warning");
+        navigate("/login", { state: { redirectTo: "/delete-resource" } });
+        return;
+      }
 
-  useEffect(() => {
-    if (!isAuthLoading && userId && username) {
-      fetchResources(userId, username);
+      if (user) {
+        const currentUserId = user.id?.toString();
+        const currentUsername = user.name || user.email?.split('@')[0];
+        setUserId(currentUserId);
+        setUsername(currentUsername);
+        fetchResources(currentUserId, currentUsername);
+      }
     }
-  }, [isAuthLoading, userId, username]);
+  }, [navigate, showToast, isAuthLoading, isAuthenticated, user]);
 
   // 當使用者資源變化時更新分頁
   useEffect(() => {
@@ -183,8 +174,8 @@ const DeleteResource = () => {
       return;
     }
 
-    // 獲取登入使用者的 userId（參數名稱是 username 但要送 userId）
-    const currentUserId = localStorage.getItem("userId");
+    // 獲取登入使用者的 userId
+    const currentUserId = user?.id?.toString();
 
     if (!currentUserId) {
       showToast("無法取得使用者資訊，請重新登入", "error");

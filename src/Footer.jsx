@@ -6,10 +6,7 @@ const Footer = () => {
   const navigate = useNavigate();
 
   const handleLinkClick = (path) => {
-    // 獲取當前的 base path
-    const base = import.meta.env.BASE_URL || '/';
-    const fullPath = base === '/' ? path : `${base}${path}`;
-    window.open(fullPath, '_blank', 'noopener,noreferrer');
+    navigate(path);
   };
 
   return (

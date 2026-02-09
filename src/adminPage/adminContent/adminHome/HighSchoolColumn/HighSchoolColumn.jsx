@@ -7,13 +7,15 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
   return (
     <div className="hs-row">
       {isEditing ? (
-        <input
-          className="hs-input"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onBlur={onCommit}
-          onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
-        />
+        <>
+          <input
+            className="hs-input"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
+          />
+          <button className="hs-submit" onClick={onCommit}>確認</button>
+        </>
       ) : (
         <span className="hs-label">{value}</span>
       )}
@@ -101,7 +103,7 @@ export default function HighSchoolColumn({ items = [], onChange, onAddItem }) {
               onChange={(e) => setAdding(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') addItem(); }}
             />
-            <button className="hs-submit" onClick={addItem}>送出</button>
+            <button className="hs-submit" onClick={addItem}>確認</button>
           </div>
         ) : (
           <div className="hs-add-row" onClick={addNewRow}>

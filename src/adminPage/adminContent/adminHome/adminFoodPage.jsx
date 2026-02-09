@@ -111,7 +111,7 @@ const AdminFoodPage = () => {
           // 目前項目
           { id: 1, zhName: "米糕", twName: "bí-ko", imageUrl: "https://picsum.photos/seed/ricecake/120/90", imageName: "米糕圖1.jpeg", zhDesc: "甜糯米蒸後，加入滷…", twDesc: "甜糯米蒸。蒸米蒸熟…", audioUrl: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav", timestamp: "2025/04/01 23:55:00", status: "published" },
           { id: 2, zhName: "鹹酥雞", twName: "kiâm-soo-ke", imageUrl: "https://picsum.photos/seed/pork/120/90", imageName: "鹹酥雞.jpeg", zhDesc: "一種小吃…將豬肚內小塊…", twDesc: "一種小吃。將豬肚內肉…", audioUrl: "https://www2.cs.uic.edu/~i101/SoundFiles/Trumpet.mp3", timestamp: "2025/04/01 23:55:00", status: "published" },
-          // 下架記錄（示範）
+          // 刪除紀錄（示範）
           { id: 3, zhName: "草仔粿", twName: "cháu-á-kué", imageUrl: "https://picsum.photos/seed/cake/120/90", imageName: "草仔粿.jpg", zhDesc: "糯米與艾草製作…", twDesc: "糯米對合艾草…", audioUrl: "https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav", timestamp: "2025/03/20 10:30:00", status: "archived" },
           { id: 4, zhName: "碗粿", twName: "uán-kué", imageUrl: "https://picsum.photos/seed/wankue/120/90", imageName: "碗粿.jpeg", zhDesc: "米漿蒸熟配滷汁…", twDesc: "米漿蒸熟，配滷…", audioUrl: "https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav", timestamp: "2025/03/18 09:15:00", status: "archived" }
         ];
@@ -390,7 +390,7 @@ const AdminFoodPage = () => {
     },
     {
       accessorKey: 'zhDesc',
-      header: '華語釋義',
+      header: '華文釋義',
       enableSorting: false,
       cell: ({ row }) => <span title={row.original.zhDesc}>{row.original.zhDesc}</span>
     },
@@ -437,7 +437,7 @@ const AdminFoodPage = () => {
   return (
     <div className="admin-test-page p-4">
       <div className="admin-header-main">
-        <h5 className="mb-3 text-secondary">首頁搜尋 &gt; 飲食 &gt; <span>{statusFilter === 'published' ? '目前項目' : '下架記錄'}</span></h5>
+        <h5 className="mb-3 text-secondary">首頁搜尋 &gt; 飲食 &gt; <span>{statusFilter === 'published' ? '目前項目' : '刪除紀錄'}</span></h5>
         <div className="admin-controls-row">
           <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
             <img src={addIcon} alt="新增項目" />新增項目
@@ -446,7 +446,7 @@ const AdminFoodPage = () => {
             <span className="me-2 text-secondary">目前狀態：</span>
             <select className="form-select admin-status-dropdown" value={statusFilter} onChange={handleStatusFilterChange}>
               <option value="published">目前項目</option>
-              <option value="archived">下架記錄</option>
+              <option value="archived">刪除紀錄</option>
             </select>
           </div>
         </div>
@@ -528,7 +528,7 @@ const AdminFoodPage = () => {
           </div>
         </div>
         <div className="mb-3">
-          <label htmlFor="newZhDesc" className="form-label admin-form-label">*華語釋義</label>
+          <label htmlFor="newZhDesc" className="form-label admin-form-label">*華文釋義</label>
           <textarea className="form-control admin-form-control" id="newZhDesc" rows="3" value={newZhDesc} onChange={(e) => setNewZhDesc(e.target.value)} required />
         </div>
         <div className="mb-3">

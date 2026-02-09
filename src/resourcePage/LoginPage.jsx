@@ -105,15 +105,18 @@ const LoginPage = ({ onClose }) => {
   };
 
   const handleClose = () => {
-    // 如果有 onClose prop (彈窗模式)，使用它；否則使用 navigate
+    // 如果有 onClose prop (彈窗模式)，使用它；否則導向首頁
     if (isModalMode) {
       onClose();
     } else {
-      navigate(-1); // 點擊關閉按鈕返回上一頁
+      navigate("/"); // 直接返回首頁，避免被受保護路由無限彈回
     }
   };
 
   const handleRegister = () => {
+    if (isModalMode) {
+      onClose();
+    }
     navigate("/register"); // 跳轉到註冊頁面
   };
 
