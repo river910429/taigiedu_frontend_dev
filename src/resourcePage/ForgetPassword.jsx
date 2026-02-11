@@ -119,7 +119,7 @@ const ForgetPassword = ({ isOpen, onClose }) => {
           },
           body: JSON.stringify({
             email,
-            otp: parseInt(otpString, 10),
+            otp: otpString,
             newPassword,
             confirmPassword,
           }),
@@ -194,11 +194,15 @@ const ForgetPassword = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="forget-password-overlay" onClick={onClose}>
-      <div
-        className="forget-password-container"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div
+      className="forget-password-overlay"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="forget-password-container">
         <div className="forget-password-header">
           <h2>忘記密碼</h2>
           <button className="close-button" onClick={onClose}>
