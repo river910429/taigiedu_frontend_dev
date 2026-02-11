@@ -96,6 +96,6 @@ jobs:
           
           # 🔥【關鍵修改 2】部署路徑改到系統公用目錄
           # 確保你的伺服器已經執行過 sudo chown p76131092 ...
-          target: "/var/www/taigiedu/dist"
+          target: "/var/www/taigiedu_dev/dist"
           
           strip_components: 1
