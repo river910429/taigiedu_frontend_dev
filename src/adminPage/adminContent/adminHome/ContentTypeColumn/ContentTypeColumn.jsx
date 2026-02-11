@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './ContentTypeColumn.css';
 import TableHeaderCell from '../TableHeaderCell/TableHeaderCell.jsx';
 import pencilIcon from '../../../../assets/adminPage/pencil.svg';
@@ -13,6 +13,7 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
+            autoFocus
           />
           <button className="ct-submit" onClick={onCommit}>確認</button>
         </>
@@ -34,6 +35,21 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
   const [addingMode, setAddingMode] = useState(false);
   const [adding, setAdding] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setAddingMode(false);
+        setEditIndex(-1);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const startEdit = (idx) => {
     setEditIndex(idx);
@@ -49,8 +65,14 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
 
   const addItem = async () => {
     const v = adding.trim();
-    if (!v) return;
-    if (items.includes(v)) return;
+    if (!v) {
+      setAddingMode(false);
+      return;
+    }
+    if (items.includes(v)) {
+      setAddingMode(false);
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -79,7 +101,7 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
   };
 
   return (
-    <div className="ct-col">
+    <div className="ct-col" ref={containerRef}>
       <div className="ct-header">
         <TableHeaderCell label="內容類型" showArrow={false} bgColor="#a7f3d0" />
       </div>
@@ -101,7 +123,11 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
               placeholder="新增項目"
               value={adding}
               onChange={(e) => setAdding(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') addItem(); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') addItem();
+                if (e.key === 'Escape') setAddingMode(false);
+              }}
+              autoFocus
             />
             <button className="ct-submit" onClick={addItem}>確認</button>
           </div>
@@ -115,3 +141,4 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
     </div>
   );
 }
+

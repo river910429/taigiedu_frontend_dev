@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './ElementarySchoolColumn.css';
 import TableHeaderCell from '../TableHeaderCell/TableHeaderCell.jsx';
 import pencilIcon from '../../../../assets/adminPage/pencil.svg';
@@ -13,6 +13,7 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
+            autoFocus
           />
           <button className="es-submit" onClick={onCommit}>確認</button>
         </>
@@ -21,7 +22,7 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
       )}
       {!isEditing && (
         <button className="es-icon-btn" onClick={onStartEdit} aria-label="edit">
-          <img src={pencilIcon} className="es-icon" alt="edit" />
+          <img src={pencilIcon} className="hs-icon" alt="edit" />
         </button>
       )}
     </div>
@@ -34,6 +35,21 @@ export default function ElementarySchoolColumn({ items = [], onChange, onAddItem
   const [addingMode, setAddingMode] = useState(false);
   const [adding, setAdding] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setAddingMode(false);
+        setEditIndex(-1);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const startEdit = (idx) => {
     setEditIndex(idx);
@@ -49,8 +65,14 @@ export default function ElementarySchoolColumn({ items = [], onChange, onAddItem
 
   const addItem = async () => {
     const v = adding.trim();
-    if (!v) return;
-    if (items.includes(v)) return;
+    if (!v) {
+      setAddingMode(false);
+      return;
+    }
+    if (items.includes(v)) {
+      setAddingMode(false);
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -79,7 +101,7 @@ export default function ElementarySchoolColumn({ items = [], onChange, onAddItem
   };
 
   return (
-    <div className="es-col">
+    <div className="es-col" ref={containerRef}>
       <div className="es-header">
         <TableHeaderCell label="國小" showArrow={true} bgColor="#ecabac" />
       </div>
@@ -101,7 +123,11 @@ export default function ElementarySchoolColumn({ items = [], onChange, onAddItem
               placeholder="新版本"
               value={adding}
               onChange={(e) => setAdding(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') addItem(); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') addItem();
+                if (e.key === 'Escape') setAddingMode(false);
+              }}
+              autoFocus
             />
             <button className="es-submit" onClick={addItem}>確認</button>
           </div>
@@ -115,3 +141,4 @@ export default function ElementarySchoolColumn({ items = [], onChange, onAddItem
     </div>
   );
 }
+
