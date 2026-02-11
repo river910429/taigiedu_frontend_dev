@@ -181,7 +181,8 @@ export default function AdminResourcePage() {
         `&tags=${encodeURIComponent(JSON.stringify(resource.tags || []))}` +
         `&date=${encodeURIComponent(resource.date || '')}` +
         `&id=${encodeURIComponent(resource.id || '')}` +
-        `&status=${encodeURIComponent(resource.status || '目前項目')}`;
+        `&status=${encodeURIComponent(resource.status || '目前項目')}` +
+        `&reason=${encodeURIComponent(JSON.stringify(resource.reason || []))}`;
       window.open(previewUrl, '_blank', 'noopener,noreferrer');
     } catch { }
   };
@@ -414,12 +415,28 @@ export default function AdminResourcePage() {
               <button className="admin-modal-close" onClick={closeAction}>×</button>
             </div>
             <div className="admin-modal-body">
-              {['不雅內容', '涉及著作權侵權', '政治不中立', '旁白或文稿問題', '重複上傳', '廣告內容', '侵害隱私', '涉及恐怖、脅迫或血腥'].map(r => (
-                <label key={r} className="admin-radio">
-                  <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} />
-                  <span>{r}</span>
-                </label>
-              ))}
+              {/* 顯示已有的檢舉原因 */}
+              {selected?.reason?.length > 0 && (
+                <div className="admin-modal-report-reasons">
+                  <div className="report-reasons-title">檢舉原因：</div>
+                  {selected.reason.map((r, idx) => (
+                    <div key={idx} className="report-reason-item">
+                      <span className="report-reason-action">{r.action === 'reported' ? '檢舉' : r.action === 'deleted' ? '下架' : r.action}</span>
+                      <span className="report-reason-text">{r.reason}</span>
+                      <span className="report-reason-time">{r.timestamp}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="report-reasons-title" style={{ marginTop: selected?.reason?.length > 0 ? '12px' : '0' }}>下架理由選擇：</div>
+              <div className="admin-modal-radio-grid">
+                {['不雅內容', '涉及著作權侵權', '政治不中立', '旁白或文稿問題', '重複上傳', '廣告內容', '侵害隱私', '涉及恐怖、脅迫或血腥'].map(r => (
+                  <label key={r} className="admin-radio">
+                    <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} />
+                    <span>{r}</span>
+                  </label>
+                ))}
+              </div>
             </div>
             <div className="admin-modal-footer">
               <button className="admin-btn" onClick={closeAction}>取消</button>

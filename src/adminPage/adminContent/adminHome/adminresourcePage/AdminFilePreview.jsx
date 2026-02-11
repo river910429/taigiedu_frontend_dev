@@ -5,16 +5,15 @@ import './AdminFilePreview.css';
 // 預設預覽圖
 import defaultPreviewImage from '../../../../assets/resourcepage/file_preview_demo.png';
 
-// 管理軌跡模擬資料（只保留第一筆 demo）
-const mockManagementHistory = [
-    {
-        id: 1,
-        type: "report",
-        user: "Wynnie Chang",
-        date: "2025/04/01",
-        reason: "這篇文章是偷我的東西，侵犯我的著作權，請管理員處理"
+// 將 API 的 action 對應到前端管理軌跡類型
+const mapActionToType = (action) => {
+    switch (action) {
+        case 'reported': return 'report';
+        case 'deleted': return 'takedown';
+        case 'restored': return 'restore';
+        default: return action;
     }
-];
+};
 
 // 取得管理軌跡類型的標籤樣式和文字
 const getHistoryTypeInfo = (type) => {
@@ -42,7 +41,7 @@ export default function AdminFilePreview() {
         tags: [],
         status: "目前項目"
     });
-    const [managementHistory, setManagementHistory] = useState(mockManagementHistory);
+    const [managementHistory, setManagementHistory] = useState([]);
 
     // 從 URL 讀取資源資料
     useEffect(() => {
@@ -55,6 +54,14 @@ export default function AdminFilePreview() {
             parsedTags = [];
         }
 
+        // 解析檢舉原因（從 API reason 陣列）
+        let parsedReasons = [];
+        try {
+            parsedReasons = JSON.parse(decodeURIComponent(searchParams.get("reason") || "[]"));
+        } catch {
+            parsedReasons = [];
+        }
+
         setResourceData({
             title: searchParams.get("title") || "無標題資源",
             imageUrl: searchParams.get("imageUrl") || defaultPreviewImage,
@@ -65,6 +72,20 @@ export default function AdminFilePreview() {
             tags: parsedTags,
             status: searchParams.get("status") || "目前項目"
         });
+
+        // 將 API reason 陣列轉換為管理軌跡格式
+        if (parsedReasons.length > 0) {
+            const history = parsedReasons.map((r, idx) => ({
+                id: idx + 1,
+                type: mapActionToType(r.action),
+                user: r.userId ? `用戶 ${r.userId}` : '未知用戶',
+                date: r.timestamp ? r.timestamp.split(' ')[0].replace(/-/g, '/') : '',
+                reason: r.reason || ''
+            }));
+            setManagementHistory(history);
+        } else {
+            setManagementHistory([]);
+        }
     }, [location.search]);
 
     // 判斷目前資源狀態（是否已下架）
