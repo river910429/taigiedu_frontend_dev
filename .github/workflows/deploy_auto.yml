@@ -77,7 +77,7 @@ jobs:
           # 3. Image URL
           # 假設圖片也是透過後端 API 拿 (例如 /api/uploads/...)
           # 這裡也設為 /api，或者設為空字串 (視你的圖片路徑邏輯而定)
-          echo "VITE_IMAGE_URL=/api" >> .env
+          echo "VITE_IMAGE_URL=https://dev.taigiedu.com" >> .env
           
           # ---------------------------------------
           
