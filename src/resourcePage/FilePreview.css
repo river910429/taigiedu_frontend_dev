@@ -63,8 +63,8 @@
 }
 
 .file-likes-icon {
-  width: 19px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
@@ -284,6 +284,8 @@
   padding: 16px 24px;
   justify-content: center;
   align-items: center;
+  gap: 8px;
+  /* Added gap for icon and text */
   border-radius: 8px;
   border: 1px solid #ed6f7e;
   background: #fff;
@@ -297,21 +299,16 @@
   line-height: 24px;
   /* 150% */
 
-  background-image: url("/src/assets/resourcepage/like_pink.svg");
-  /* 圖片路徑 */
-  background-repeat: no-repeat;
-  background-position: 20px center;
-  /* 調整圖片在按鈕中的位置 */
-  background-size: 20px 20px;
-  /* 調整圖片大小 */
-  text-indent: 20px;
-  /* 將文字與圖片分開 */
   transition: background-color 0.3s ease;
 }
 
+.button-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
 .file-download-button {
-  background-image: url("/src/assets/resourcepage/like_blue.svg");
-  /* 圖片路徑 */
   right: 180px;
   /* 距離右邊的距離 */
   border: 1px solid #2D92C1;

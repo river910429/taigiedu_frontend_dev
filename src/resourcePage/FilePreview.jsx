@@ -6,7 +6,10 @@ import { authenticatedFetch } from "../services/authService";
 import "./FilePreview.css";
 import likesIconFilled from "../assets/resourcepage/Union (Stroke)(black).svg";
 import likesIconOutline from "../assets/resourcepage/heart-outline-black.svg";
+import loveIconFilled from "../assets/Union (Stroke).svg";
+import loveIconOutline from "../assets/resourcepage/heart-outline.svg";
 import downloadsIcon from "../assets/resourcepage/Subtract(black).svg";
+import downloadIconBlue from "../assets/resourcepage/Subtract.svg";
 import readAllIcon from "../assets/resourcepage/Vector (Stroke).svg";
 import reportIcon from "../assets/report1.svg";
 import defaultPreviewImage from "../assets/resourcepage/file_preview_demo.png";
@@ -59,8 +62,16 @@ const FilePreview = () => {
       normalizedPath = normalizedPath.replace(/^backend\//, "");
     }
 
+    if (normalizedPath.startsWith("api/")) {
+      normalizedPath = normalizedPath.replace(/^api\//, "");
+    }
+
     if (normalizedBase.endsWith("/backend") && normalizedPath.startsWith("backend/")) {
       normalizedPath = normalizedPath.replace(/^backend\//, "");
+    }
+
+    if (normalizedBase.endsWith("/api") && normalizedPath.startsWith("api/")) {
+      normalizedPath = normalizedPath.replace(/^api\//, "");
     }
 
     return `${normalizedBase}/${normalizedPath}`;
@@ -347,6 +358,7 @@ const FilePreview = () => {
         </div>
 
         <button className="file-download-button" onClick={handleDownload}>
+          <img src={downloadIconBlue} alt="Download" className="button-icon" />
           下載資源
         </button>
 
@@ -355,6 +367,11 @@ const FilePreview = () => {
           onClick={handleLike}
           disabled={isLikeLoading}
         >
+          <img
+            src={isLiked ? loveIconFilled : loveIconOutline}
+            alt={isLiked ? "Liked" : "Not liked"}
+            className="button-icon"
+          />
           {isLikeLoading ? '處理中...' : (isLiked ? '已點讚' : '點讚資源')}
         </button>
       </div>

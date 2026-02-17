@@ -34,8 +34,16 @@ const ResourceCard = ({
       normalizedPath = normalizedPath.replace(/^backend\//, "");
     }
 
+    if (normalizedPath.startsWith("api/")) {
+      normalizedPath = normalizedPath.replace(/^api\//, "");
+    }
+
     if (normalizedBase.endsWith("/backend") && normalizedPath.startsWith("backend/")) {
       normalizedPath = normalizedPath.replace(/^backend\//, "");
+    }
+
+    if (normalizedBase.endsWith("/api") && normalizedPath.startsWith("api/")) {
+      normalizedPath = normalizedPath.replace(/^api\//, "");
     }
 
     return `${normalizedBase}/${normalizedPath}`;
