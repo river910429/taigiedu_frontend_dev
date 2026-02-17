@@ -126,9 +126,40 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
 
         if (result.data && Array.isArray(result.data.resources)) {
           // 過濾掉已下架的資源 (deleted 或 removed)
+          // 過濾掉已下架的資源 (deleted 或 removed)
           const resourcesList = result.data.resources
             .filter(r => r.status !== 'deleted' && r.status !== 'removed')
-            .reverse();
+            .reverse()
+            .map(r => {
+              // 輔助函數：修正後端回傳的路徑問題
+              const getAbsoluteUrl = (path) => {
+                if (!path) return "";
+                // 如果已經是完整路徑或本地預設圖，不處理
+                if (path.startsWith("http") || path.includes("/src/assets/")) return path;
+
+                const baseUrl = import.meta.env.VITE_API_URL || "";
+                let cleanPath = path;
+
+                // 移除開頭的斜線
+                cleanPath = cleanPath.replace(/^\/+/, "");
+
+                // 解決後端回傳路徑可能包含重複的 backend/ 或 api/ 前綴問題
+                // 例如: backend/backend/uploads... -> uploads...
+                //      api/api/uploads... -> uploads...
+                cleanPath = cleanPath.replace(/^((backend|api)\/)+/g, "");
+
+                // 確保 baseUrl 不包含結尾斜線
+                const cleanBase = baseUrl.replace(/\/+$/, "");
+                return `${cleanBase}/${cleanPath}`;
+              };
+
+              return {
+                ...r,
+                // 從源頭修正圖片與檔案路徑，確保後續組件拿到的是正確的絕對路徑
+                imageUrl: getAbsoluteUrl(r.imageUrl),
+                fileUrl: getAbsoluteUrl(r.fileUrl)
+              };
+            });
 
           setAllResources(resourcesList);
           setTotalItems(resourcesList.length);
