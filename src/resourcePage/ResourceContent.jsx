@@ -9,7 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 // 添加 renderCard 到組件參數中
 const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoaded }) => {
   const { showToast } = useToast();
-  const { isLoading: isAuthLoading } = useAuth();
+  const { isLoading: isAuthLoading, isAuthenticated } = useAuth();
   const [allResources, setAllResources] = useState([]); // 存儲所有資源
   const [displayedResources, setDisplayedResources] = useState([]); // 當前頁顯示的資源
   const [totalItems, setTotalItems] = useState(0);
@@ -41,7 +41,7 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
       }
       setLastSearchParams(searchParams);
     }
-  }, [searchParams, isAuthLoading]);
+  }, [searchParams, isAuthLoading, isAuthenticated]);
 
   // 同步 URL 中的頁碼到 currentPage 狀態
   useEffect(() => {
@@ -66,7 +66,7 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
     if (!isAuthLoading && lastSearchParams) {
       fetchResources();
     }
-  }, [isAuthLoading, lastSearchParams]);
+  }, [isAuthLoading, lastSearchParams, isAuthenticated]);
 
   // 當頁碼變更時更新顯示的資源
   useEffect(() => {

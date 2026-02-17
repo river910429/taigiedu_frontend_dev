@@ -109,6 +109,7 @@ const FilePreview = () => {
       };
 
       // 設置資源數據
+      const resourceId = searchParams.get("id") || "";
       setResourceData({
         imageUrl: getFullUrl(searchParams.get("imageUrl"), true),
         fileType: searchParams.get("fileType") || "PDF",
@@ -116,7 +117,7 @@ const FilePreview = () => {
         uploader: searchParams.get("uploader") || "匿名上傳者",
         date: searchParams.get("date") || "未知日期",
         fileUrl: getFullUrl(searchParams.get("fileUrl")),
-        resourceId: searchParams.get("id") || "",
+        resourceId: resourceId,
         tags: parsedTags
       });
 
@@ -126,7 +127,7 @@ const FilePreview = () => {
 
       const isLikeParam = searchParams.get("is_like");
       const likeStorage = JSON.parse(localStorage.getItem("resourceLikeStates") || "{}");
-      const cachedLike = likeStorage[searchParams.get("id")];
+      const cachedLike = likeStorage[resourceId];
 
       if (isLikeParam === "true" || isLikeParam === "1" || isLikeParam === "false" || isLikeParam === "0") {
         setIsLiked(isLikeParam === "true" || isLikeParam === "1");
@@ -140,6 +141,57 @@ const FilePreview = () => {
       setIsLoading(false);
     }
   }, [location.search]);
+
+  // 新增：當認證狀態改變時，重新取得資源詳情以更新使用者相關資訊（如是否點讚）
+  useEffect(() => {
+    const fetchLatestResourceData = async () => {
+      if (!resourceData.resourceId || !isAuthenticated) {
+        if (!isAuthenticated) setIsLiked(false);
+        return;
+      }
+
+      try {
+        // 使用搜尋 API 來取得該資源的最新狀態
+        const parameters = {
+          keyword: resourceData.title, // 使用標題作為關鍵字
+          page: 1,
+          limit: 100
+        };
+
+        const response = await authenticatedFetch(`${apiBaseUrl}/api/resource/search`, {
+          method: "POST",
+          body: JSON.stringify(parameters)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.status === "success" && Array.isArray(result.data?.resources)) {
+          // 找尋對應 ID 的資源
+          const currentResource = result.data.resources.find(r => String(r.id) === String(resourceData.resourceId));
+
+          if (currentResource) {
+            console.log("已更新資源最新狀態:", currentResource);
+            setIsLiked(Boolean(currentResource.is_like));
+            setLikesCount(currentResource.likes || 0);
+            setDownloadsCount(currentResource.downloads || 0);
+
+            // 同時更新 URL 參數，避免重新整理後又變回舊狀態
+            const nextParams = new URLSearchParams(location.search);
+            nextParams.set("is_like", currentResource.is_like ? "true" : "false");
+            nextParams.set("likes", String(currentResource.likes || 0));
+            nextParams.set("downloads", String(currentResource.downloads || 0));
+            window.history.replaceState(null, "", `${window.location.pathname}?${nextParams.toString()}`);
+          }
+        }
+      } catch (error) {
+        console.error("重新獲取資源詳情失敗:", error);
+      }
+    };
+
+    if (!isLoading) {
+      fetchLatestResourceData();
+    }
+  }, [isAuthenticated, isLoading, resourceData.resourceId]);
 
   if (isLoading) {
     return (
