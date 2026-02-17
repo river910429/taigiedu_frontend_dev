@@ -7,11 +7,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { authenticatedFetch, getAccessToken, refreshToken } from "../services/authService";
 import "./UploadResource.css";
 
-// Setup PDF.js worker (Vite ?url import for local worker file)
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+// Setup PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 // Helper: wrap CJK text for canvas rendering (character-by-character)
 const wrapText = (ctx, text, maxWidth) => {
@@ -127,7 +124,7 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
     await page.render({ canvasContext: ctx, viewport }).promise;
 
     return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), "image/png", 0.92);
+      canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.7);
     });
   };
 
@@ -185,7 +182,7 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
     }
 
     return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), "image/png", 0.92);
+      canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.7);
     });
   };
 
@@ -236,7 +233,7 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
     ctx.textBaseline = "alphabetic";
 
     return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), "image/png", 0.92);
+      canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.7);
     });
   };
 
@@ -264,7 +261,7 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
       if (blob) {
         console.log("[縮圖] 生成成功, blob size:", blob.size, "type:", blob.type);
         // 將 Blob 包裝為 File 物件，確保 FormData 能正確傳送檔名與 MIME 類型
-        const thumbnailFile = new File([blob], "thumbnail.png", { type: "image/png" });
+        const thumbnailFile = new File([blob], "thumbnail.jpg", { type: "image/jpeg" });
         console.log("[縮圖] 已轉換為 File 物件, name:", thumbnailFile.name, "size:", thumbnailFile.size, "type:", thumbnailFile.type);
         setPreviewBlob(thumbnailFile);
         if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -386,7 +383,7 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
 
       // 預覽縮圖（選填）
       if (previewBlob) {
-        const thumbName = customImageName || "thumbnail.png";
+        const thumbName = customImageName || "thumbnail.jpg";
         console.log("[縮圖上傳] 準備附加預覽圖片到 FormData");
         console.log("[縮圖上傳] blob/file info:", {
           name: previewBlob.name || thumbName,
