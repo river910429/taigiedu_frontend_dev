@@ -54,12 +54,20 @@ export default function AdminFilePreview() {
             parsedTags = [];
         }
 
-        // 解析檢舉原因（從 API reason 陣列）
+        // 解析管理理由（從 API reason 陣列 - 通常是管理員的操作紀錄）
         let parsedReasons = [];
         try {
             parsedReasons = JSON.parse(decodeURIComponent(searchParams.get("reason") || "[]"));
         } catch {
             parsedReasons = [];
+        }
+
+        // 解析詳細檢舉資訊（從 API reports 陣列 - 來自用戶的檢舉）
+        let parsedReports = [];
+        try {
+            parsedReports = JSON.parse(decodeURIComponent(searchParams.get("reports") || "[]"));
+        } catch {
+            parsedReports = [];
         }
 
         setResourceData({
@@ -73,19 +81,29 @@ export default function AdminFilePreview() {
             status: searchParams.get("status") || "目前項目"
         });
 
-        // 將 API reason 陣列轉換為管理軌跡格式
-        if (parsedReasons.length > 0) {
-            const history = parsedReasons.map((r, idx) => ({
-                id: idx + 1,
+        // 合併所有管理軌跡與檢舉紀錄
+        const combinedHistory = [
+            ...parsedReasons.map((r, idx) => ({
+                id: `reason-${idx}`,
                 type: mapActionToType(r.action),
-                user: r.userId ? `用戶 ${r.userId}` : '未知用戶',
-                date: r.timestamp ? r.timestamp.split(' ')[0].replace(/-/g, '/') : '',
-                reason: r.reason || ''
-            }));
-            setManagementHistory(history);
-        } else {
-            setManagementHistory([]);
-        }
+                user: r.userId ? `管理員 ${r.userId}` : '管理員',
+                date: r.timestamp ? r.timestamp.replace(/-/g, '/') : '',
+                reason: r.reason || '',
+                rawDate: r.timestamp
+            })),
+            ...parsedReports.map((r, idx) => ({
+                id: `report-${idx}`,
+                type: 'report',
+                user: r.username || '用戶',
+                date: r.created_at ? r.created_at.replace(/-/g, '/') : '',
+                reason: `${r.report_reason}${r.supplement ? ` - ${r.supplement}` : ''}`,
+                rawDate: r.created_at
+            }))
+        ];
+
+        // 依據日期排序
+        combinedHistory.sort((a, b) => new Date(a.rawDate) - new Date(b.rawDate));
+        setManagementHistory(combinedHistory);
     }, [location.search]);
 
     // 判斷目前資源狀態（是否已下架）

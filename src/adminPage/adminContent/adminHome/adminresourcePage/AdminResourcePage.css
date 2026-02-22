@@ -249,6 +249,12 @@
     white-space: nowrap;
 }
 
+.report-reason-action.report {
+    background: #FFEDD5;
+    color: #EA580C;
+    border: 1px solid #FED7AA;
+}
+
 .report-reason-text {
     flex: 1;
     color: #333;
