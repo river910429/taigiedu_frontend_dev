@@ -261,7 +261,9 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
       if (blob) {
         console.log("[縮圖] 生成成功, blob size:", blob.size, "type:", blob.type);
         // 將 Blob 包裝為 File 物件，確保 FormData 能正確傳送檔名與 MIME 類型
-        const thumbnailFile = new File([blob], "thumbnail.jpg", { type: "image/jpeg" });
+        const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+        const thumbName = `${baseName}.jpg`;
+        const thumbnailFile = new File([blob], thumbName, { type: "image/jpeg" });
         console.log("[縮圖] 已轉換為 File 物件, name:", thumbnailFile.name, "size:", thumbnailFile.size, "type:", thumbnailFile.type);
         setPreviewBlob(thumbnailFile);
         if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -383,7 +385,8 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
 
       // 預覽縮圖（選填）
       if (previewBlob) {
-        const thumbName = customImageName || "thumbnail.jpg";
+        // 使用手動上傳的名稱或從自動生成取得的名稱，避免固定使用 thumbnail.jpg 造成的覆蓋問題
+        const thumbName = customImageName || previewBlob.name || "thumbnail.jpg";
         console.log("[縮圖上傳] 準備附加預覽圖片到 FormData");
         console.log("[縮圖上傳] blob/file info:", {
           name: previewBlob.name || thumbName,
