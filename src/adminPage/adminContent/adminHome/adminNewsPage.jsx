@@ -11,6 +11,24 @@ import uturnIcon from '../../../assets/adminPage/uturn.svg';
 
 const columnHelper = createColumnHelper();
 
+const NEWS_CATEGORIES_KEY = 'newsCategories';
+const DEFAULT_CATEGORIES = ['教育部', '成大'];
+
+function loadCategories() {
+  try {
+    const raw = localStorage.getItem(NEWS_CATEGORIES_KEY);
+    if (!raw) return [...DEFAULT_CATEGORIES];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : [...DEFAULT_CATEGORIES];
+  } catch {
+    return [...DEFAULT_CATEGORIES];
+  }
+}
+
+function saveCategories(cats) {
+  localStorage.setItem(NEWS_CATEGORIES_KEY, JSON.stringify(cats));
+}
+
 const AdminNewsPage = () => {
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +44,13 @@ const AdminNewsPage = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditItem, setCurrentEditItem] = useState(null);
+
+  // 動態類別管理
+  const [categories, setCategories] = useState(loadCategories);
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  const [newCategoryInput, setNewCategoryInput] = useState('');
+  const [isEditingCategory, setIsEditingCategory] = useState(false);
+  const [editCategoryInput, setEditCategoryInput] = useState('');
 
   // 編輯按鈕點擊
   const handleEditClick = useCallback((item) => {
@@ -241,6 +266,77 @@ const AdminNewsPage = () => {
     setNewCategory('');
     setNewContent('');
     setNewLink('');
+    setShowNewCategoryInput(false);
+    setNewCategoryInput('');
+    setIsEditingCategory(false);
+    setEditCategoryInput('');
+  };
+
+  // 新增類別
+  const handleAddCategory = () => {
+    const trimmed = newCategoryInput.trim();
+    if (!trimmed) return;
+    if (categories.includes(trimmed)) {
+      showToast('此類別已存在', 'warning');
+      return;
+    }
+    const updated = [...categories, trimmed];
+    setCategories(updated);
+    saveCategories(updated);
+    setNewCategory(trimmed);
+    setShowNewCategoryInput(false);
+    setNewCategoryInput('');
+  };
+
+  // 處理類別下拉選擇
+  const handleCategorySelect = (e) => {
+    const val = e.target.value;
+    if (val === '__add_new__') {
+      setShowNewCategoryInput(true);
+      setIsEditingCategory(false);
+      setNewCategory('');
+    } else {
+      setShowNewCategoryInput(false);
+      setIsEditingCategory(false);
+      setNewCategory(val);
+    }
+  };
+
+  // 開始編輯類別名稱
+  const handleStartEditCategory = () => {
+    if (!newCategory || newCategory === '__add_new__') {
+      showToast('請先選擇一個類別再修改', 'warning');
+      return;
+    }
+    setIsEditingCategory(true);
+    setEditCategoryInput(newCategory);
+    setShowNewCategoryInput(false);
+  };
+
+  // 確認修改類別名稱
+  const handleConfirmEditCategory = () => {
+    const trimmed = editCategoryInput.trim();
+    if (!trimmed) return;
+    if (trimmed === newCategory) {
+      setIsEditingCategory(false);
+      return;
+    }
+    if (categories.includes(trimmed)) {
+      showToast('此類別名稱已存在', 'warning');
+      return;
+    }
+    const oldName = newCategory;
+    const updated = categories.map(c => c === oldName ? trimmed : c);
+    setCategories(updated);
+    saveCategories(updated);
+    // 同步更新所有使用舊類別名稱的快訊
+    setAllNews(prev => prev.map(item =>
+      item.category === oldName ? { ...item, category: trimmed } : item
+    ));
+    setNewCategory(trimmed);
+    setIsEditingCategory(false);
+    setEditCategoryInput('');
+    showToast(`類別已從「${oldName}」更新為「${trimmed}」`, 'success');
   };
 
   const handleFormSubmit = (event) => {
@@ -335,17 +431,57 @@ const AdminNewsPage = () => {
           <label htmlFor="newCategory" className="form-label admin-form-label">
             *類別
           </label>
-          <select
-            className="form-select admin-form-control"
-            id="newCategory"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            required
-          >
-            <option value="" disabled>請選擇類別</option>
-            <option value="教育部">教育部</option>
-            <option value="成大">成大</option>
-          </select>
+          {isEditingCategory ? (
+            <>
+              <div className="news-edit-category-hint">
+                確認後，系統將會把所有舊有的項目，同步更新為您修改的新項目。
+              </div>
+              <div className="news-add-category-row">
+                <input
+                  type="text"
+                  className="form-control admin-form-control"
+                  value={editCategoryInput}
+                  onChange={(e) => setEditCategoryInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleConfirmEditCategory(); } }}
+                  autoFocus
+                />
+                <button type="button" className="btn btn-primary news-add-category-btn" onClick={handleConfirmEditCategory}>確認</button>
+              </div>
+            </>
+          ) : (
+            <div className="news-category-select-row">
+              <select
+                className="form-select admin-form-control"
+                id="newCategory"
+                value={showNewCategoryInput ? '__add_new__' : newCategory}
+                onChange={handleCategorySelect}
+                required
+              >
+                <option value="" disabled>請選擇類別</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+                <option value="__add_new__">＋ 新增項目</option>
+              </select>
+              {newCategory && newCategory !== '__add_new__' && !showNewCategoryInput && (
+                <button type="button" className="btn btn-primary news-add-category-btn" onClick={handleStartEditCategory}>修改</button>
+              )}
+            </div>
+          )}
+          {showNewCategoryInput && !isEditingCategory && (
+            <div className="news-add-category-row">
+              <input
+                type="text"
+                className="form-control admin-form-control"
+                placeholder="輸入新類別名稱"
+                value={newCategoryInput}
+                onChange={(e) => setNewCategoryInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCategory(); } }}
+                autoFocus
+              />
+              <button type="button" className="btn btn-primary news-add-category-btn" onClick={handleAddCategory}>確認</button>
+            </div>
+          )}
         </div>
         <div className="mb-3">
           <label htmlFor="newContent" className="form-label admin-form-label">
