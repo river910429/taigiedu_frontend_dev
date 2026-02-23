@@ -11,6 +11,7 @@ import defaultPreviewImage from '../../../../assets/resourcepage/file_preview_de
 import { authenticatedFetch } from '../../../../services/authService';
 import { useToast } from '../../../../components/Toast';
 import { useAuth } from '../../../../contexts/AuthContext';
+import TakedownDialog from './TakedownDialog';
 
 // API base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dev.taigiedu.com/backend';
@@ -411,53 +412,14 @@ export default function AdminResourcePage() {
         </div>
       )}
 
-      {actionOpen && (
-        <div className="admin-modal-backdrop" onClick={closeAction}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <div>下架理由：</div>
-              <button className="admin-modal-close" onClick={closeAction}>×</button>
-            </div>
-            <div className="admin-modal-body">
-              {/* 顯示已有的檢舉與操作原因 */}
-              {(selected?.reason?.length > 0 || selected?.reports?.length > 0) && (
-                <div className="admin-modal-report-reasons">
-                  <div className="report-reasons-title">相關軌跡：</div>
-                  {/* 顯示歷史操作理由 */}
-                  {selected.reason.map((r, idx) => (
-                    <div key={`reason-${idx}`} className="report-reason-item">
-                      <span className="report-reason-action">{r.action === 'reported' ? '檢舉' : r.action === 'deleted' ? '下架' : r.action}</span>
-                      <span className="report-reason-text">{r.reason}</span>
-                      <span className="report-reason-time">{r.timestamp}</span>
-                    </div>
-                  ))}
-                  {/* 顯示具體用戶檢舉理由 */}
-                  {selected.reports && selected.reports.map((r, idx) => (
-                    <div key={`report-${idx}`} className="report-reason-item">
-                      <span className="report-reason-action report">用戶檢舉</span>
-                      <span className="report-reason-text">{r.report_reason}{r.supplement ? ` - ${r.supplement}` : ''}</span>
-                      <span className="report-reason-time">{r.created_at}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div className="report-reasons-title" style={{ marginTop: selected?.reason?.length > 0 ? '12px' : '0' }}>下架理由選擇：</div>
-              <div className="admin-modal-radio-grid">
-                {['不雅內容', '涉及著作權侵權', '政治不中立', '旁白或文稿問題', '重複上傳', '廣告內容', '侵害隱私', '涉及恐怖、脅迫或血腥'].map(r => (
-                  <label key={r} className="admin-radio">
-                    <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} />
-                    <span>{r}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div className="admin-modal-footer">
-              <button className="admin-btn" onClick={closeAction}>取消</button>
-              <button className="admin-btn primary" onClick={confirmAction}>確定</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TakedownDialog
+        open={actionOpen}
+        onClose={closeAction}
+        onConfirm={confirmAction}
+        selectedItem={selected}
+        reason={reason}
+        setReason={setReason}
+      />
     </div>
   );
 }

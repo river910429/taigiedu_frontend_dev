@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import './AdminFilePreview.css';
+import TakedownDialog from './TakedownDialog';
+import { authenticatedFetch } from '../../../../services/authService';
+import { useToast } from '../../../../components/Toast';
+import { useAuth } from '../../../../contexts/AuthContext';
 
 // 預設預覽圖
 import defaultPreviewImage from '../../../../assets/resourcepage/file_preview_demo.png';
@@ -31,7 +35,12 @@ const getHistoryTypeInfo = (type) => {
 
 export default function AdminFilePreview() {
     const location = useLocation();
+    const { showToast } = useToast();
+    const { user } = useAuth();
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dev.taigiedu.com/backend';
+
     const [resourceData, setResourceData] = useState({
+        id: "",
         title: "無標題資源",
         imageUrl: defaultPreviewImage,
         fileType: "PDF",
@@ -39,9 +48,13 @@ export default function AdminFilePreview() {
         downloads: 0,
         uploader: "匿名上傳者",
         tags: [],
-        status: "目前項目"
+        status: "目前項目",
+        reason: [],
+        reports: []
     });
     const [managementHistory, setManagementHistory] = useState([]);
+    const [actionOpen, setActionOpen] = useState(false);
+    const [takedownReason, setTakedownReason] = useState('不雅內容');
 
     // 從 URL 讀取資源資料
     useEffect(() => {
@@ -71,6 +84,7 @@ export default function AdminFilePreview() {
         }
 
         setResourceData({
+            id: searchParams.get("id") || "",
             title: searchParams.get("title") || "無標題資源",
             imageUrl: searchParams.get("imageUrl") || defaultPreviewImage,
             fileType: searchParams.get("fileType") || "PDF",
@@ -78,7 +92,9 @@ export default function AdminFilePreview() {
             downloads: parseInt(searchParams.get("downloads") || "0", 10),
             uploader: searchParams.get("uploader") || "匿名上傳者",
             tags: parsedTags,
-            status: searchParams.get("status") || "目前項目"
+            status: searchParams.get("status") || "目前項目",
+            reason: parsedReasons,
+            reports: parsedReports
         });
 
         // 合併所有管理軌跡與檢舉紀錄
@@ -96,7 +112,7 @@ export default function AdminFilePreview() {
                 type: 'report',
                 user: r.username || '用戶',
                 date: r.created_at ? r.created_at.replace(/-/g, '/') : '',
-                reason: `${r.report_reason}${r.supplement ? ` - ${r.supplement}` : ''}`,
+                reason: `${r.report_reason}${r.report_reason_detail ? ` - ${r.report_reason_detail}` : ''}${r.supplement ? ` (${r.supplement})` : ''}`,
                 rawDate: r.created_at
             }))
         ];
@@ -113,25 +129,100 @@ export default function AdminFilePreview() {
         return lastAction.type === "takedown";
     };
 
-    // 處理下架/取消下架操作
-    const handleTakedownAction = () => {
-        const isTakenDown = isCurrentlyTakenDown();
-        const actionType = isTakenDown ? "restore" : "takedown";
-        const actionLabel = isTakenDown ? "取消下架" : "下架";
+    // 下架資源
+    const confirmTakedown = async () => {
+        if (!resourceData.id) return;
 
-        const reason = prompt(`請輸入${actionLabel}理由：`);
-        if (!reason) return;
-
-        const newEntry = {
-            id: managementHistory.length + 1,
-            type: actionType,
-            user: "當前管理員",
-            date: new Date().toLocaleDateString("zh-TW").replace(/\//g, "/"),
-            reason: `${actionLabel}理由：${reason}`
+        const body = {
+            id: resourceData.id,
+            action: '1',
+            reason: takedownReason,
+            userID: user?.id || user?.email || 'admin'
         };
 
-        setManagementHistory([...managementHistory, newEntry]);
-        alert(`已成功${actionLabel}此資源`);
+        try {
+            const response = await authenticatedFetch(`${API_BASE_URL}/admin/resource/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                showToast('資源已成功下架', 'success');
+                // 更新本機追蹤 (模擬更新)
+                const newEntry = {
+                    id: Date.now(),
+                    type: 'takedown',
+                    user: user?.id || '管理員',
+                    date: new Date().toLocaleDateString("zh-TW").replace(/\//g, "/"),
+                    reason: takedownReason
+                };
+                setManagementHistory([...managementHistory, newEntry]);
+                setResourceData(prev => ({ ...prev, status: '已下架項目' }));
+
+                // 通知其他頁面
+                window.dispatchEvent(new CustomEvent('resource-updated', {
+                    detail: { action: 'down', id: resourceData.id, reason: takedownReason }
+                }));
+            } else {
+                showToast(data.message || '下架失敗', 'error');
+            }
+        } catch (error) {
+            showToast('下架失敗: ' + error.message, 'error');
+        } finally {
+            setActionOpen(false);
+        }
+    };
+
+    // 復原資源 (取消下架)
+    const handleRestore = async () => {
+        if (!resourceData.id) return;
+
+        const body = {
+            id: resourceData.id,
+            action: '2',
+            reason: '管理員取消下架',
+            userID: user?.id || user?.email || 'admin'
+        };
+
+        try {
+            const response = await authenticatedFetch(`${API_BASE_URL}/admin/resource/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                showToast('資源已成功復原', 'success');
+                const newEntry = {
+                    id: Date.now(),
+                    type: 'restore',
+                    user: user?.id || '管理員',
+                    date: new Date().toLocaleDateString("zh-TW").replace(/\//g, "/"),
+                    reason: '管理員取消下架'
+                };
+                setManagementHistory([...managementHistory, newEntry]);
+                setResourceData(prev => ({ ...prev, status: '目前項目' }));
+
+                window.dispatchEvent(new CustomEvent('resource-updated', {
+                    detail: { action: 'undown', id: resourceData.id }
+                }));
+            } else {
+                showToast(data.message || '復原失敗', 'error');
+            }
+        } catch (error) {
+            showToast('復原失敗: ' + error.message, 'error');
+        }
+    };
+
+    const handleActionClick = () => {
+        if (isCurrentlyTakenDown()) {
+            handleRestore();
+        } else {
+            setActionOpen(true);
+        }
     };
 
     return (
@@ -179,7 +270,7 @@ export default function AdminFilePreview() {
                 {/* 管理操作按鈕 */}
                 <button
                     className={`admin-action-button ${isCurrentlyTakenDown() ? 'restore' : 'takedown'}`}
-                    onClick={handleTakedownAction}
+                    onClick={handleActionClick}
                 >
                     {isCurrentlyTakenDown() ? '取消下架' : '下架資源'}
                 </button>
@@ -188,6 +279,15 @@ export default function AdminFilePreview() {
             <div className="admin-preview-image">
                 <img src={resourceData.imageUrl} alt={resourceData.title} />
             </div>
+
+            <TakedownDialog
+                open={actionOpen}
+                onClose={() => setActionOpen(false)}
+                onConfirm={confirmTakedown}
+                selectedItem={resourceData}
+                reason={takedownReason}
+                setReason={setTakedownReason}
+            />
         </div>
     );
 }

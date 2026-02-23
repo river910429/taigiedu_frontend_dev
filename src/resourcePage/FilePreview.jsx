@@ -27,6 +27,7 @@ const FilePreview = () => {
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isReportLoading, setIsReportLoading] = useState(false);
   const [reportReason, setReportReason] = useState("不雅內容");
+  const [reportReasonDetail, setReportReasonDetail] = useState("");
   const [resourceData, setResourceData] = useState({
     imageUrl: "",
     fileType: "",
@@ -346,6 +347,7 @@ const FilePreview = () => {
         id: String(resourceData.resourceId),
         username: user?.name || user?.username || user?.email || "匿名使用者",
         report_reason: reportReason,
+        report_reason_detail: reportReasonDetail,
         supplement: "",
         created_at: new Date().toISOString()
       };
@@ -359,6 +361,7 @@ const FilePreview = () => {
 
       if (response.ok && (result.success || result.status === "success")) {
         setShowReportModal(false);
+        setReportReasonDetail("");
         showToast(result.message || "檢舉已提交，感謝您的回報", "success");
       } else {
         showToast(result.message || "檢舉失敗，請稍後再試", "error");
@@ -450,30 +453,49 @@ const FilePreview = () => {
             <button className="report-modal-close" onClick={() => setShowReportModal(false)}>
               ×
             </button>
-            <div className="report-modal-title">
-              <span className="required">*</span>檢舉理由：
-            </div>
-            <div className="report-modal-options">
-              {reportReasons.map((reason) => (
-                <label key={reason} className="report-option">
-                  <input
-                    type="radio"
-                    name="reportReason"
-                    value={reason}
-                    checked={reportReason === reason}
-                    onChange={(e) => setReportReason(e.target.value)}
+            <div className="report-modal-content">
+              <div className="report-modal-column">
+                <div className="report-modal-title">
+                  <span className="required">*</span>檢舉理由：
+                </div>
+                <div className="report-modal-options">
+                  {reportReasons.map((reason) => (
+                    <label key={reason} className="report-option">
+                      <input
+                        type="radio"
+                        name="reportReason"
+                        value={reason}
+                        checked={reportReason === reason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                      />
+                      <span>{reason}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="report-modal-column">
+                <div className="report-modal-title">
+                  補充說明：
+                </div>
+                <div className="report-detail-container">
+                  <textarea
+                    className="report-detail-textarea"
+                    placeholder="請輸入詳細說明..."
+                    value={reportReasonDetail}
+                    onChange={(e) => setReportReasonDetail(e.target.value)}
                   />
-                  <span>{reason}</span>
-                </label>
-              ))}
+                </div>
+              </div>
             </div>
-            <button
-              className={`report-modal-submit ${isReportLoading ? 'is-loading' : ''}`}
-              onClick={handleConfirmReport}
-              disabled={isReportLoading}
-            >
-              {isReportLoading ? '送出中...' : '確定'}
-            </button>
+            <div className="report-modal-footer">
+              <button
+                className={`report-modal-submit ${isReportLoading ? 'is-loading' : ''}`}
+                onClick={handleConfirmReport}
+                disabled={isReportLoading}
+              >
+                {isReportLoading ? '送出中...' : '確定'}
+              </button>
+            </div>
           </div>
         </div>
       )}
