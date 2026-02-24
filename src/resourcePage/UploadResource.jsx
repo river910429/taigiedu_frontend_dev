@@ -469,10 +469,13 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
         setIsSuccess(true);
         showToast(result.data.message || "資源上傳成功！", "success");
 
+        // 立即發送資源更新事件，讓背景的資源列表可以重新讀取
+        window.dispatchEvent(new CustomEvent('resource-updated'));
+
         // 延遲關閉視窗，讓用戶看到成功訊息
         setTimeout(() => {
           handleClose();
-          // 調用 onUploadSuccess 通知父組件重新載入資料
+          // 調用 onUploadSuccess 通知父組件
           if (onUploadSuccess) {
             onUploadSuccess();
           }
