@@ -1,8 +1,5 @@
 .resconf-page {
     padding: 16px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .08)
 }
 
 .resconf-title {
@@ -31,7 +28,7 @@
 
 .resconf-grid {
     display: flex;
-    gap: 40px;
+    gap: 20px;
     flex-wrap: nowrap;
     align-items: flex-start
 }
