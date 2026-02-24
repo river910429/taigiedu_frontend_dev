@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     // If you want to bind the server to all network interfaces
+    port: 3000,
     host: true,
     // Specify which hosts are allowed to access the preview server
     allowedHosts: ['dev.taigiedu.com', 'www.taigiedu.com']

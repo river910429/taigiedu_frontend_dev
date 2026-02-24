@@ -2,11 +2,11 @@
     padding: 16px;
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .08)
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
 }
 
 .resconf-title {
-    display: none
+    display: none;
 }
 
 .resconf-breadcrumb {
@@ -14,7 +14,7 @@
     align-items: center;
     gap: 8px;
     color: #6b7280;
-    margin: 8px 0 16px
+    margin: 8px 0 16px;
 }
 
 .resconf-breadcrumb .section {
@@ -26,14 +26,14 @@
 .resconf-breadcrumb .sep {
     font-size: 20px;
     line-height: 24px;
-    color: #9ca3af
+    color: #9ca3af;
 }
 
 .resconf-grid {
     display: flex;
     gap: 40px;
     flex-wrap: nowrap;
-    align-items: flex-start
+    align-items: flex-start;
 }
 
 .resconf-col {
@@ -41,7 +41,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
-    overflow: hidden
+    overflow: hidden;
 }
 
 .resconf-col-header {
@@ -56,7 +56,7 @@
 .resconf-list {
     padding: 8px 12px;
     max-height: 60vh;
-    overflow: auto
+    overflow: auto;
 }
 
 .resconf-item {
@@ -64,7 +64,7 @@
     align-items: center;
     gap: 8px;
     padding: 8px 0;
-    border-bottom: 1px dashed #f0f2f5
+    border-bottom: 1px dashed #f0f2f5;
 }
 
 .resconf-item:last-child {
@@ -75,12 +75,12 @@
     flex: 1;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 6px 8px
+    padding: 6px 8px;
 }
 
 .resconf-actions {
     display: flex;
-    gap: 6px
+    gap: 6px;
 }
 
 .resconf-btn {
@@ -89,17 +89,17 @@
     color: #fff;
     border-radius: 8px;
     padding: 6px 12px;
-    cursor: pointer
+    cursor: pointer;
 }
 
 .resconf-btn:hover {
-    filter: brightness(0.95)
+    filter: brightness(0.95);
 }
 
 .resconf-btn.primary {
     background: #2D92C1;
     border-color: #2D92C1;
-    color: #fff
+    color: #fff;
 }
 
 .resconf-btn:disabled {
@@ -122,30 +122,30 @@
     display: flex;
     gap: 8px;
     padding: 12px;
-    border-top: 1px solid #eef2f7
+    border-top: 1px solid #eef2f7;
 }
 
 .resconf-footer {
     margin-top: 16px;
     display: flex;
-    gap: 8px
+    gap: 8px;
 }
 
 /* simple color accents */
 .resconf-col.high {
-    --accent: #fcd34d
+    --accent: #fcd34d;
 }
 
 .resconf-col.mid {
-    --accent: #c4b5fd
+    --accent: #c4b5fd;
 }
 
 .resconf-col.elem {
-    --accent: #f9a8d4
+    --accent: #f9a8d4;
 }
 
 .resconf-col.type {
-    --accent: #a7f3d0
+    --accent: #a7f3d0;
 }
 
 .resconf-col-header {
