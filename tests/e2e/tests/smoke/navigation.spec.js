@@ -53,12 +53,16 @@ test.describe('Sidebar 導航功能', () => {
         await waitForStableUI(page);
     });
 
-    test('點擊「台語名人堂」導航成功', async ({ page }) => {
-        const menuItem = page.locator('.menu-item', { hasText: '台語名人堂' });
-        await menuItem.click();
+    test('點擊「台語出名人」導航成功', async ({ page, context }) => {
+        const menuItem = page.locator('.menu-item', { hasText: '台語出名人' });
 
-        await expect(page).toHaveURL('/celebrity');
-        await waitForStableUI(page);
+        // 預期會打開新分頁
+        const [newPage] = await Promise.all([
+            context.waitForEvent('page'),
+            menuItem.click()
+        ]);
+
+        await expect(newPage).toHaveURL(/famous.taigiedu.com/);
     });
 
     test('「台語文化」子選單展開並導航', async ({ page }) => {

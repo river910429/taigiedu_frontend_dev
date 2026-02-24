@@ -8,7 +8,9 @@ const mockManagementHistory = [
     type: "report",
     user: "Wynnie Chang",
     date: "2025/04/01",
-    reason: "這篇文章是偷我的東西，侵犯我的著作權，請管理員處理"
+    reason: "涉及著作權疑慮",
+    report_reason_detail: "這篇文章是偷我的東西，侵犯我的著作權，請管理員處理",
+    supplement: "請盡快處理。"
   }
 ];
 
@@ -67,7 +69,11 @@ export default function FilePreview({
                 </span>
                 <span className="timeline-user">{entry.user}</span>
                 <span className="timeline-date">{entry.date}</span>
-                <span className="timeline-reason">{entry.reason}</span>
+                <span className="timeline-reason">
+                  {entry.reason}
+                  {entry.report_reason_detail ? ` - ${entry.report_reason_detail}` : ''}
+                  {entry.supplement ? ` (${entry.supplement})` : ''}
+                </span>
               </div>
             );
           })}

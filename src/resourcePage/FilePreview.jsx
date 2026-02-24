@@ -6,7 +6,10 @@ import { authenticatedFetch } from "../services/authService";
 import "./FilePreview.css";
 import likesIconFilled from "../assets/resourcepage/Union (Stroke)(black).svg";
 import likesIconOutline from "../assets/resourcepage/heart-outline-black.svg";
+import loveIconFilled from "../assets/Union (Stroke).svg";
+import loveIconOutline from "../assets/resourcepage/heart-outline.svg";
 import downloadsIcon from "../assets/resourcepage/Subtract(black).svg";
+import downloadIconBlue from "../assets/resourcepage/Subtract.svg";
 import readAllIcon from "../assets/resourcepage/Vector (Stroke).svg";
 import reportIcon from "../assets/report1.svg";
 import defaultPreviewImage from "../assets/resourcepage/file_preview_demo.png";
@@ -15,7 +18,7 @@ const FilePreview = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { showToast } = useToast();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [downloadsCount, setDownloadsCount] = useState(0);
@@ -24,6 +27,7 @@ const FilePreview = () => {
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isReportLoading, setIsReportLoading] = useState(false);
   const [reportReason, setReportReason] = useState("不雅內容");
+  const [reportReasonDetail, setReportReasonDetail] = useState("");
   const [resourceData, setResourceData] = useState({
     imageUrl: "",
     fileType: "",
@@ -59,8 +63,16 @@ const FilePreview = () => {
       normalizedPath = normalizedPath.replace(/^backend\//, "");
     }
 
+    if (normalizedPath.startsWith("api/")) {
+      normalizedPath = normalizedPath.replace(/^api\//, "");
+    }
+
     if (normalizedBase.endsWith("/backend") && normalizedPath.startsWith("backend/")) {
       normalizedPath = normalizedPath.replace(/^backend\//, "");
+    }
+
+    if (normalizedBase.endsWith("/api") && normalizedPath.startsWith("api/")) {
+      normalizedPath = normalizedPath.replace(/^api\//, "");
     }
 
     return `${normalizedBase}/${normalizedPath}`;
@@ -98,6 +110,7 @@ const FilePreview = () => {
       };
 
       // 設置資源數據
+      const resourceId = searchParams.get("id") || "";
       setResourceData({
         imageUrl: getFullUrl(searchParams.get("imageUrl"), true),
         fileType: searchParams.get("fileType") || "PDF",
@@ -105,7 +118,7 @@ const FilePreview = () => {
         uploader: searchParams.get("uploader") || "匿名上傳者",
         date: searchParams.get("date") || "未知日期",
         fileUrl: getFullUrl(searchParams.get("fileUrl")),
-        resourceId: searchParams.get("id") || "",
+        resourceId: resourceId,
         tags: parsedTags
       });
 
@@ -115,7 +128,7 @@ const FilePreview = () => {
 
       const isLikeParam = searchParams.get("is_like");
       const likeStorage = JSON.parse(localStorage.getItem("resourceLikeStates") || "{}");
-      const cachedLike = likeStorage[searchParams.get("id")];
+      const cachedLike = likeStorage[resourceId];
 
       if (isLikeParam === "true" || isLikeParam === "1" || isLikeParam === "false" || isLikeParam === "0") {
         setIsLiked(isLikeParam === "true" || isLikeParam === "1");
@@ -129,6 +142,57 @@ const FilePreview = () => {
       setIsLoading(false);
     }
   }, [location.search]);
+
+  // 新增：當認證狀態改變時，重新取得資源詳情以更新使用者相關資訊（如是否點讚）
+  useEffect(() => {
+    const fetchLatestResourceData = async () => {
+      if (!resourceData.resourceId || !isAuthenticated) {
+        if (!isAuthenticated) setIsLiked(false);
+        return;
+      }
+
+      try {
+        // 使用搜尋 API 來取得該資源的最新狀態
+        const parameters = {
+          keyword: resourceData.title, // 使用標題作為關鍵字
+          page: 1,
+          limit: 100
+        };
+
+        const response = await authenticatedFetch(`${apiBaseUrl}/api/resource/search`, {
+          method: "POST",
+          body: JSON.stringify(parameters)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.status === "success" && Array.isArray(result.data?.resources)) {
+          // 找尋對應 ID 的資源
+          const currentResource = result.data.resources.find(r => String(r.id) === String(resourceData.resourceId));
+
+          if (currentResource) {
+            console.log("已更新資源最新狀態:", currentResource);
+            setIsLiked(Boolean(currentResource.is_like));
+            setLikesCount(currentResource.likes || 0);
+            setDownloadsCount(currentResource.downloads || 0);
+
+            // 同時更新 URL 參數，避免重新整理後又變回舊狀態
+            const nextParams = new URLSearchParams(location.search);
+            nextParams.set("is_like", currentResource.is_like ? "true" : "false");
+            nextParams.set("likes", String(currentResource.likes || 0));
+            nextParams.set("downloads", String(currentResource.downloads || 0));
+            window.history.replaceState(null, "", `${window.location.pathname}?${nextParams.toString()}`);
+          }
+        }
+      } catch (error) {
+        console.error("重新獲取資源詳情失敗:", error);
+      }
+    };
+
+    if (!isLoading) {
+      fetchLatestResourceData();
+    }
+  }, [isAuthenticated, isLoading, resourceData.resourceId]);
 
   if (isLoading) {
     return (
@@ -196,6 +260,10 @@ const FilePreview = () => {
   };
 
   const handleLike = async () => {
+    if (!isAuthenticated) {
+      showToast("請先登入後再進行點讚", "error");
+      return;
+    }
     if (!resourceData.resourceId) {
       showToast("無法點讚此資源", "error");
       return;
@@ -257,6 +325,10 @@ const FilePreview = () => {
 
   // 檢舉功能 - 開啟 modal
   const handleReport = () => {
+    if (!isAuthenticated) {
+      showToast("請先登入後再進行檢舉", "error");
+      return;
+    }
     setShowReportModal(true);
   };
 
@@ -275,6 +347,7 @@ const FilePreview = () => {
         id: String(resourceData.resourceId),
         username: user?.name || user?.username || user?.email || "匿名使用者",
         report_reason: reportReason,
+        report_reason_detail: reportReasonDetail,
         supplement: "",
         created_at: new Date().toISOString()
       };
@@ -288,6 +361,7 @@ const FilePreview = () => {
 
       if (response.ok && (result.success || result.status === "success")) {
         setShowReportModal(false);
+        setReportReasonDetail("");
         showToast(result.message || "檢舉已提交，感謝您的回報", "success");
       } else {
         showToast(result.message || "檢舉失敗，請稍後再試", "error");
@@ -339,6 +413,7 @@ const FilePreview = () => {
         </div>
 
         <button className="file-download-button" onClick={handleDownload}>
+          <img src={downloadIconBlue} alt="Download" className="button-icon" />
           下載資源
         </button>
 
@@ -347,6 +422,11 @@ const FilePreview = () => {
           onClick={handleLike}
           disabled={isLikeLoading}
         >
+          <img
+            src={isLiked ? loveIconFilled : loveIconOutline}
+            alt={isLiked ? "Liked" : "Not liked"}
+            className="button-icon"
+          />
           {isLikeLoading ? '處理中...' : (isLiked ? '已點讚' : '點讚資源')}
         </button>
       </div>
@@ -373,30 +453,49 @@ const FilePreview = () => {
             <button className="report-modal-close" onClick={() => setShowReportModal(false)}>
               ×
             </button>
-            <div className="report-modal-title">
-              <span className="required">*</span>檢舉理由：
-            </div>
-            <div className="report-modal-options">
-              {reportReasons.map((reason) => (
-                <label key={reason} className="report-option">
-                  <input
-                    type="radio"
-                    name="reportReason"
-                    value={reason}
-                    checked={reportReason === reason}
-                    onChange={(e) => setReportReason(e.target.value)}
+            <div className="report-modal-content">
+              <div className="report-modal-column">
+                <div className="report-modal-title">
+                  <span className="required">*</span>檢舉理由：
+                </div>
+                <div className="report-modal-options">
+                  {reportReasons.map((reason) => (
+                    <label key={reason} className="report-option">
+                      <input
+                        type="radio"
+                        name="reportReason"
+                        value={reason}
+                        checked={reportReason === reason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                      />
+                      <span>{reason}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="report-modal-column">
+                <div className="report-modal-title">
+                  補充說明：
+                </div>
+                <div className="report-detail-container">
+                  <textarea
+                    className="report-detail-textarea"
+                    placeholder="請輸入詳細說明..."
+                    value={reportReasonDetail}
+                    onChange={(e) => setReportReasonDetail(e.target.value)}
                   />
-                  <span>{reason}</span>
-                </label>
-              ))}
+                </div>
+              </div>
             </div>
-            <button
-              className={`report-modal-submit ${isReportLoading ? 'is-loading' : ''}`}
-              onClick={handleConfirmReport}
-              disabled={isReportLoading}
-            >
-              {isReportLoading ? '送出中...' : '確定'}
-            </button>
+            <div className="report-modal-footer">
+              <button
+                className={`report-modal-submit ${isReportLoading ? 'is-loading' : ''}`}
+                onClick={handleConfirmReport}
+                disabled={isReportLoading}
+              >
+                {isReportLoading ? '送出中...' : '確定'}
+              </button>
+            </div>
           </div>
         </div>
       )}

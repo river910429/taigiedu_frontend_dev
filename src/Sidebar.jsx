@@ -28,7 +28,7 @@ const Sidebar = () => {
     { id: 4, label: "台語文字轉換", icon: translateIcon, path: "/translate" },
     { id: 5, label: "台語教學資源共享平台", icon: resourceIcon, path: "/resource" },
     { id: 6, label: "台語俗諺語", icon: phraseIcon, path: "/phrase" },
-    { id: 7, label: "台語名人堂", icon: celebrityIcon, path: "/celebrity" },
+    { id: 7, label: "台語出名人", icon: celebrityIcon, isExternal: true, url: "https://famous.taigiedu.com/" },
     {
       id: 8,
       label: "台語文化",
@@ -64,15 +64,19 @@ const Sidebar = () => {
     }
   }, [location.pathname]); // 監聽 location.pathname 變化
 
-  const handleClick = (id, path, hasSubmenu) => {
-    if (hasSubmenu) {
+  const handleClick = (item) => {
+    if (item.isExternal) {
+      window.open(item.url, '_blank');
+      return;
+    }
+    if (item.hasSubmenu) {
       setIsSubMenuOpen(!isSubMenuOpen);
-      setActiveItem(id);
+      setActiveItem(item.id);
       setActiveSubItem(null);
     } else {
-      setActiveItem(id);
+      setActiveItem(item.id);
       setActiveSubItem(null);
-      navigate(path);
+      navigate(item.path);
     }
   };
 
@@ -89,7 +93,7 @@ const Sidebar = () => {
         <div key={item.id}>
           <button
             className={`menu-item ${activeItem === item.id ? "active" : ""}`}
-            onClick={() => handleClick(item.id, item.path, item.hasSubmenu)}
+            onClick={() => handleClick(item)}
           >
             <img
               src={item.icon}
@@ -97,6 +101,19 @@ const Sidebar = () => {
               className={`menu-icon ${activeItem === item.id ? "active-icon" : ""}`}
             />
             {item.label}
+            {item.isExternal && (
+              <svg
+                className="external-icon size-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+
+              </svg>
+            )}
             {item.hasSubmenu && (
               <span className={`arrow ${isSubMenuOpen ? 'up' : 'down'}`}>
                 <img src={chevronUpIcon} />

@@ -379,22 +379,8 @@ const MainContent = () => {
               <div className="text-gray-500">載入今日大事中...</div>
             ) : (
               <ul className="info-list">
-                {todayEvents.length > 0 || true ? ( // 強制進入渲染邏輯以顯示多元範例資料
-                  (todayEvents.length > 0 && !todayEvents[0].includes("今日無大事") ? todayEvents : [
-                    { title: "OO節", content: "" },
-                    { title: "OOO生日", content: "" },
-                    { title: "歷史上的今天：蕭泰然誕生日 (1938 年 1 月 1 日)", content: "" },
-                    {
-                      title: "歷史上的今天：柯旗化誕生日 (1929 年 1 月 1 日)",
-                      content: "柯旗化，台灣高雄人，是著名的英語教育家、詩人及作家。曾因政治案件入獄多年，在獄中完成了著名的《新英文法》。",
-                      date: "1929 年 1 月 1 日"
-                    },
-                    {
-                      title: "歷史上的今天：台灣人的自由台灣成立 (1956 年 1 月 1 日)",
-                      content: "1956年元旦，廖文毅等人在日本東京成立「台灣共和國臨時政府」，主張台灣主權獨立。",
-                      date: "1956 年 1 月 1 日"
-                    }
-                  ]).map((item, index) => {
+                {todayEvents.length > 0 ? (
+                  todayEvents.map((item, index) => {
                     // 相容處理：如果是純字串，將其轉為基本物件
                     const eventObj = typeof item === 'string' ? { title: item, content: "" } : item;
 

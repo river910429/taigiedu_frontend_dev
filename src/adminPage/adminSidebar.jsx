@@ -11,7 +11,8 @@ import chevronUpIcon from "../assets/chevron-up.svg";
 
 // 靜態選單定義搬到組件外，避免每次 render 重新建立引用，減少 useEffect 依賴問題
 const MENU_ITEMS = [
-  { id: 1,
+  {
+    id: 1,
     label: "主頁搜尋",
     icon: houseIcon,
     hasSubmenu: true,
@@ -20,8 +21,9 @@ const MENU_ITEMS = [
       { id: 'adminNewsInfo', label: "活動快訊", path: "/admin/main-search/news" }
     ]
   },
-  { id: 2,
-    label: "台灣文化",
+  {
+    id: 2,
+    label: "台語文化",
     icon: bookIcon,
     hasSubmenu: true,
     submenuItems: [
@@ -29,7 +31,8 @@ const MENU_ITEMS = [
       { id: 'festival', label: "節慶", path: "/admin/culture/festival" }
     ]
   },
-  { id: 3,
+  {
+    id: 3,
     label: "認證考試",
     icon: testIcon,
     hasSubmenu: true,
@@ -40,7 +43,8 @@ const MENU_ITEMS = [
     ]
   },
   { id: 4, label: "媒體與社群資源", icon: playIcon, path: "/admin/socialmedia" },
-  { id: 5,
+  {
+    id: 5,
     label: "台語教學資源共享平台",
     icon: cloudIcon,
     hasSubmenu: true,
@@ -82,7 +86,7 @@ const AdminSidebar = () => {
     setActiveItem(null); setActiveSubItem(null);
   }, [location.pathname]);
 
-   const handleClick = (id, path, hasSubmenu) => {
+  const handleClick = (id, path, hasSubmenu) => {
     if (hasSubmenu) {
       setIsSubMenuOpen(prev => ({ ...prev, [id]: !prev[id] }));
       setActiveItem(id);
@@ -102,7 +106,7 @@ const AdminSidebar = () => {
 
   return (
     <div className="sidebar">
-  {MENU_ITEMS.map((item) => (
+      {MENU_ITEMS.map((item) => (
         <div key={item.id}>
           <button
             className={`menu-item ${activeItem === item.id ? "active" : ""}`}
@@ -116,8 +120,8 @@ const AdminSidebar = () => {
             {item.label}
             {item.hasSubmenu && (
               <span className={`arrow ${isSubMenuOpen[item.id] ? 'up' : 'down'}`}>
-              <img src={chevronUpIcon} />
-            </span>
+                <img src={chevronUpIcon} />
+              </span>
             )}
           </button>
           {item.hasSubmenu && isSubMenuOpen[item.id] && (

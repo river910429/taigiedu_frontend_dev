@@ -4,12 +4,15 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  background: rgba(0, 0, 0, 0.5);
+  /* 半透明背景 */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* 保證在最上層 */
+  z-index: 1000;
+  /* 保證在最上層 */
 }
+
 .upload-resource-container {
   display: flex;
   flex-direction: column;
@@ -17,8 +20,10 @@
   overflow-y: auto;
 
   width: 70%;
-  max-width: 1200px; /* 最大寬度 */
-  height: 80%; /* 最大高度 */
+  max-width: 1200px;
+  /* 最大寬度 */
+  height: 80%;
+  /* 最大高度 */
   padding: 16px;
   gap: 20px;
   flex-shrink: 0;
@@ -40,7 +45,8 @@
   font-size: 22px;
   font-style: normal;
   font-weight: 700;
-  line-height: 30px; /* 136.364% */
+  line-height: 30px;
+  /* 136.364% */
 }
 
 /* form */
@@ -67,12 +73,15 @@
 }
 
 .form-label-title {
-  display: inline-flex; /* 讓 * 和文字保持在同一行 */
-  align-items: center; /* 垂直居中對齊 */
+  display: inline-flex;
+  /* 讓 * 和文字保持在同一行 */
+  align-items: center;
+  /* 垂直居中對齊 */
 }
 
 .form-label-required {
-  color: #c1272d; /* 設置紅色 */
+  color: #c1272d;
+  /* 設置紅色 */
   font-size: 22px;
 }
 
@@ -91,7 +100,8 @@
   font-size: 18px;
   font-style: normal;
   font-weight: 400;
-  line-height: 21px; /* 116.667% */
+  line-height: 21px;
+  /* 116.667% */
 }
 
 .radio-group {
@@ -112,7 +122,8 @@
   font-size: 18px;
   font-style: normal;
   font-weight: 400;
-  line-height: 21px; /* 28.8px */
+  line-height: 21px;
+  /* 28.8px */
 }
 
 .form-label p,
@@ -122,7 +133,8 @@
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  line-height: 12px; /* 85.714% */
+  line-height: 12px;
+  /* 85.714% */
   letter-spacing: -0.14px;
 }
 
@@ -136,8 +148,10 @@
 
 .upload-button-wrapper {
   display: flex;
-  align-items: center; /* 垂直置中 */
-  gap: 8px; /* 按鈕與檔案名稱間距 */
+  align-items: center;
+  /* 垂直置中 */
+  gap: 8px;
+  /* 按鈕與檔案名稱間距 */
 }
 
 .upload-button {
@@ -161,9 +175,12 @@
 
   background-image: url("/src/assets/resourcepage/Subtract.svg");
   background-repeat: no-repeat;
-  background-position: 20px center; /* 調整圖片在按鈕中的位置 */
-  background-size: 16px 20px; /* 調整圖片大小 */
-  text-indent: 25px; /* 將文字與圖片分開 */
+  background-position: 20px center;
+  /* 調整圖片在按鈕中的位置 */
+  background-size: 16px 20px;
+  /* 調整圖片大小 */
+  text-indent: 25px;
+  /* 將文字與圖片分開 */
   transition: background-color 0.3s ease;
 }
 
@@ -177,21 +194,184 @@
   padding: 8px 16px;
   justify-content: center;
   align-items: center;
-  gap: 12px; /* 已上傳狀態的綠色背景 */
+  gap: 12px;
+  /* 已上傳狀態的綠色背景 */
   border-radius: 8px;
   border: 1px solid var(--primary-blue, #2d92c1);
   background: #dfeaf2;
   color: #000;
   background-image: url("/src/assets/resourcepage/Subtract.svg");
   background-repeat: no-repeat;
-  background-position: 20px center; /* 調整圖片在按鈕中的位置 */
-  background-size: 16px 20px; /* 調整圖片大小 */
-  text-indent: 25px; /* 將文字與圖片分開 */
+  background-position: 20px center;
+  /* 調整圖片在按鈕中的位置 */
+  background-size: 16px 20px;
+  /* 調整圖片大小 */
+  text-indent: 25px;
+  /* 將文字與圖片分開 */
   transition: background-color 0.3s ease;
 }
 
 .upload-button.uploaded:hover {
-  background-color: #82b0d6; /* 已上傳狀態的深綠色背景 */
+  background-color: #82b0d6;
+  /* 已上傳狀態的深綠色背景 */
+}
+
+/* ========== 縮圖預覽區 ========== */
+.thumbnail-hint {
+  color: #888 !important;
+  font-size: 13px !important;
+  margin: 0 !important;
+  line-height: 18px !important;
+}
+
+.thumbnail-preview-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  width: 100%;
+  border: 2px dashed #d0d5dd;
+  border-radius: 12px;
+  background: #fafbfc;
+  transition: border-color 0.25s, background-color 0.25s;
+  overflow: hidden;
+}
+
+.thumbnail-preview-area:hover {
+  border-color: #2d92c1;
+  background: #f0f7fb;
+}
+
+/* 生成中 loading */
+.thumbnail-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #888;
+  font-size: 14px;
+}
+
+.thumbnail-loading-icon {
+  width: 36px;
+  height: 36px;
+  animation: spin 1.2s linear infinite;
+}
+
+/* 已生成的縮圖 */
+.thumbnail-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.thumbnail-image-wrapper {
+  position: relative;
+  display: inline-block;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.25s;
+}
+
+.thumbnail-image-wrapper:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+}
+
+.thumbnail-image {
+  display: block;
+  max-width: 220px;
+  max-height: 280px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.thumbnail-remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  max-width: 26px;
+  max-height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+.thumbnail-image-wrapper:hover .thumbnail-remove-btn {
+  opacity: 1;
+}
+
+.thumbnail-remove-btn:hover {
+  background: rgba(200, 50, 50, 0.85);
+}
+
+.thumbnail-custom-name {
+  font-size: 12px;
+  color: #888;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 空白狀態 */
+.thumbnail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #aaa;
+  font-size: 14px;
+  padding: 24px;
+}
+
+.thumbnail-empty svg {
+  opacity: 0.5;
+}
+
+/* 手動上傳按鈕 */
+.thumbnail-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #2d92c1;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.thumbnail-upload-btn:hover:not(:disabled) {
+  background: #dfeaf2;
+  border-color: #2d92c1;
+}
+
+.thumbnail-upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* submit */
@@ -223,6 +403,7 @@
   font-weight: 400;
   line-height: normal;
 }
+
 .submit-button:hover {
   background: #82b0d6;
 }
@@ -241,6 +422,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

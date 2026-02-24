@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './HighSchoolColumn.css';
 import TableHeaderCell from '../TableHeaderCell/TableHeaderCell.jsx';
 import pencilIcon from '../../../../assets/adminPage/pencil.svg';
@@ -7,13 +7,16 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
   return (
     <div className="hs-row">
       {isEditing ? (
-        <input
-          className="hs-input"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onBlur={onCommit}
-          onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
-        />
+        <>
+          <input
+            className="hs-input"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') onCommit(); }}
+            autoFocus
+          />
+          <button className="hs-submit" onClick={onCommit}>確認</button>
+        </>
       ) : (
         <span className="hs-label">{value}</span>
       )}
@@ -26,11 +29,27 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
   );
 };
 
-export default function HighSchoolColumn({ items = [], onChange }) {
+export default function HighSchoolColumn({ items = [], onChange, onAddItem }) {
   const [editIndex, setEditIndex] = useState(-1);
   const [editValue, setEditValue] = useState('');
   const [addingMode, setAddingMode] = useState(false);
   const [adding, setAdding] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setAddingMode(false);
+        setEditIndex(-1);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const startEdit = (idx) => {
     setEditIndex(idx);
@@ -44,14 +63,37 @@ export default function HighSchoolColumn({ items = [], onChange }) {
     setEditValue('');
   };
 
-  const addItem = () => {
+  const addItem = async () => {
     const v = adding.trim();
-    if (!v) return;
-    if (items.includes(v)) return;
-    const next = [...items, v];
-    onChange?.(next);
-    setAdding('');
-    setAddingMode(false);
+    if (!v) {
+      setAddingMode(false);
+      return;
+    }
+    if (items.includes(v)) {
+      setAddingMode(false);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // 如果有提供 onAddItem callback，呼叫它（會處理 API）
+      if (onAddItem) {
+        const success = await onAddItem(v);
+        if (!success) {
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      // 更新本地狀態
+      const next = [...items, v];
+      onChange?.(next);
+      setAdding('');
+      setAddingMode(false);
+    } catch (error) {
+      console.error('新增失敗:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const addNewRow = () => {
@@ -59,7 +101,7 @@ export default function HighSchoolColumn({ items = [], onChange }) {
   };
 
   return (
-    <div className="hs-col">
+    <div className="hs-col" ref={containerRef}>
       <div className="hs-header">
         <TableHeaderCell label="高中" showArrow={true} bgColor="#FAD6AB" />
       </div>
@@ -81,9 +123,13 @@ export default function HighSchoolColumn({ items = [], onChange }) {
               placeholder="新版本"
               value={adding}
               onChange={(e) => setAdding(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') addItem(); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') addItem();
+                if (e.key === 'Escape') setAddingMode(false);
+              }}
+              autoFocus
             />
-            <button className="hs-submit" onClick={addItem}>送出</button>
+            <button className="hs-submit" onClick={addItem}>確認</button>
           </div>
         ) : (
           <div className="hs-add-row" onClick={addNewRow}>
@@ -95,3 +141,4 @@ export default function HighSchoolColumn({ items = [], onChange }) {
     </div>
   );
 }
+

@@ -9,7 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 // 添加 renderCard 到組件參數中
 const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoaded }) => {
   const { showToast } = useToast();
-  const { isLoading: isAuthLoading } = useAuth();
+  const { isLoading: isAuthLoading, isAuthenticated } = useAuth();
   const [allResources, setAllResources] = useState([]); // 存儲所有資源
   const [displayedResources, setDisplayedResources] = useState([]); // 當前頁顯示的資源
   const [totalItems, setTotalItems] = useState(0);
@@ -41,7 +41,7 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
       }
       setLastSearchParams(searchParams);
     }
-  }, [searchParams, isAuthLoading]);
+  }, [searchParams, isAuthLoading, isAuthenticated]);
 
   // 同步 URL 中的頁碼到 currentPage 狀態
   useEffect(() => {
@@ -66,7 +66,7 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
     if (!isAuthLoading && lastSearchParams) {
       fetchResources();
     }
-  }, [isAuthLoading, lastSearchParams]);
+  }, [isAuthLoading, lastSearchParams, isAuthenticated]);
 
   // 當頁碼變更時更新顯示的資源
   useEffect(() => {
@@ -125,7 +125,42 @@ const ResourceContent = ({ searchParams, onCardClick, renderCard, onResourcesLoa
         console.log("搜索結果:", result);
 
         if (result.data && Array.isArray(result.data.resources)) {
-          const resourcesList = [...result.data.resources].reverse();
+          // 過濾掉已下架的資源 (deleted 或 removed)
+          // 過濾掉已下架的資源 (deleted 或 removed)
+          const resourcesList = result.data.resources
+            .filter(r => r.status !== 'deleted' && r.status !== 'removed')
+            .reverse()
+            .map(r => {
+              // 輔助函數：修正後端回傳的路徑問題
+              const getAbsoluteUrl = (path) => {
+                if (!path) return "";
+                // 如果已經是完整路徑或本地預設圖，不處理
+                if (path.startsWith("http") || path.includes("/src/assets/")) return path;
+
+                const baseUrl = import.meta.env.VITE_API_URL || "";
+                let cleanPath = path;
+
+                // 移除開頭的斜線
+                cleanPath = cleanPath.replace(/^\/+/, "");
+
+                // 解決後端回傳路徑可能包含重複的 backend/ 或 api/ 前綴問題
+                // 例如: backend/backend/uploads... -> uploads...
+                //      api/api/uploads... -> uploads...
+                cleanPath = cleanPath.replace(/^((backend|api)\/)+/g, "");
+
+                // 確保 baseUrl 不包含結尾斜線
+                const cleanBase = baseUrl.replace(/\/+$/, "");
+                return `${cleanBase}/${cleanPath}`;
+              };
+
+              return {
+                ...r,
+                // 從源頭修正圖片與檔案路徑，確保後續組件拿到的是正確的絕對路徑
+                imageUrl: getAbsoluteUrl(r.imageUrl),
+                fileUrl: getAbsoluteUrl(r.fileUrl)
+              };
+            });
+
           setAllResources(resourcesList);
           setTotalItems(resourcesList.length);
 
