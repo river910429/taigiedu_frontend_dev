@@ -6,8 +6,18 @@ const AuthContext = createContext(null);
 
 // Auth Provider 組件
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(() => {
+        try {
+            const savedUser = localStorage.getItem('user');
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch (e) {
+            console.error('Failed to parse user from localStorage:', e);
+            return null;
+        }
+    });
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return localStorage.getItem('isLoggedIn') === 'true';
+    });
     const [isLoading, setIsLoading] = useState(true);
     const [accessToken, setAccessToken] = useState(null);
 
@@ -50,7 +60,12 @@ export const AuthProvider = ({ children }) => {
                 if (result.success) {
                     saveToken(result.accessToken);
                     if (result.user) {
-                        setUser(result.user);
+                        // 這裡採用合併方式，避免丟失已有的資訊 (例如 name)
+                        setUser(prev => {
+                            const updated = { ...prev, ...result.user };
+                            localStorage.setItem('user', JSON.stringify(updated));
+                            return updated;
+                        });
                     }
                     // 設定下一次刷新
                     if (result.expiresIn) {
@@ -104,21 +119,26 @@ export const AuthProvider = ({ children }) => {
     const loginWithData = useCallback(async (data) => {
         if (data.accessToken) saveToken(data.accessToken);
 
+        // 先設定基本資訊
+        if (data.user) {
+            setUser(data.user);
+            setIsAuthenticated(true);
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('user', JSON.stringify(data.user));
+        }
+
         // 取得完整的用戶資訊，確保有 name 欄位
-        let fullUser = data.user;
         try {
             const userResult = await authService.getCurrentUser();
             if (userResult.success) {
-                fullUser = userResult.user;
+                const fullUser = userResult.user;
+                setUser(fullUser);
+                localStorage.setItem('user', JSON.stringify(fullUser));
             }
         } catch (error) {
             console.error('取得使用者資訊失敗:', error);
         }
 
-        if (fullUser) {
-            setUser(fullUser);
-            localStorage.setItem('user', JSON.stringify(fullUser));
-        }
         setIsAuthenticated(true);
         localStorage.setItem('isLoggedIn', 'true');
 
@@ -184,7 +204,18 @@ export const AuthProvider = ({ children }) => {
 
                         // 取得完整的用戶資訊，確保有 name 欄位
                         const userResult = await authService.getCurrentUser();
-                        const fullUser = userResult.success ? userResult.user : result.user;
+
+                        // 優先使用 getCurrentUser 的結果，如果失敗則看 saved user 是否有名字，最後才用 refreshToken 的
+                        const savedUserStr = localStorage.getItem('user');
+                        const savedUser = savedUserStr ? JSON.parse(savedUserStr) : null;
+
+                        let fullUser = result.user;
+                        if (userResult.success) {
+                            fullUser = userResult.user;
+                        } else if (savedUser && savedUser.name && !result.user?.name) {
+                            // 如果新取得的資料沒名字但舊的有，則保留舊的名字
+                            fullUser = { ...result.user, name: savedUser.name };
+                        }
 
                         setUser(fullUser);
                         setIsAuthenticated(true);
@@ -257,3 +288,4 @@ export const useAuth = () => {
 };
 
 export default AuthContext;
+
