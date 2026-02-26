@@ -101,7 +101,7 @@ const Sidebar = () => {
               className={`menu-icon ${activeItem === item.id ? "active-icon" : ""}`}
             />
             {item.label}
-            {item.isExternal && (
+            {/* {item.isExternal && (
               <svg
                 className="external-icon size-5"
                 xmlns="http://www.w3.org/2000/svg"
@@ -113,7 +113,7 @@ const Sidebar = () => {
                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
 
               </svg>
-            )}
+            )} */}
             {item.hasSubmenu && (
               <span className={`arrow ${isSubMenuOpen ? 'up' : 'down'}`}>
                 <img src={chevronUpIcon} />
