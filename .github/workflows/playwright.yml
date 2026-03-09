@@ -34,6 +34,10 @@ jobs:
           BASE_URL: http://localhost:3000
           VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://dev.taigiedu.com/backend' }}
           VITE_IMAGE_URL: ${{ secrets.VITE_IMAGE_URL || 'https://dev.taigiedu.com' }}
+          VITE_ENABLE_UNSTABLE_FEATURES: 'true'
+          VITE_ENABLE_ROBOTS_NOINDEX: 'true'
+          TEST_USER: ${{ secrets.TEST_USER }}
+          TEST_PASS: ${{ secrets.TEST_PASS }}
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
