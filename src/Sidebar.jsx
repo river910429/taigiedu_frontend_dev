@@ -1,4 +1,4 @@
-import React, { useState,useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Sidebar.css";
 import homeIcon from "./assets/sidebar_icon/主頁.svg";
@@ -12,26 +12,29 @@ import cultureIcon from "./assets/sidebar_icon/文化.svg";
 import socialMediaIcon from "./assets/sidebar_icon/媒體與社群資源.svg";
 import examIcon from "./assets/sidebar_icon/認證考試.svg";
 import chevronUpIcon from "./assets/chevron-up.svg";
+import envConfig from "./config";
 
 const Sidebar = () => {
-  const basePath = import.meta.env.BASE_URL || '/';
+  const basePath = envConfig.basePath;
   const [activeItem, setActiveItem] = useState(null); // 用於追蹤哪個選單被選取
   const [activeSubItem, setActiveSubItem] = useState(null);
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const navigate = useNavigate(); // 使用 React Router 的 navigate
   const location = useLocation(); // 監聽當前路由變化
 
-  const menuItems = [
+  const isUnstableFeaturesEnabled = envConfig.features.enableUnstableFeatures;
+
+  const allMenuItems = [
     { id: 1, label: "主頁搜尋", icon: homeIcon, path: "/" },
     { id: 2, label: "台語逐字稿", icon: transcriptIcon, path: "/transcript" },
     { id: 3, label: "台語朗讀", icon: readIcon, path: "/read" },
     { id: 4, label: "台語文字轉換", icon: translateIcon, path: "/translate" },
     { id: 5, label: "台語教學資源共享平台", icon: resourceIcon, path: "/resource" },
     { id: 6, label: "台語俗諺語", icon: phraseIcon, path: "/phrase" },
-    { id: 7, label: "台語名人堂", icon: celebrityIcon, path: "/celebrity" },
-    { 
-      id: 8, 
-      label: "台語文化", 
+    { id: 7, label: "台語出名人", icon: celebrityIcon, isExternal: true, url: "https://famous.taigiedu.com/" },
+    {
+      id: 8,
+      label: "台語文化",
       icon: cultureIcon,
       hasSubmenu: true,
       submenuItems: [
@@ -41,7 +44,14 @@ const Sidebar = () => {
     },
     { id: 9, label: "媒體與社群資源", icon: socialMediaIcon, path: "/socialmedia" },
     { id: 10, label: "認證考試", icon: examIcon, path: "/exam" },
-    ];
+  ];
+
+  const menuItems = allMenuItems.filter(item => {
+    if (!isUnstableFeaturesEnabled) {
+      if ([2, 3, 4].includes(item.id)) return false;
+    }
+    return true;
+  });
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
   useEffect(() => {
@@ -64,38 +74,36 @@ const Sidebar = () => {
     }
   }, [location.pathname]); // 監聽 location.pathname 變化
 
-   const handleClick = (id, path, hasSubmenu) => {
-    if (hasSubmenu) {
+  const handleClick = (item) => {
+    if (item.isExternal) {
+      window.open(item.url, '_blank');
+      return;
+    }
+    if (item.hasSubmenu) {
       setIsSubMenuOpen(!isSubMenuOpen);
-      setActiveItem(id);
+      setActiveItem(item.id);
       setActiveSubItem(null);
     } else {
-      setActiveItem(id);
+      setActiveItem(item.id);
       setActiveSubItem(null);
-      navigate(path);
+      navigate(item.path);
     }
   };
 
-    const handleSubItemClick = (subItemId, path) => {
+  const handleSubItemClick = (subItemId, path) => {
     setActiveSubItem(subItemId);
     setActiveItem(null);
     setIsSubMenuOpen(true); // Keep submenu open when submenu item is active
     navigate(path);
   };
 
-  useEffect(() => {
-    // 預設選取主頁，但不進行導頁，避免非主頁路由被強制跳回首頁
-    setActiveItem(1);
-  }, []);
-
-
   return (
-    <div className="sidebar">
+    <div className="sidebar" data-testid="sidebar">
       {menuItems.map((item) => (
         <div key={item.id}>
           <button
             className={`menu-item ${activeItem === item.id ? "active" : ""}`}
-            onClick={() => handleClick(item.id, item.path, item.hasSubmenu)}
+            onClick={() => handleClick(item)}
           >
             <img
               src={item.icon}
@@ -103,10 +111,23 @@ const Sidebar = () => {
               className={`menu-icon ${activeItem === item.id ? "active-icon" : ""}`}
             />
             {item.label}
+            {/* {item.isExternal && (
+              <svg
+                className="external-icon size-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+
+              </svg>
+            )} */}
             {item.hasSubmenu && (
               <span className={`arrow ${isSubMenuOpen ? 'up' : 'down'}`}>
-              <img src={chevronUpIcon} />
-            </span>
+                <img src={chevronUpIcon} />
+              </span>
             )}
           </button>
           {item.hasSubmenu && isSubMenuOpen && (

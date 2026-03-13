@@ -5,12 +5,16 @@ import './Footer.css';
 const Footer = () => {
   const navigate = useNavigate();
 
+  const handleLinkClick = (path) => {
+    navigate(path);
+  };
+
   return (
-    <footer className="footer">
+    <footer className="footer" data-testid="footer">
       <div className="footer-buttons">
-        <button className="footer-button">Our team</button>
-        <button className="footer-button" onClick={() => window.open('/terms', '_blank', 'noopener,noreferrer')}>Terms</button>
-        <button className="footer-button" onClick={() => window.open('/policy', '_blank', 'noopener,noreferrer')}>Policy</button>
+        <button className="footer-button">團隊介紹</button>
+        <button className="footer-button" onClick={() => handleLinkClick('terms')}>使用條款</button>
+        <button className="footer-button" onClick={() => handleLinkClick('policy')}>隱私政策</button>
       </div>
       <div className="footer-text">
         © 2024 台語文教學共融平台 All Rights Reserved.

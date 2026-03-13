@@ -6,12 +6,13 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     // If you want to bind the server to all network interfaces
+    port: 3000,
     host: true,
     // Specify which hosts are allowed to access the preview server
-    allowedHosts: ['dev.taigiedu.com']
+    allowedHosts: ['dev.taigiedu.com', 'www.taigiedu.com']
   },
 
-  base: '/',
+  base: process.env.VITE_BASE_PATH || '/',
   server: {
     host: true, // 添加這行
     port: 3000, // 可以指定端口
@@ -20,6 +21,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true
+      },
+      '/backend': {
+        target: 'https://dev.taigiedu.com',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

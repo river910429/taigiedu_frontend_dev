@@ -121,7 +121,7 @@
 
 	.menuTitle {
 		font-size: 22px;
-		font-family: 微軟正黑體;
+		font-family: 'Huninn', 'NotoSansTC', sans-serif;
 		font-weight: 400;
 		color: #000;
 		
@@ -129,14 +129,14 @@
 
 	.menuText {
 		font-size: 22px;
-		font-family: 微軟正黑體;
+		font-family: 'Huninn', 'NotoSansTC', sans-serif;
 		font-weight: 400;
 		color: #000;
 	}
 
 	.selectionText {
 		font-size: 20px;
-		font-family: 微軟正黑體;
+		font-family: 'Huninn', 'NotoSansTC', sans-serif;
 		font-weight: 500;
 		color: #000;
 		text-align: left;
@@ -209,7 +209,7 @@
 
 	.imgTitle {
 		font-size: 12px;
-		font-family: 微軟正黑體;
+		font-family: 'Huninn', 'NotoSansTC', sans-serif;
 		/* font-weight: bold; */
 		/* overflow:hidden; white-space: nowrap; text-overflow: ellipsis; */
 		-webkit-line-clamp: 2;
@@ -253,7 +253,7 @@
 
 	.sentenceContent {
 		font-size: 16px;
-    font-family: 微軟正黑體;
+    font-family: 'Huninn', 'NotoSansTC', sans-serif;
 		/* overflow:hidden; white-space: nowrap; text-overflow: ellipsis; */
 		-webkit-line-clamp: 1;
 		overflow: hidden;
