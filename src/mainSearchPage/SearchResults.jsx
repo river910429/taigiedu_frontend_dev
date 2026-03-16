@@ -3,7 +3,14 @@ import './SearchResults.css';
 import leftChevron from "../assets/chevron-left.svg";
 import doubleLeftChevron from "../assets/chevron-double-left.svg";
 
-const SearchResults = ({ results = [], isLoading = false, error = null, keyword = '', totalItems = 0 }) => {
+const SearchResults = ({
+  results = [],
+  isLoading = false,
+  error = null,
+  keyword = '',
+  totalItems = 0,
+  singleColumn = false,
+}) => {
   // Pagination State
   const ITEMS_PER_PAGE = 16;
   const [currentPage, setCurrentPage] = useState(1);
@@ -106,40 +113,39 @@ const SearchResults = ({ results = [], isLoading = false, error = null, keyword 
             找到 {totalItems} 筆含有 "{keyword}" 的搜尋結果
           </div>
           
-          {/* 左欄位 */}
-          <div className="col-6">
-            <div className="row titleCard cardContainer">
-              <div className="col-3 p-0">資源出處</div>
-              <div className="col-9 p-0">內容</div>
+          {singleColumn ? (
+            <div className="col-12 search-results-single-column">
+              <div className="row titleCard cardContainer">
+                <div className="col-3 p-0">資源出處</div>
+                <div className="col-9 p-0">內容</div>
+              </div>
+              {currentResults.map((result) => (
+                <a
+                  key={result.id}
+                  href={result.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="row px-3 py-3 sentenceCard cardContainer">
+                    <div className="col-3 p-0 sentenceTitle">
+                      {result.resource}
+                    </div>
+                    <div className="col-9 p-0 sentenceContent">
+                      {renderContent(result.content)}
+                    </div>
+                  </div>
+                </a>
+              ))}
             </div>
-            {leftResults.map((result) => (
-              <a
-                key={result.id}
-                href={result.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div className="row px-3 py-3 sentenceCard cardContainer">
-                  <div className="col-3 p-0 sentenceTitle">
-                    {result.resource}
-                  </div>
-                  <div className="col-9 p-0 sentenceContent">
-                    {renderContent(result.content)}
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          {/* 右欄位 */}
-          <div className="col-6">
-            {rightResults.length > 0 && (
-              <>
+          ) : (
+            <>
+              {/* 左欄位 */}
+              <div className="col-6">
                 <div className="row titleCard cardContainer">
                   <div className="col-3 p-0">資源出處</div>
                   <div className="col-9 p-0">內容</div>
                 </div>
-                {rightResults.map((result) => (
+                {leftResults.map((result) => (
                   <a
                     key={result.id}
                     href={result.url}
@@ -156,9 +162,38 @@ const SearchResults = ({ results = [], isLoading = false, error = null, keyword 
                     </div>
                   </a>
                 ))}
-              </>
-            )}
-          </div>
+              </div>
+
+              {/* 右欄位 */}
+              <div className="col-6">
+                {rightResults.length > 0 && (
+                  <>
+                    <div className="row titleCard cardContainer">
+                      <div className="col-3 p-0">資源出處</div>
+                      <div className="col-9 p-0">內容</div>
+                    </div>
+                    {rightResults.map((result) => (
+                      <a
+                        key={result.id}
+                        href={result.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="row px-3 py-3 sentenceCard cardContainer">
+                          <div className="col-3 p-0 sentenceTitle">
+                            {result.resource}
+                          </div>
+                          <div className="col-9 p-0 sentenceContent">
+                            {renderContent(result.content)}
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </>
+                )}
+              </div>
+            </>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (

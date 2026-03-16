@@ -1,0 +1,130 @@
+.topic-integration-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px 16px;
+}
+
+.topic-search-panel {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0 12px;
+}
+
+.topic-search-form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.topic-multiselect-wrap {
+  width: 220px;
+  flex: 0 0 auto;
+}
+
+.topic-search-input-group {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.topic-search-input {
+  flex: 1;
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  outline: none;
+  font-size: 16px;
+}
+
+.topic-search-input:focus {
+  border-color: #4aa3ba;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+
+.topic-search-btn {
+  min-height: 42px;
+  min-width: 56px;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  background-color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.topic-search-btn img {
+  width: 30px;
+  height: 30px;
+}
+
+.topic-search-results {
+  margin-top: 20px;
+  width: 100%;
+  padding: 0 12px;
+}
+
+.topic-search-results .container-fluid {
+  width: 100%;
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.topic-search-results .search-results-single-column {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.topic-search-results .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.topic-search-results .sentenceTitle {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.topic-search-results .sentenceContent {
+  font-size: 16px;
+  line-height: 1.5;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+}
+
+.topic-search-results .titleCard {
+  font-size: 18px;
+}
+
+.topic-search-results .search-summary {
+  padding-left: 2px;
+  padding-right: 2px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1200px) {
+  .topic-multiselect-wrap {
+    width: 190px;
+  }
+}
+
+@media (max-width: 992px) {
+  .topic-search-form {
+    overflow-x: auto;
+  }
+}
