@@ -11,6 +11,7 @@ import celebrityIcon from "./assets/sidebar_icon/名人堂.svg";
 import cultureIcon from "./assets/sidebar_icon/文化.svg";
 import socialMediaIcon from "./assets/sidebar_icon/媒體與社群資源.svg";
 import examIcon from "./assets/sidebar_icon/認證考試.svg";
+import featuredResourceIcon from "./assets/sidebar_icon/本站特色資源.svg";
 import chevronUpIcon from "./assets/chevron-up.svg";
 import envConfig from "./config";
 
@@ -18,7 +19,7 @@ const Sidebar = () => {
   const basePath = envConfig.basePath;
   const [activeItem, setActiveItem] = useState(null); // 用於追蹤哪個選單被選取
   const [activeSubItem, setActiveSubItem] = useState(null);
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const [openSubMenuId, setOpenSubMenuId] = useState(null);
   const navigate = useNavigate(); // 使用 React Router 的 navigate
   const location = useLocation(); // 監聽當前路由變化
 
@@ -34,7 +35,7 @@ const Sidebar = () => {
     { id: 7, label: "台語出名人", icon: celebrityIcon, isExternal: true, url: "https://famous.taigiedu.com/" },
     {
       id: 8,
-      label: "台語文化",
+      label: "節慶飲食",
       icon: cultureIcon,
       hasSubmenu: true,
       submenuItems: [
@@ -44,6 +45,15 @@ const Sidebar = () => {
     },
     { id: 9, label: "媒體與社群資源", icon: socialMediaIcon, path: "/socialmedia" },
     { id: 10, label: "認證考試", icon: examIcon, path: "/exam" },
+    {
+      id: 11,
+      label: "本站特色資源",
+      icon: featuredResourceIcon,
+      hasSubmenu: true,
+      submenuItems: [
+        { id: "topic-integration", label: "議題融入", path: "/featured-resource/topic-integration" },
+      ],
+    },
   ];
 
   const menuItems = allMenuItems.filter(item => {
@@ -58,17 +68,18 @@ const Sidebar = () => {
     const matchedItem = menuItems.find(item => item.path === location.pathname);
     if (matchedItem) {
       setActiveItem(matchedItem.id);
-      setIsSubMenuOpen(matchedItem.hasSubmenu || false);
+      setOpenSubMenuId(matchedItem.hasSubmenu ? matchedItem.id : null);
+      setActiveSubItem(null);
     } else {
       // 檢查是否為子選單
       const parentItem = menuItems.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.path === location.pathname));
       if (parentItem) {
         setActiveItem(parentItem.id);
-        setIsSubMenuOpen(true);
+        setOpenSubMenuId(parentItem.id);
         setActiveSubItem(parentItem.submenuItems.find(sub => sub.path === location.pathname).id);
       } else {
         setActiveItem(null);
-        setIsSubMenuOpen(false);
+        setOpenSubMenuId(null);
         setActiveSubItem(null);
       }
     }
@@ -80,20 +91,22 @@ const Sidebar = () => {
       return;
     }
     if (item.hasSubmenu) {
-      setIsSubMenuOpen(!isSubMenuOpen);
       setActiveItem(item.id);
       setActiveSubItem(null);
+      setOpenSubMenuId(prevId => (prevId === item.id ? null : item.id));
     } else {
       setActiveItem(item.id);
       setActiveSubItem(null);
+      setOpenSubMenuId(null);
       navigate(item.path);
     }
   };
 
   const handleSubItemClick = (subItemId, path) => {
     setActiveSubItem(subItemId);
-    setActiveItem(null);
-    setIsSubMenuOpen(true); // Keep submenu open when submenu item is active
+    const parentItem = menuItems.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.id === subItemId));
+    setActiveItem(parentItem ? parentItem.id : null);
+    setOpenSubMenuId(parentItem ? parentItem.id : null);
     navigate(path);
   };
 
@@ -125,12 +138,12 @@ const Sidebar = () => {
               </svg>
             )} */}
             {item.hasSubmenu && (
-              <span className={`arrow ${isSubMenuOpen ? 'up' : 'down'}`}>
+              <span className={`arrow ${openSubMenuId === item.id ? 'up' : 'down'}`}>
                 <img src={chevronUpIcon} />
               </span>
             )}
           </button>
-          {item.hasSubmenu && isSubMenuOpen && (
+          {item.hasSubmenu && openSubMenuId === item.id && (
             <div className="submenu">
               {item.submenuItems.map((subItem) => (
                 <div
