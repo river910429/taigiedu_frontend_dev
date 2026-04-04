@@ -24,6 +24,7 @@ import CultureFood from "./culture/food/FoodPage";
 import CultureFestival from "./culture/festival/FestivalPage";
 import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
 import ExamPage from "./examPage/ExamPage";
+import TopicIntegrationPage from "./featuredResourcePage/TopicIntegrationPage";
 import DownloadPage from "./resourcePage/DownloadPage";
 import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
@@ -108,6 +109,7 @@ const AppLayout = () => {
           <Route path="/culture/festival" element={<CultureFestival />} />
           <Route path="/socialmedia" element={<SocialmediaPage />} />
           <Route path="/exam" element={<ExamPage />} />
+          <Route path="/featured-resource/topic-integration" element={<TopicIntegrationPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
