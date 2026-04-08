@@ -69,7 +69,4 @@ jobs:
           echo "VITE_ENABLE_UNSTABLE_FEATURES=true" >> .env
           echo "VITE_ENABLE_ROBOTS_NOINDEX=true" >> .env
           npm run build
-
-      - name: Sync to Server
-        run: |
           rsync -av --delete ${{ github.workspace }}/dist/ /var/www/taigiedu_frontend_dev/
