@@ -138,7 +138,7 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 
 	return (
 		<div>
-			<div className="row pt-0 px-0" id="phraseResult">
+			<div className="row pt-0 mx-0" id="phraseResult">
 				<div className="col-12 col-md-6">
 					{leftPhrases.map((phrase, index) => (
 						<a key={`left-${index}`} href="#" onClick={(e) => showDetail(e, phrase)}>

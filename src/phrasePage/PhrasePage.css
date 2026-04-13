@@ -1,21 +1,18 @@
 .page-container {
-    padding-left: 5%;
-    padding-right: 5%;
+    padding-left: 10%;
+    padding-right: 10%;
 }
 
 .search-bar-container {
-    width: 40%;
-    padding-left: 3%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
     padding-top: 2%;
-    margin-bottom: 2%;
+    margin-bottom: 0;
 }
   
 .phrase-results-container {
-    display: grid;
-    gap: 20px;
     width: 100%;
-    padding-left: 5%;
-    padding-right: 5%;
     margin-top: 0;
 }
 
@@ -32,8 +29,6 @@
     }
 
     .phrase-results-container {
-        padding-left: 3%;
-        padding-right: 3%;
         gap: 14px;
     }
 }
