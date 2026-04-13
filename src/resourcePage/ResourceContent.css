@@ -119,6 +119,14 @@
     grid-template-columns: repeat(1, 1fr);
   }
 
+  .resource-content .resource-card,
+  .resource-content .delete-card-wrapper,
+  .resource-content > * {
+    max-width: 100% !important;
+    height: auto;
+    min-height: 350px;
+  }
+
   .resource-content-wrapper {
     min-height: 400px;
   }
