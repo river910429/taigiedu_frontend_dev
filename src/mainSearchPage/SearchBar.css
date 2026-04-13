@@ -88,13 +88,20 @@
   .search-bar {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
-    padding: 10px;
+    gap: 12px;
+    padding: 12px;
     margin: 12px auto;
+  }
+
+  .input-container {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
   }
 
   .bar-selectspace {
     width: 100%;
+    padding: 0;
   }
 
   .category-select {
@@ -103,5 +110,6 @@
 
   .search-container {
     max-width: 100%;
+    width: 100%;
   }
 }

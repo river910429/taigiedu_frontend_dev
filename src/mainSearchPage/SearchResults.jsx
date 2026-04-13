@@ -113,97 +113,50 @@ const SearchResults = ({
             找到 {totalItems} 筆含有 "{keyword}" 的搜尋結果
           </div>
           
-          {singleColumn ? (
-            <div className="col-12 search-results-single-column">
-              <div className="results-table-container">
-                <div className="results-table-minimal">
-                  <div className="row titleCard cardContainer">
-                    <div className="col-3 p-0">資源出處</div>
-                    <div className="col-9 p-0">內容</div>
-                  </div>
-                  {currentResults.map((result) => (
-                    <a
-                      key={result.id}
-                      href={result.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div className="row px-3 py-3 sentenceCard cardContainer">
-                        <div className="col-3 p-0 sentenceTitle">
-                          {result.resource}
-                        </div>
-                        <div className="col-9 p-0 sentenceContent">
-                          {renderContent(result.content)}
-                        </div>
-                      </div>
-                    </a>
-                  ))}
+          {/* 搜尋結果表格區塊 */}
+          <div className="col-12">
+            <div className="results-table-container">
+              <div className="results-table-minimal">
+                {/* 表格標題列 - 在桌機版可以考慮保持 2 欄，但在單一串流下，手機版只顯示一次 */}
+                <div className="row titleCard cardContainer d-none d-md-flex">
+                  <div className="col-1 p-0 text-center">#</div>
+                  <div className="col-3 p-0">資源出處</div>
+                  <div className="col-8 p-0">內容</div>
                 </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* 左欄位 */}
-              <div className="col-12 col-md-6 mb-4 mb-md-0">
-                <div className="results-table-container">
-                  <div className="results-table-minimal">
-                    <div className="row titleCard cardContainer">
-                      <div className="col-3 p-0">資源出處</div>
-                      <div className="col-9 p-0">內容</div>
-                    </div>
-                    {leftResults.map((result) => (
+                
+                {/* 手機版標題列 */}
+                <div className="row titleCard cardContainer d-flex d-md-none">
+                  <div className="col-4 p-0">資源出處</div>
+                  <div className="col-8 p-0">內容</div>
+                </div>
+
+                <div className="row">
+                  {currentResults.map((result, index) => (
+                    <div key={result.id} className="col-12 col-md-6 mb-1">
                       <a
-                        key={result.id}
                         href={result.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        className="search-result-link"
                       >
-                        <div className="row px-3 py-3 sentenceCard cardContainer">
-                          <div className="col-3 p-0 sentenceTitle">
+                        <div className="row px-3 py-3 sentenceCard cardContainer h-100">
+                          <div className="col-1 d-none d-md-block p-0 text-muted small">
+                            {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                          </div>
+                          <div className="col-4 col-md-3 p-0 sentenceTitle">
                             {result.resource}
                           </div>
-                          <div className="col-9 p-0 sentenceContent">
+                          <div className="col-8 col-md-8 p-0 sentenceContent">
                             {renderContent(result.content)}
                           </div>
                         </div>
                       </a>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              {/* 右欄位 */}
-              <div className="col-12 col-md-6">
-                {rightResults.length > 0 && (
-                  <div className="results-table-container">
-                    <div className="results-table-minimal">
-                      <div className="row titleCard cardContainer">
-                        <div className="col-3 p-0">資源出處</div>
-                        <div className="col-9 p-0">內容</div>
-                      </div>
-                      {rightResults.map((result) => (
-                        <a
-                          key={result.id}
-                          href={result.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <div className="row px-3 py-3 sentenceCard cardContainer">
-                            <div className="col-3 p-0 sentenceTitle">
-                              {result.resource}
-                            </div>
-                            <div className="col-9 p-0 sentenceContent">
-                              {renderContent(result.content)}
-                            </div>
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
+            </div>
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (

@@ -245,6 +245,26 @@ label {
 	border-radius: 8px 8px 0px 0px;
 }
 
+.search-result-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease;
+}
+
+.search-result-link:hover {
+  transform: translateY(-2px);
+  color: inherit;
+}
+
+.sentenceCard {
+  transition: background-color 0.2s ease;
+}
+
+.sentenceCard:hover {
+  background-color: #d1e2ef;
+}
+
 
 .sentenceTitle {
 	font-size: 16px;
