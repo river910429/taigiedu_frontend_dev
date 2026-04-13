@@ -10,6 +10,16 @@ import deleteIcon from '../../../assets/adminPage/trash.svg';
 import addIcon from '../../../assets/adminPage/plus.svg';
 import uturnIcon from '../../../assets/adminPage/uturn.svg';
 import jpgIconImage from '../../../assets/adminPage/jpg icon.svg';
+import { authenticatedFetch } from '../../../services/authService';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dev.taigiedu.com/api';
+
+const getFullImageUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
+  const filename = path.split('/').filter(Boolean).pop();
+  return `https://dev.taigiedu.com/backend/static/media/${filename}`;
+};
 
 const AdminSocialmediaPage = () => {
   const { showToast } = useToast();
@@ -76,47 +86,53 @@ const AdminSocialmediaPage = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('https://dev.taigiedu.com/backend/media', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (!response.ok) throw new Error('載入失敗');
+      const response = await authenticatedFetch(`${API_BASE_URL}/admin/socialmedia`);
       const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || '載入失敗');
 
       const dynamicMenu = {};
       const items = [];
+      const records = result.data || [];
+      const categoryMap = {};
 
-      Object.keys(result).forEach(rawCategory => {
-        const mainCategory = rawCategory === '' ? '其他' : rawCategory;
-        const records = result[rawCategory] || [];
-        const subSet = new Set();
-
-        records.forEach(item => {
-          if (item.subcategory && item.subcategory.trim() !== '') {
-            subSet.add(item.subcategory.trim());
+      records.forEach(item => {
+        let mainCategory = '其他';
+        let subCategory = '';
+        if (item.category) {
+          const parts = item.category.includes('>') ? item.category.split('>') : [item.category];
+          mainCategory = parts[0].trim() || '其他';
+          if (parts.length > 1) {
+            subCategory = parts[1].trim();
           }
-        });
+        }
+        
+        if (!categoryMap[mainCategory]) {
+          categoryMap[mainCategory] = new Set();
+        }
+        if (subCategory) {
+          categoryMap[mainCategory].add(subCategory);
+        }
 
-        const subItems = Array.from(subSet).sort();
-        dynamicMenu[mainCategory] = {
+        items.push({
+          id: item.id || `media-${Date.now()}-${Math.random()}`,
+          mainCategory,
+          subCategory,
+          categories: item.category ? [item.category] : [],
+          name: item.name || '未命名',
+          link: item.link || '#',
+          imageUrl: getFullImageUrl(item.figure),
+          imageName: item.figure ? item.figure.split('/').pop() : '',
+          status: item.status === 'publish' ? 'published' : item.status === 'archive' ? 'archived' : item.status,
+          timestamp: item.timestamp || new Date().toLocaleDateString('zh-TW')
+        });
+      });
+
+      Object.keys(categoryMap).forEach(mainCat => {
+        const subItems = Array.from(categoryMap[mainCat]).sort();
+        dynamicMenu[mainCat] = {
           hasSubMenu: subItems.length > 0,
           subItems
         };
-
-        records.forEach(item => {
-          items.push({
-            id: item.id || `media-${Date.now()}-${Math.random()}`,
-            mainCategory,
-            subCategory: item.subcategory && item.subcategory.trim() !== '' ? item.subcategory.trim() : '',
-            categories: item.subcategory && item.subcategory.trim() !== '' ? [item.subcategory.trim()] : [],
-            name: item.title || '未命名',
-            link: item.url || '#',
-            imageUrl: item.image || '',
-            imageName: '',
-            status: 'published',
-            timestamp: new Date().toLocaleDateString('zh-TW')
-          });
-        });
       });
 
       setMenuItems(dynamicMenu);
@@ -178,7 +194,7 @@ const AdminSocialmediaPage = () => {
     });
   }, [filteredItems]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setAttemptedSubmit(true);
 
@@ -199,31 +215,42 @@ const AdminSocialmediaPage = () => {
       return;
     }
 
-    const now = new Date();
-    const ts = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    try {
+      if (isEditing && currentEditId) {
+        const response = await authenticatedFetch(`${API_BASE_URL}/admin/socialmedia/modify`, {
+          method: 'POST',
+          body: JSON.stringify({
+            id: String(currentEditId),
+            action: '3',
+            name,
+            link,
+            category: pickedCategories.join(', '),
+            figure: imageName
+          })
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || '更新失敗');
+        showToast('項目已更新', 'success');
+      } else {
+        const response = await authenticatedFetch(`${API_BASE_URL}/admin/socialmedia/add`, {
+          method: 'POST',
+          body: JSON.stringify({
+            name,
+            link,
+            category: pickedCategories.join(', '),
+            figure: imageName
+          })
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || '新增失敗');
+        showToast('項目已新增', 'success');
+      }
 
-    if (isEditing && currentEditId) {
-      setAllItems(prev => prev.map(i =>
-        i.id === currentEditId
-          ? { ...i, name, link, categories: pickedCategories, imageName: imageName || i.imageName, imageUrl: imageUrl || i.imageUrl }
-          : i
-      ));
-      showToast('項目已更新', 'success');
-    } else {
-      setAllItems(prev => [{
-        id: 'media-' + Date.now(),
-        name,
-        link,
-        categories: pickedCategories,
-        imageName,
-        imageUrl,
-        status: 'published',
-        timestamp: ts
-      }, ...prev]);
-      showToast('項目已新增', 'success');
+      setShowModal(false);
+      await fetchData();
+    } catch (err) {
+      showToast(`操作失敗: ${err.message}`, 'error');
     }
-
-    setShowModal(false);
   };
 
   const validateAndSetImage = (file) => {
@@ -243,13 +270,24 @@ const AdminSocialmediaPage = () => {
     setImageUrl(URL.createObjectURL(file));
   };
 
-  const handleDeleteClick = (id) => {
+  const handleDeleteClick = async (id) => {
     const item = allItems.find(i => i.id === id);
     if (!item) return;
 
-    const newStatus = item.status === 'published' ? 'archived' : 'published';
-    setAllItems(prev => prev.map(i => i.id === id ? { ...i, status: newStatus } : i));
-    showToast(newStatus === 'archived' ? '項目已封存' : '項目已恢復', 'success');
+    const isRestoreAction = item.status === 'archived';
+    try {
+      const response = await authenticatedFetch(`${API_BASE_URL}/admin/socialmedia/modify`, {
+        method: 'POST',
+        body: JSON.stringify({ id: String(id), action: isRestoreAction ? '2' : '1' })
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || '操作失敗');
+      
+      showToast(isRestoreAction ? '項目已恢復' : '項目已封存', 'success');
+      await fetchData();
+    } catch (err) {
+      showToast(`操作失敗: ${err.message}`, 'error');
+    }
   };
 
   const showChildFilter = parentFilter === '全部'
@@ -479,7 +517,7 @@ const AdminSocialmediaPage = () => {
 
         <div className="mb-3">
           <label className="form-label admin-form-label">*圖片</label>
-          <div className="upload-wrapper">
+          <div className="upload-wrapper mb-2">
             <label className="upload-btn">
               <input
                 type="file"
@@ -493,14 +531,21 @@ const AdminSocialmediaPage = () => {
               ※限 JPG、PNG 可上傳，限制 2MB。
             </span>
           </div>
-          {(imageName || imageUrl) && (
-            <div className="image-preview-cell" style={{ marginTop: 8 }}>
-              <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-              <span className="file-name-text">
-                {imageName || imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
-              </span>
-            </div>
-          )}
+          <div className="d-flex flex-column gap-2 mt-2">
+            {(imageName || imageUrl) && (
+              <div className="image-preview-cell">
+                <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
+                <span className="file-name-text">
+                  {imageName || imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
+                </span>
+              </div>
+            )}
+            {(imageUrl || imageName) && (
+              <div className="image-real-preview" style={{ border: '1px solid #dee2e6', borderRadius: '6px', padding: '8px', display: 'inline-block', backgroundColor: '#f8f9fa', width: 'fit-content' }}>
+                <img src={imageUrl || '#'} alt="圖片預覽" style={{ maxHeight: '150px', maxWidth: '100%', objectFit: 'contain' }} />
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mb-3">
