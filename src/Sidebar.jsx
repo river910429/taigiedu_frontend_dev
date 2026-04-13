@@ -15,7 +15,7 @@ import featuredResourceIcon from "./assets/sidebar_icon/本站特色資源.svg";
 import chevronUpIcon from "./assets/chevron-up.svg";
 import envConfig from "./config";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen = false, onClose }) => {
   const basePath = envConfig.basePath;
   const [activeItem, setActiveItem] = useState(null); // 用於追蹤哪個選單被選取
   const [activeSubItem, setActiveSubItem] = useState(null);
@@ -113,7 +113,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar" data-testid="sidebar">
+    <div className={`sidebar${isOpen ? ' sidebar-open' : ''}`} data-testid="sidebar">
       {menuItems.map((item) => (
         <div key={item.id}>
           <button
