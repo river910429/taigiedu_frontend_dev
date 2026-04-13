@@ -198,3 +198,27 @@
     max-width: 100%;
   }
 }
+
+@media (max-width: 768px) {
+  .resource-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .grade-dropdown,
+  .version-dropdown {
+    width: 100%;
+  }
+
+  .res-upload-button,
+  .res-delete-button,
+  .res-login-button {
+    width: 100%;
+  }
+
+  .res-button-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

@@ -82,3 +82,26 @@
   .bar-selectspace{
     width:250px;
   }
+
+/* ─── RWD ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+    margin: 12px auto;
+  }
+
+  .bar-selectspace {
+    width: 100%;
+  }
+
+  .category-select {
+    width: 100%;
+  }
+
+  .search-container {
+    max-width: 100%;
+  }
+}

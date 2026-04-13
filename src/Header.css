@@ -326,14 +326,16 @@
     font-size: 13px;
   }
 
-  /* 隱藏用戶名稱，只顯示頭像 */
-  .header-user-name {
+  /* 隱藏用戶名稱，按鈕改為正圓形 */
+  .header-user-name,
+  .header-user-arrow {
     display: none;
   }
 
   .header-user-button {
-    padding: 6px 10px 6px 6px;
-    gap: 6px;
+    padding: 4px;
+    border-radius: 50%;
+    gap: 0;
   }
 
   .header-user-menu {

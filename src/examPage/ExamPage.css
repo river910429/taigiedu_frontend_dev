@@ -178,3 +178,37 @@
     height: 100%;
     object-fit: cover;
 }
+
+/* ─── RWD ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .exam-header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .exam-type-dropdown,
+  .exam-custom-dropdown {
+    width: 100%;
+  }
+
+  .exam-search-container {
+    max-width: 100%;
+    flex-grow: 1;
+  }
+
+  .exam-category-title {
+    font-size: 20px;
+    margin: 20px 0 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .exam-category-title {
+    font-size: 18px;
+  }
+
+  .exam-card {
+    padding: 6px;
+  }
+}

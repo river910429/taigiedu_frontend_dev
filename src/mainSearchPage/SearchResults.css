@@ -407,3 +407,43 @@ a:hover {
 .last-page-button {
 	margin: 0 5px;
 }
+
+/* ─── RWD ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .search-results {
+    margin: 10px;
+    padding: 12px;
+    border-radius: var(--radius-md, 8px);
+  }
+
+  /* 讓搜尋結果區塊可以左右滑動 */
+  .results-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  .titleCard {
+    font-size: 16px;
+  }
+
+  .sentenceTitle,
+  .sentenceContent {
+    font-size: 14px;
+  }
+
+  .pagination-container {
+    padding: 0 8px;
+  }
+
+  /* 加大分頁按鈕點擊區 */
+  .page-button,
+  .page-link {
+    min-width: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

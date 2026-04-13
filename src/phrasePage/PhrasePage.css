@@ -1,12 +1,12 @@
 .page-container {
-    padding-left: 5%; /* 設置左側間隔 */
-    padding-right: 5%; /* 如果需要右側間隔 */
+    padding-left: 5%;
+    padding-right: 5%;
 }
 
 .search-bar-container {
     width: 40%;
-    padding-left: 3%; /* 設置左側間隔 */
-    padding-top:2%;
+    padding-left: 3%;
+    padding-top: 2%;
     margin-bottom: 2%;
 }
   
@@ -14,7 +14,26 @@
     display: grid;
     gap: 20px;
     width: 100%;
-    padding-left: 5%; /* 設置左側間隔 */
-    padding-right: 5%; /* 如果需要右側間隔 */
+    padding-left: 5%;
+    padding-right: 5%;
     margin-top: 0;
+}
+
+/* ─── RWD ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .page-container {
+        padding-left: 3%;
+        padding-right: 3%;
+    }
+
+    .search-bar-container {
+        width: 100%;
+        padding-left: 0;
+    }
+
+    .phrase-results-container {
+        padding-left: 3%;
+        padding-right: 3%;
+        gap: 14px;
+    }
 }
