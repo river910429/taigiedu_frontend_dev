@@ -487,38 +487,41 @@ const AdminSocialmediaPage = () => {
         </div>
 
         <div className="mb-3">
-          <label className="form-label admin-form-label">
-            *類別（至少勾選一個類別）
-          </label>
+          <label className="form-label admin-form-label">*類別（至少勾選一個類別）</label>
           {flatCategoryOptions.length === 0 ? (
             <div className="text-muted" style={{ fontSize: '0.9rem' }}>
               尚無可選分類
             </div>
           ) : (
-            <div className="category-grid">
-              {flatCategoryOptions.map(opt => (
-                <label key={opt.key} className="form-check-label category-option">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    checked={pickedCategories.includes(opt.key)}
-                    onChange={() => togglePicked(opt.key)}
-                  />
-                  {' '}
-                  {opt.label}
-                </label>
-              ))}
+            <div className="category-checkboxes-container p-3 border rounded bg-light">
+              <div className="d-flex flex-wrap gap-4">
+                {flatCategoryOptions.map(opt => (
+                  <div key={opt.key} className="form-check m-0 d-flex align-items-center">
+                    <input
+                      className="form-check-input mt-0 me-2"
+                      type="checkbox"
+                      id={`cat-${opt.key}`}
+                      checked={pickedCategories.includes(opt.key)}
+                      onChange={() => togglePicked(opt.key)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <label className="form-check-label mb-0" htmlFor={`cat-${opt.key}`} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                      {opt.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           {attemptedSubmit && pickedCategories.length === 0 && (
-            <div className="invalid-hint">請至少勾選一個類別</div>
+            <div className="invalid-hint text-danger mt-1" style={{ fontSize: '13px' }}>請至少勾選一個類別</div>
           )}
         </div>
 
         <div className="mb-3">
           <label className="form-label admin-form-label">*圖片</label>
-          <div className="upload-wrapper mb-2">
-            <label className="upload-btn">
+          <div className="d-flex align-items-center gap-3">
+            <label className="btn btn-primary text-white mb-0" style={{ cursor: 'pointer', fontSize: '14px', padding: '6px 16px' }}>
               <input
                 type="file"
                 accept="image/jpeg,image/png"
@@ -527,25 +530,18 @@ const AdminSocialmediaPage = () => {
               />
               上傳檔案
             </label>
-            <span className="upload-hint">
+            <span className="text-muted" style={{ fontSize: '13px' }}>
               ※限 JPG、PNG 可上傳，限制 2MB。
             </span>
           </div>
-          <div className="d-flex flex-column gap-2 mt-2">
-            {(imageName || imageUrl) && (
-              <div className="image-preview-cell">
-                <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
-                <span className="file-name-text">
-                  {imageName || imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
-                </span>
+          {(imageName || imageUrl) && (
+            <div className="mt-3 d-inline-flex flex-column align-items-center" style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '8px', backgroundColor: '#fff', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' }}>
+              <img src={imageUrl || '#'} alt="圖片預覽" style={{ maxHeight: '130px', maxWidth: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+              <div className="mt-2 text-secondary text-truncate" style={{ maxWidth: '200px', fontSize: '13px' }} title={imageName || '圖片'}>
+                {imageName || imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
               </div>
-            )}
-            {(imageUrl || imageName) && (
-              <div className="image-real-preview" style={{ border: '1px solid #dee2e6', borderRadius: '6px', padding: '8px', display: 'inline-block', backgroundColor: '#f8f9fa', width: 'fit-content' }}>
-                <img src={imageUrl || '#'} alt="圖片預覽" style={{ maxHeight: '150px', maxWidth: '100%', objectFit: 'contain' }} />
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="mb-3">

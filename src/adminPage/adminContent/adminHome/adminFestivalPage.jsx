@@ -561,20 +561,23 @@ const AdminFestivalPage = () => {
         </div>
         <div className="mb-3">
           <label className="form-label admin-form-label">*圖片</label>
-          <div className="d-flex align-items-center gap-3 mb-2">
-            <div className="file-cell">
-              <img src={jpgIcon} alt="JPG檔" className="file-icon-image" />
-              <span className="file-name">{newImageName || '未選擇檔案'}</span>
-            </div>
-            <button type="button" className="btn btn-outline-secondary" onClick={handleReplaceFileClick}>上傳檔案</button>
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+          <div className="d-flex align-items-center gap-3">
+            <label className="btn btn-primary text-white mb-0" style={{ cursor: 'pointer', fontSize: '14px', padding: '6px 16px' }}>
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="d-none" onChange={handleFileChange} />
+              上傳檔案
+            </label>
+            <span className="text-muted" style={{ fontSize: '13px' }}>
+              ※限 JPG、PNG 可上傳，限制 2MB。
+            </span>
           </div>
           {(newImageUrl || newImageFile) && (
-            <div className="image-real-preview mt-2" style={{ border: '1px solid #dee2e6', borderRadius: '6px', padding: '8px', display: 'inline-block', backgroundColor: '#f8f9fa' }}>
-              <img src={newImageFile ? URL.createObjectURL(newImageFile) : newImageUrl} alt="圖片預覽" style={{ maxHeight: '150px', maxWidth: '100%', objectFit: 'contain' }} />
+            <div className="mt-3 d-inline-flex flex-column align-items-center" style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '8px', backgroundColor: '#fff', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' }}>
+              <img src={newImageFile ? URL.createObjectURL(newImageFile) : newImageUrl} alt="圖片預覽" style={{ maxHeight: '130px', maxWidth: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+              <div className="mt-2 text-secondary text-truncate" style={{ maxWidth: '200px', fontSize: '13px' }} title={newImageName || '圖片'}>
+                {newImageName || '圖片'}
+              </div>
             </div>
           )}
-          <div className="form-text">*限 JPG、PNG可上傳，限制 2MB。</div>
         </div>
         <div className="mb-3">
           <label htmlFor="newZhDesc" className="form-label admin-form-label">*華文釋義</label>
