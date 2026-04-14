@@ -108,6 +108,12 @@
   height: 24px;
   color: var(--text-light, #9ca3af);
   z-index: 10;
+  transition: opacity 0.2s ease;
+}
+
+.search-icon:hover {
+  opacity: 0.65;
+  /* transform: translateY(-50%); */
 }
 
 /* ─── 關鍵字標籤按鈕列 ──────────────────────────────────── */

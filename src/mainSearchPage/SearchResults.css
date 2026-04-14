@@ -4,7 +4,12 @@
 
 /* ─── 狀態畫面（載入 / 錯誤 / 無結果） ─── */
 .sr-state-wrapper {
+  width: 100%;
   padding: 60px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -31,7 +36,7 @@
   border-top-color: #2d92c1;
   border-radius: 50%;
   animation: srSpin 0.8s linear infinite;
-  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 @keyframes srSpin {

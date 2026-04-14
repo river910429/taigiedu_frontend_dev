@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './SearchResults.css';
-import leftChevron from "../assets/chevron-left.svg";
-import doubleLeftChevron from "../assets/chevron-double-left.svg";
+import Pagination from './Pagination';
 
 const ITEMS_PER_PAGE = 20;
-const VISIBLE_PAGES = 7;
 
 const SearchResults = ({
   results = [],
@@ -30,13 +28,6 @@ const SearchResults = ({
     if (pageNumber < 1 || pageNumber > totalPages) return;
     setCurrentPage(pageNumber);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const getPageNumbers = () => {
-    let start = Math.max(1, currentPage - Math.floor(VISIBLE_PAGES / 2));
-    let end = Math.min(totalPages, start + VISIBLE_PAGES - 1);
-    if (end === totalPages) start = Math.max(1, end - VISIBLE_PAGES + 1);
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
 
   const currentResults = getCurrentPageResults();
@@ -118,48 +109,14 @@ const SearchResults = ({
 
       {/* 分頁 */}
       {totalPages > 1 && (
-        <nav className="sr-pagination" aria-label="搜尋結果分頁">
-          <button
-            className={`sr-page-btn sr-page-nav ${currentPage <= 1 ? 'sr-hidden' : ''}`}
-            onClick={() => handlePageChange(1)}
-            aria-label="第一頁"
-          >
-            <img src={doubleLeftChevron} alt="" className="sr-page-icon" />
-          </button>
-          <button
-            className={`sr-page-btn sr-page-nav ${currentPage <= 1 ? 'sr-hidden' : ''}`}
-            onClick={() => handlePageChange(currentPage - 1)}
-            aria-label="上一頁"
-          >
-            <img src={leftChevron} alt="" className="sr-page-icon" />
-          </button>
-
-          {getPageNumbers().map((num) => (
-            <button
-              key={num}
-              className={`sr-page-btn ${currentPage === num ? 'sr-page-active' : ''}`}
-              onClick={() => handlePageChange(num)}
-              aria-current={currentPage === num ? 'page' : undefined}
-            >
-              {num}
-            </button>
-          ))}
-
-          <button
-            className={`sr-page-btn sr-page-nav ${currentPage >= totalPages ? 'sr-hidden' : ''}`}
-            onClick={() => handlePageChange(currentPage + 1)}
-            aria-label="下一頁"
-          >
-            <img src={leftChevron} alt="" className="sr-page-icon sr-page-icon-flip" />
-          </button>
-          <button
-            className={`sr-page-btn sr-page-nav ${currentPage >= totalPages ? 'sr-hidden' : ''}`}
-            onClick={() => handlePageChange(totalPages)}
-            aria-label="最後一頁"
-          >
-            <img src={doubleLeftChevron} alt="" className="sr-page-icon sr-page-icon-flip" />
-          </button>
-        </nav>
+        <div className="sr-pagination-container">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            maxVisible={4}
+          />
+        </div>
       )}
     </div>
   );

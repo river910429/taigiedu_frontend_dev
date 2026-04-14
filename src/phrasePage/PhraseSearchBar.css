@@ -72,9 +72,6 @@
     height: 32px;
   }
   
-  .search-icon:hover {
-    transform: scale(1.1);
-  }
   
   .search-container {
     position: relative;

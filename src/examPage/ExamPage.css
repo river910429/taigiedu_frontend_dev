@@ -131,44 +131,75 @@
 
 .exam-category-title {
     color: #017AB1;
-    font-size: 24px;
-    margin: 30px 0 20px 0;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
     padding: 0;
 }
 
-.exam-card {
-    background: none;
-    border: none;
-    padding: 10px;
-    transition: transform 0.2s;
-    box-shadow: none;
-    cursor: pointer;
-}
-
-.exam-card:hover {
-    transform: translateY(-5px);
+/* ─── 各 Section 外層 ─── */
+.exam-sections {
+    padding-bottom: 32px;
 }
 
 .exam-section {
-    margin-bottom: 40px;
+    padding: 28px 0 8px;
+    border-top: 1px solid #f0f4f8;
 }
 
-.exam-section:first-of-type {
-    margin-top: 20px;
+.exam-section:first-child {
+    border-top: none;
+    padding-top: 20px;
 }
 
-.exam-report-issue {
+.exam-section-header {
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: space-between;
+    padding: 0 20px 16px;
 }
 
-.exam-image-container {
-    position: relative;
-    width: 100%;
-    padding-bottom: 77.1%;
+/* ─── 橫向捲動列 ─── */
+.exam-scroll-row {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    padding: 4px 20px 20px;
+    scrollbar-width: none; /* 隱藏捲軸（Firefox）*/
+}
+
+.exam-scroll-row::-webkit-scrollbar {
+    display: none; /* 隱藏捲軸（Chrome/Safari）*/
+}
+
+/* ─── 單張卡片 ─── */
+.exam-card {
+    flex: 0 0 160px;
+    width: 160px;
+    scroll-snap-align: start;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    border-radius: 10px;
     overflow: hidden;
-    border-radius: 0;
+    background: white;
+    border: 1px solid #eef2f6;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.exam-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(1, 122, 177, 0.14);
+}
+
+/* 圖片區（4:3 比例） */
+.exam-image-container {
+    width: 100%;
+    padding-bottom: 75%;
+    position: relative;
+    overflow: hidden;
+    background: #f0f4f8;
 }
 
 .exam-image {
@@ -178,6 +209,45 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.exam-card:hover .exam-image {
+    transform: scale(1.05);
+}
+
+/* 文字區 */
+.exam-card-body {
+    padding: 10px;
+}
+
+.exam-card-badge {
+    display: inline-block;
+    background: #e8f4fb;
+    color: #017AB1;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-bottom: 4px;
+}
+
+.exam-card-title {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #2d3748;
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    font-weight: 500;
+}
+
+.exam-report-issue {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 /* ─── RWD ───────────────────────────────────────────────── */
@@ -202,18 +272,32 @@
     flex-grow: 1;
   }
 
-  .exam-category-title {
-    font-size: 20px;
-    margin: 20px 0 14px;
+  .exam-section-header {
+    padding: 0 16px 12px;
   }
-}
 
-@media (max-width: 480px) {
+  .exam-scroll-row {
+    padding: 4px 16px 16px;
+    gap: 12px;
+  }
+
   .exam-category-title {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .exam-card {
-    padding: 6px;
+    flex: 0 0 136px;
+    width: 136px;
+  }
+}
+
+@media (max-width: 380px) {
+  .exam-card {
+    flex: 0 0 120px;
+    width: 120px;
+  }
+
+  .exam-card-title {
+    font-size: 12px;
   }
 }

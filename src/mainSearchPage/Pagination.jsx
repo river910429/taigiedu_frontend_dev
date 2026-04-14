@@ -1,25 +1,34 @@
 import React from 'react';
 import './Pagination.css';
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+const Pagination = ({ currentPage, totalPages, onPageChange, maxVisible = 4 }) => {
   const getVisiblePages = () => {
-    const isMobile = window.innerWidth <= 480;
-    const delta = isMobile ? 1 : 2;
-    const range = [];
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
 
-    for (
-      let i = Math.max(1, currentPage - delta);
-      i <= Math.min(totalPages, currentPage + delta);
-      i++
-    ) {
+    const half = Math.floor(maxVisible / 2);
+    let start = Math.max(1, currentPage - half);
+    let end = Math.min(totalPages, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    const range = [];
+    if (start > 1) {
+      range.push(1);
+      if (start > 2) range.push('...');
+    }
+
+    for (let i = start; i <= end; i++) {
       range.push(i);
     }
 
-    if (range[0] > 2) range.unshift('...');
-    if (range[0] !== 1) range.unshift(1);
-
-    if (range[range.length - 1] < totalPages - 1) range.push('...');
-    if (range[range.length - 1] !== totalPages) range.push(totalPages);
+    if (end < totalPages) {
+      if (end < totalPages - 1) range.push('...');
+      range.push(totalPages);
+    }
 
     return range;
   };

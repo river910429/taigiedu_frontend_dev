@@ -362,6 +362,12 @@
 
 @media (max-width: 480px) {
   .socialmedia-card {
-    padding: 6px;
+    padding: 4px;
+  }
+}
+
+@media (max-width: 360px) {
+  .socialmedia-card {
+    padding: 2px;
   }
 }
