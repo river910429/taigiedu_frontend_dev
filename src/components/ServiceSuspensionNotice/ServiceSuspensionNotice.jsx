@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './ServiceSuspensionNotice.css';
 
 // ── 停電停服時間設定 ──────────────────────────────────────────
-const OUTAGE_START = new Date('2026-04-20T09:00:00');
-const OUTAGE_END   = new Date('2026-04-30T09:00:00');
+// 使用者要求修改為 2月23號下午6點。假設為 2027 年，或視需求調整。
+const OUTAGE_START = new Date('2027-02-23T18:00:00');
+const OUTAGE_END   = new Date('2027-02-24T06:00:00'); // 假設暫停 12 小時，可自行調整
+
+// 此開關用於控制是否啟用公告功能。使用者要求「修改完後先不要顯示」。
+const IS_NOTICE_ACTIVE = false; 
+
+const LS_KEY = 'ssn_dismissed_v1';
 
 function getNoticeMode() {
+  if (!IS_NOTICE_ACTIVE) return 'none';
+  
   const now = new Date();
   if (now >= OUTAGE_START && now < OUTAGE_END) return 'blocking';
   if (now < OUTAGE_START) return 'preview';
@@ -58,11 +66,11 @@ const ModalCard = ({ onClose, isBlocking }) => (
       <div className="ssn-text-section">
         <div className="ssn-period-block">
           <span className="ssn-period-label">預計暫停時間</span>
-          <span className="ssn-period-value">2026/04/20 AM9:00至</span>
-          <span className="ssn-period-value">2026/04/30 AM9:00</span>
+          <span className="ssn-period-value">2月23號下午6點起</span>
+          {/* 如果有結束時間也可以加上，例如：<span className="ssn-period-value">至 2月24號上午6點</span> */}
         </div>
         <p className="ssn-description">
-          由於伺服器所在區域停電，以上期間，網站暫停服務。造成不便，敬請見諒。
+          由於伺服器系統維護，以上期間網站將暫停服務。造成不便，敬請見諒。
         </p>
         <p className="ssn-signature">「Tshuì 水」團隊</p>
       </div>
@@ -77,21 +85,35 @@ const ModalCard = ({ onClose, isBlocking }) => (
 
 const ServiceSuspensionNotice = () => {
   const mode = getNoticeMode();
-  const [dismissed, setDismissed] = React.useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  // 初始化時檢查 Local Storage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isDismissed = localStorage.getItem(LS_KEY) === 'true';
+      setDismissed(isDismissed);
+    }
+  }, []);
+
+  const handleClose = () => {
+    setDismissed(true);
+    localStorage.setItem(LS_KEY, 'true');
+  };
 
   if (mode === 'none') return null;
-  if (mode === 'preview' && dismissed) return null;
-
+  
+  // 如果是 blocking 模式，忽略 dismissed 狀態（強行顯示）
   const isBlocking = mode === 'blocking';
+  if (mode === 'preview' && dismissed) return null;
 
   return (
     <div
       className={`ssn-overlay ${isBlocking ? 'ssn-overlay--blocking' : ''}`}
-      onClick={!isBlocking ? () => setDismissed(true) : undefined}
+      onClick={!isBlocking ? handleClose : undefined}
     >
       <div onClick={(e) => e.stopPropagation()}>
         <ModalCard
-          onClose={() => setDismissed(true)}
+          onClose={handleClose}
           isBlocking={isBlocking}
         />
       </div>
