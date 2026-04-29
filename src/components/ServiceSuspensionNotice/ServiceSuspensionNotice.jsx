@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import './ServiceSuspensionNotice.css';
+import blackboardBg from '../../assets/blackboard.png';
+import bearSvg from '../../assets/bear.svg';
 
 // ── 停電停服時間設定 ──────────────────────────────────────────
-// 使用者要求修改為 2月23號下午6點。假設為 2027 年，或視需求調整。
-const OUTAGE_START = new Date('2027-02-23T18:00:00');
-const OUTAGE_END   = new Date('2027-02-24T06:00:00'); // 假設暫停 12 小時，可自行調整
+// 使用者要求修改為 5月10日(星期日)上午8時至下午17時。
+const OUTAGE_START = new Date('2026-05-10T08:00:00'); 
+const OUTAGE_END   = new Date('2026-05-10T17:00:00'); 
 
-// 此開關用於控制是否啟用公告功能。使用者要求「修改完後先不要顯示」。
-const IS_NOTICE_ACTIVE = false; 
+// 此開關用於控制是否啟用公告功能。
+const IS_NOTICE_ACTIVE = true; 
 
 const LS_KEY = 'ssn_dismissed_v1';
 
 function getNoticeMode() {
-  if (!IS_NOTICE_ACTIVE) return 'none';
-  
-  const now = new Date();
-  if (now >= OUTAGE_START && now < OUTAGE_END) return 'blocking';
-  if (now < OUTAGE_START) return 'preview';
-  return 'none';
+  // ── 演練模式：強制開啟 blocking 狀態 ──────────────────────────
+  return 'blocking'; 
 }
 
 // 警告三角圖示 (SVG inline)
@@ -49,8 +47,16 @@ const CloseIcon = () => (
 );
 
 const ModalCard = ({ onClose, isBlocking }) => (
-  <div className={`ssn-card ${isBlocking ? 'ssn-card--blocking' : ''}`}>
-    {/* 標題區（白色背景） */}
+  <div 
+    className={`ssn-card ${isBlocking ? 'ssn-card--blocking' : ''}`}
+    style={{ 
+      backgroundImage: `url(${blackboardBg})`,
+      backgroundSize: '100% 100%',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center'
+    }}
+  >
+    {/* 標題區 */}
     <div className="ssn-header">
       <h2 className="ssn-title">網站暫停服務公告</h2>
       {!isBlocking && (
@@ -66,8 +72,7 @@ const ModalCard = ({ onClose, isBlocking }) => (
       <div className="ssn-text-section">
         <div className="ssn-period-block">
           <span className="ssn-period-label">預計暫停時間</span>
-          <span className="ssn-period-value">2月23號下午6點起</span>
-          {/* 如果有結束時間也可以加上，例如：<span className="ssn-period-value">至 2月24號上午6點</span> */}
+          <span className="ssn-period-value">5月10日 (日) 08:00 - 17:00</span>
         </div>
         <p className="ssn-description">
           由於伺服器系統維護，以上期間網站將暫停服務。造成不便，敬請見諒。
@@ -75,9 +80,9 @@ const ModalCard = ({ onClose, isBlocking }) => (
         <p className="ssn-signature">「Tshuì 水」團隊</p>
       </div>
 
-      {/* 右側：警告圖示 */}
+      {/* 右側：黑熊圖示 */}
       <div className="ssn-icon-section">
-        <WarningIcon />
+        <img src={bearSvg} className="ssn-bear-icon" alt="bear" />
       </div>
     </div>
   </div>

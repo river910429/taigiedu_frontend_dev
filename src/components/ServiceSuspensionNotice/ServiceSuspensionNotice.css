@@ -20,18 +20,19 @@
   to   { opacity: 1; }
 }
 
-/* ── 卡片 ─────────────────────────────────────────────────────
-   Figma frame: 1247 × 945  →  scale ≈ 760 / 1247 = 0.61
-   ─────────────────────────────────────────────────────────── */
+/* ── 卡片 ───────────────────────────────────────────────────── */
 .ssn-card {
   position: relative;
-  background: #ffffff;
+  background-color: transparent;
   border-radius: 16px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
   width: 100%;
-  max-width: 760px;
+  max-width: 960px;
+  aspect-ratio: 1800 / 945; 
   overflow: hidden;
   animation: ssnScaleIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes ssnScaleIn {
@@ -39,32 +40,30 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
-/* ── 標題區（白色背景，Figma y=0~240 → 146px scaled） ─────── */
+/* ── 標題區 ─────── */
 .ssn-header {
   position: relative;
-  background: #ffffff;
-  /* 縱向：title 在 y=40，header 白底到 y=240 → 約 146px */
-  min-height: 146px;
+  background: transparent;
+  min-height: 100px;
   display: flex;
   align-items: center;
-  /* 水平：title x=326 在 1247px 中心偏左 → 置中排列 */
   justify-content: center;
-  padding: 28px 72px 28px 48px;
+  padding: 60px 72px 0 48px;
 }
 
-/* 標題：Figma 100px / NotoSansTC Bold → scaled ~61px */
+/* 標題 */
 .ssn-title {
-  font-family: 'NotoSansTC', 'Noto Sans CJK TC', 'Noto Sans TC', sans-serif;
-  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-family: 'NotoSansTC', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
   font-weight: 700;
-  color: #767676;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
   margin: 0;
   line-height: 1.3;
-  letter-spacing: 0.02em;
   text-align: center;
 }
 
-/* ── 關閉按鈕（Figma x=1159,y=38 → right:24px, top:24px） ── */
+/* ── 關閉按鈕 ── */
 .ssn-close-btn {
   position: absolute;
   top: 20px;
@@ -78,41 +77,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #041833;
+  color: #ffffff;
   transition: background 0.2s, transform 0.2s;
   padding: 0;
 }
 
 .ssn-close-btn:hover {
-  background: rgba(0, 0, 0, 0.07);
+  background: rgba(255, 255, 255, 0.1);
   transform: rotate(90deg);
 }
 
-/* ── 內容區（漸層背景，Figma y=240~945 → 430px scaled）────── */
+/* ── 內容區 ────── */
 .ssn-body {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0;
-  /* 上方留白：Figma content y=380, gradient start y=240 → gap ≈ 85px */
-  padding: 85px 40px 88px 49px;
-  background: linear-gradient(
-    to bottom,
-    rgba(151, 151, 151, 0.20) 0%,
-    rgba(45, 146, 193, 0.07) 100%
-  );
+  flex: 1;
+  padding: 20px 60px 60px 80px;
+  background: transparent;
 }
 
-/* ── 左側文字區 ──────────────────────────────────────────────
-   Figma: content x=80, w=633 in 1247px → scaled ~386px left section
-   ─────────────────────────────────────────────────────────── */
 .ssn-text-section {
   flex: 1;
   min-width: 0;
+  padding-top: 10px;
 }
 
-/* ── 期間區塊 ────────────────────────────────────────────────
-   Figma: label 32px / value 48px  → scaled ~19.5px / ~29px
-   ─────────────────────────────────────────────────────────── */
 .ssn-period-block {
   margin-bottom: 8px;
   display: flex;
@@ -123,7 +113,7 @@
 .ssn-period-label {
   font-family: 'Huninn', 'NotoSansTC', sans-serif;
   font-size: clamp(0.9rem, 1.6vw, 1.2rem);
-  color: #767676;
+  color: #e0e0e0;
   font-weight: 400;
   line-height: 1.4;
 }
@@ -131,70 +121,90 @@
 .ssn-period-value {
   font-family: 'Huninn', 'NotoSansTC', sans-serif;
   font-size: clamp(1.25rem, 2.5vw, 1.85rem);
-  font-weight: 400;
-  color: #000000;
+  font-weight: 700;
+  color: #ffffff;
   line-height: 1.4;
   letter-spacing: 0.01em;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 
-/* ── 說明文字（Figma 32px → ~19.5px scaled）─────────────────── */
 .ssn-description {
   font-family: 'Huninn', 'NotoSansTC', sans-serif;
-  font-size: clamp(0.9rem, 1.6vw, 1.2rem);
-  color: #000000;
+  font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+  color: #ffffff;
   line-height: 1.65;
-  margin: 20px 0 20px;
+  margin: 15px 0 15px;
   font-weight: 400;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 
-/* ── 署名（Figma 20px → ~12px scaled）───────────────────────── */
 .ssn-signature {
   font-family: 'Huninn', 'NotoSansTC', sans-serif;
-  font-size: clamp(0.72rem, 1.1vw, 0.87rem);
-  color: #767676;
+  font-size: clamp(0.72rem, 1.1vw, 1rem);
+  color: #cccccc;
   margin: 0;
   font-weight: 400;
 }
 
-/* ── 右側圖示區 ──────────────────────────────────────────────
-   Figma: image x=753, w=444, h=461 in 1247px → scaled ~270×281px
-   ─────────────────────────────────────────────────────────── */
+/* ── 右側圖示區 ── */
 .ssn-icon-section {
   flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end; 
   justify-content: center;
-  width: clamp(160px, 36%, 275px);
+  width: clamp(160px, 40%, 320px);
+  position: relative;
+  height: 100%;
 }
 
-/* ── 警告三角 SVG（Figma 444×461 → scaled ~270px）───────────── */
-.ssn-warning-icon {
+.ssn-bear-icon {
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 8px 20px rgba(255, 140, 0, 0.40));
+  max-height: 140%;
+  object-fit: contain;
+  margin-bottom: -130px; 
+  margin-left: 80px; 
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
 }
 
-/* ── RWD ─────────────────────────────────────────────────────── */
+/* ── RWD (手機版) ── */
 @media (max-width: 600px) {
+  .ssn-card {
+    aspect-ratio: auto;
+    min-height: 420px;
+    background-size: cover;
+  }
+  
   .ssn-header {
     min-height: auto;
-    padding: 24px 56px 20px 24px;
+    padding: 40px 24px 10px 24px;
   }
 
   .ssn-body {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    padding: 32px 24px 32px;
-    gap: 16px;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 24px 40px;
+    gap: 0;
+    text-align: center;
   }
 
+  /* 在手機版隱藏黑熊容器 */
   .ssn-icon-section {
-    width: 100%;
-    justify-content: center;
+    display: none;
   }
 
-  .ssn-warning-icon {
-    width: 100px;
+  .ssn-text-section {
+    padding-top: 0;
+    width: 100%;
+  }
+
+  .ssn-period-value {
+    font-size: 1.5rem;
+  }
+
+  .ssn-description {
+    font-size: 1rem;
+    margin: 15px 0;
   }
 
   .ssn-close-btn {
