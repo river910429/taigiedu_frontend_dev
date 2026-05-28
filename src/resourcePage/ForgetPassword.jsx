@@ -103,7 +103,7 @@ const ForgetPassword = ({ isOpen, onClose }) => {
     }
 
     if (newPassword !== confirmPassword) {
-      showToast("密碼與確認密碼不一致", "error");
+      showToast("兩次輸入的密碼不一致，請重新確認。", "error");
       return;
     }
 

@@ -11,6 +11,8 @@
 - 🔐 **JWT 認證系統**：安全的使用者驗證與自動 Token 刷新機制
 - 👥 **會員系統**：個人化學習體驗與進度追蹤
 - 🛡️ **管理後台**：完整的資源管理與使用者權限控制
+- 📢 **服務公告系統**：透過 Firebase 即時派送停機/維護公告（`ServiceSuspensionNotice`）
+- ☁️ **Cloudflare 部署**：使用 Cloudflare Pages / Workers (Wrangler) 進行正式環境部署
 - ✅ **E2E 測試**：使用 Playwright 確保應用程式品質
 
 ## 技術棧
@@ -22,6 +24,10 @@
 - **Markdown 渲染**：React Markdown 10.1+
 - **拖放功能**：@dnd-kit (Core 6.3+ & Sortable 10.0+)
 - **表格元件**：TanStack React Table 8.21+
+
+### 雲端與外部服務
+- **公告服務**：Firebase 12.13+（Firestore，讀取 `system/outage` 文件）
+- **部署平台**：Cloudflare Pages / Workers (`@cloudflare/vite-plugin`、Wrangler 4.90+)
 
 ### 開發工具
 - **建置工具**：Vite 7.2+
@@ -56,7 +62,7 @@ npm install
 
 3. **設定環境變數與功能開關**
 
-本專案使用環境變數來控制基礎路徑、API 位置，以及特定功能（如朗讀、翻譯、逐字稿）的開啟與否。請參考 `.env.example`，根據您的開發需求建立對應的設定檔：
+本專案使用環境變數來控制基礎路徑、API 位置、Firebase 公告來源，以及特定功能（如朗讀、翻譯、逐字稿）的開啟與否。請參考 `.env.example`，根據您的開發需求建立對應的設定檔：
 
 - **開發環境 (`.env.development`)**：
   供本地開發時使用。建議開啟 `VITE_ENABLE_TOPIC_INTEGRATION_FEATURE=true`，讓「議題融入」功能可見。
@@ -112,8 +118,9 @@ npm run preview
 taiwaneseOMG/
 ├── src/
 │   ├── components/         # 可重用元件（Header、Sidebar、ServiceSuspensionNotice、Modal 等）
+│   ├── config/             # 外部服務設定（如 firebaseOutage.js）
 │   ├── contexts/           # React Context（認證、主題等）
-│   ├── services/           # API 服務層（認證、資源管理等）
+│   ├── services/           # API 服務層（authService、outageService 等）
 │   ├── shared/             # 共用工具與常數
 │   ├── assets/             # 靜態資源（圖片、圖示等）
 │   ├── styles/             # 共用樣式檔案
@@ -146,6 +153,7 @@ taiwaneseOMG/
 ├── .env.development        # 開發環境變數
 ├── .env.production         # 正式環境變數
 ├── .env.local              # 本地測試環境變數（不提交）
+├── wrangler.jsonc          # Cloudflare Workers/Pages 部署設定
 ├── package.json            # 專案配置與依賴
 └── vite.config.js          # Vite 配置檔案
 ```
@@ -180,6 +188,19 @@ const imagePath = `${import.meta.env.VITE_IMAGE_URL}/path/to/image.jpg`;
 - `VITE_ENABLE_UNSTABLE_FEATURES`：控制朗讀、翻譯、逐字稿等功能是否顯示。
 - `VITE_ENABLE_TOPIC_INTEGRATION_FEATURE`：控制「議題融入」是否顯示在側邊欄，並是否允許存取 `/featured-resource/topic-integration`。
 - `VITE_ENABLE_ROBOTS_NOINDEX`：控制是否注入 `noindex, nofollow` 的 robots meta tag。
+
+### Firebase 公告服務設定
+
+`ServiceSuspensionNotice` 元件會透過 Firebase Web SDK 直接讀取 `system/outage` 文件，作為全站停機/維護公告的即時來源。請至 Firebase Console（專案：`taigiedu-outage`）→ 專案設定 → 一般 → Web App 取得對應憑證，並填入下列環境變數：
+
+```
+VITE_OUTAGE_FIREBASE_API_KEY=...
+VITE_OUTAGE_FIREBASE_AUTH_DOMAIN=taigiedu-outage.firebaseapp.com
+VITE_OUTAGE_FIREBASE_PROJECT_ID=taigiedu-outage
+VITE_OUTAGE_FIREBASE_APP_ID=...
+```
+
+> 部署至 Cloudflare Pages 時，請於 Cloudflare 專案的 Environment Variables 中設定同樣的 `VITE_OUTAGE_FIREBASE_*` 變數，否則 build 後公告功能將無法讀取 Firestore。
 
 ## E2E 測試
 
@@ -255,13 +276,38 @@ npx playwright show-report playwright-report
 
 ## 部署
 
-### GitHub Pages
+### Cloudflare Pages / Workers（主要部署管道）
+
+本專案使用 [Wrangler](https://developers.cloudflare.com/workers/wrangler/) 搭配 `@cloudflare/vite-plugin` 部署至 Cloudflare，相關設定位於 `wrangler.jsonc`。
+
+**本地預覽（在 Cloudflare runtime 下執行）：**
+```bash
+npm run preview
+```
+此指令會先執行 `vite build`，再以 `wrangler dev` 起一個與正式環境相同的本地伺服器。
+
+**部署到正式環境：**
+```bash
+npm run deploy
+```
+此指令會建置並執行 `wrangler deploy`，需事先以 `npx wrangler login` 完成 Cloudflare 帳號授權。
+
+**環境變數設定：**
+請至 Cloudflare Dashboard → 對應 Pages / Workers 專案 → Settings → Environment Variables，加入下列變數（與本地 `.env.production` 對齊）：
+
+- `VITE_API_URL`、`VITE_IMAGE_URL`、`VITE_BASE_PATH`
+- `VITE_OUTAGE_FIREBASE_API_KEY`、`VITE_OUTAGE_FIREBASE_AUTH_DOMAIN`、`VITE_OUTAGE_FIREBASE_PROJECT_ID`、`VITE_OUTAGE_FIREBASE_APP_ID`
+- 視需求加入功能開關（`VITE_ENABLE_UNSTABLE_FEATURES`、`VITE_ENABLE_TOPIC_INTEGRATION_FEATURE` 等）
+
+> 詳細變數定義請參閱 [部署設定文件 (docs/DEPLOYMENT.md)](docs/DEPLOYMENT.md)。
+
+### GitHub Pages（備援）
 
 使用 GitHub Actions 自動部署：
 
 1. 確保 `.github/workflows/` 中有正確的部署配置
 2. 推送到指定分支（如 `main` 或 `develop`）
-3. GitHub Actions 將自動建置並部署
+3. GitHub Actions 將自動執行 `npm run build:github` 並部署
 
 ### 其他平台
 

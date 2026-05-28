@@ -143,7 +143,7 @@ const RegisterPage = ({ onClose }) => {
 
     // 基本驗證
     if (formData.password !== formData.confirmPassword) {
-      showToast("密碼與確認密碼不一致！", "error");
+      showToast("兩次輸入的密碼不一致，請重新確認。", "error");
       return;
     }
 
@@ -205,13 +205,29 @@ const RegisterPage = ({ onClose }) => {
       if (response.ok) {
         // 註冊成功
         console.log("Register success:", data);
-        showToast("註冊成功！請查看您的電子郵件進行驗證", "success");
+        showToast("註冊成功！驗證信已寄出。請在30分鐘內完成 Email 驗證，若未收到信件，請確認垃圾郵件匣。", "success");
         setIsVerificationVisible(true); // 顯示驗證提示
       } else {
         // 註冊失敗
         console.error("Register failed:", data);
-        // 顯示具體錯誤訊息
-        showToast(data.message || "註冊失敗，請稍後再試", "error");
+        if (data.message && data.message.includes("此帳號已驗證過")) {
+          // 帳號已註冊但尚未驗證，自動重新發送驗證信
+          try {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/user/resend-verification`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email: formData.email }),
+            });
+          } catch (resendError) {
+            console.error("自動重新發送驗證信失敗:", resendError);
+          }
+          showToast("此 Email 已完成註冊，但尚未完成驗證。已重新發送驗證信，請至信箱點擊驗證連結後登入，如未收到信件請確認垃圾郵件匣。", "error");
+        } else {
+          // 顯示具體錯誤訊息
+          showToast(data.message || "系統異常，目前無法完成註冊。請稍後再試，若問題持續發生請聯繫管理團隊。", "error");
+        }
       }
     } catch (error) {
       console.error("Request error:", error);
@@ -237,7 +253,7 @@ const RegisterPage = ({ onClose }) => {
         const data = await response.json();
 
         if (response.ok) {
-          showToast("驗證信已重新發送", "success");
+          showToast("驗證信已重新寄送，請於 30 分鐘內完成驗證。", "success");
         } else {
           showToast(data.message || "重新發送驗證信失敗", "error");
         }
@@ -495,15 +511,15 @@ const RegisterPage = ({ onClose }) => {
 
   const verificationBody = (
     <div className="verification-modal-content">
-      <p>驗證信件已寄出，請於30分鐘之內至您的信箱完成驗證喔！</p>
+      <p>註冊成功！驗證信已寄出。<br/>請在 30 分鐘內完成 Email 驗證。<br/>若未收到信件，請確認垃圾郵件匣。</p>
       <button
         className="resend-button"
         onClick={handleResendCode}
         disabled={resendCooldown > 0}
       >
         {resendCooldown > 0
-          ? `再次獲取驗證碼 (${resendCooldown}s)`
-          : "再次獲取驗證碼"}
+          ? `重新寄送驗證信 (${resendCooldown}s)`
+          : "重新寄送驗證信"}
       </button>
     </div>
   );
