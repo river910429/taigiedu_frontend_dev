@@ -79,7 +79,7 @@ const LoginPage = ({ onClose }) => {
 
       if (result.success) {
         // 登入成功處理
-        showToast("登入成功！", "success");
+        showToast("登入成功。", "success");
 
         // 如果是彈窗模式，關閉彈窗
         if (isModalMode) {
@@ -92,7 +92,23 @@ const LoginPage = ({ onClose }) => {
         }
       } else {
         // 登入失敗處理
-        showToast(result.message || "登入失敗，請檢查帳號和密碼！", "error");
+        if (result.message && result.message.includes("驗證信已寄出")) {
+          // 帳號已註冊但尚未驗證，自動重新發送驗證信
+          try {
+            await fetch(`${envConfig.apiUrl}/api/user/resend-verification`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email: email }),
+            });
+          } catch (resendError) {
+            console.error("自動重新發送驗證信失敗:", resendError);
+          }
+          showToast("帳號尚未完成驗證。已重新發送驗證信，請至信箱點擊驗證連結後登入，如未收到信件請確認垃圾郵件匣。", "error");
+        } else {
+          showToast(result.message || "帳號或密碼錯誤，請重新確認。", "error");
+        }
         // 登入失敗後重新載入驗證碼
         fetchCaptcha();
       }
