@@ -1,55 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useToast } from "../components/Toast";
 import "./DownloadPage.css";
 
 const DownloadPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { showToast } = useToast();
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [viewerUrl, setViewerUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { fileName, pdfUrl, fileType } = location.state || {}; // 接收傳遞的檔案名稱、PDF 連結與檔案類型
+  const { fileName, pdfUrl } = location.state || {}; // 接收傳遞的檔案名稱和 PDF 連結
 
-  const handleDownload = async () => {
-    if (!pdfUrl) {
-      showToast("無法下載檔案，連結無效", "error");
-      return;
+  // 1. 設定 document.title 讓瀏覽器 PDF 閱讀器下載時能抓到正確的中文名稱
+  useEffect(() => {
+    if (fileName) {
+      const originalTitle = document.title;
+      document.title = fileName;
+      return () => {
+        document.title = originalTitle;
+      };
     }
+  }, [fileName]);
 
-    try {
-      setIsDownloading(true);
-      showToast("正在下載資源...", "info");
+  // 2. 將 PDF 網址透過 Fetch 轉成本地 Blob URL，以配合 document.title 達成正確下載檔名
+  useEffect(() => {
+    let active = true;
+    let localBlobUrl = "";
 
-      // 使用 fetch 下載檔案
-      const response = await fetch(pdfUrl);
-      const blob = await response.blob();
+    const fetchPdfBlob = async () => {
+      if (!pdfUrl) return;
+      try {
+        setIsLoading(true);
+        const response = await fetch(pdfUrl);
+        const blob = await response.blob();
+        if (active) {
+          localBlobUrl = URL.createObjectURL(blob);
+          setViewerUrl(localBlobUrl);
+        }
+      } catch (error) {
+        console.error("預讀 PDF 失敗，降級使用原始連結:", error);
+        if (active) {
+          setViewerUrl(pdfUrl);
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    };
 
-      // 創建下載連結
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
+    fetchPdfBlob();
 
-      // 決定副檔名，預設為 pdf
-      const ext = fileType ? fileType.toLowerCase() : "pdf";
-      link.setAttribute('download', `${fileName}.${ext}`);
-      link.style.display = 'none';
-
-      // 執行下載
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // 清理 URL 物件
-      window.URL.revokeObjectURL(downloadUrl);
-      showToast("資源下載已開始", "success");
-    } catch (error) {
-      console.error("下載資源錯誤:", error);
-      showToast("下載過程中發生錯誤，請稍後再試", "error");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
+    return () => {
+      active = false;
+      if (localBlobUrl) {
+        URL.revokeObjectURL(localBlobUrl);
+      }
+    };
+  }, [pdfUrl]);
 
   // 如果沒有收到必要的數據，顯示錯誤訊息或重定向
   if (!fileName || !pdfUrl) {
@@ -65,39 +72,20 @@ const DownloadPage = () => {
 
   return (
     <div className="download-page">
-      {/* 頂部懸浮控制列 */}
-      <div className="download-header-bar">
-        <button className="back-btn" onClick={() => navigate(-1)} title="返回上一頁">
-          <span className="back-icon">←</span>
-          <span className="back-text">返回</span>
-        </button>
-
-        <h1 className="download-title">{fileName}</h1>
-
-        <button
-          className={`download-btn ${isDownloading ? 'downloading' : ''}`}
-          onClick={handleDownload}
-          disabled={isDownloading}
-          title="下載資源檔案"
-        >
-          <svg className="download-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          <span className="download-text">{isDownloading ? "下載中..." : "下載檔案"}</span>
-        </button>
-      </div>
-
-      {/* PDF 顯示區 */}
-      <div className="pdf-viewer-container">
+      {isLoading ? (
+        <div className="download-loading">
+          <div className="loading-spinner"></div>
+          <p>載入 PDF 文件中...</p>
+        </div>
+      ) : (
+        /* 滿版 PDF 顯示 */
         <iframe
-          src={pdfUrl}
+          src={viewerUrl}
           title={fileName}
           className="pdf-viewer"
           frameBorder="0"
         />
-      </div>
+      )}
     </div>
   );
 };
