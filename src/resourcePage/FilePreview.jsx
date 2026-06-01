@@ -214,6 +214,7 @@ const FilePreview = () => {
       state: {
         fileName: resourceData.title,
         pdfUrl: resourceData.fileUrl, // 這裡的 fileUrl 已經是完整的 URL
+        fileType: resourceData.fileType,
       },
     });
   };

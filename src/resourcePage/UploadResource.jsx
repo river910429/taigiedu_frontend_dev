@@ -32,6 +32,18 @@ const wrapText = (ctx, text, maxWidth) => {
   return lines;
 };
 
+// 產生唯一的隨機 Hash，長度為 32 字元 16 進位字串
+const generateUniqueHash = () => {
+  try {
+    const array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    // 備用方案：若不支援 crypto 則使用亂數 + 時間戳記組合
+    return Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+  }
+};
+
 const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
   const { showToast } = useToast();
   const { user, isAuthenticated } = useAuth();
@@ -369,6 +381,9 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
       const contentType = formData.contentType === "其他" ? formData.contentTypeOther : formData.contentType;
       apiFormData.append("contentType", contentType);
 
+      // 產生唯一的隨機 Hash
+      const uploadHash = generateUniqueHash();
+
       // 從檔案擴展名獲取檔案類型
       const fileType = formData.file.name.split('.').pop().toLowerCase();
       apiFormData.append("fileType", fileType);
@@ -380,23 +395,31 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
       // 標籤 (可以從其他字段構建，這裡用名稱和版本作為示例)
       apiFormData.append("tags", `${formData.grade},${version},${contentType}`);
 
-      // 主檔案
-      apiFormData.append("file", formData.file);
+      // 主檔案：使用 Hash 檔名重建 File 物件
+      const hashedFileName = `${uploadHash}.${fileType}`;
+      const hashedFile = new File([formData.file], hashedFileName, { type: formData.file.type });
+      apiFormData.append("file", hashedFile);
+      console.log(`[上傳] 主檔案已改寫檔名為: ${hashedFileName}`);
 
-      // 預覽縮圖（選填）
+      // 預覽縮圖（選填）：使用相同 Hash 檔名重建 File 物件
       if (previewBlob) {
         // 使用手動上傳的名稱或從自動生成取得的名稱，避免固定使用 thumbnail.jpg 造成的覆蓋問題
         const thumbName = customImageName || previewBlob.name || "thumbnail.jpg";
-        console.log("[縮圖上傳] 準備附加預覽圖片到 FormData");
+        const thumbExt = thumbName.split('.').pop().toLowerCase() || "jpg";
+        const hashedThumbName = `${uploadHash}.${thumbExt}`;
+
+        console.log("[縮圖上傳] 準備附加隨機 Hash 預覽圖片到 FormData");
+        const hashedPreviewFile = new File([previewBlob], hashedThumbName, { type: previewBlob.type });
+
         console.log("[縮圖上傳] blob/file info:", {
-          name: previewBlob.name || thumbName,
+          name: hashedThumbName,
           size: previewBlob.size,
           type: previewBlob.type,
           isFile: previewBlob instanceof File,
           isBlob: previewBlob instanceof Blob,
         });
-        apiFormData.append("image", previewBlob, thumbName);
-        console.log("[縮圖上傳] 已附加 image 欄位到 FormData");
+        apiFormData.append("image", hashedPreviewFile, hashedThumbName);
+        console.log(`[縮圖上傳] 已附加 image 欄位到 FormData，檔名為: ${hashedThumbName}`);
       } else {
         console.log("[縮圖上傳] 沒有預覽圖片，跳過 image 欄位");
       }
