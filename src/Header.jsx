@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
+import { FLAGS, hasFlag, getUserFlags } from "./config/permissions";
 import "./Header.css";
 import logo from "./assets/new_logo_1111.svg";
 import adminLogo from "./assets/adminPage/Logo + Title2.svg";
@@ -53,15 +54,13 @@ const Header = ({ onMenuToggle, sidebarOpen }) => {
 
   // 取得用戶角色標籤
   const getRoleLabel = () => {
-    switch (user?.role) {
-      case 'SUPER_ADMIN':
-        return '超級管理員';
-      case 'ADMIN':
-        return '管理員';
-      case 'MEMBER':
-      default:
-        return '會員';
-    }
+    const flags = getUserFlags(user);
+    const isSystem  = hasFlag(flags, FLAGS.SYSTEM_MANAGER);
+    const isContent = hasFlag(flags, FLAGS.CONTENT_MANAGER);
+    if (isSystem && isContent) return '超級管理員';
+    if (isSystem)  return '系統管理員';
+    if (isContent) return '內容管理員';
+    return '會員';
   };
 
   // 處理登入按鈕點擊
