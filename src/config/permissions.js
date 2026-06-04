@@ -1,112 +1,80 @@
 /**
  * 權限配置表 (Permission Config)
  *
- * ─── 角色層級 ──────────────────────────────────────────
- *  MEMBER      - 一般會員（普通用戶）
- *  ADMIN       - 管理員（外部教師等）
- *  SUPER_ADMIN - 超級管理員（平台核心管理人員）
+ * ─── Flag 定義（bitmask，可疊加）─────────────────────────
+ *  CONTENT_MANAGER = 1  新增/修改/刪除內容、管理會員上傳資格
+ *  SYSTEM_MANAGER  = 2  權限管理、系統設定、升級管理員、Popup公告
+ *
+ * ─── 舊角色對應 ────────────────────────────────────────
+ *  MEMBER      → flags = 0
+ *  ADMIN       → flags = 1  (CONTENT_MANAGER)
+ *  SUPER_ADMIN → flags = 3  (CONTENT_MANAGER | SYSTEM_MANAGER)
  *
  * ─── 使用方式 ──────────────────────────────────────────
- *  import { can } from '../config/permissions';
+ *  import { FLAGS, hasFlag } from '../config/permissions';
  *  import { useAuth } from '../contexts/AuthContext';
  *
  *  const { user } = useAuth();
- *  const linkRequired = !can(user?.role, 'news', 'optionalLink');
- *
- * ─── 新增規則 ──────────────────────────────────────────
- *  1. 在下方 PERMISSIONS 物件中，找到對應的功能模組 (feature)
- *  2. 定義一個能力 key (ability)，並設定哪些角色擁有此能力
- *  3. 在元件中透過 can(role, feature, ability) 來查詢
+ *  if (hasFlag(user?.flags, FLAGS.SYSTEM_MANAGER)) { ... }
  *
  * ─── 設計說明 ──────────────────────────────────────────
- *  - 採用「白名單」設計：預設沒有任何額外能力，明確列出才開放
- *  - 角色繼承：SUPER_ADMIN 擁有 ADMIN 的所有能力，ADMIN 擁有 MEMBER 的所有能力
- *    （如不需繼承，可將 inheritFrom 設為 null）
+ *  - 採用「白名單」設計：flags = 0 表示無任何後台權限
+ *  - flags 可疊加：同時有兩種身份只需 OR 運算，例如 1 | 2 = 3
  * ───────────────────────────────────────────────────────
  */
 
-/** 角色定義與繼承關係 */
-export const ROLES = {
-  MEMBER: 'MEMBER',
-  ADMIN: 'ADMIN',
-  SUPER_ADMIN: 'SUPER_ADMIN',
-};
-
-/** 角色繼承鏈（子角色自動擁有父角色的所有能力） */
-const ROLE_HIERARCHY = {
-  [ROLES.MEMBER]: [],
-  [ROLES.ADMIN]: [ROLES.MEMBER],
-  [ROLES.SUPER_ADMIN]: [ROLES.ADMIN, ROLES.MEMBER],
+/** Flag 常數 */
+export const FLAGS = {
+  CONTENT_MANAGER: 1,
+  SYSTEM_MANAGER: 2,
 };
 
 /**
- * 權限表
- *
- * 結構：
- *   PERMISSIONS[feature][ability] = [擁有此能力的角色陣列]
- *
- * 命名慣例：
- *   - feature: 功能模組名稱（camelCase），例如 news、exam、member
- *   - ability: 具體能力描述（camelCase），例如 optionalLink、deleteRecord
+ * 將舊 role 字串轉換為對應的 flags 整數（過渡期兼容用）
+ * @param {string|undefined} role
+ * @returns {number}
  */
-const PERMISSIONS = {
-  // ── 活動快訊 (news) ──────────────────────────────────
-  news: {
-    /**
-     * optionalLink：連結欄位為「非必填」
-     *  - SUPER_ADMIN：可以不填連結，直接新增/編輯快訊
-     *  - ADMIN / MEMBER：連結為必填
-     */
-    optionalLink: [ROLES.SUPER_ADMIN],
-  },
-
-  // ── 考試資訊 (exam) ──────────────────────────────────
-  exam: {
-    // 日後可在此處新增考試模組相關的細粒度權限
-    // 例如：deleteRecord: [ROLES.SUPER_ADMIN]
-  },
-
-  // ── 會員管理 (member) ────────────────────────────────
-  member: {
-    // 例如：viewSensitiveData: [ROLES.SUPER_ADMIN]
-  },
-
-  // ── 媒體社群資源 (socialmedia) ───────────────────────
-  socialmedia: {
-    // 例如：bulkDelete: [ROLES.SUPER_ADMIN]
-  },
-};
-
-/**
- * 取得指定角色的所有祖先角色（含自身）
- * @param {string} role
- * @returns {string[]}
- */
-function getRoleLineage(role) {
-  if (!role || !ROLE_HIERARCHY[role]) return [];
-  const ancestors = ROLE_HIERARCHY[role] || [];
-  return [role, ...ancestors];
+export function legacyRoleToFlags(role) {
+  switch (role?.toUpperCase()) {
+    case 'SUPER_ADMIN': return 3;
+    case 'ADMIN':       return 1;
+    default:            return 0;
+  }
 }
 
 /**
- * 查詢某角色是否擁有指定功能的特定能力
- *
- * @param {string|undefined} role   - 使用者的角色字串，例如 'SUPER_ADMIN'
- * @param {string} feature          - 功能模組名稱，例如 'news'
- * @param {string} ability          - 具體能力名稱，例如 'optionalLink'
+ * 取得 user 的有效 flags（優先使用 flags，後端未更新時 fallback 到 role）
+ * @param {{ flags?: number, role?: string }|null|undefined} user
+ * @returns {number}
+ */
+export function getUserFlags(user) {
+  if (!user) return 0;
+  if (typeof user.flags === 'number') return user.flags;
+  return legacyRoleToFlags(user.role);
+}
+
+/**
+ * 查詢 user 是否擁有指定 flag
+ * @param {number} flags   - 使用者的 flags 整數
+ * @param {number} flag    - 要查詢的 FLAG 常數
  * @returns {boolean}
  *
  * @example
- *   can('SUPER_ADMIN', 'news', 'optionalLink')  // true
- *   can('ADMIN', 'news', 'optionalLink')         // false
- *   can(undefined, 'news', 'optionalLink')       // false
+ *   hasFlag(3, FLAGS.SYSTEM_MANAGER)   // true
+ *   hasFlag(1, FLAGS.SYSTEM_MANAGER)   // false
+ *   hasFlag(0, FLAGS.CONTENT_MANAGER)  // false
  */
-export function can(role, feature, ability) {
-  const allowedRoles = PERMISSIONS[feature]?.[ability];
-  if (!allowedRoles || allowedRoles.length === 0) return false;
-
-  const lineage = getRoleLineage(role);
-  return lineage.some((r) => allowedRoles.includes(r));
+export function hasFlag(flags, flag) {
+  return (flags & flag) !== 0;
 }
 
-export default PERMISSIONS;
+/**
+ * 查詢 user 是否擁有任何後台權限（進入後台的最低門檻）
+ * @param {number} flags
+ * @returns {boolean}
+ */
+export function hasAnyAdminAccess(flags) {
+  return flags > 0;
+}
+
+export default FLAGS;
