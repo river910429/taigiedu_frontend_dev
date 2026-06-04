@@ -41,8 +41,8 @@ const AdminExamInfo = () => {
   const [newName, setNewName] = useState('');
   const [newLink, setNewLink] = useState('');
   const [newCategory, setNewCategory] = useState('');
-  // eslint-disable-next-line no-unused-vars
-  const [imageFile, setImageFile] = useState(null);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [imageBase64, setImageBase64] = useState('');
   const [imageName, setImageName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
 
@@ -145,9 +145,14 @@ const AdminExamInfo = () => {
       showToast('檔案大小不能超過 2MB', 'warning');
       return;
     }
-    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target.result; // 含 data:image/jpeg;base64,... 前綴
+      setImageBase64(base64);
+      setImageUrl(base64);
+    };
+    reader.readAsDataURL(file);
     setImageName(file.name);
-    setImageUrl(URL.createObjectURL(file));
   };
 
   const handleModalClose = () => {
@@ -159,7 +164,8 @@ const AdminExamInfo = () => {
     setNewName('');
     setNewLink('');
     setNewCategory(availableCategories[0] || '');
-    setImageFile(null);
+    setIsCustomCategory(false);
+    setImageBase64('');
     setImageName('');
     setImageUrl('');
   };
@@ -179,7 +185,7 @@ const AdminExamInfo = () => {
       return;
     }
 
-    if (!isEditing && !imageName) {
+    if (!isEditing && !imageBase64) {
       showToast('請上傳圖片', 'warning');
       return;
     }
@@ -192,9 +198,9 @@ const AdminExamInfo = () => {
             id: String(currentEditId),
             action: '3',
             category: newCategory,
-            name: newName,
-            link: newLink,
-            figure: imageName
+            title: newName,
+            url: newLink,
+            ...(imageBase64 && { image: imageBase64 })
           })
         });
         const result = await response.json();
@@ -205,9 +211,9 @@ const AdminExamInfo = () => {
           method: 'POST',
           body: JSON.stringify({
             category: newCategory,
-            name: newName,
-            link: newLink,
-            figure: imageName
+            title: newName,
+            url: newLink,
+            image: imageBase64
           })
         });
         const result = await response.json();
@@ -342,17 +348,46 @@ const AdminExamInfo = () => {
       >
         <div className="mb-3">
           <label className="form-label admin-form-label">*類別</label>
-          <select
-            className="form-select admin-form-control"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            required
-          >
-            <option value="" disabled>請選擇類別</option>
-            {availableCategories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+          {!isCustomCategory ? (
+            <>
+              <select
+                className="form-select admin-form-control"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                required
+              >
+                <option value="" disabled>請選擇類別</option>
+                {availableCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn btn-link btn-sm p-0 mt-1 text-secondary"
+                onClick={() => { setIsCustomCategory(true); setNewCategory(''); }}
+              >
+                ＋ 新增自訂類別
+              </button>
+            </>
+          ) : (
+            <>
+              <input
+                type="text"
+                className="form-control admin-form-control"
+                placeholder="輸入新類別名稱，例如：推薦用書與教材"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-link btn-sm p-0 mt-1 text-secondary"
+                onClick={() => { setIsCustomCategory(false); setNewCategory(availableCategories[0] || ''); }}
+              >
+                ← 回到選擇現有類別
+              </button>
+            </>
+          )}
         </div>
 
         <div className="mb-3">

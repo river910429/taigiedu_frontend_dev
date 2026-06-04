@@ -31,6 +31,7 @@ import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
 import CelebrityDetails from "./celebrity/CelebrityDetails";
 import ServiceSuspensionNotice from "./components/ServiceSuspensionNotice/ServiceSuspensionNotice.jsx";
+import OutageTopBanner from "./components/OutageTopBanner/OutageTopBanner.jsx";
 import RelativeCalculatorPage from "./relativeCalculatorPage/RelativeCalculatorPage.jsx";
 import TermsPage from "./TermsPage.jsx";
 import TeamPage from "./TeamPage.jsx";
@@ -91,6 +92,7 @@ const AppLayout = () => {
   return (
     <div className="app">
       <ServiceSuspensionNotice />
+      <OutageTopBanner />
       <Header onMenuToggle={() => setSidebarOpen(prev => !prev)} sidebarOpen={sidebarOpen} />
 
       {/* 手機版 sidebar overlay 遮罩 */}
