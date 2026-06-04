@@ -5,7 +5,7 @@ import AdminDataTable from '../../../components/AdminDataTable';
 import AdminModal from '../../../components/AdminModal';
 import { authenticatedFetch } from '../../../services/authService';
 import { useAuth } from '../../../contexts/AuthContext';
-import { can } from '../../../config/permissions';
+import { FLAGS, hasFlag, getUserFlags } from '../../../config/permissions';
 import './adminNewsPage.css';
 import DragConfirmButton from '../../../components/DragConfirmButton/DragConfirmButton';
 import editIcon from '../../../assets/adminPage/pencil.svg';
@@ -40,8 +40,8 @@ function saveCategories(cats) {
 const AdminNewsPage = () => {
   const { showToast } = useToast();
   const { user } = useAuth();
-  // 依角色決定連結是否為非必填（SUPER_ADMIN 可省略連結）
-  const isLinkOptional = can(user?.role, 'news', 'optionalLink');
+  // SYSTEM_MANAGER 可省略快訊連結（其他人必填）
+  const isLinkOptional = hasFlag(getUserFlags(user), FLAGS.SYSTEM_MANAGER);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [allNews, setAllNews] = useState([]);

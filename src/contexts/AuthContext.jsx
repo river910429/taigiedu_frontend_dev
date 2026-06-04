@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authService } from '../services/authService';
+import { FLAGS, getUserFlags, hasFlag, hasAnyAdminAccess } from '../config/permissions';
 
 // 建立 Auth Context
 const AuthContext = createContext(null);
@@ -157,14 +158,24 @@ export const AuthProvider = ({ children }) => {
         }
     }, [clearAuth]);
 
-    // 檢查使用者是否為管理員
+    // 檢查使用者是否有任何後台權限
     const isAdmin = useCallback(() => {
-        return user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+        return hasAnyAdminAccess(getUserFlags(user));
     }, [user]);
 
-    // 檢查使用者是否為超級管理員
+    // 檢查使用者是否擁有 SYSTEM_MANAGER 權限
     const isSuperAdmin = useCallback(() => {
-        return user?.role === 'SUPER_ADMIN';
+        return hasFlag(getUserFlags(user), FLAGS.SYSTEM_MANAGER);
+    }, [user]);
+
+    // 檢查使用者是否擁有 CONTENT_MANAGER 權限
+    const isContentManager = useCallback(() => {
+        return hasFlag(getUserFlags(user), FLAGS.CONTENT_MANAGER);
+    }, [user]);
+
+    // 取得使用者的有效 flags
+    const getUserPermissionFlags = useCallback(() => {
+        return getUserFlags(user);
     }, [user]);
 
     // 取得當前使用者資訊
@@ -267,6 +278,8 @@ export const AuthProvider = ({ children }) => {
         logout,
         isAdmin,
         isSuperAdmin,
+        isContentManager,
+        getUserPermissionFlags,
         fetchCurrentUser,
         clearAuth,
     };

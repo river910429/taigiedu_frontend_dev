@@ -14,13 +14,6 @@ import uturnIcon from '../../../assets/adminPage/uturn.svg';
 
 const columnHelper = createColumnHelper();
 
-// 超級管理員白名單（若後端提供 isSuperAdmin 欄位，亦會一起判斷）
-const SUPER_ADMIN_WHITELIST = [
-  'admin@example.com',
-  'root@example.com',
-  'myating0623@gmail.com'
-];
-
 /**
  * 解析並格式化「使用網站動機」欄位
  * API 回傳格式可能是：
@@ -235,22 +228,8 @@ const AdminMemberPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [activeMenuId]);
 
-  const { user: authUser, checkSuperAdmin } = useAuth();
-
-  const isSuperAdmin = useMemo(() => {
-    // 1. 優先使用 AuthContext 的判斷 (會檢查 role === 'SUPER_ADMIN')
-    if (typeof checkSuperAdmin === 'function' && checkSuperAdmin()) return true;
-
-    // 2. 檢查目前登入用戶的屬性 (包含大小寫相容處理)
-    const email = authUser?.email?.toLowerCase() || '';
-    const role = authUser?.role?.toUpperCase() || '';
-
-    // 如果 role 是 SUPER_ADMIN 或在白名單內
-    const isWhitelisted = SUPER_ADMIN_WHITELIST.map(e => e.toLowerCase()).includes(email);
-    const hasSuperRole = role === 'SUPER_ADMIN' || authUser?.isSuperAdmin === true;
-
-    return hasSuperRole || isWhitelisted;
-  }, [authUser, checkSuperAdmin]);
+  const { isSuperAdmin: checkIsSuperAdmin } = useAuth();
+  const isSuperAdmin = checkIsSuperAdmin();
 
   // API base URL
   const apiBaseUrl = envConfig.apiUrl;
