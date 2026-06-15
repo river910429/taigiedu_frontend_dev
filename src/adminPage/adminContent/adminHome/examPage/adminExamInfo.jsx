@@ -41,10 +41,13 @@ const AdminExamInfo = () => {
   const [newName, setNewName] = useState('');
   const [newLink, setNewLink] = useState('');
   const [newCategory, setNewCategory] = useState('');
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
-  const [imageBase64, setImageBase64] = useState('');
+  const [newSubcategory, setNewSubcategory] = useState('');
+  // eslint-disable-next-line no-unused-vars
+  const [imageFile, setImageFile] = useState(null);
   const [imageName, setImageName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [imageBase64, setImageBase64] = useState('');
 
   useEffect(() => {
     fetchExamTypes();
@@ -65,6 +68,7 @@ const AdminExamInfo = () => {
         (dataObj[cat] || []).map(item => ({
           id: item.id,
           category: cat,
+          subcategory: item.subcategory || '',
           name: item.title || item.name || '',
           link: item.url || item.link || '',
           imageName: (item.image || item.figure) ? (item.image || item.figure).split('/').pop() : '圖片',
@@ -100,6 +104,7 @@ const AdminExamInfo = () => {
     setNewName(item.name);
     setNewLink(item.link);
     setNewCategory(item.category);
+    setNewSubcategory(item.subcategory || '');
     setImageName(item.imageName);
     setImageUrl(item.imageUrl);
     setShowAddModal(true);
@@ -147,12 +152,13 @@ const AdminExamInfo = () => {
     }
     const reader = new FileReader();
     reader.onload = (e) => {
-      const base64 = e.target.result; // 含 data:image/jpeg;base64,... 前綴
+      const base64 = e.target.result; 
       setImageBase64(base64);
       setImageUrl(base64);
     };
     reader.readAsDataURL(file);
     setImageName(file.name);
+    setImageFile(file);
   };
 
   const handleModalClose = () => {
@@ -164,7 +170,9 @@ const AdminExamInfo = () => {
     setNewName('');
     setNewLink('');
     setNewCategory(availableCategories[0] || '');
+    setNewSubcategory('');
     setIsCustomCategory(false);
+    setImageFile(null);
     setImageBase64('');
     setImageName('');
     setImageUrl('');
@@ -198,6 +206,7 @@ const AdminExamInfo = () => {
             id: String(currentEditId),
             action: '3',
             category: newCategory,
+            subcategory: newSubcategory,
             title: newName,
             url: newLink,
             ...(imageBase64 && { image: imageBase64 })
@@ -211,6 +220,7 @@ const AdminExamInfo = () => {
           method: 'POST',
           body: JSON.stringify({
             category: newCategory,
+            subcategory: newSubcategory,
             title: newName,
             url: newLink,
             image: imageBase64
@@ -243,6 +253,11 @@ const AdminExamInfo = () => {
     {
       accessorKey: 'category',
       header: '類別',
+      enableSorting: true,
+    },
+    {
+      accessorKey: 'subcategory',
+      header: '子類別',
       enableSorting: true,
     },
     {
@@ -388,6 +403,20 @@ const AdminExamInfo = () => {
               </button>
             </>
           )}
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="newSubcategory" className="form-label admin-form-label">
+            子類別
+          </label>
+          <input
+            type="text"
+            className="form-control admin-form-control"
+            id="newSubcategory"
+            value={newSubcategory}
+            onChange={(e) => setNewSubcategory(e.target.value)}
+            placeholder="例如：聽力、口語（選填）"
+          />
         </div>
 
         <div className="mb-3">

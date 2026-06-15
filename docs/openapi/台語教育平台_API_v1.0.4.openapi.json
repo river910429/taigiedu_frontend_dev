@@ -6648,20 +6648,28 @@
       "ExamPayload": {
         "type": "object",
         "properties": {
-          "name": {
+          "category": {
             "type": "string"
           },
-          "link": {
+          "subcategory": {
             "type": "string"
           },
-          "figure": {
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "image": {
             "type": "string"
           }
         },
         "x-apidog-orders": [
-          "name",
-          "link",
-          "figure"
+          "category",
+          "subcategory",
+          "title",
+          "url",
+          "image"
         ],
         "x-apidog-ignore-properties": [],
         "x-apidog-folder": ""
