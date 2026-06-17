@@ -30,23 +30,23 @@
 
 /* 功能卡片網格 */
 .function-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  align-items: start; /* 確保卡片頂部對齊 */
+  column-count: 3;
+  column-gap: 2rem;
+  width: 100%;
 }
 
 /* 功能卡片樣式 */
 .function-card {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 2rem;
+  break-inside: avoid;
   background: white;
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  height: fit-content; /* 讓卡片高度自適應內容 */
 }
 
 .function-card:hover {
@@ -114,8 +114,8 @@
 /* 響應式設計 */
 @media (max-width: 1024px) {
   .function-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    column-count: 2;
+    column-gap: 1.5rem;
   }
 }
 
@@ -123,16 +123,16 @@
   .admin-main-container {
     padding: 1rem;
   }
-  
+
   .admin-header h1 {
     font-size: 2rem;
   }
-  
+
   .function-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    column-count: 1;
+    column-gap: 0;
   }
-  
+
   .function-card {
     padding: 1.2rem;
   }
