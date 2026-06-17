@@ -10,13 +10,13 @@ import shieldIcon from '../assets/adminPage/shield-exclamation.svg';
 
 const AdminMain = () => {
   const functionGroups = [
-    { title: "主頁搜尋",            icon: houseIcon,  functions: ["考試資訊", "活動快訊"],                                                                                     gridColumn: '1', gridRow: '1' },
-    { title: "節慶飲食",            icon: bookIcon,   functions: ["飲食", "節慶"],                                                                                             gridColumn: '2', gridRow: '1' },
-    { title: "台語教學資源共享平台", icon: cloudIcon,  functions: ["上傳項目", "編輯課本選單"],                                                                                 gridColumn: '3', gridRow: '1' },
-    { title: "認證考試",            icon: testIcon,   functions: ["認證考試"],                                                                                                 gridColumn: '1', gridRow: '2' },
-    { title: "媒體與社群資源",       icon: playIcon,   functions: ["工具", "百科", "各地教育機構", "社群", "Youtube", "Podcast", "遊戲", "卡通動漫", "音樂", "戲劇"],             gridColumn: '2', gridRow: '2' },
-    { title: "會員",                icon: userIcon,   functions: ["會員管理"],                                                                                                 gridColumn: '3', gridRow: '2' },
-    { title: "公告管理",            icon: shieldIcon, functions: ["一般公告", "停機公告"],                                                                                     gridColumn: '3', gridRow: '3' },
+    { title: "主頁搜尋",            icon: houseIcon,  functions: ["考試資訊", "活動快訊"] },
+    { title: "節慶飲食",            icon: bookIcon,   functions: ["飲食", "節慶"] },
+    { title: "台語教學資源共享平台", icon: cloudIcon,  functions: ["上傳項目", "編輯課本選單"] },
+    { title: "認證考試",            icon: testIcon,   functions: ["認證考試"] },
+    { title: "媒體與社群資源",       icon: playIcon,   functions: ["工具", "百科", "各地教育機構", "社群", "Youtube", "Podcast", "遊戲", "卡通動漫", "音樂", "戲劇"] },
+    { title: "會員",                icon: userIcon,   functions: ["會員管理"] },
+    { title: "公告管理",            icon: shieldIcon, functions: ["一般公告", "停機公告"] },
   ];
 
   const navigate = useNavigate();
@@ -57,12 +57,11 @@ const AdminMain = () => {
       </div>
 
       <div className="admin-content">
-        <div className="function-grid" style={{ alignItems: 'start' }}>
+        <div className="function-grid">
           {functionGroups.map((group, index) => (
             <div
               key={index}
               className="function-card"
-              style={{ gridColumn: group.gridColumn, gridRow: group.gridRow }}
             >
               <h3 className="card-title">{group.title}</h3>
               <div className="card-icon">
