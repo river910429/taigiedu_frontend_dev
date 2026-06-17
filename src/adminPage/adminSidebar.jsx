@@ -7,6 +7,7 @@ import houseIcon from '../assets/adminPage/house.svg';
 import playIcon from '../assets/adminPage/playButton.svg';
 import testIcon from '../assets/adminPage/test.svg';
 import userIcon from '../assets/adminPage/userCircle.svg';
+import shieldIcon from '../assets/adminPage/shield-exclamation.svg';
 import chevronUpIcon from "../assets/chevron-up.svg";
 
 // 靜態選單定義搬到組件外，避免每次 render 重新建立引用，減少 useEffect 依賴問題
@@ -43,7 +44,8 @@ const MENU_ITEMS = [
       { id: 'adminHeaderEditor', label: "編輯課本選單", path: "/admin/resource/header" },
     ]
   },
-  { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" }
+  { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" },
+  { id: 7, label: "公告管理", icon: shieldIcon, path: "/admin/announcement" }
 ];
 
 const AdminSidebar = () => {

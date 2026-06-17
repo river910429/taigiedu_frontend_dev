@@ -1,0 +1,305 @@
+.ann-page {
+  padding: 1rem;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.ann-breadcrumb {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Tabs ── */
+.ann-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ann-tab {
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  background: white;
+  color: #424242;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ann-tab.active {
+  background: #2d92c1;
+  color: white;
+  border-color: #2d92c1;
+}
+
+.ann-tab:not(.active):hover {
+  background: #f0f4f8;
+}
+
+/* ── Toolbar ── */
+.ann-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ann-btn-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #2d92c1;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.ann-btn-add:hover {
+  background: #2480ae;
+}
+
+.ann-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ann-filter label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #424242;
+  white-space: nowrap;
+}
+
+.ann-select-wrap {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 0 4px rgba(20, 118, 255, 0.14);
+  padding: 8px 12px;
+}
+
+.ann-select-wrap select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: #041833;
+  cursor: pointer;
+}
+
+/* ── Status badges ── */
+.ann-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 12px;
+  border-radius: 62px;
+  font-size: 13px;
+  color: white;
+  white-space: nowrap;
+}
+
+.ann-badge-green { background: #18ca09; }
+.ann-badge-blue  { background: #1476ff; }
+.ann-badge-gray  { background: #a6a6a6; }
+
+/* ── Table cells ── */
+.ann-trunc {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.ann-time-cell {
+  font-size: 12px;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
+/* ── Icon buttons ── */
+.ann-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 15px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.ann-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.ann-icon-btn-danger:hover {
+  background: rgba(229, 62, 62, 0.08);
+}
+
+.ann-action-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* ── Modal form ── */
+.ann-required {
+  color: #c70707;
+  margin-right: 2px;
+}
+
+.ann-type-select {
+  max-width: 220px;
+}
+
+.ann-dt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ann-arrow {
+  color: #888;
+  font-size: 16px;
+  padding: 0 2px;
+}
+
+.ann-time-input {
+  background: #edf0f7;
+  border: 1px solid #c8cdd8;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: #424242;
+  width: 90px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.ann-time-input:focus {
+  outline: none;
+  border-color: #2d92c1;
+}
+
+.ann-time-input.ann-time-disabled,
+.ann-time-input:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+  color: #999;
+  border-color: #d9d9d9;
+}
+
+.ann-auto-hint {
+  font-size: 12px;
+  color: #2d6a8a;
+  margin-top: 5px;
+  padding: 6px 10px;
+  background: #f0f9ff;
+  border: 1px dashed #2d92c1;
+  border-radius: 6px;
+}
+
+.ann-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* ── Delete modal ── */
+.ann-del-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.ann-del-modal {
+  background: white;
+  border-radius: 10px;
+  padding: 32px 28px;
+  width: 380px;
+  max-width: 95vw;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.ann-del-icon {
+  font-size: 44px;
+}
+
+.ann-del-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.ann-del-desc {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.ann-del-desc small {
+  color: #888;
+}
+
+.ann-del-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.ann-del-cancel {
+  flex: 1;
+  padding: 11px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.15s;
+}
+
+.ann-del-cancel:hover:not(:disabled) {
+  background: #f5f5f5;
+}
+
+.ann-del-confirm {
+  flex: 1;
+  padding: 11px;
+  border-radius: 8px;
+  border: none;
+  background: #e53e3e;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.15s;
+}
+
+.ann-del-confirm:hover:not(:disabled) {
+  background: #c53030;
+}
+
+.ann-del-cancel:disabled,
+.ann-del-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

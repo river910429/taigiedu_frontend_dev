@@ -30,7 +30,8 @@ import DownloadPage from "./resourcePage/DownloadPage";
 import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
 import CelebrityDetails from "./celebrity/CelebrityDetails";
-import ServiceSuspensionNotice from "./components/ServiceSuspensionNotice/ServiceSuspensionNotice.jsx";
+import ServiceSuspensionNotice from "./components/Announcement/ServiceSuspensionNotice.jsx";
+import GeneralAnnouncementModal from "./components/Announcement/GeneralAnnouncementModal.jsx";
 import OutageTopBanner from "./components/OutageTopBanner/OutageTopBanner.jsx";
 import RelativeCalculatorPage from "./relativeCalculatorPage/RelativeCalculatorPage.jsx";
 import TermsPage from "./TermsPage.jsx";
@@ -48,6 +49,7 @@ import AdminFestivalPage from "./adminPage/adminContent/adminHome/adminFestivalP
 import AdminSocialmediaPage from "./adminPage/adminContent/adminHome/adminSocialmediaPage";
 import AdminResourcePage from "./adminPage/adminContent/adminHome/adminresourcePage/AdminResourcePage";
 import ResourceHeaderPage from "./adminPage/adminContent/adminHome/adminresourcePage/ResourceHeaderPage";
+import AdminAnnouncementPage from "./adminPage/adminContent/adminHome/adminAnnouncementPage";
 
 const AppLayout = () => {
   const location = useLocation();
@@ -92,6 +94,7 @@ const AppLayout = () => {
   return (
     <div className="app">
       <ServiceSuspensionNotice />
+      <GeneralAnnouncementModal />
       <OutageTopBanner />
       <Header onMenuToggle={() => setSidebarOpen(prev => !prev)} sidebarOpen={sidebarOpen} />
 
@@ -249,6 +252,14 @@ const AppLayout = () => {
             element={
               <AdminRoute>
                 <AdminFilePreview />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/announcement"
+            element={
+              <AdminRoute>
+                <AdminAnnouncementPage />
               </AdminRoute>
             }
           />
