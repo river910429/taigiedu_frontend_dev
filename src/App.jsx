@@ -94,7 +94,7 @@ const AppLayout = () => {
   return (
     <div className="app">
       <ServiceSuspensionNotice />
-      <GeneralAnnouncementModal />
+      {!isAdminPage && !isAdminContent && <GeneralAnnouncementModal />}
       <OutageTopBanner />
       <Header onMenuToggle={() => setSidebarOpen(prev => !prev)} sidebarOpen={sidebarOpen} />
 

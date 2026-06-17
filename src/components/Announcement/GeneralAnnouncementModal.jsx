@@ -12,7 +12,7 @@ const MOCK_ANNOUNCEMENT = {
   title: '網站功能更新通知',
   content: '本站已新增台語拼音搜尋功能，歡迎使用者多加利用。',
   startAt: new Date(_now.getTime() - 7 * 24 * 60 * 60 * 1000),
-  endAt: new Date(_now.getTime() + 30 * 24 * 60 * 60 * 1000),
+  endAt: new Date(_now.getTime() - 1 * 60 * 60 * 1000),
 };
 
 function isActive(ann) {
