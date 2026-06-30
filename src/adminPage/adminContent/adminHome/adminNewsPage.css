@@ -53,6 +53,11 @@
     margin-bottom: 10px;
 }
 
+/* 沒有新增項目按鈕時（如刪除紀錄），讓篩選器仍靠右對齊 */
+.admin-controls-row > :last-child {
+    margin-left: auto;
+}
+
 .status-filter {
     display: flex;
     align-items: center;
