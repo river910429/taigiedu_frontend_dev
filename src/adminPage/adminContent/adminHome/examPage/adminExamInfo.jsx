@@ -323,10 +323,10 @@ const AdminExamInfo = () => {
             </button>
           )}
           <div className="d-flex align-items-center gap-3">
-            <div className="status-filter">
-              <span className="me-2 text-secondary">類別：</span>
+            <div className="filter-breadcrumb">
+              <span className="breadcrumb-label">篩選：</span>
               <select
-                className="form-select admin-category-dropdown"
+                className="form-select admin-filter-select"
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
               >

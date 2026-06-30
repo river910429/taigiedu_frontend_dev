@@ -113,4 +113,21 @@
   font-size: 0.85rem;
 }
 
+.filter-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.breadcrumb-label {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.admin-filter-select {
+  width: auto;
+  min-width: 140px;
+  font-size: 0.9rem;
+}
+
 /* 注意：表格及 Modal 樣式已移至 AdminDataTable 和 AdminModal 組件，請勿在此重複定義 */
