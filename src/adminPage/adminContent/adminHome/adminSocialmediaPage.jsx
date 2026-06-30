@@ -509,26 +509,28 @@ const AdminSocialmediaPage = () => {
           )}
         </div>
 
-        <div className="mb-3 admin-form-grid-full">
-          <label className="form-label admin-form-label">*圖片</label>
-          <div className="upload-wrapper mb-2">
-            <label className="admin-upload-btn">
-              <input
-                type="file"
-                accept="image/jpeg,image/png"
-                className="d-none"
-                onChange={(e) => validateAndSetImage(e.target.files?.[0])}
-              />
-              上傳檔案
-            </label>
-            <span className="upload-hint">
-              ※限 JPG、PNG 可上傳，限制 2MB。
-            </span>
+        <div className="mb-3 admin-form-grid-full d-flex align-items-start gap-4">
+          <div className="d-flex flex-column align-items-start gap-2">
+            <label className="form-label admin-form-label mb-0">*圖片</label>
+            <div className="d-flex flex-column align-items-start gap-1">
+              <label className="admin-upload-btn" style={{ marginBottom: 0 }}>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  className="d-none"
+                  onChange={(e) => validateAndSetImage(e.target.files?.[0])}
+                />
+                上傳檔案
+              </label>
+              <span className="upload-hint" style={{ fontSize: '13px' }}>
+                ※限 JPG、PNG 可上傳，限制 2MB。
+              </span>
+            </div>
           </div>
           {(imageName || imageUrl) && (
-            <div className="mt-3 d-inline-flex flex-column align-items-center" style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '8px', backgroundColor: '#fff', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' }}>
-              <img src={imageUrl || '#'} alt="圖片預覽" style={{ maxHeight: '130px', maxWidth: '100%', objectFit: 'contain', borderRadius: '4px' }} />
-              <div className="mt-2 text-secondary text-truncate" style={{ maxWidth: '200px', fontSize: '13px' }} title={imageName || '圖片'}>
+            <div className="d-flex align-items-center gap-2">
+              <img src={imageUrl || '#'} alt="圖片預覽" style={{ maxHeight: '100px', maxWidth: '200px', objectFit: 'contain', borderRadius: '4px' }} />
+              <div className="text-secondary text-truncate" style={{ maxWidth: '150px', fontSize: '13px' }} title={imageName || '圖片'}>
                 {imageName || imageUrl?.split('/').pop()?.split('.')[0] || '圖片'}
               </div>
             </div>

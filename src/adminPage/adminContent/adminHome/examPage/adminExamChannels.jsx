@@ -321,22 +321,24 @@ const AdminExamChannels = () => {
           />
         </div>
 
-        <div className="mb-3 admin-form-grid-full">
-          <label className="form-label admin-form-label">*圖片</label>
-          <div className="upload-wrapper">
-            <label className="admin-upload-btn">
-              <input
-                type="file"
-                accept="image/jpeg,image/png"
-                className="d-none"
-                onChange={(e) => validateAndSetImage(e.target.files?.[0])}
-              />
-              上傳檔案
-            </label>
-            <span className="upload-hint">※限 JPG、PNG 可上傳，限制 2MB。</span>
+        <div className="mb-3 admin-form-grid-full d-flex align-items-start gap-4">
+          <div className="d-flex flex-column align-items-start gap-2">
+            <label className="form-label admin-form-label mb-0">*圖片</label>
+            <div className="d-flex flex-column align-items-start gap-1">
+              <label className="admin-upload-btn" style={{ marginBottom: 0 }}>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  className="d-none"
+                  onChange={(e) => validateAndSetImage(e.target.files?.[0])}
+                />
+                上傳檔案
+              </label>
+              <span className="upload-hint" style={{ fontSize: '13px' }}>※限 JPG、PNG 可上傳，限制 2MB。</span>
+            </div>
           </div>
           {imageName && (
-            <div className="image-preview-cell" style={{ marginTop: 8 }}>
+            <div className="image-preview-cell" style={{ marginTop: 0 }}>
               <img src={jpgIconImage} alt="圖片" className="file-icon-img" />
               <span className="file-name-text">{imageName}</span>
             </div>
