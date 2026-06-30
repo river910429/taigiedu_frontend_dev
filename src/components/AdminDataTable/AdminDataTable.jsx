@@ -29,6 +29,34 @@ import './AdminDataTable.css';
 import dragIcon from '../../assets/adminPage/bars-2.png';
 
 /**
+ * 計算單一資料儲存格的渲染屬性：
+ * - tdStyle：依 columnDef.size 設定欄寬（size 為預設值 150 時改為自動）。
+ * - contentStyle：依 columnDef.meta.maxWidth 覆寫該欄的截斷上限（未設定則沿用 CSS 預設 240px）。
+ * - title：當值為純文字時，提供 hover 顯示完整內容（操作欄不需要）。
+ */
+const getCellRenderProps = (cell) => {
+    const colId = (cell.column.id || '').toLowerCase();
+    const isActionColumn =
+        colId.includes('edit') || colId.includes('delete') || colId.includes('action');
+
+    const { size, meta } = cell.column.columnDef;
+    const hasCustomSize = size !== 150;
+
+    const rawValue = cell.getValue();
+    const isPlainText = typeof rawValue === 'string' || typeof rawValue === 'number';
+
+    return {
+        isActionColumn,
+        tdStyle: {
+            width: hasCustomSize ? `${size}px` : 'auto',
+            minWidth: hasCustomSize ? `${size}px` : 'auto',
+        },
+        contentStyle: meta?.maxWidth ? { maxWidth: `${meta.maxWidth}px` } : undefined,
+        title: !isActionColumn && isPlainText ? String(rawValue) : undefined,
+    };
+};
+
+/**
  * 可拖曳的表格行組件
  */
 const SortableTableRow = ({ row, children }) => {
@@ -253,23 +281,27 @@ const AdminDataTable = ({
                     <tbody>
                         {table.getRowModel().rows.map((row) => (
                             <SortableTableRow key={row.id} row={row}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <td
-                                        key={cell.id}
-                                        className={cell.column.id.toLowerCase().includes('edit') || cell.column.id.toLowerCase().includes('delete') || cell.column.id.toLowerCase().includes('action') ? 'action-column' : ''}
-                                        style={{
-                                            width: cell.column.columnDef.size !== 150 ? `${cell.column.columnDef.size}px` : 'auto',
-                                            minWidth: cell.column.columnDef.size !== 150 ? `${cell.column.columnDef.size}px` : 'auto',
-                                        }}
-                                    >
-                                        <div className="cell-content">
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </div>
-                                    </td>
-                                ))}
+                                {row.getVisibleCells().map((cell) => {
+                                    const cellProps = getCellRenderProps(cell);
+                                    return (
+                                        <td
+                                            key={cell.id}
+                                            className={cellProps.isActionColumn ? 'action-column' : ''}
+                                            style={cellProps.tdStyle}
+                                        >
+                                            <div
+                                                className="cell-content"
+                                                title={cellProps.title}
+                                                style={cellProps.contentStyle}
+                                            >
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </div>
+                                        </td>
+                                    );
+                                })}
                             </SortableTableRow>
                         ))}
                     </tbody>
@@ -278,23 +310,27 @@ const AdminDataTable = ({
                 <tbody>
                     {table.getRowModel().rows.map((row) => (
                         <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                                <td
-                                    key={cell.id}
-                                    className={cell.column.id.toLowerCase().includes('edit') || cell.column.id.toLowerCase().includes('delete') || cell.column.id.toLowerCase().includes('action') ? 'action-column' : ''}
-                                    style={{
-                                        width: cell.column.columnDef.size !== 150 ? `${cell.column.columnDef.size}px` : 'auto',
-                                        minWidth: cell.column.columnDef.size !== 150 ? `${cell.column.columnDef.size}px` : 'auto',
-                                    }}
-                                >
-                                    <div className="cell-content">
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    </div>
-                                </td>
-                            ))}
+                            {row.getVisibleCells().map((cell) => {
+                                const cellProps = getCellRenderProps(cell);
+                                return (
+                                    <td
+                                        key={cell.id}
+                                        className={cellProps.isActionColumn ? 'action-column' : ''}
+                                        style={cellProps.tdStyle}
+                                    >
+                                        <div
+                                            className="cell-content"
+                                            title={cellProps.title}
+                                            style={cellProps.contentStyle}
+                                        >
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </div>
+                                    </td>
+                                );
+                            })}
                         </tr>
                     ))}
                 </tbody>

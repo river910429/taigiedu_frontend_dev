@@ -674,7 +674,9 @@ const AdminMemberPage = () => {
         onClose={handleModalClose}
         title={isEditing ? '編輯會員' : '新增會員'}
         onSubmit={handleFormSubmit}
+        size="lg"
       >
+        <div className="admin-form-grid">
         <div className="mb-3">
           <label htmlFor="newName" className="form-label admin-form-label">
             *姓名
@@ -727,7 +729,7 @@ const AdminMemberPage = () => {
             required
           />
         </div>
-        <div className="mb-3">
+        <div className="mb-3 admin-form-grid-full">
           <label htmlFor="newRole" className="form-label admin-form-label">
             *角色
           </label>
@@ -741,6 +743,7 @@ const AdminMemberPage = () => {
             <option value="member">member</option>
             <option value="admin">admin</option>
           </select>
+        </div>
         </div>
       </AdminModal>
 

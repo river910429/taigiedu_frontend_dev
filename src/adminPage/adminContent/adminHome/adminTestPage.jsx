@@ -364,7 +364,9 @@ const AdminTestPage = () => {
                 onClose={handleModalClose}
                 title={isEditing ? '編輯項目' : '新增項目'}
                 onSubmit={handleFormSubmit}
+                size="lg"
             >
+                <div className="admin-form-grid">
                 <div className="mb-3">
                     <label htmlFor="newCategory" className="form-label admin-form-label">
                         *類別
@@ -396,7 +398,7 @@ const AdminTestPage = () => {
                         required
                     />
                 </div>
-                <div className="mb-3">
+                <div className="mb-3 admin-form-grid-full">
                     <label htmlFor="newLink" className="form-label admin-form-label">
                         *連結
                     </label>
@@ -408,6 +410,7 @@ const AdminTestPage = () => {
                         onChange={(e) => setNewLink(e.target.value)}
                         required
                     />
+                </div>
                 </div>
             </AdminModal>
         </div>

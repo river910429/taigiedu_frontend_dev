@@ -522,7 +522,9 @@ const AdminFestivalPage = () => {
         onClose={handleModalClose}
         title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleFormSubmit}
+        size="lg"
       >
+        <div className="admin-form-grid">
         <div className="mb-3">
           <label htmlFor="newZhName" className="form-label admin-form-label">*名稱(華文)</label>
           <input type="text" className="form-control admin-form-control" id="newZhName" value={newZhName} onChange={(e) => setNewZhName(e.target.value)} required />
@@ -568,7 +570,7 @@ const AdminFestivalPage = () => {
             )}
           </div>
         </div>
-        <div className="mb-3">
+        <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*日期</label>
           <div className="d-flex align-items-center gap-2 flex-wrap">
             <select className="form-select admin-form-control" style={{ width: '110px' }} value={dateType} onChange={(e) => setDateType(e.target.value)}>
@@ -582,6 +584,14 @@ const AdminFestivalPage = () => {
           </div>
         </div>
         <div className="mb-3">
+          <label htmlFor="newZhDesc" className="form-label admin-form-label">*華文釋義</label>
+          <textarea className="form-control admin-form-control" id="newZhDesc" rows="3" value={newZhDesc} onChange={(e) => setNewZhDesc(e.target.value)} required />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="newTwDesc" className="form-label admin-form-label">*台語釋義</label>
+          <textarea className="form-control admin-form-control" id="newTwDesc" rows="3" value={newTwDesc} onChange={(e) => setNewTwDesc(e.target.value)} required />
+        </div>
+        <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*圖片</label>
           <div className="d-flex align-items-center gap-3">
             <button type="button" className="btn btn-outline-secondary" onClick={handleReplaceFileClick}>上傳檔案</button>
@@ -599,13 +609,6 @@ const AdminFestivalPage = () => {
             </div>
           )}
         </div>
-        <div className="mb-3">
-          <label htmlFor="newZhDesc" className="form-label admin-form-label">*華文釋義</label>
-          <textarea className="form-control admin-form-control" id="newZhDesc" rows="3" value={newZhDesc} onChange={(e) => setNewZhDesc(e.target.value)} required />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="newTwDesc" className="form-label admin-form-label">*台語釋義</label>
-          <textarea className="form-control admin-form-control" id="newTwDesc" rows="3" value={newTwDesc} onChange={(e) => setNewTwDesc(e.target.value)} required />
         </div>
       </AdminModal>
     </div>

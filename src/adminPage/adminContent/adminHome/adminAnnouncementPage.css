@@ -182,7 +182,8 @@
   padding: 7px 10px;
   font-size: 13px;
   color: #424242;
-  width: 90px;
+  width: auto;
+  min-width: 130px;
   cursor: pointer;
   transition: border-color 0.2s;
 }

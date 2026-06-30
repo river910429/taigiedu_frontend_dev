@@ -129,8 +129,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 500px;
-    /* 這裡給一個較大的上限，確保在 auto 佈局下能截斷 */
+    max-width: 240px;
+    /* 預設單一儲存格最大寬度；超過即截斷（…），避免長文字把表格撐寬需右滑。
+       想看完整內容請點編輯鈕；個別欄位可用 columnDef.meta.maxWidth 覆寫此上限。 */
 }
 
 .admin-data-table tbody tr:not(:last-child) {

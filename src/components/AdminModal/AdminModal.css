@@ -117,6 +117,26 @@
     margin-bottom: 0 !important;
 }
 
+/* ─── 兩欄式表單排版 (Two-column form grid) ─────────────────
+   讓新增／編輯表單以橫式雙欄排列，避免內容過長需要捲動。 */
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.5rem;
+    row-gap: 1rem;
+    align-items: start;
+}
+
+/* 在 grid 內由 row-gap 控制間距，移除欄位自身的下邊距 */
+.admin-form-grid .mb-3 {
+    margin-bottom: 0 !important;
+}
+
+/* 橫跨兩欄的欄位（如多行文字、勾選清單、圖片上傳） */
+.admin-form-grid-full {
+    grid-column: 1 / -1;
+}
+
 /* ─── RWD ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
     .modal-dialog.modal-dialog-centered {
@@ -157,5 +177,11 @@
     
     .admin-modal-footer .btn {
         flex: 1;
+    }
+
+    /* 手機版改回單欄堆疊 */
+    .admin-form-grid {
+        grid-template-columns: 1fr;
+        row-gap: 1rem;
     }
 }

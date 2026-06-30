@@ -454,7 +454,9 @@ const AdminSocialmediaPage = () => {
         onClose={closeModal}
         title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleSubmit}
+        size="lg"
       >
+        <div className="admin-form-grid">
         <div className="mb-3">
           <label className="form-label admin-form-label">*名稱</label>
           <input
@@ -467,6 +469,24 @@ const AdminSocialmediaPage = () => {
         </div>
 
         <div className="mb-3">
+          <label className="form-label admin-form-label">*連結</label>
+          <input
+            type="url"
+            className={`form-control admin-form-control ${attemptedSubmit && (() => {
+                try {
+                  new URL(link);
+                  return false;
+                } catch {
+                  return true;
+                }
+              })() ? 'is-invalid' : ''
+              }`}
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*類別（至少勾選一個類別）</label>
           {flatCategoryOptions.length === 0 ? (
             <div className="text-muted" style={{ fontSize: '0.9rem' }}>
@@ -498,7 +518,7 @@ const AdminSocialmediaPage = () => {
           )}
         </div>
 
-        <div className="mb-3">
+        <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*圖片</label>
           <div className="upload-wrapper mb-2">
             <label className="upload-btn">
@@ -523,23 +543,6 @@ const AdminSocialmediaPage = () => {
             </div>
           )}
         </div>
-
-        <div className="mb-3">
-          <label className="form-label admin-form-label">*連結</label>
-          <input
-            type="url"
-            className={`form-control admin-form-control ${attemptedSubmit && (() => {
-                try {
-                  new URL(link);
-                  return false;
-                } catch {
-                  return true;
-                }
-              })() ? 'is-invalid' : ''
-              }`}
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-          />
         </div>
       </AdminModal>
     </div>

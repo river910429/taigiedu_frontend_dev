@@ -482,7 +482,7 @@ const AdminAnnouncementPage = () => {
         title={editingId ? '編輯公告' : '新增公告'}
         onSubmit={handleSubmit}
         submitText="送出"
-        size="lg"
+        size="xl"
       >
         {/* 公告類型 */}
         <div className="mb-3">

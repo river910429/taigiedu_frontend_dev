@@ -311,7 +311,9 @@ const AdminExamBooks = () => {
         onClose={handleModalClose}
         title={isEditing ? '編輯書籍' : '新增書籍'}
         onSubmit={handleFormSubmit}
+        size="lg"
       >
+        <div className="admin-form-grid">
         <div className="mb-3">
           <label htmlFor="newBookTitle" className="form-label admin-form-label">
             *書名
@@ -355,6 +357,21 @@ const AdminExamBooks = () => {
         </div>
 
         <div className="mb-3">
+          <label htmlFor="newLink" className="form-label admin-form-label">
+            *連結
+          </label>
+          <input
+            type="url"
+            className="form-control admin-form-control"
+            id="newLink"
+            value={newLink}
+            onChange={(e) => setNewLink(e.target.value)}
+            placeholder="https://example.com"
+            required
+          />
+        </div>
+
+        <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*圖片</label>
           <div className="upload-wrapper">
             <label className="upload-btn">
@@ -375,20 +392,6 @@ const AdminExamBooks = () => {
             </div>
           )}
         </div>
-
-        <div className="mb-3">
-          <label htmlFor="newLink" className="form-label admin-form-label">
-            *連結
-          </label>
-          <input
-            type="url"
-            className="form-control admin-form-control"
-            id="newLink"
-            value={newLink}
-            onChange={(e) => setNewLink(e.target.value)}
-            placeholder="https://example.com"
-            required
-          />
         </div>
       </AdminModal>
     </div>

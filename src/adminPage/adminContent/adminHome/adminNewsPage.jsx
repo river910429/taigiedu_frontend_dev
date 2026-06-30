@@ -503,8 +503,10 @@ const AdminNewsPage = () => {
         onClose={handleModalClose}
         title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleFormSubmit}
+        size="lg"
       >
-        <div className="mb-3">
+        <div className="admin-form-grid">
+        <div className="mb-3 admin-form-grid-full">
           <label htmlFor="newCategory" className="form-label admin-form-label">
             *類別
           </label>
@@ -586,6 +588,7 @@ const AdminNewsPage = () => {
             onChange={(e) => setNewLink(e.target.value)}
             required={!isLinkOptional}
           />
+        </div>
         </div>
       </AdminModal>
     </div>

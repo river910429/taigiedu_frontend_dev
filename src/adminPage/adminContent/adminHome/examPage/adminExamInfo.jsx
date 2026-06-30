@@ -364,7 +364,9 @@ const AdminExamInfo = () => {
         onClose={handleModalClose}
         title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleFormSubmit}
+        size="lg"
       >
+        <div className="admin-form-grid">
         <div className="mb-3">
           <label className="form-label admin-form-label">*類別</label>
           {!isCustomCategory ? (
@@ -438,6 +440,21 @@ const AdminExamInfo = () => {
         </div>
 
         <div className="mb-3">
+          <label htmlFor="newLink" className="form-label admin-form-label">
+            *連結
+          </label>
+          <input
+            type="url"
+            className="form-control admin-form-control"
+            id="newLink"
+            value={newLink}
+            onChange={(e) => setNewLink(e.target.value)}
+            placeholder="https://example.com"
+            required
+          />
+        </div>
+
+        <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*圖片</label>
           <div className="upload-wrapper mb-2">
             <label className="upload-btn">
@@ -460,20 +477,6 @@ const AdminExamInfo = () => {
             </div>
           )}
         </div>
-
-        <div className="mb-3">
-          <label htmlFor="newLink" className="form-label admin-form-label">
-            *連結
-          </label>
-          <input
-            type="url"
-            className="form-control admin-form-control"
-            id="newLink"
-            value={newLink}
-            onChange={(e) => setNewLink(e.target.value)}
-            placeholder="https://example.com"
-            required
-          />
         </div>
       </AdminModal>
     </div>
