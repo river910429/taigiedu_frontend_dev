@@ -370,29 +370,8 @@ const AdminSocialmediaPage = () => {
   return (
     <div className="admin-content-wrapper">
       <div className="admin-header-controls">
-        <h5>
-          首頁搜尋 &gt;
-          {parentFilter !== '全部' && (
-            <>
-              {parentFilter}
-              {childFilter !== '全部' && ` > ${childFilter}`}
-            </>
-          )}
-          {parentFilter === '全部' && ' 媒體與社群資源'}
-        </h5>
-      </div>
-
-      {/* 刪除紀錄不需要新增項目功能 */}
-      {statusFilter !== 'archived' && (
-        <button className="btn btn-primary admin-add-button mb-3" onClick={openCreate}>
-          <img src={addIcon} alt="新增" />
-          新增項目
-        </button>
-      )}
-
-      <div className="admin-controls-row">
-        <div className="filter-breadcrumb">
-          <span className="breadcrumb-label">篩選：</span>
+        <h5 className="d-flex align-items-center gap-2">
+          媒體與社群資源 &gt;
           <select
             className="form-select admin-filter-select"
             value={parentFilter}
@@ -409,7 +388,7 @@ const AdminSocialmediaPage = () => {
 
           {showChildFilter && (
             <>
-              <span className="breadcrumb-separator">&gt;</span>
+              &gt;
               <select
                 className="form-select admin-filter-select"
                 value={childFilter}
@@ -422,7 +401,19 @@ const AdminSocialmediaPage = () => {
               </select>
             </>
           )}
-        </div>
+        </h5>
+      </div>
+
+      <div className="admin-controls-row">
+        {/* 刪除紀錄不需要新增項目功能 */}
+        {statusFilter !== 'archived' ? (
+          <button className="btn btn-primary admin-add-button" onClick={openCreate}>
+            <img src={addIcon} alt="新增" />
+            新增項目
+          </button>
+        ) : (
+          <div />
+        )}
 
         <div className="status-filter">
           <span>目前狀態：</span>
@@ -431,7 +422,7 @@ const AdminSocialmediaPage = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="published">目前公告</option>
+            <option value="published">目前資源</option>
             <option value="archived">刪除紀錄</option>
           </select>
         </div>

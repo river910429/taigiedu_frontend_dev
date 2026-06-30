@@ -532,7 +532,7 @@ const AdminFoodPage = () => {
           <div className="d-flex gap-2 align-items-center flex-wrap">
             <input type="text" className="form-control admin-form-control" id="newTwName" value={newTwName} onChange={(e) => setNewTwName(e.target.value)} required style={{ maxWidth: '240px' }} />
             {!ttsGenerated && !usingRecording && (
-              <button type="button" className="btn btn-outline-primary" onClick={handleGenerateTTS}>產生語音</button>
+              <button type="button" className="admin-btn-generate-tts" onClick={handleGenerateTTS}>產生語音</button>
             )}
             {ttsGenerated && !usingRecording && (
               <div className="tts-controls">
@@ -548,7 +548,7 @@ const AdminFoodPage = () => {
             {usingRecording && (
               <div className="record-controls">
                 {recState !== 'review' && (
-                  <button type="button" className={recState === 'recording' ? 'btn-record-outline' : 'btn-record-primary'} onClick={handleToggleRecording}>
+                  <button type="button" className={recState === 'recording' ? 'btn-record-outline btn-record-recording' : 'btn-record-primary'} onClick={handleToggleRecording}>
                     {recState === 'recording' ? '錄音中 ■' : '點此錄音'}
                   </button>
                 )}
