@@ -13,7 +13,8 @@
   box-sizing: border-box;
   padding: 0 20px 0 0;
   position: sticky;
-  top: 0;
+  /* 公告橫幅出現時，Header 釘在橫幅下方（--otb-height 預設 0） */
+  top: var(--otb-height, 0px);
   z-index: var(--z-header, 1000);
   flex-shrink: 0;
 }

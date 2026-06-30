@@ -27,7 +27,7 @@ body {
     display: grid;
     grid-template-columns: var(--sidebar-width) 1fr;
     flex: 1;
-    min-height: calc(100vh - var(--header-height));
+    min-height: calc(100vh - var(--header-height) - var(--otb-height, 0px));
     background-color: var(--bg-page);
 }
 

@@ -7,7 +7,11 @@
   padding: 10px 16px;
   font-size: 0.9rem;
   line-height: 1.5;
-  z-index: 100;
+  /* 與 Header 一起釘在最上方，形成穩定的頂部堆疊，
+     避免橫幅在普通流捲走後造成 fixed sidebar / sticky header 的位移錯亂 */
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header, 1000);
 }
 
 .otb-icon {

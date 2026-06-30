@@ -139,11 +139,12 @@
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
-    top: var(--header-height);
+    /* 抽屜頂端要在 公告橫幅 + Header 下方（--otb-height 預設 0） */
+    top: calc(var(--header-height) + var(--otb-height, 0px));
     bottom: 0;
     left: 0;
-    height: calc(100vh - var(--header-height));
-    max-height: calc(100vh - var(--header-height));
+    height: calc(100vh - var(--header-height) - var(--otb-height, 0px));
+    max-height: calc(100vh - var(--header-height) - var(--otb-height, 0px));
     width: var(--sidebar-width);
     max-width: 80vw;
     padding-bottom: max(16px, env(safe-area-inset-bottom));
@@ -157,8 +158,8 @@
 
   @supports (height: 100dvh) {
     .sidebar {
-      height: calc(100dvh - var(--header-height));
-      max-height: calc(100dvh - var(--header-height));
+      height: calc(100dvh - var(--header-height) - var(--otb-height, 0px));
+      max-height: calc(100dvh - var(--header-height) - var(--otb-height, 0px));
     }
   }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './OutageTopBanner.css';
 import { subscribeOutage } from '../../services/outageService';
 
@@ -61,12 +61,33 @@ function formatPeriod(startAt, endAt) {
 const OutageTopBanner = () => {
   const [outage, setOutage] = useState(null);
   const [dismissState, setDismissState] = useState(() => readDismissState());
+  const bannerRef = useRef(null);
 
   useEffect(() => {
     return subscribeOutage(setOutage);
   }, []);
 
   const show = useMemo(() => shouldShow(outage, dismissState), [outage, dismissState]);
+
+  // 將橫幅實際高度發佈成 --otb-height，供 Header/Sidebar/主內容計算偏移；
+  // 橫幅文字在手機上會折行使高度變動，所以用 ResizeObserver 持續同步。
+  useEffect(() => {
+    const root = document.documentElement;
+    const el = bannerRef.current;
+    if (!show || !el) {
+      root.style.setProperty('--otb-height', '0px');
+      return undefined;
+    }
+    const update = () =>
+      root.style.setProperty('--otb-height', `${el.offsetHeight}px`);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.setProperty('--otb-height', '0px');
+    };
+  }, [show]);
 
   if (!show) return null;
 
@@ -79,7 +100,7 @@ const OutageTopBanner = () => {
   const period = formatPeriod(outage.startAt, outage.endAt);
 
   return (
-    <div className="otb-banner" role="alert">
+    <div className="otb-banner" role="alert" ref={bannerRef}>
       <span className="otb-icon" aria-hidden="true">📢</span>
       <span className="otb-text">
         <strong>{outage.title || '【停電公告】'}</strong>
