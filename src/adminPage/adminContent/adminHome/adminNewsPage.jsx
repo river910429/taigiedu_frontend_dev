@@ -456,7 +456,7 @@ const AdminNewsPage = () => {
       <div className="admin-header-main">
         <h5 className="mb-3 text-secondary">
           首頁搜尋 &gt; 活動快訊 &gt;
-          <span>{statusFilter === 'published' ? "活動快訊" : "刪除紀錄"}</span>
+          <span>{statusFilter === 'published' ? "目前公告" : "刪除紀錄"}</span>
         </h5>
         <div className="admin-controls-row">
           {/* 刪除紀錄不需要新增項目功能 */}
@@ -467,13 +467,13 @@ const AdminNewsPage = () => {
             </button>
           )}
           <div className="status-filter">
-            <span className="me-2 text-secondary">目前公告：</span>
+            <span className="me-2 text-secondary">目前狀態：</span>
             <select
               className="form-select admin-status-dropdown"
               value={statusFilter}
               onChange={handleStatusFilterChange}
             >
-              <option value="published">活動快訊</option>
+              <option value="published">目前公告</option>
               <option value="archived">刪除紀錄</option>
             </select>
           </div>
