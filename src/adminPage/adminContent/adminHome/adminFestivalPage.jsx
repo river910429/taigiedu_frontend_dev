@@ -594,7 +594,7 @@ const AdminFestivalPage = () => {
         <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*圖片</label>
           <div className="d-flex align-items-center gap-3">
-            <button type="button" className="btn btn-outline-secondary" onClick={handleReplaceFileClick}>上傳檔案</button>
+            <button type="button" className="admin-upload-btn" onClick={handleReplaceFileClick}>上傳檔案</button>
             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="d-none" onChange={handleFileChange} />
             <span className="text-muted" style={{ fontSize: '13px' }}>
               ※限 JPG、PNG 可上傳，限制 2MB。

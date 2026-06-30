@@ -374,7 +374,7 @@ const AdminExamBooks = () => {
         <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*圖片</label>
           <div className="upload-wrapper">
-            <label className="upload-btn">
+            <label className="admin-upload-btn">
               <input
                 type="file"
                 accept="image/jpeg,image/png"

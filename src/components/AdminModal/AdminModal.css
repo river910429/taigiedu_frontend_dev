@@ -137,6 +137,49 @@
     grid-column: 1 / -1;
 }
 
+/* ─── 上傳檔案按鈕 (Upload button) ─────────────────────────
+   淺藍底、藍字、檔案圖示，明確呈現可點擊狀態。 */
+.admin-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #dde9f6;
+    color: #4a90c2;
+    border: 1px solid #c5dbf0;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0;
+    user-select: none;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+/* 檔案圖示（內嵌 SVG，無需額外資源） */
+.admin-upload-btn::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%234a90c2' d='M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z'/%3E%3Cpath fill='%23dde9f6' d='M13 2v7h7z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+.admin-upload-btn:hover {
+    background: #caddf1;
+    box-shadow: 0 2px 6px rgba(45, 146, 193, 0.25);
+}
+
+.admin-upload-btn:active {
+    transform: translateY(1px);
+}
+
+/* 隱藏原生 file input（供 label 包覆使用） */
+.admin-upload-btn input[type="file"] {
+    display: none;
+}
+
 /* ─── RWD ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
     .modal-dialog.modal-dialog-centered {
