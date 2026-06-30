@@ -15,6 +15,7 @@ import envConfig from '../../../config';
 const API_BASE_URL = envConfig.apiUrl;
 const TEST_ORDER_KEY = 'testPublishedOrder';
 const ALLOWED_CATEGORIES = ['成大', '教育部'];
+const CONTENT_MAX_LENGTH = 20;
 
 const AdminTestPage = () => {
     const { showToast } = useToast();
@@ -272,6 +273,10 @@ const AdminTestPage = () => {
             showToast('請填寫所有欄位', 'warning');
             return;
         }
+        if (newContent.length > CONTENT_MAX_LENGTH) {
+            showToast(`內容不可超過 ${CONTENT_MAX_LENGTH} 字`, 'warning');
+            return;
+        }
         try {
             new URL(newLink);
         } catch {
@@ -383,6 +388,7 @@ const AdminTestPage = () => {
                         id="newContent"
                         value={newContent}
                         onChange={(e) => setNewContent(e.target.value)}
+                        maxLength={CONTENT_MAX_LENGTH}
                         required
                     />
                 </div>

@@ -21,6 +21,7 @@ const columnHelper = createColumnHelper();
 const NEWS_CATEGORIES_KEY = 'newsCategories';
 const DEFAULT_CATEGORIES = ['教育部', '成大'];
 const NEWS_ORDER_KEY = 'newsPublishedOrder';
+const CONTENT_MAX_LENGTH = 20;
 
 function loadCategories() {
   try {
@@ -397,6 +398,10 @@ const AdminNewsPage = () => {
       showToast('請填寫所有必填欄位', 'warning');
       return;
     }
+    if (newContent.length > CONTENT_MAX_LENGTH) {
+      showToast(`內容不可超過 ${CONTENT_MAX_LENGTH} 字`, 'warning');
+      return;
+    }
     // 若有填入連結，統一驗證格式
     if (newLink) {
       try {
@@ -562,6 +567,7 @@ const AdminNewsPage = () => {
             id="newContent"
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
+            maxLength={CONTENT_MAX_LENGTH}
             required
           />
         </div>
