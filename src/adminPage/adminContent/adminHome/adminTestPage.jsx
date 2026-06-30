@@ -133,7 +133,8 @@ const AdminTestPage = () => {
         const isArchived = statusFilter === 'archived';
 
         return [
-            {
+            // 刪除紀錄不需要修改功能
+            !isArchived && {
                 id: 'edit',
                 header: '修改',
                 size: 50,
@@ -166,7 +167,7 @@ const AdminTestPage = () => {
             },
             {
                 id: 'action',
-                header: '刪除',
+                header: isArchived ? '復原' : '刪除',
                 size: 50,
                 enableSorting: false,
                 cell: ({ row }) => (
@@ -187,7 +188,7 @@ const AdminTestPage = () => {
                 header: '建立時間',
                 enableSorting: true,
             }
-        ];
+        ].filter(Boolean);
     }, [statusFilter, handleEditClick, handleDeleteClick]);
 
     // 拖曳結束處理：只更新本地狀態，等待使用者點「確認順序」才送 API
@@ -321,10 +322,13 @@ const AdminTestPage = () => {
                     <span>{statusFilter === 'published' ? "目前公告" : "刪除記錄"}</span>
                 </h5>
                 <div className="admin-controls-row">
-                    <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
-                        <img src={addIcon} alt="新增項目" />
-                        新增項目
-                    </button>
+                    {/* 刪除紀錄不需要新增項目功能 */}
+                    {statusFilter !== 'archived' && (
+                        <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
+                            <img src={addIcon} alt="新增項目" />
+                            新增項目
+                        </button>
+                    )}
                     <div className="status-filter">
                         <span className="me-2 text-secondary">目前狀態：</span>
                         <select
@@ -342,8 +346,8 @@ const AdminTestPage = () => {
             <AdminDataTable
                 data={testInfo}
                 columns={columns}
-                enableSorting={true}
-                enableDragging={true}
+                enableSorting={statusFilter !== 'archived'}
+                enableDragging={statusFilter !== 'archived'}
                 onDragEnd={handleDragEnd}
                 isLoading={isLoading}
                 error={error}

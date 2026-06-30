@@ -170,8 +170,8 @@ const AdminNewsPage = () => {
     const isArchived = statusFilter === 'archived';
 
     return [
-      // 編輯按鈕欄位
-      columnHelper.display({
+      // 編輯按鈕欄位（刪除紀錄不需要修改功能）
+      !isArchived && columnHelper.display({
         id: 'edit',
         size: 50,
         enableSorting: false,
@@ -212,7 +212,7 @@ const AdminNewsPage = () => {
         id: 'delete',
         size: 50,
         enableSorting: false,
-        header: '刪除',
+        header: isArchived ? '復原' : '刪除',
         cell: ({ row }) => (
           <button
             className={isArchived ? "admin-action-btn restore-btn" : "admin-action-btn delete-btn"}
@@ -237,7 +237,7 @@ const AdminNewsPage = () => {
           return dateA.getTime() - dateB.getTime();
         },
       }),
-    ];
+    ].filter(Boolean);
   }, [statusFilter, handleEditClick, handleDeleteClick]);
 
   // 拖曳結束處理
@@ -459,10 +459,13 @@ const AdminNewsPage = () => {
           <span>{statusFilter === 'published' ? "活動快訊" : "刪除紀錄"}</span>
         </h5>
         <div className="admin-controls-row">
-          <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
-            <img src={addIcon} alt="新增項目" />
-            新增項目
-          </button>
+          {/* 刪除紀錄不需要新增項目功能 */}
+          {statusFilter !== 'archived' && (
+            <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
+              <img src={addIcon} alt="新增項目" />
+              新增項目
+            </button>
+          )}
           <div className="status-filter">
             <span className="me-2 text-secondary">目前公告：</span>
             <select
@@ -481,8 +484,8 @@ const AdminNewsPage = () => {
       <AdminDataTable
         data={newsList}
         columns={columns}
-        enableSorting={true}
-        enableDragging={true}
+        enableSorting={statusFilter !== 'archived'}
+        enableDragging={statusFilter !== 'archived'}
         onDragEnd={handleDragEnd}
         isLoading={isLoading}
         error={error}

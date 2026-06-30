@@ -288,7 +288,8 @@ const AdminSocialmediaPage = () => {
 
   // 定義表格欄位
   const columns = useMemo(() => [
-    {
+    // 刪除紀錄不需要修改功能
+    statusFilter !== 'archived' && {
       id: 'edit',
       header: '編輯',
       size: 50,
@@ -347,7 +348,7 @@ const AdminSocialmediaPage = () => {
     },
     {
       id: 'action',
-      header: '操作',
+      header: statusFilter === 'archived' ? '復原' : '刪除',
       size: 50,
       enableSorting: false,
       cell: ({ row }) => (
@@ -364,7 +365,7 @@ const AdminSocialmediaPage = () => {
       header: '建立時間',
       enableSorting: true,
     }
-  ], [handleDeleteClick]);
+  ].filter(Boolean), [handleDeleteClick, statusFilter]);
 
   return (
     <div className="admin-content-wrapper">
@@ -381,10 +382,13 @@ const AdminSocialmediaPage = () => {
         </h5>
       </div>
 
-      <button className="btn btn-primary admin-add-button mb-3" onClick={openCreate}>
-        <img src={addIcon} alt="新增" />
-        新增項目
-      </button>
+      {/* 刪除紀錄不需要新增項目功能 */}
+      {statusFilter !== 'archived' && (
+        <button className="btn btn-primary admin-add-button mb-3" onClick={openCreate}>
+          <img src={addIcon} alt="新增" />
+          新增項目
+        </button>
+      )}
 
       <div className="admin-controls-row">
         <div className="filter-breadcrumb">
@@ -437,7 +441,7 @@ const AdminSocialmediaPage = () => {
         data={filteredItems}
         columns={columns}
         enableDragging={false}
-        enableSorting={true}
+        enableSorting={statusFilter !== 'archived'}
         isLoading={isLoading}
         error={error}
         onRetry={fetchData}

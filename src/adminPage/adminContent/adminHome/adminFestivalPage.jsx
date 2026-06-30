@@ -402,7 +402,8 @@ const AdminFestivalPage = () => {
 
   // 定義表格欄位
   const columns = useMemo(() => [
-    {
+    // 刪除紀錄不需要修改功能
+    statusFilter !== 'archived' && {
       id: 'edit',
       header: '修改',
       size: 50,
@@ -467,7 +468,7 @@ const AdminFestivalPage = () => {
     },
     {
       id: 'action',
-      header: '刪除',
+      header: statusFilter === 'archived' ? '復原' : '刪除',
       size: 50,
       enableSorting: false,
       cell: ({ row }) => (
@@ -481,16 +482,19 @@ const AdminFestivalPage = () => {
       header: '日期',
       enableSorting: true,
     }
-  ], [statusFilter, playingId, handlePlayAudio]);
+  ].filter(Boolean), [statusFilter, playingId, handlePlayAudio]);
 
   return (
     <div className="admin-test-page p-4">
       <div className="admin-header-main">
         <h5 className="mb-3 text-secondary">節慶飲食 &gt; 節慶 &gt; <span>{statusFilter === 'published' ? '目前項目' : '刪除紀錄'}</span></h5>
         <div className="admin-controls-row">
-          <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
-            <img src={addIcon} alt="新增項目" />新增項目
-          </button>
+          {/* 刪除紀錄不需要新增項目功能 */}
+          {statusFilter !== 'archived' && (
+            <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
+              <img src={addIcon} alt="新增項目" />新增項目
+            </button>
+          )}
           <div className="status-filter">
             <span className="me-2 text-secondary">目前狀態：</span>
             <select className="form-select admin-status-dropdown" value={statusFilter} onChange={handleStatusFilterChange}>
@@ -505,7 +509,7 @@ const AdminFestivalPage = () => {
         data={festivalList}
         columns={columns}
         enableDragging={false}
-        enableSorting={true}
+        enableSorting={statusFilter !== 'archived'}
         isLoading={isLoading}
         error={error}
         onRetry={fetchFestival}

@@ -188,7 +188,8 @@ const AdminExamChannels = () => {
 
   // 定義表格欄位
   const columns = useMemo(() => [
-    {
+    // 刪除紀錄不需要修改功能
+    statusFilter !== 'archived' && {
       id: 'edit',
       header: '',
       size: 50,
@@ -228,7 +229,7 @@ const AdminExamChannels = () => {
     },
     {
       id: 'action',
-      header: '',
+      header: statusFilter === 'archived' ? '復原' : '刪除',
       size: 50,
       enableSorting: false,
       cell: ({ row }) => (
@@ -243,7 +244,7 @@ const AdminExamChannels = () => {
         )
       )
     }
-  ], [statusFilter]);
+  ].filter(Boolean), [statusFilter]);
 
   return (
     <div className="admin-exam-channels-page p-4">
@@ -252,10 +253,13 @@ const AdminExamChannels = () => {
           認證考試 &gt; 教育頻道 &gt; <span>{statusFilter === 'published' ? '目前項目' : '刪除紀錄'}</span>
         </h5>
         <div className="admin-controls-row">
-          <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
-            <img src={addIcon} alt="新增項目" />
-            新增項目
-          </button>
+          {/* 刪除紀錄不需要新增項目功能 */}
+          {statusFilter !== 'archived' && (
+            <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
+              <img src={addIcon} alt="新增項目" />
+              新增項目
+            </button>
+          )}
           <div className="status-filter">
             <span className="me-2 text-secondary">目前狀態：</span>
             <select
@@ -273,8 +277,8 @@ const AdminExamChannels = () => {
       <AdminDataTable
         data={displayItems}
         columns={columns}
-        enableDragging={true}
-        enableSorting={true}
+        enableDragging={statusFilter !== 'archived'}
+        enableSorting={statusFilter !== 'archived'}
         onDragEnd={handleDragEnd}
         emptyState={{ message: '目前沒有教育頻道資料' }}
       />
