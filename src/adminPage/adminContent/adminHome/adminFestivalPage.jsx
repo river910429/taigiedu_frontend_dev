@@ -43,6 +43,27 @@ const getFullImageUrl = (path) => {
   return `${envConfig.apiUrl}/static/festival/${filename}`;
 };
 
+const getFullAudioUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
+  
+  const cleanPath = path.trim().replace(/\s/g, '');
+  if (cleanPath.length > 100 && /^[A-Za-z0-9+/=]+$/.test(cleanPath)) {
+    let mimeType = 'webm';
+    if (cleanPath.startsWith('GkXf')) {
+      mimeType = 'webm';
+    } else if (cleanPath.startsWith('UklG')) {
+      mimeType = 'wav';
+    } else if (cleanPath.startsWith('SUQz') || cleanPath.startsWith('//O') || cleanPath.startsWith('//M')) {
+      mimeType = 'mpeg';
+    }
+    return `data:audio/${mimeType};base64,${cleanPath}`;
+  }
+  
+  const filename = path.split('/').filter(Boolean).pop();
+  return `${envConfig.apiUrl}/static/festival/${filename}`;
+};
+
 const AdminFestivalPage = () => {
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -128,7 +149,7 @@ const AdminFestivalPage = () => {
           imageName: i.figure ? i.figure.split('/').pop() : '',
           zhDesc: i.intro_mandarin || '',
           twDesc: i.intro_taigi || '',
-          audioUrl: getFullImageUrl(i.audio_data),
+          audioUrl: getFullAudioUrl(i.audio_data),
           timestamp: label || 'N/A',
           status: (i.status === 'publish' || i.status === 'published') ? 'published' : (i.status === 'archive' || i.status === 'archived' || i.status === 'deleted') ? 'archived' : i.status,
           dateMonth: i.date ? i.date.split('-')[0] : '',
@@ -335,7 +356,11 @@ const AdminFestivalPage = () => {
       for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
       mappedAudio = `data:audio/wav;base64,${btoa(binary)}`;
     } else {
-      mappedAudio = newAudioUrl ? newAudioUrl.split('/').pop() : '';
+      if (newAudioUrl && (newAudioUrl.startsWith('data:') || newAudioUrl.startsWith('blob:') || newAudioUrl.length > 200)) {
+        mappedAudio = newAudioUrl;
+      } else {
+        mappedAudio = newAudioUrl ? newAudioUrl.split('/').pop() : '';
+      }
     }
     const finalImage = newImageFile ? newImageFile.name : newImageName;
 

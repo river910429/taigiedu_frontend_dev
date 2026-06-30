@@ -32,6 +32,27 @@ const getFullImageUrl = (path) => {
   return `${envConfig.apiUrl}/static/food/${filename}`;
 };
 
+const getFullAudioUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
+  
+  const cleanPath = path.trim().replace(/\s/g, '');
+  if (cleanPath.length > 100 && /^[A-Za-z0-9+/=]+$/.test(cleanPath)) {
+    let mimeType = 'webm';
+    if (cleanPath.startsWith('GkXf')) {
+      mimeType = 'webm';
+    } else if (cleanPath.startsWith('UklG')) {
+      mimeType = 'wav';
+    } else if (cleanPath.startsWith('SUQz') || cleanPath.startsWith('//O') || cleanPath.startsWith('//M')) {
+      mimeType = 'mpeg';
+    }
+    return `data:audio/${mimeType};base64,${cleanPath}`;
+  }
+  
+  const filename = path.split('/').filter(Boolean).pop();
+  return `${envConfig.apiUrl}/static/food/${filename}`;
+};
+
 const fileToBase64 = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader();
   reader.onload = () => resolve(reader.result);
@@ -128,7 +149,7 @@ const AdminFoodPage = () => {
         imageName: item.figure ? getFileNameFromUrl(item.figure) : '',
         zhDesc: item.intro_mandarin || '',
         twDesc: item.intro_taigi || '',
-        audioUrl: getFullImageUrl(item.audio_data),
+        audioUrl: getFullAudioUrl(item.audio_data),
         ttsText: '',
         timestamp: item.timestamp || 'N/A',
         status: (item.status === 'publish' || item.status === 'published') ? 'published' : (item.status === 'archive' || item.status === 'archived' || item.status === 'deleted') ? 'archived' : item.status,
@@ -332,7 +353,11 @@ const AdminFoodPage = () => {
         for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
         audioData = `data:audio/wav;base64,${btoa(binary)}`;
       } else if (!usingRecording && !ttsGenerated) {
-        audioData = newAudioUrl || '';
+        if (newAudioUrl && (newAudioUrl.startsWith('data:') || newAudioUrl.startsWith('blob:') || newAudioUrl.length > 200)) {
+          audioData = newAudioUrl;
+        } else {
+          audioData = newAudioUrl ? newAudioUrl.split('/').pop() : '';
+        }
       }
 
       if (isEditing && currentEditItem) {
