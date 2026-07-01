@@ -34,6 +34,7 @@ const AdminExamInfo = () => {
   const { showToast } = useToast();
   const [examTypes, setExamTypes] = useState([]);
   const [availableCategories, setAvailableCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('published');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -59,6 +60,7 @@ const AdminExamInfo = () => {
   }, []);
 
   const fetchExamTypes = async () => {
+    setIsLoading(true);
     try {
       const response = await authenticatedFetch(`${API_BASE_URL}/admin/exam`);
       const result = await response.json();
@@ -84,6 +86,8 @@ const AdminExamInfo = () => {
       setExamTypes(allItems);
     } catch (err) {
       showToast(`載入失敗: ${err.message}`, 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -382,6 +386,7 @@ const AdminExamInfo = () => {
         columns={columns}
         enableDragging={false}
         enableSorting={statusFilter !== 'archived'}
+        isLoading={isLoading}
         emptyState={{ message: '目前沒有認證考試資料' }}
       />
 

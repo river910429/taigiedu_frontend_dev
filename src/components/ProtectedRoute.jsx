@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { hasFlag } from '../config/permissions';
+import './ProtectedRoute.css';
 
 /**
  * 受保護的路由組件

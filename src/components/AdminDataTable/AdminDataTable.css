@@ -308,7 +308,7 @@
 /* ===== 載入與空狀態樣式 ===== */
 .admin-table-loading {
     width: 100%;
-    height: 400px;
+    min-height: 60vh;
     display: flex;
     flex-direction: column;
     justify-content: center;

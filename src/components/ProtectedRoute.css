@@ -1,0 +1,31 @@
+/* 路由驗證載入狀態：撐滿可視區域並置中 */
+.protected-route-loading {
+    width: 100%;
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #6c757d;
+    font-size: 0.9375rem;
+}
+
+.protected-route-loading .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: protected-route-spin 1s linear infinite;
+}
+
+.protected-route-loading p {
+    margin: 0;
+}
+
+@keyframes protected-route-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
