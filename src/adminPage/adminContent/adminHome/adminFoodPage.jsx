@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useToast } from '../../../components/Toast';
 import { authenticatedFetch } from '../../../services/authService';
+import { uploadFile, resolveFileUrl } from '../../../services/uploadService';
 import AdminModal from '../../../components/AdminModal';
 import AdminDataTable from '../../../components/AdminDataTable';
 import './adminFoodPage.css';
@@ -28,8 +29,10 @@ const getFileNameFromUrl = (url) => {
 const getFullImageUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
-  const filename = path.split('/').filter(Boolean).pop();
-  return `${envConfig.apiUrl}/static/food/${filename}`;
+  // 新版 /file_upload 端點回傳完整相對路徑（如 /uploads/xxx.jpg），直接組合即可
+  if (path.includes('/')) return resolveFileUrl(path);
+  // 舊資料僅存純檔名，沿用舊有的固定靜態目錄
+  return `${envConfig.apiUrl}/static/food/${path}`;
 };
 
 const getFullAudioUrl = (path) => {
@@ -52,13 +55,6 @@ const getFullAudioUrl = (path) => {
   const filename = path.split('/').filter(Boolean).pop();
   return `${envConfig.apiUrl}/static/food/${filename}`;
 };
-
-const fileToBase64 = (file) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(reader.result);
-  reader.onerror = reject;
-  reader.readAsDataURL(file);
-});
 
 const blobUrlToBase64 = async (blobUrl) => {
   const response = await fetch(blobUrl);
@@ -83,6 +79,7 @@ const AdminFoodPage = () => {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newImageName, setNewImageName] = useState('');
   const [newImageFile, setNewImageFile] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [newZhDesc, setNewZhDesc] = useState('');
   const [newTwDesc, setNewTwDesc] = useState('');
   const [newAudioUrl, setNewAudioUrl] = useState('');
@@ -178,6 +175,7 @@ const AdminFoodPage = () => {
     setNewImageUrl(item.imageUrl || '');
     setNewImageName(item.imageName || '');
     setNewImageFile(null);
+    setImageUploading(false);
     setNewZhDesc(item.zhDesc || '');
     setNewTwDesc(item.twDesc || '');
     setNewAudioUrl(item.audioUrl || '');
@@ -191,7 +189,7 @@ const AdminFoodPage = () => {
   const handleModalClose = () => {
     setShowAddModal(false);
     setNewZhName(''); setNewTwName('');
-    setNewImageUrl(''); setNewImageName(''); setNewImageFile(null);
+    setNewImageUrl(''); setNewImageName(''); setNewImageFile(null); setImageUploading(false);
     setNewZhDesc(''); setNewTwDesc('');
     setNewAudioUrl('');
     setTtsGenerated(false); setTtsPlaying(false); setUsingRecording(false);
@@ -203,11 +201,26 @@ const AdminFoodPage = () => {
   };
 
   const handleReplaceFileClick = () => { if (fileInputRef.current) fileInputRef.current.click(); };
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
+    if (!['image/jpeg', 'image/png'].includes(f.type)) { showToast('僅支援 JPG/PNG', 'warning'); return; }
+    if (f.size > 2 * 1024 * 1024) { showToast('檔案超過 2MB 限制', 'warning'); return; }
+
     setNewImageFile(f);
     setNewImageName(f.name);
+    setNewImageUrl('');
+    setImageUploading(true);
+    try {
+      const uploadedPath = await uploadFile(f);
+      setNewImageUrl(uploadedPath);
+    } catch (err) {
+      showToast(`圖片上傳失敗: ${err.message}`, 'error');
+      setNewImageFile(null);
+      setNewImageName('');
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleGenerateTTS = async () => {
@@ -333,12 +346,16 @@ const AdminFoodPage = () => {
     if (!newZhName || !newTwName || !newZhDesc || !newTwDesc) {
       showToast('請填寫必填欄位', 'warning'); return;
     }
+    if (imageUploading) {
+      showToast('圖片上傳中，請稍候', 'warning'); return;
+    }
 
     try {
-      // 準備圖片資料
+      // 準備圖片資料（使用上傳 API 回傳的路徑，而非 Base64）
       let figureData = '';
       if (newImageFile) {
-        figureData = await fileToBase64(newImageFile);
+        if (!newImageUrl) { showToast('圖片尚未上傳成功，請重新選擇圖片', 'warning'); return; }
+        figureData = newImageUrl;
       } else if (newImageName) {
         figureData = newImageName;
       }
@@ -546,6 +563,8 @@ const AdminFoodPage = () => {
         title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleFormSubmit}
         size="lg"
+        submitDisabled={imageUploading}
+        submitText={imageUploading ? '圖片上傳中...' : '送出'}
       >
         <div className="admin-form-grid">
         <div className="mb-3">
@@ -605,7 +624,7 @@ const AdminFoodPage = () => {
           <div className="d-flex flex-column align-items-start gap-2">
             <label className="form-label admin-form-label mb-0">*圖片</label>
             <div className="d-flex flex-column align-items-start gap-1">
-              <button type="button" className="admin-upload-btn" onClick={handleReplaceFileClick}>上傳檔案</button>
+              <button type="button" className="admin-upload-btn" onClick={handleReplaceFileClick} disabled={imageUploading}>{imageUploading ? '上傳中...' : '上傳檔案'}</button>
               <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="d-none" onChange={handleFileChange} />
               <span className="text-muted" style={{ fontSize: '13px' }}>
                 ※限 JPG、PNG 可上傳，限制 2MB。

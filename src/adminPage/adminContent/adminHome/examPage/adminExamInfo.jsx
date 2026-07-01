@@ -9,6 +9,7 @@ import addIcon from '../../../../assets/adminPage/plus.svg';
 import uturnIcon from '../../../../assets/adminPage/uturn.svg';
 import jpgIconImage from '../../../../assets/adminPage/jpg icon.svg';
 import { authenticatedFetch } from '../../../../services/authService';
+import { uploadFile, resolveFileUrl } from '../../../../services/uploadService';
 
 import envConfig from '../../../../config';
 
@@ -17,8 +18,10 @@ const API_BASE_URL = envConfig.apiUrl;
 const getFullImageUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
-  const filename = path.split('/').filter(Boolean).pop();
-  return `${envConfig.imageUrl}/backend/static/exam/${filename}`;
+  // 新版 /file_upload 端點回傳完整相對路徑（如 /uploads/xxx.jpg），直接組合即可
+  if (path.includes('/')) return resolveFileUrl(path);
+  // 舊資料僅存純檔名，沿用舊有的固定靜態目錄
+  return `${envConfig.imageUrl}/backend/static/exam/${path}`;
 };
 
 const normalizeStatus = (status) => {
@@ -47,7 +50,8 @@ const AdminExamInfo = () => {
   const [imageName, setImageName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [isCustomCategory, setIsCustomCategory] = useState(false);
-  const [imageBase64, setImageBase64] = useState('');
+  const [uploadedImagePath, setUploadedImagePath] = useState('');
+  const [imageUploading, setImageUploading] = useState(false);
 
   useEffect(() => {
     fetchExamTypes();
@@ -107,6 +111,9 @@ const AdminExamInfo = () => {
     setNewSubcategory(item.subcategory || '');
     setImageName(item.imageName);
     setImageUrl(item.imageUrl);
+    setImageFile(null);
+    setUploadedImagePath('');
+    setImageUploading(false);
     setShowAddModal(true);
   };
 
@@ -140,7 +147,7 @@ const AdminExamInfo = () => {
     }
   };
 
-  const validateAndSetImage = (file) => {
+  const validateAndSetImage = async (file) => {
     if (!file) return;
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
       showToast('只接受 JPG 或 PNG 格式', 'warning');
@@ -150,15 +157,23 @@ const AdminExamInfo = () => {
       showToast('檔案大小不能超過 2MB', 'warning');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target.result; 
-      setImageBase64(base64);
-      setImageUrl(base64);
-    };
-    reader.readAsDataURL(file);
+
     setImageName(file.name);
     setImageFile(file);
+    setImageUrl(URL.createObjectURL(file));
+    setUploadedImagePath('');
+    setImageUploading(true);
+    try {
+      const uploadedPath = await uploadFile(file);
+      setUploadedImagePath(uploadedPath);
+    } catch (err) {
+      showToast(`圖片上傳失敗: ${err.message}`, 'error');
+      setImageFile(null);
+      setImageName('');
+      setImageUrl('');
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleModalClose = () => {
@@ -173,7 +188,8 @@ const AdminExamInfo = () => {
     setNewSubcategory('');
     setIsCustomCategory(false);
     setImageFile(null);
-    setImageBase64('');
+    setUploadedImagePath('');
+    setImageUploading(false);
     setImageName('');
     setImageUrl('');
   };
@@ -193,8 +209,18 @@ const AdminExamInfo = () => {
       return;
     }
 
-    if (!isEditing && !imageBase64) {
+    if (imageUploading) {
+      showToast('圖片上傳中，請稍候', 'warning');
+      return;
+    }
+
+    if (!isEditing && !uploadedImagePath) {
       showToast('請上傳圖片', 'warning');
+      return;
+    }
+
+    if (imageFile && !uploadedImagePath) {
+      showToast('圖片尚未上傳成功，請重新選擇圖片', 'warning');
       return;
     }
 
@@ -209,7 +235,7 @@ const AdminExamInfo = () => {
             subcategory: newSubcategory,
             title: newName,
             url: newLink,
-            ...(imageBase64 && { image: imageBase64 })
+            ...(uploadedImagePath && { image: uploadedImagePath })
           })
         });
         const result = await response.json();
@@ -223,7 +249,7 @@ const AdminExamInfo = () => {
             subcategory: newSubcategory,
             title: newName,
             url: newLink,
-            image: imageBase64
+            image: uploadedImagePath
           })
         });
         const result = await response.json();
@@ -365,6 +391,8 @@ const AdminExamInfo = () => {
         title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleFormSubmit}
         size="lg"
+        submitDisabled={imageUploading}
+        submitText={imageUploading ? '圖片上傳中...' : '送出'}
       >
         <div className="admin-form-grid">
         <div className="mb-3">
@@ -458,14 +486,15 @@ const AdminExamInfo = () => {
           <div className="d-flex flex-column align-items-start gap-2">
             <label className="form-label admin-form-label mb-0">*圖片</label>
             <div className="d-flex flex-column align-items-start gap-1">
-              <label className="admin-upload-btn" style={{ marginBottom: 0 }}>
+              <label className="admin-upload-btn" style={{ marginBottom: 0, opacity: imageUploading ? 0.6 : 1, pointerEvents: imageUploading ? 'none' : 'auto' }}>
                 <input
                   type="file"
                   accept="image/jpeg,image/png"
                   className="d-none"
+                  disabled={imageUploading}
                   onChange={(e) => validateAndSetImage(e.target.files?.[0])}
                 />
-                上傳檔案
+                {imageUploading ? '上傳中...' : '上傳檔案'}
               </label>
               <span className="upload-hint" style={{ fontSize: '13px' }}>※限 JPG、PNG 可上傳，限制 2MB。</span>
             </div>

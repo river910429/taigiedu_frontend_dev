@@ -10,6 +10,7 @@ import addIcon from '../../../assets/adminPage/plus.svg';
 import uturnIcon from '../../../assets/adminPage/uturn.svg';
 import speakerIcon from '../../../assets/speaker-wave.svg';
 import { authenticatedFetch } from '../../../services/authService';
+import { uploadFile, resolveFileUrl } from '../../../services/uploadService';
 
 import envConfig from '../../../config';
 
@@ -39,8 +40,10 @@ const getFileNameFromUrl = (url) => {
 const getFullImageUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
-  const filename = path.split('/').filter(Boolean).pop();
-  return `${envConfig.apiUrl}/static/festival/${filename}`;
+  // 新版 /file_upload 端點回傳完整相對路徑（如 /uploads/xxx.jpg），直接組合即可
+  if (path.includes('/')) return resolveFileUrl(path);
+  // 舊資料僅存純檔名，沿用舊有的固定靜態目錄
+  return `${envConfig.apiUrl}/static/festival/${path}`;
 };
 
 const getFullAudioUrl = (path) => {
@@ -89,6 +92,7 @@ const AdminFestivalPage = () => {
   // 檔案上傳
   const fileInputRef = useRef(null);
   const [newImageFile, setNewImageFile] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
   // TTS / 錄音
   const [ttsGenerated, setTtsGenerated] = useState(false);
   const [ttsPlaying, setTtsPlaying] = useState(false);
@@ -194,6 +198,7 @@ const AdminFestivalPage = () => {
       setDateMonth(''); setDateDay('');
     }
     setNewImageFile(null);
+    setImageUploading(false);
     setTtsGenerated(false); setTtsPlaying(false); setTtsProgress(0); setUsingRecording(false);
     setShowAddModal(true);
   };
@@ -203,6 +208,7 @@ const AdminFestivalPage = () => {
     setNewZhDesc(''); setNewTwDesc(''); setNewAudioUrl('');
     setDateType('lunar'); setDateMonth(''); setDateDay('');
     setNewImageFile(null);
+    setImageUploading(false);
     setTtsGenerated(false); setTtsPlaying(false); setTtsProgress(0); setUsingRecording(false);
     if (ttsSourceNodeRef.current) { try { ttsSourceNodeRef.current.stop(); } catch { /* ignore */ } ttsSourceNodeRef.current = null; }
     if (ttsAudioCtxRef.current) { try { ttsAudioCtxRef.current.close(); } catch { /* ignore */ } ttsAudioCtxRef.current = null; }
@@ -212,13 +218,26 @@ const AdminFestivalPage = () => {
   };
 
   const handleReplaceFileClick = () => { if (fileInputRef.current) fileInputRef.current.click(); };
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
     if (!/(image\/jpeg|image\/png)/.test(f.type)) { showToast('僅支援 JPG/PNG', 'warning'); return; }
     if (f.size > 2 * 1024 * 1024) { showToast('檔案超過 2MB 限制', 'warning'); return; }
+
     setNewImageFile(f);
     setNewImageName(f.name);
+    setNewImageUrl('');
+    setImageUploading(true);
+    try {
+      const uploadedPath = await uploadFile(f);
+      setNewImageUrl(uploadedPath);
+    } catch (err) {
+      showToast(`圖片上傳失敗: ${err.message}`, 'error');
+      setNewImageFile(null);
+      setNewImageName('');
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleGenerateTTS = async () => {
@@ -339,6 +358,8 @@ const AdminFestivalPage = () => {
     e.preventDefault();
     if (!newZhName || !newTwName || !newZhDesc || !newTwDesc) { showToast('請填寫必填欄位', 'warning'); return; }
     if (!dateMonth || !dateDay) { showToast('請填寫日期', 'warning'); return; }
+    if (imageUploading) { showToast('圖片上傳中，請稍候', 'warning'); return; }
+    if (newImageFile && !newImageUrl) { showToast('圖片尚未上傳成功，請重新選擇圖片', 'warning'); return; }
     // 範圍防呆
     const m = Number(dateMonth); const d = Number(dateDay);
     if (isNaN(m) || isNaN(d)) { showToast('日期需為數字', 'warning'); return; }
@@ -362,7 +383,7 @@ const AdminFestivalPage = () => {
         mappedAudio = newAudioUrl ? newAudioUrl.split('/').pop() : '';
       }
     }
-    const finalImage = newImageFile ? newImageFile.name : newImageName;
+    const finalImage = newImageFile ? newImageUrl : newImageName;
 
     const payload = {
       name: newZhName,
@@ -548,6 +569,8 @@ const AdminFestivalPage = () => {
         title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleFormSubmit}
         size="lg"
+        submitDisabled={imageUploading}
+        submitText={imageUploading ? '圖片上傳中...' : '送出'}
       >
         <div className="admin-form-grid">
         <div className="mb-3">
@@ -620,7 +643,7 @@ const AdminFestivalPage = () => {
           <div className="d-flex flex-column align-items-start gap-2">
             <label className="form-label admin-form-label mb-0">*圖片</label>
             <div className="d-flex flex-column align-items-start gap-1">
-              <button type="button" className="admin-upload-btn" onClick={handleReplaceFileClick}>上傳檔案</button>
+              <button type="button" className="admin-upload-btn" onClick={handleReplaceFileClick} disabled={imageUploading}>{imageUploading ? '上傳中...' : '上傳檔案'}</button>
               <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="d-none" onChange={handleFileChange} />
               <span className="text-muted" style={{ fontSize: '13px' }}>
                 ※限 JPG、PNG 可上傳，限制 2MB。

@@ -11,6 +11,7 @@ import addIcon from '../../../assets/adminPage/plus.svg';
 import uturnIcon from '../../../assets/adminPage/uturn.svg';
 import jpgIconImage from '../../../assets/adminPage/jpg icon.svg';
 import { authenticatedFetch } from '../../../services/authService';
+import { uploadFile, resolveFileUrl } from '../../../services/uploadService';
 
 import envConfig from '../../../config';
 
@@ -19,8 +20,10 @@ const API_BASE_URL = envConfig.apiUrl;
 const getFullImageUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
-  const filename = path.split('/').filter(Boolean).pop();
-  return `${envConfig.imageUrl}/backend/static/media/${filename}`;
+  // 新版 /file_upload 端點回傳完整相對路徑（如 /uploads/xxx.jpg），直接組合即可
+  if (path.includes('/')) return resolveFileUrl(path);
+  // 舊資料僅存純檔名，沿用舊有的固定靜態目錄
+  return `${envConfig.imageUrl}/backend/static/media/${path}`;
 };
 
 const AdminSocialmediaPage = () => {
@@ -44,6 +47,8 @@ const AdminSocialmediaPage = () => {
   const [pickedCategories, setPickedCategories] = useState([]);
   const [imageName, setImageName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [uploadedImagePath, setUploadedImagePath] = useState('');
+  const [imageUploading, setImageUploading] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const resetForm = () => {
@@ -54,6 +59,8 @@ const AdminSocialmediaPage = () => {
     setPickedCategories([]);
     setImageName('');
     setImageUrl('');
+    setUploadedImagePath('');
+    setImageUploading(false);
   };
 
   const togglePicked = (cat) => {
@@ -74,6 +81,8 @@ const AdminSocialmediaPage = () => {
     setPickedCategories(item.categories || []);
     setImageName(item.imageName || '');
     setImageUrl(item.imageUrl || '');
+    setUploadedImagePath('');
+    setImageUploading(false);
     setAttemptedSubmit(false);
     setShowModal(true);
   };
@@ -191,6 +200,13 @@ const AdminSocialmediaPage = () => {
       return;
     }
 
+    if (imageUploading) {
+      showToast('圖片上傳中，請稍候', 'warning');
+      return;
+    }
+
+    const figureValue = uploadedImagePath || imageName;
+
     try {
       if (isEditing && currentEditId) {
         const response = await authenticatedFetch(`${API_BASE_URL}/admin/socialmedia/modify`, {
@@ -201,7 +217,7 @@ const AdminSocialmediaPage = () => {
             name,
             link,
             category: pickedCategories.join(', '),
-            figure: imageName
+            figure: figureValue
           })
         });
         const result = await response.json();
@@ -214,7 +230,7 @@ const AdminSocialmediaPage = () => {
             name,
             link,
             category: pickedCategories.join(', '),
-            figure: imageName
+            figure: figureValue
           })
         });
         const result = await response.json();
@@ -229,7 +245,7 @@ const AdminSocialmediaPage = () => {
     }
   };
 
-  const validateAndSetImage = (file) => {
+  const validateAndSetImage = async (file) => {
     if (!file) return;
 
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
@@ -244,6 +260,18 @@ const AdminSocialmediaPage = () => {
 
     setImageName(file.name);
     setImageUrl(URL.createObjectURL(file));
+    setUploadedImagePath('');
+    setImageUploading(true);
+    try {
+      const uploadedPath = await uploadFile(file);
+      setUploadedImagePath(uploadedPath);
+    } catch (err) {
+      showToast(`圖片上傳失敗: ${err.message}`, 'error');
+      setImageName('');
+      setImageUrl('');
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleDeleteClick = useCallback(async (id) => {
@@ -446,6 +474,8 @@ const AdminSocialmediaPage = () => {
         title={isEditing ? '編輯項目' : '新增項目'}
         onSubmit={handleSubmit}
         size="lg"
+        submitDisabled={imageUploading}
+        submitText={imageUploading ? '圖片上傳中...' : '送出'}
       >
         <div className="admin-form-grid">
         <div className="mb-3">
@@ -513,14 +543,15 @@ const AdminSocialmediaPage = () => {
           <div className="d-flex flex-column align-items-start gap-2">
             <label className="form-label admin-form-label mb-0">*圖片</label>
             <div className="d-flex flex-column align-items-start gap-1">
-              <label className="admin-upload-btn" style={{ marginBottom: 0 }}>
+              <label className="admin-upload-btn" style={{ marginBottom: 0, opacity: imageUploading ? 0.6 : 1, pointerEvents: imageUploading ? 'none' : 'auto' }}>
                 <input
                   type="file"
                   accept="image/jpeg,image/png"
                   className="d-none"
+                  disabled={imageUploading}
                   onChange={(e) => validateAndSetImage(e.target.files?.[0])}
                 />
-                上傳檔案
+                {imageUploading ? '上傳中...' : '上傳檔案'}
               </label>
               <span className="upload-hint" style={{ fontSize: '13px' }}>
                 ※限 JPG、PNG 可上傳，限制 2MB。

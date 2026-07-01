@@ -13,6 +13,7 @@ import './AdminModal.css';
  * @param {string} cancelText - 取消按鈕文字
  * @param {boolean} showFooter - 是否顯示底部按鈕區域
  * @param {string} size - Modal 大小 ('sm' | 'md' | 'lg')
+ * @param {boolean} submitDisabled - 是否停用送出按鈕（例如檔案上傳中）
  */
 const AdminModal = ({
     isOpen = false,
@@ -24,6 +25,7 @@ const AdminModal = ({
     cancelText = '取消',
     showFooter = true,
     size = 'md',
+    submitDisabled = false,
 }) => {
     if (!isOpen) return null;
 
@@ -81,7 +83,7 @@ const AdminModal = ({
                                     >
                                         {cancelText}
                                     </button>
-                                    <button type="submit" className="btn btn-primary admin-btn-submit">
+                                    <button type="submit" className="btn btn-primary admin-btn-submit" disabled={submitDisabled}>
                                         {submitText}
                                     </button>
                                 </div>
@@ -105,6 +107,7 @@ AdminModal.propTypes = {
     cancelText: PropTypes.string,
     showFooter: PropTypes.bool,
     size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl']),
+    submitDisabled: PropTypes.bool,
 };
 
 export default AdminModal;
