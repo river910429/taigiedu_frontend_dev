@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ExamPage.css';
 import HorizontalScrollRow from '../components/HorizontalScrollRow/HorizontalScrollRow';
+import CustomSelect from '../components/CustomSelect/CustomSelect';
+import PageLoading from '../components/PageLoading/PageLoading';
 import searchIcon from '../assets/home/search_logo.svg';
 // import questionMarkIcon from '../assets/question-mark.svg';
 import foodImage from '../assets/culture/foodN.png';
-import chevronUpIcon from '../assets/chevron-up.svg';
 
 const ExamPage = () => {
     const [selectedType, setSelectedType] = useState("類型");
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [examData, setExamData] = useState({});
     const [categories, setCategories] = useState([]);
@@ -22,20 +22,6 @@ const ExamPage = () => {
     useEffect(() => {
         fetchExamData();
     }, []);
-
-    // 處理下拉選單外部點擊
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (isDropdownOpen && !event.target.closest('.exam-custom-dropdown')) {
-                setIsDropdownOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isDropdownOpen]);
 
     // 從 API 獲取考試資料
     const fetchExamData = async () => {
@@ -101,7 +87,6 @@ const ExamPage = () => {
 
     const handleTypeChange = (selectedValue) => {
         setSelectedType(selectedValue);
-        setIsDropdownOpen(false); // 選擇後關閉下拉選單
 
         // 滾動到對應的標題
         if (selectedValue !== "類型" && sectionRefs.current[selectedValue]?.current) {
@@ -161,13 +146,7 @@ const ExamPage = () => {
     if (isLoading) {
         return (
             <div className="exam-page">
-                <div className="exam-header">
-                    <div className="container px-4">
-                        <div className="text-center">
-                            <p>載入考試資料中...</p>
-                        </div>
-                    </div>
-                </div>
+                <PageLoading text="載入考試資料中..." />
             </div>
         );
     }
@@ -177,7 +156,7 @@ const ExamPage = () => {
         return (
             <div className="exam-page">
                 <div className="exam-header">
-                    <div className="container px-4">
+                    <div className="exam-header-container">
                         <div className="text-center">
                             <p>載入失敗：{error}</p>
                             <button onClick={fetchExamData} className="btn btn-primary mt-2">
@@ -195,42 +174,17 @@ const ExamPage = () => {
     return (
         <div className="exam-page">
             <div className="exam-header">
-                <div className="container px-4">
+                <div className="exam-header-container">
                     <div className="exam-header-content">
-                        <div className="exam-custom-dropdown">
-                            <div className="dropdown-container">
-                                <div
-                                    className="dropdown-header exam-type-dropdown"
-                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                >
-                                    {selectedType}
-                                </div>
-                                <img
-                                    src={chevronUpIcon}
-                                    alt="dropdown arrow"
-                                    className="dropdown-arrow"
-                                />
-                            </div>
-                            {isDropdownOpen && (
-                                <div className="exam-dropdown-menu">
-                                    <div
-                                        className={`exam-dropdown-item ${selectedType === "類型" ? 'selected' : ''}`}
-                                        onClick={() => handleTypeChange("類型")}
-                                    >
-                                        類型
-                                    </div>
-                                    {categories.map(category => (
-                                        <div
-                                            key={category}
-                                            className={`exam-dropdown-item ${selectedType === category ? 'selected' : ''}`}
-                                            onClick={() => handleTypeChange(category)}
-                                        >
-                                            {category}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>                        <form onSubmit={handleSearch} className="exam-search-container">
+                        <div className="exam-type-select">
+                            <CustomSelect
+                                options={["類型", ...categories]}
+                                value={selectedType}
+                                onChange={handleTypeChange}
+                                placeholder="類型"
+                            />
+                        </div>
+                        <form onSubmit={handleSearch} className="exam-search-container">
                             <input
                                 type="text"
                                 value={query}

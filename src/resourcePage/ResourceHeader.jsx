@@ -4,7 +4,7 @@ import { useToast } from "../components/Toast";
 import { useAuth } from "../contexts/AuthContext";
 import "./ResourceHeader.css";
 import MultiSelect from "../phrasePage/multiselect";
-import chevronUpIcon from "../assets/chevron-up.svg";
+import CustomSelect from "../components/CustomSelect/CustomSelect";
 
 const ResourceHeader = ({ onUploadOpen, isLoggedIn, onSearch }) => {
   const navigate = useNavigate();
@@ -12,7 +12,6 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, onSearch }) => {
   const { logout } = useAuth();
   const [selectedGrade, setSelectedGrade] = useState("階段");
   const [query, setQuery] = useState("");
-  const [isGradeOpen, setIsGradeOpen] = useState(false);
   const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]); // 多選下拉選單
 
@@ -76,8 +75,7 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, onSearch }) => {
     return () => window.removeEventListener('resource-config-updated', onCfg);
   }, [selectedGrade]);
 
-  const handleGradeChange = (e) => {
-    const grade = e.target.value;
+  const handleGradeChange = (grade) => {
     setSelectedGrade(grade);
     // Set all versions for the selected grade
     if (grade === "全部") {
@@ -135,23 +133,12 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, onSearch }) => {
   return (
     <div className="resource-header">
       {/* 階段下拉選單 */}
-      <div className="dropdown-container">
-        <select
-          className={`grade-dropdown ${isGradeOpen ? "open" : ""}`}
-          onClick={() => setIsGradeOpen(!isGradeOpen)}
-          value={selectedGrade}
+      <div className="grade-select">
+        <CustomSelect
+          options={["全部", "高中", "國中", "國小"]}
+          value={selectedGrade === "階段" ? null : selectedGrade}
           onChange={handleGradeChange}
-        >
-          <option hidden>階段</option>
-          <option value="全部">全部</option>
-          <option value="高中">高中</option>
-          <option value="國中">國中</option>
-          <option value="國小">國小</option>
-        </select>
-        <img
-          src={chevronUpIcon}
-          alt="dropdown arrow"
-          className="dropdown-arrow"
+          placeholder="階段"
         />
       </div>
 

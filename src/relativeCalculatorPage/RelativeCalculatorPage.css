@@ -11,13 +11,6 @@
   margin: 0;
 }
 
-.rc-loading {
-  padding: 60px;
-  text-align: center;
-  color: #767676;
-  font-family: 'Huninn', 'NotoSansTC', sans-serif;
-}
-
 /* ── 說明文字 ─────────────────────────────────────────────── */
 .rc-instructions {
   margin-bottom: 28px;

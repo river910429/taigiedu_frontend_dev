@@ -3,6 +3,7 @@ import './FestivalPage.css';
 import FestivalModal from './FestivalModal';
 import festivalN from "../../assets/culture/festivalN.png"; // 預設無圖片
 import { useToast } from '../../components/Toast'; // 引入 Toast 通知
+import PageLoading from '../../components/PageLoading/PageLoading';
 import questionMark from "../../assets/question-mark.svg"; // 修正問題圖標引用方式
 
 const FestivalPage = () => {
@@ -127,10 +128,7 @@ const FestivalPage = () => {
     return (
         <div className="container py-4">
             {isLoading ? (
-                <div className="festival-loading">
-                    <div className="loading-spinner"></div>
-                    <p>載入節慶列表中...</p>
-                </div>
+                <PageLoading text="載入節慶列表中..." />
             ) : error ? (
                 <div className="festival-loading">
                     <p>載入失敗，請重新整理頁面</p>

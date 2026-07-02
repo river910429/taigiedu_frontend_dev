@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './PhraseResult.css';
 import PhraseModal from './PhraseModal';
 import Pagination from '../mainSearchPage/Pagination';
+import PageLoading from '../components/PageLoading/PageLoading';
 
 const ITEMS_PER_PAGE = 16;
 
@@ -33,12 +34,7 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 	};
 
 	if (loading) {
-		return (
-			<div className="phrase-loading">
-				<div className="loading-spinner"></div>
-				<p>載入俗諺語中...</p>
-			</div>
-		);
+		return <PageLoading text="載入俗諺語中..." />;
 	}
 
 	if (error) {

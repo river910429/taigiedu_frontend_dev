@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../components/Toast';
 import './CelebrityDetails.css';
 import nopic from "../assets/celebrity/nopic.png"; // 預設無圖片
+import PageLoading from '../components/PageLoading/PageLoading';
 
 // 可折疊的作品項目元件
 const CollapsibleWorkItem = ({ series, items }) => {
@@ -241,10 +242,7 @@ const CelebrityDetails = () => {
     if (isLoading) {
         return (
             <div className="celebrity-details-container">
-                <div className="celebrity-loading">
-                    <div className="loading-spinner"></div>
-                    <p>載入名人詳細資料中...</p>
-                </div>
+                <PageLoading text="載入名人詳細資料中..." />
             </div>
         );
     }

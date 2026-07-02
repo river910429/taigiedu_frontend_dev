@@ -10,39 +10,11 @@
   box-sizing: border-box; /* 包括內邊距和邊框在寬高計算內 */
 }
 
-.dropdown-container {
+/* 語言下拉選單（使用共用 CustomSelect） */
+.translate-select {
   position: relative;
   display: flex;
   width: 148px; /* 確保容器有固定寬度，或在 RWD 中調整 */
-}
-
-.language-dropdown {
-  display: flex;
-  width: 100%; /* 填滿容器寬度 */
-  height: 48px;
-  padding: 12px 16px;
-  align-items: center;
-  gap: 8px;
-  border: none;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0px 0px 0px 4px rgba(181, 183, 192, 0.4);
-
-  color: var(--Primary-Black, #424242);
-  font-family: Inter;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 22px; /* 122.222% */
-
-  appearance: none; /* 隱藏預設箭頭 */
-  cursor: pointer;
-  transition: all 0.3s ease; /* 添加過渡動畫 */
-}
-
-/* 滑鼠懸停效果 */
-.language-dropdown:hover {
-  box-shadow: 0px 0px 0px 4px #017ab1;
 }
 
 .original-content-container {
@@ -86,16 +58,6 @@
   padding-top: 250px;
 }
 
-.dropdown-arrow {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  pointer-events: none; /* 讓箭頭不會阻擋點擊事件 */
-}
-
 /* ===== RWD - Mobile (max-width: 768px) ===== */
 @media (max-width: 768px) {
   .translate-content {
@@ -104,17 +66,11 @@
     box-sizing: border-box;
     overflow: hidden;
   }
-  
-  .dropdown-container {
+
+  .translate-select {
     width: 100%;
   }
-  
-  .language-dropdown {
-    width: 100%;
-    max-width: none;
-    font-size: 16px;
-  }
-  
+
   .original-input-box {
     height: 180px;
     min-height: 180px;

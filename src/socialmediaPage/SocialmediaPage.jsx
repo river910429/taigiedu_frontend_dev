@@ -5,6 +5,7 @@ import chevronUp from '../assets/chevron-up.svg';
 // import questionMarkIcon from '../assets/question-mark.svg';
 import noPics from "../assets/culture/festivalN.png";
 import envConfig from "../config";
+import PageLoading from "../components/PageLoading/PageLoading";
 
 const SocialmediaPage = () => {
     const [selectedType, setSelectedType] = useState("分類");  // 將 "類型" 改為 "分類"
@@ -312,9 +313,7 @@ const SocialmediaPage = () => {
     if (isLoading) {
         return (
             <div className="socialmedia-container">
-                <div className="text-center py-5">
-                    <p>載入中...</p>
-                </div>
+                <PageLoading text="載入媒體與社群資源中..." />
             </div>
         );
     }

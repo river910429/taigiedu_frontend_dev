@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./TranslateOriginal.css";
-import chevronUpIcon from "../assets/chevron-up.svg";
+import CustomSelect from "../components/CustomSelect/CustomSelect";
 
 const TranslateOriginal = ({ setOriginalContent, setOriginalLanguage, onContentChange }) => {
   const [content, setContent] = useState(""); // 輸入框內容
@@ -14,9 +14,8 @@ const TranslateOriginal = ({ setOriginalContent, setOriginalLanguage, onContentC
       onContentChange(); // 通知父層內容已改變
     }
   };
- 
-  const handleLanguageChange = (e) => {
-    const language = e.target.value;
+
+  const handleLanguageChange = (language) => {
     setSelectedLanguage(language);
     setOriginalLanguage(language); // 更新父層狀態
   };
@@ -24,21 +23,11 @@ const TranslateOriginal = ({ setOriginalContent, setOriginalLanguage, onContentC
   return (
     <div className="translate-content">
       {/* 下拉選單 */}
-      <div className="dropdown-container">
-        <select
-          className="language-dropdown"
+      <div className="translate-select">
+        <CustomSelect
+          options={["台文漢字", "華文", "台羅", "白話字"]}
           value={selectedLanguage}
           onChange={handleLanguageChange}
-        >
-          <option value="台文漢字">台文漢字</option>
-          <option value="華文">華文</option>
-          <option value="台羅">台羅</option>
-          <option value="白話字">白話字</option>
-        </select>
-        <img 
-          src={chevronUpIcon} 
-          alt="dropdown arrow" 
-          className="dropdown-arrow"
         />
       </div>
 

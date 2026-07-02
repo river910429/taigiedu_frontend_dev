@@ -44,11 +44,11 @@ const TranscriptContent = ({ isEditable, fontSize, content, setContent, audioSou
     <div className="transcript-overlay">
       <div className="transcript-content">
         {/* Tabs */}
-        <div className="tabs">
+        <div className="transcript-tabs">
           {["台文漢字", "台羅", "白話字"].map((tab) => (
             <button
               key={tab}
-              className={`tab-button ${activeTab === tab ? "active" : ""}`}
+              className={`transcript-tab ${activeTab === tab ? "active" : ""}`}
               onClick={() => handleTabChange(tab)}
             >
               {tab}

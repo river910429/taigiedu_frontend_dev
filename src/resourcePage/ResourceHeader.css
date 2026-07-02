@@ -7,13 +7,14 @@
   width: 100%;
 }
 
-.dropdown-container {
+/* 階段下拉選單（使用共用 CustomSelect） */
+.grade-select {
   position: relative;
   display: inline-block;
+  width: 148px;
+  flex-shrink: 0;
 }
 
-.grade-dropdown,
-.version-dropdown,
 .resource-multi .select-header {
   position: relative;
   display: flex;
@@ -40,35 +41,9 @@
   /* 添加過渡動畫 */
 }
 
-.grade-dropdown,
-.version-dropdown {
-  outline: none;
-  appearance: none;
-  /* 隱藏預設箭頭 */
-}
-
-.dropdown-arrow {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
-  /* 讓箭頭不會阻擋點擊事件 */
-}
-
-
-.grade-dropdown:hover,
-.version-dropdown:hover,
 .resource-multi .select-header:hover {
-  border-color: #017ab1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.version-dropdown:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+  border-color: #4AA3BA;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
 }
 
 
@@ -92,7 +67,6 @@
   /* 調整內距以便顯示圖示 */
   border: 1px solid #cbd5e0;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   margin: 0;
   outline: none;
@@ -101,7 +75,7 @@
 .res-search-input:focus,
 .res-search-input:hover {
   border-color: #4AA3BA;
-  box-shadow: none;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
 }
 
 .res-search-icon {
@@ -213,13 +187,12 @@
     height: 44px;
   }
 
-  .dropdown-container {
+  .grade-select {
     grid-column: span 2;
     width: 100%;
   }
 
-  .grade-dropdown {
-    width: 100%;
+  .grade-select .custom-select-header {
     height: 44px;
     font-size: 14px;
   }

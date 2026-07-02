@@ -4,6 +4,7 @@ import FoodModal from './FoodModal';
 import nofood from "../../assets/culture/foodN.png"; // 預設無圖片
 import { useToast } from '../../components/Toast'; // 引入 Toast 通知
 import questionMark from "../../assets/question-mark.svg"; // 修正問題圖標引用方式
+import PageLoading from '../../components/PageLoading/PageLoading';
 
 const FoodPage = () => {
     const { showError } = useToast();
@@ -76,10 +77,7 @@ const FoodPage = () => {
     return (
         <div className="container py-4">
             {isLoading ? (
-                <div className="food-loading">
-                    <div className="loading-spinner"></div>
-                    <p>載入食物列表中...</p>
-                </div>
+                <PageLoading text="載入食物列表中..." />
             ) : error ? (
                 <div className="food-loading">
                     <p>載入失敗，請重新整理頁面</p>

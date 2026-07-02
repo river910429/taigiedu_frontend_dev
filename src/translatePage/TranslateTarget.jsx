@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useToast } from "../components/Toast";
 import "./TranslateTarget.css";
 import speakerIcon from "../assets/speaker-wave.svg";
-import chevronUpIcon from "../assets/chevron-up.svg";
 import loadingIcon from "../assets/loading.png";
+import CustomSelect from "../components/CustomSelect/CustomSelect";
 
 const TranslateTarget = ({
   isEditable,
@@ -40,8 +40,7 @@ const TranslateTarget = ({
       });
   };
 
-  const handleLanguageChange = (e) => {
-    const language = e.target.value;
+  const handleLanguageChange = (language) => {
     setSelectedLanguage(language);
     setTargetLanguage(language);
   };
@@ -134,22 +133,11 @@ const TranslateTarget = ({
 
   return (
     <div className="translate-content">
-      <div className="dropdown-container">
-        <select
-          className="language-dropdown"
+      <div className="translate-select">
+        <CustomSelect
+          options={availableLanguages}
           value={selectedLanguage}
           onChange={handleLanguageChange}
-        >
-          {availableLanguages.map((lang) => (
-            <option key={lang} value={lang}>
-              {lang}
-            </option>
-          ))}
-        </select>
-        <img
-          src={chevronUpIcon}
-          alt="dropdown arrow"
-          className="dropdown-arrow"
         />
       </div>
 

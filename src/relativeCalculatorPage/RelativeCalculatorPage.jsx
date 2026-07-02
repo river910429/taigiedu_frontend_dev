@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './RelativeCalculatorPage.css';
+import PageLoading from '../components/PageLoading/PageLoading';
 
 const REL_LABELS = {
   '父': '爸爸', '母': '媽媽', '兄': '哥哥',
@@ -142,7 +143,7 @@ const RelativeCalculatorPage = () => {
   const resultTw = result?.tw || '';
   const resultTl = result?.tl || '';
 
-  if (loading) return <div className="rc-loading">載入中…</div>;
+  if (loading) return <PageLoading text="載入親戚稱謂資料中..." />;
 
   const REL_BTNS = ['父', '母', '兄', '弟', '姊', '妹', '夫', '妻', '子', '女'];
 

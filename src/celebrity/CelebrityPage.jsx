@@ -3,6 +3,7 @@ import './CelebrityPage.css';
 import CelebrityModal from './CelebrityModal';
 import { useToast } from '../components/Toast';
 import nopic from "../assets/celebrity/nopic.png"; // 預設無圖片
+import PageLoading from '../components/PageLoading/PageLoading';
 
 const CelebrityPage = () => {
     const { showError } = useToast();
@@ -80,10 +81,7 @@ const CelebrityPage = () => {
     return (
         <div className="container py-4">
             {isLoading ? (
-                <div className="celebrity-loading">
-                    <div className="loading-spinner"></div>
-                    <p>載入名人列表中...</p>
-                </div>
+                <PageLoading text="載入名人列表中..." />
             ) : error ? (
                 <div className="celebrity-loading">
                     <p>載入失敗，請重新整理頁面</p>

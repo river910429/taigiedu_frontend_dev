@@ -19,8 +19,15 @@
   overflow-y: auto;
   background-color: white;
   border-radius: 12px;
-  border: 1px solid #DEDEDE;
-  box-shadow: inset 0 0 0 8px #f2f2f2; /* 模擬內層淺灰色粗邊框 */
+  border: 1px solid #cbd5e0;
+  outline: none;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.input-box:focus,
+.input-box:hover {
+  border-color: #4AA3BA;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
 }
 
 .remaining-chars {
@@ -65,8 +72,9 @@
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.25);
+  border: none;
+  border-radius: 8px;
+  background: #2d92c1;
   transition: background-color 0.3s, border-color 0.3s;
 
   color: #fff;
@@ -100,7 +108,7 @@
 }
 
 .generate-audio-button:hover:not(:disabled):not(.processing) {
-  background-color: #2d92c1;
+  background-color: #017ab1;
   color: white;
 }
 
@@ -173,7 +181,6 @@ audio {
     padding: 16px;
     margin: 16px 0 0 0;
     font-size: 16px;
-    box-shadow: inset 0 0 0 4px #f2f2f2;
     min-height: 200px;
   }
 
