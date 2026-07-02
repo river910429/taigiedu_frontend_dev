@@ -85,6 +85,7 @@ input:checked + .slider:before {
   gap: 5px; /* 圖示與文字的間距 */
   background-color: #017AB1; /* 預設背景色 */
   color: white;
+  border: none; /* 移除瀏覽器預設黑框 */
   border-radius: 8px; /* 圓角 */
   cursor: pointer;
   font-size: 16px; /* 字體大小 */
@@ -146,6 +147,7 @@ input:checked + .slider:before {
 .font-size-button {
   background-color: #dfeaf2;
   padding: 5px 10px;
+  border: none; /* 移除瀏覽器預設黑框 */
   border-radius: 5px;
   cursor: pointer;
   color: black;
@@ -154,11 +156,12 @@ input:checked + .slider:before {
 
 .font-size-button:hover {
   background-color: #679bb3;
+  color: white;
 }
 
 .font-size-button.selected {
   background-color: #017ab1;
-  color: w;
+  color: white;
 }
 .font-size-button.小 {
   width: 40px;

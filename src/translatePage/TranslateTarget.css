@@ -12,37 +12,32 @@
 }
 
 .target-content-container {
-  /* 移除固定高度，讓容器可以根據內容自動調整 */
-  padding: 8px 4px;
+  /* 只負責排版，不再有灰色底與外框（避免雙層感） */
   display: flex;
   flex-direction: column;
-  position: relative; /* 為了讓按鈕定位在內部 */
+  position: relative;
   gap: 10px;
-  background: #f2f2f2; /* 灰色背景 */
-  border-radius: 12px; /* 邊框圓角 */
   width: 100%; /* 填滿父容器 */
   box-sizing: border-box; /* 包括內邊距和邊框 */
-
-  border: 1px solid #dedede;
 }
 
 .target-display-box {
   position: relative;
-  padding: 12px;
+  padding: 22px;
   align-self: stretch;
   height: 450px; /* 固定高度為 450px */
-  min-height: 450px;
-  max-height: 450px;
+  box-sizing: border-box;
 
   font-size: 18px;
-  resize: none; /* 禁用拖動調整大小 */
   overflow-y: auto;
-  border-radius: 8px;
-  border: none;
+  border-radius: 12px;
+  border: 1px solid #cbd5e0;
+  white-space: pre-wrap; /* 支援多行顯示 */
+  word-break: break-word;
 }
 
 .tran-placeholder {
-  color: #424242;
+  color: #767676;
   font-size: 18px;
   display: flex;
   justify-content: center;
@@ -150,7 +145,7 @@
   height: 40px;
   background-color: #2d92c1;
   color: white;
-  border: 1px solid transparent;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s, border-color 0.3s;
@@ -160,9 +155,13 @@
   font-family: Inter;
   font-size: 16px;
   font-style: normal;
-  font-weight: 300;
+  font-weight: 400;
   line-height: normal;
   letter-spacing: -0.18px;
+}
+
+.copy-button-translate:hover:not(:disabled) {
+  background-color: #017ab1;
 }
 
 .copy-button-translate:disabled {
@@ -182,19 +181,18 @@
   align-self: flex-end; /* 靠右對齊 */
   width: 152px;
   height: 40px;
-  background-color: #2d92c1;
-  color: white;
-  border: 1px solid transparent;
+  background-color: white;
+  color: #2d92c1;
+  border: 1px solid #2d92c1;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition: background-color 0.3s, color 0.3s;
 
-  color: #fff;
   text-align: center;
   font-family: Inter;
   font-size: 16px;
   font-style: normal;
-  font-weight: 300;
+  font-weight: 400;
   line-height: normal;
   letter-spacing: -0.18px;
 }
@@ -202,11 +200,13 @@
 .tran-feedback-button:disabled {
   background-color: #919191; /* 禁用狀態背景 */
   color: #ffffff; /* 禁用狀態文字顏色 */
+  border: 1px solid #919191; /* 禁用狀態邊框 */
   cursor: not-allowed; /* 禁用狀態鼠標樣式 */
 }
 
 .tran-feedback-button:hover:not(:disabled) {
-  background-color: #a6bdcd; /* 只在非禁用狀態時有hover效果 */
+  background-color: #2d92c1;
+  color: white;
 }
 
 /* ===== RWD - Mobile (max-width: 768px) ===== */

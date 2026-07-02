@@ -31,15 +31,13 @@ const TranslateOriginal = ({ setOriginalContent, setOriginalLanguage, onContentC
         />
       </div>
 
-      <div className="original-content-container">
       {/* 大輸入框 */}
       <textarea
-        className={`original-input-box`} // 根據字體大小動態
+        className="original-input-box"
         placeholder="請輸入文字內容"
         value={content}
         onChange={handleInputChange}
       />
-      </div>
     </div>
   );
 };

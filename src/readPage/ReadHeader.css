@@ -76,6 +76,7 @@ input[type="radio"]:hover {
 .font-size-button {
   background-color: #dfeaf2;
   padding: 5px 10px;
+  border: none; /* 移除瀏覽器預設黑框 */
   border-radius: 5px;
   cursor: pointer;
   color: black;
@@ -84,11 +85,12 @@ input[type="radio"]:hover {
 
 .font-size-button:hover {
   background-color: #679bb3;
+  color: white;
 }
 
 .font-size-button.selected {
   background-color: #2D92C1;
-  color: w;
+  color: white;
 }
 .font-size-button.小 {
   width: 40px;

@@ -17,20 +17,21 @@
   position: relative;
   /* 移除固定的padding-right，讓loading狀態可以正確居中 */
 
+  border: none;
   border-radius: 8px;
   background: var(--primary-blue, #2d92c1);
+  cursor: pointer;
+  transition: background-color 0.3s;
 
   color: #fff;
   text-align: center;
   font-family: Inter;
   font-size: 16px;
   font-style: normal;
-  font-weight: 300;
+  font-weight: 400;
   line-height: normal;
   white-space: nowrap; /* 防止文字換行 */
   overflow: hidden; /* 隱藏超出的內容 */
-
-  /* 背景圖片已移至 JS 中處理 */
 }
 
 .translate-content-wrapper {
@@ -41,7 +42,7 @@
   gap: 8px; /* 文字和箭頭之間的間距 */
 }
 .translate-button:hover:not(:disabled) {
-  background: #a6bdcd;
+  background: #017ab1;
 }
 
 .translate-button:disabled {

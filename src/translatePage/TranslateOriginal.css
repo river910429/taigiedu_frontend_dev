@@ -17,45 +17,36 @@
   width: 148px; /* 確保容器有固定寬度，或在 RWD 中調整 */
 }
 
-.original-content-container {
-  /* 移除固定高度，讓容器可以根據內容自動調整 */
-  padding: 8px 4px;
-  display: flex;
-  flex-direction: column;
-  position: relative; /* 為了讓按鈕定位在內部 */
-  gap: 10px;
-  background: #f2f2f2; /* 灰色背景 */
-  border-radius: 12px; /* 邊框圓角 */
-  width: 100%; /* 填滿父容器 */
-  box-sizing: border-box; /* 包括內邊距和邊框 */
-
-  border: 1px solid #dedede;
-}
-
 .original-input-box {
-  padding: 12px;
+  padding: 22px;
   align-self: stretch;
+  width: 100%;
   height: 450px; /* 固定高度為 450px */
-  min-height: 450px;
-  max-height: 450px;
+  box-sizing: border-box;
 
   font-size: 18px;
   resize: none; /* 禁用拖動調整大小 */
   overflow-y: auto;
   background-color: white;
-  border-radius: 8px;
-  border:none;
+  border-radius: 12px;
+  border: 1px solid #cbd5e0;
+  outline: none;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.original-input-box:focus,
+.original-input-box:hover {
+  border-color: #4AA3BA;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
 }
 
 .original-input-box::placeholder {
-  color: #424242;
+  color: #9e9e9e;
   font-family: Inter;
   font-size: 18px;
   font-style: normal;
   font-weight: 400;
   letter-spacing: -0.18px;
-  text-align: center; /* 僅對 placeholder 水平置中 */
-  padding-top: 250px;
 }
 
 /* ===== RWD - Mobile (max-width: 768px) ===== */
