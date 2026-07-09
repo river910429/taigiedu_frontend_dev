@@ -2,13 +2,51 @@ import React from 'react';
 import { UnifiedModal, InfoRow } from '../../components/UnifiedModal/UnifiedModal';
 import megaPhoneIcon from '../../assets/megaphone.svg';
 import nofestival from "../../assets/culture/festivalN.png";
+import { resolveFileUrl } from '../../services/uploadService';
 import './FestivalModal.css';
+
+const getFullAudioUrl = (path, type) => {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
+        return path;
+    }
+    
+    const cleanPath = path.trim().replace(/\s/g, '');
+    if (cleanPath.length > 100 && /^[A-Za-z0-9+/=]+$/.test(cleanPath)) {
+        let mimeType = 'webm';
+        if (cleanPath.startsWith('GkXf')) {
+            mimeType = 'webm';
+        } else if (cleanPath.startsWith('UklG')) {
+            mimeType = 'wav';
+        } else if (cleanPath.startsWith('SUQz') || cleanPath.startsWith('//O') || cleanPath.startsWith('//M')) {
+            mimeType = 'mpeg';
+        }
+        return `data:audio/${mimeType};base64,${cleanPath}`;
+    }
+    
+    if (path.includes('/')) {
+        return resolveFileUrl(path);
+    }
+    
+    const filename = path.split('/').filter(Boolean).pop();
+    const apiUrl = import.meta.env.VITE_API_URL || '/backend';
+    return `${apiUrl}/static/${type}/${filename}`;
+};
 
 const FestivalModal = ({ isOpen, onClose, festival }) => {
     if (!isOpen || !festival) return null;
 
     const playAudio = async () => {
         try {
+            if (festival.audio_data) {
+                const url = getFullAudioUrl(festival.audio_data, 'festival');
+                if (url) {
+                    const audio = new Audio(url);
+                    await audio.play();
+                    return;
+                }
+            }
+
             const parameters = {
                 tts_lang: 'tb',
                 tts_data: festival.pron || festival.name

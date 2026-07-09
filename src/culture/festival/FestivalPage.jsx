@@ -42,6 +42,7 @@ const FestivalPage = () => {
                         name: festival.name || '',
                         image: festival.image ? `${import.meta.env.VITE_IMAGE_URL}${festival.image}` : festivalN,
                         pron: festival.pron || '',
+                        audio_data: festival.audio_data || '',
                         date: festival.date_mandarin || festival.date || '',
                         intro: festival.intro_mandarin || festival.intro || '',
                         intro_taigi: festival.intro_taigi || ''
@@ -93,6 +94,7 @@ const FestivalPage = () => {
                         name: festival.name || '',
                         image: festival.image ? `${import.meta.env.VITE_IMAGE_URL}${festival.image}` : festivalN,
                         pron: festival.pron || '',
+                        audio_data: festival.audio_data || '',
                         date: festival.date_mandarin || festival.date || '',
                         intro: festival.intro_mandarin || festival.intro || '',
                         intro_taigi: festival.intro_taigi || ''

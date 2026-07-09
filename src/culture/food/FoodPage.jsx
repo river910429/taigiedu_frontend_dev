@@ -45,6 +45,7 @@ const FoodPage = () => {
                     name: food.name || '',
                     image: food.image ? `${import.meta.env.VITE_IMAGE_URL}${food.image}` : nofood,
                     pron: food.pron || '',
+                    audio_data: food.audio_data || '',
                     intro: food.intro || food.intro_mandarin || '',
                     intro_taigi: food.intro_taigi || ''
                 }));
