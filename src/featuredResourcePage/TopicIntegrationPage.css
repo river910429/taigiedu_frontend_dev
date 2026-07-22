@@ -1,3 +1,13 @@
+/* ===== 議題融入（三層導覽）===== */
+/* 色系：主色綠（header 沿用全站）、輔色藍（標題/按鈕/表頭） */
+:root {
+  --ti-blue: #2f6fb0;
+  --ti-blue-dark: #1f4d7a;
+  --ti-chip-bg: #eaf2fb;
+  --ti-chip-border: #cfe0f2;
+  --ti-highlight: #d84040;
+}
+
 .topic-integration-page {
   width: 100%;
   max-width: 1200px;
@@ -5,14 +15,13 @@
   padding: 20px 16px;
 }
 
-.topic-search-panel {
-  display: flex;
-  justify-content: flex-start;
+/* ---- 上方工具列：兩個下拉 + 搜尋框 ---- */
+.ti-toolbar {
   width: 100%;
   padding: 0 12px;
 }
 
-.topic-search-form {
+.ti-search-form {
   display: flex;
   gap: 12px;
   align-items: center;
@@ -24,19 +33,19 @@
   width: 100%;
 }
 
-.topic-multiselect-wrap {
-  width: 220px;
+.ti-select-wrap {
+  width: 200px;
   flex: 0 0 auto;
 }
 
-.topic-search-input-group {
+.ti-search-input-group {
   display: flex;
   align-items: center;
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.topic-search-input {
+.ti-search-input {
   flex: 1;
   min-height: 42px;
   padding: 8px 12px;
@@ -47,12 +56,12 @@
   font-size: 16px;
 }
 
-.topic-search-input:focus {
-  border-color: #4aa3ba;
-  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+.ti-search-input:focus {
+  border-color: var(--ti-blue);
+  box-shadow: 0 0 5px rgba(47, 111, 176, 0.3);
 }
 
-.topic-search-btn {
+.ti-search-btn {
   min-height: 42px;
   min-width: 56px;
   border: 1px solid #ddd;
@@ -66,65 +75,254 @@
   padding: 0;
 }
 
-.topic-search-btn img {
+.ti-search-btn img {
   width: 30px;
   height: 30px;
 }
 
-.topic-search-results {
-  margin-top: 20px;
-  width: 100%;
+/* ================= 第一層：議題索引 ================= */
+.ti-index {
+  margin-top: 28px;
+  padding: 8px 12px 32px;
+}
+
+.ti-index-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin: 8px 0 28px;
+}
+
+.ti-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.ti-topic-btn {
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--ti-chip-border);
+  border-radius: 10px;
+  background-color: var(--ti-chip-bg);
+  color: var(--ti-blue-dark);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.ti-topic-btn:hover {
+  background-color: #dbe9f8;
+}
+
+.ti-topic-btn:active {
+  transform: translateY(1px);
+}
+
+/* ================= 第二 / 三層 ================= */
+.ti-detail {
+  margin-top: 24px;
   padding: 0 12px;
 }
 
-.topic-search-results .container-fluid {
+/* ---- 麵包屑 ---- */
+.ti-breadcrumb {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.ti-crumb-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 15px;
+  color: #666;
+  cursor: pointer;
+}
+
+.ti-crumb-link:hover {
+  color: var(--ti-blue);
+  text-decoration: underline;
+}
+
+.ti-crumb-sep {
+  color: #999;
+  font-size: 15px;
+}
+
+/* 當前層級名稱：藍色大字級標題 */
+.ti-crumb-current {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ti-blue);
+  line-height: 1.2;
+}
+
+/* ---- 次分類 chip 列 ---- */
+.ti-chip-group {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(147px, 1fr));
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.ti-chip {
+  min-width: 147px;
+  min-height: 50px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* 內部文字超過寬度時斷行，不撐寬按鈕 */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.3;
+  /* 顏色沿用 sidebar 設定：未選 / hover / 選中 */
+  border: 1px solid var(--bg-sidebar-hover);
+  border-radius: 8px;
+  background-color: var(--bg-sidebar);
+  color: #000;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.ti-chip:hover {
+  background-color: var(--bg-sidebar-hover);
+}
+
+/* 選中態 vs 未選中態 */
+.ti-chip.is-active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ---- 資源列表 table ---- */
+.ti-table-wrap {
   width: 100%;
-  max-width: 100%;
-  padding-left: 0;
-  padding-right: 0;
+  overflow-x: auto;
 }
 
-.topic-search-results .search-results-single-column {
-  padding-left: 0;
-  padding-right: 0;
+.ti-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 
-.topic-search-results .row {
-  margin-left: 0;
-  margin-right: 0;
+.ti-table th,
+.ti-table td {
+  border: 1px solid #e2e2e2;
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
 }
 
-.topic-search-results .sentenceTitle {
-  font-size: 16px;
-  line-height: 1.5;
+/* 表頭：藍底白字 */
+.ti-table thead th {
+  background-color: #2d92c1;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
 }
 
-.topic-search-results .sentenceContent {
-  font-size: 16px;
-  line-height: 1.5;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-}
-
-.topic-search-results .titleCard {
-  font-size: 18px;
-}
-
-.topic-search-results .search-summary {
-  padding-left: 2px;
-  padding-right: 2px;
-  font-size: 14px;
+.ti-col-resource {
+  width: 34%;
+  font-size: 15px;
   line-height: 1.6;
+  color: #333;
 }
 
-@media (max-width: 1200px) {
-  .topic-multiselect-wrap {
-    width: 190px;
+.ti-col-content {
+  width: 66%;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #444;
+  /* 長文字斷行 */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.ti-table tbody tr:nth-child(even) {
+  background-color: #f7fafd;
+}
+
+/* rich text 反白關鍵字（紅色） */
+.ti-col-content .ti-highlight,
+.ti-highlight {
+  color: var(--ti-highlight);
+  font-weight: 600;
+}
+
+.ti-table-msg {
+  text-align: center;
+  color: #888;
+  padding: 32px 14px;
+}
+
+.ti-table-error {
+  color: var(--ti-highlight);
+}
+
+.ti-pagination-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+/* ================= RWD ================= */
+@media (max-width: 1024px) {
+  .ti-topic-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .ti-chip-group {
+    grid-template-columns: repeat(5, minmax(130px, 1fr));
   }
 }
 
-@media (max-width: 992px) {
-  .topic-search-form {
-    overflow-x: auto;
+@media (max-width: 768px) {
+  .ti-search-form {
+    flex-wrap: wrap;
+  }
+  .ti-select-wrap {
+    width: calc(50% - 6px);
+  }
+  .ti-search-input-group {
+    flex-basis: 100%;
+  }
+  .ti-topic-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .ti-chip-group {
+    grid-template-columns: repeat(3, minmax(110px, 1fr));
+  }
+  .ti-crumb-current {
+    font-size: 20px;
+  }
+  .ti-col-resource {
+    width: 40%;
+  }
+}
+
+@media (max-width: 480px) {
+  .ti-topic-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ti-chip-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ti-chip {
+    min-width: 0;
   }
 }
