@@ -245,7 +245,7 @@ const TopicIntegrationPage = () => {
             <table className="ti-table">
               <thead>
                 <tr>
-                  <th className="ti-col-resource">資源名稱</th>
+                  <th className="ti-col-resource">資源出處</th>
                   <th className="ti-col-content">內容</th>
                 </tr>
               </thead>
@@ -272,10 +272,15 @@ const TopicIntegrationPage = () => {
                   resources.map((item) => (
                     <tr key={item.id}>
                       <td className="ti-col-resource">{item.resource}</td>
-                      <td
-                        className="ti-col-content"
-                        dangerouslySetInnerHTML={{ __html: item.content }}
-                      />
+                      <td className="ti-col-content">
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ti-content-link"
+                          dangerouslySetInnerHTML={{ __html: item.content }}
+                        />
+                      </td>
                     </tr>
                   ))
                 )}

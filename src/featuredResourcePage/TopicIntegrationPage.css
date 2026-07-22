@@ -258,8 +258,20 @@
   background-color: #f7fafd;
 }
 
-/* rich text 反白關鍵字（紅色） */
+/* 內容欄的 hyperlink：一般文字色、可點擊、hover 底線 */
+.ti-content-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ti-content-link:hover {
+  text-decoration: underline;
+}
+
+/* rich text 反白關鍵字（紅色）— 連結內仍保持紅字 */
 .ti-col-content .ti-highlight,
+.ti-content-link .ti-highlight,
 .ti-highlight {
   color: var(--ti-highlight);
   font-weight: 600;
