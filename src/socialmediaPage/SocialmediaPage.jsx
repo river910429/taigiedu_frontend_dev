@@ -6,11 +6,19 @@ import chevronUp from '../assets/chevron-up.svg';
 import noPics from "../assets/culture/festivalN.png";
 import envConfig from "../config";
 import PageLoading from "../components/PageLoading/PageLoading";
+import Pagination from "../mainSearchPage/Pagination";
+
+// 顯示規則：桌機版每列 4 筆、每頁最多 15 列；未篩選時每類別預覽第一列（4 筆）
+const ITEMS_PER_ROW = 4;
+const MAX_ROWS_PER_PAGE = 15;
+const PAGE_SIZE = ITEMS_PER_ROW * MAX_ROWS_PER_PAGE;
+const PREVIEW_COUNT = ITEMS_PER_ROW;
 
 const SocialmediaPage = () => {
     const [selectedType, setSelectedType] = useState("分類");  // 將 "類型" 改為 "分類"
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
 
     // 儲存多選項目，格式為 { 主分類: [子項目1, 子項目2, ...] }
     const [selectedItems, setSelectedItems] = useState({});
@@ -111,6 +119,11 @@ const SocialmediaPage = () => {
     useEffect(() => {
         fetchSocialMediaData();
     }, []);
+
+    // 篩選條件（分類／關鍵字）變更時，回到第 1 頁
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedItems, query]);
 
     React.useEffect(() => {
         const handleClickOutside = (event) => {
@@ -301,6 +314,47 @@ const SocialmediaPage = () => {
         window.open(url, '_blank');
     };
 
+    // 「查看全部」：切換為該類別的完整列表
+    const handleViewAll = (category) => {
+        const newSelectedItems = { [category]: [] };
+        setSelectedItems(newSelectedItems);
+        updateDisplayText(newSelectedItems);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // 清除分類篩選，回到分區預覽
+    const handleClearFilter = () => {
+        setSelectedItems({});
+        setSelectedType("分類");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // 單張卡片
+    const renderCard = (item, category) => (
+        <div key={`${category}-${item.id}`}
+            className="col-6 col-md-4 col-lg-3"
+            onClick={() => handleCardClick(item.url)}>
+            <div className="socialmedia-card">
+                <div className="social-image-container">
+                    <img
+                        src={item.image || noPics}
+                        alt={item.title}
+                        className="socialmedia-image"
+                        onError={(e) => {
+                            e.target.src = noPics;
+                        }}
+                    />
+                </div>
+                <h5 className="text-center mt-2">{item.title}</h5>
+            </div>
+        </div>
+    );
+
     const handleSearch = (e) => {
         e.preventDefault();
         if (query.trim() === "") return;
@@ -336,6 +390,30 @@ const SocialmediaPage = () => {
     }
 
     const filteredData = getFilteredItems();
+    const hasCategoryFilter = Object.keys(selectedItems).length > 0;
+    const hasQuery = query.trim() !== '';
+    // 未套用分類篩選與關鍵字搜尋時 → 依類別分區預覽；否則 → 完整列表 + 分頁
+    const isFullList = hasCategoryFilter || hasQuery;
+
+    // 完整列表模式：依類別順序攤平後分頁
+    const flatItems = categoryOrder.flatMap(category =>
+        (filteredData[category] || []).map(item => ({ item, category }))
+    );
+    const totalItems = flatItems.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+    const safePage = Math.min(currentPage, totalPages);
+    const pageItems = flatItems.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+    // 同一頁中依類別分段，讓每段仍能顯示類別名稱
+    const pageGroups = [];
+    pageItems.forEach(({ item, category }) => {
+        const last = pageGroups[pageGroups.length - 1];
+        if (last && last.category === category) {
+            last.items.push(item);
+        } else {
+            pageGroups.push({ category, items: [item] });
+        }
+    });
 
     return (
         <div className="socialmedia-page">
@@ -445,40 +523,84 @@ const SocialmediaPage = () => {
                     </div>
                 </div>
             </div>
-            {/* 使用 categoryOrder 來控制顯示順序 */}
-            {categoryOrder.map(category => {
-                const items = filteredData[category];
-                if (!items || items.length === 0) return null;  // 如果沒有項目，不顯示該分類
-                
-                return (
-                    <div key={category} className="socialmedia-section" ref={categoryRefs.current[category]}>
-                        <div className="container px-4">
-                            <h2 className="social-category-title">{category || "（空白類別）"}</h2>
-                            <div className="row g-2 g-sm-4">
-                                {items.map(item => (
-                                    <div key={item.id}
-                                        className="col-6 col-md-4 col-lg-3"
-                                        onClick={() => handleCardClick(item.url)}>
-                                        <div className="socialmedia-card">
-                                            <div className="social-image-container">
-                                                <img
-                                                    src={item.image || noPics}
-                                                    alt={item.title}
-                                                    className="socialmedia-image"
-                                                    onError={(e) => {
-                                                        e.target.src = noPics;
-                                                    }}
-                                                />
-                                            </div>
-                                            <h5 className="text-center mt-2">{item.title}</h5>
-                                        </div>
-                                    </div>
-                                ))}
+            {isFullList ? (
+                /* ─── 完整列表（含分頁）─── */
+                <>
+                    <div className="container px-4">
+                        <div className="social-list-toolbar">
+                            <div className="social-list-summary">
+                                共 {totalItems} 筆｜第 {safePage}／{totalPages} 頁
                             </div>
+                            {hasCategoryFilter && (
+                                <button
+                                    type="button"
+                                    className="social-back-button"
+                                    onClick={handleClearFilter}
+                                >
+                                    返回全部類別
+                                </button>
+                            )}
                         </div>
                     </div>
-                );
-            })}
+
+                    {totalItems === 0 ? (
+                        <div className="container px-4">
+                            <div className="social-empty">沒有符合條件的資料</div>
+                        </div>
+                    ) : (
+                        pageGroups.map((group, index) => (
+                            <div key={`${group.category}-${index}`} className="socialmedia-section">
+                                <div className="container px-4">
+                                    <h2 className="social-category-title">{group.category || "（空白類別）"}</h2>
+                                    <div className="row g-2 g-sm-4">
+                                        {group.items.map(item => renderCard(item, group.category))}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+
+                    {totalPages > 1 && (
+                        <div className="container px-4">
+                            <Pagination
+                                currentPage={safePage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                                maxVisible={4}
+                            />
+                        </div>
+                    )}
+                </>
+            ) : (
+                /* ─── 依類別分區預覽（每類別顯示第一列）─── */
+                categoryOrder.map(category => {
+                    const items = filteredData[category];
+                    if (!items || items.length === 0) return null;  // 如果沒有項目，不顯示該分類
+
+                    return (
+                        <div key={category} className="socialmedia-section" ref={categoryRefs.current[category]}>
+                            <div className="container px-4">
+                                <div className="social-section-header">
+                                    <h2 className="social-category-title">
+                                        {category || "（空白類別）"}
+                                        <span className="social-category-count">共 {items.length} 筆</span>
+                                    </h2>
+                                    <button
+                                        type="button"
+                                        className="social-viewall-button"
+                                        onClick={() => handleViewAll(category)}
+                                    >
+                                        查看全部 ›
+                                    </button>
+                                </div>
+                                <div className="row g-2 g-sm-4">
+                                    {items.slice(0, PREVIEW_COUNT).map(item => renderCard(item, category))}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })
+            )}
             {/* <div className="text-start mt-4 socialmedia-report-issue">
                 <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題

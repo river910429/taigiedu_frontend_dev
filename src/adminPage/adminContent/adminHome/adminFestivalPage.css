@@ -29,3 +29,9 @@
 }
 
 .audio-play-btn:hover { background: rgba(0,0,0,0.06); }
+
+/* 日期類型（農曆／國曆）下拉選單寬度 */
+.festival-date-type-select {
+  width: 110px;
+  flex-shrink: 0;
+}

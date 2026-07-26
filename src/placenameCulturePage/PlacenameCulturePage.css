@@ -1,0 +1,461 @@
+/* ===== 台語地名與文化（兩層導覽）===== */
+/* 色系沿用設計稿：地圖藍綠 #528897 / #1081A8、隨機探索按鈕 #30989D */
+:root {
+    --pc-accent: #1081a8;
+    --pc-accent-dark: #17607c;
+    --pc-cta: #30989d;
+    --pc-cta-hover: #268289;
+}
+
+.placename-culture-page {
+    width: 100%;
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding-bottom: 40px;
+}
+
+/* ---- 上方工具列：地區 / 縣市 / 區域 ---- */
+.pc-toolbar {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 20px 32px;
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.pc-select-wrap {
+    width: 190px;
+    flex: 0 0 auto;
+}
+
+/* ============ 第一層：臺南全圖 ============ */
+.pc-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 40px;
+    padding: 32px;
+}
+
+.pc-overview-map {
+    width: 100%;
+    max-width: 720px;
+    justify-self: center;
+}
+
+.pc-overview-side {
+    /* 介紹文與 hover 簡介共用版位，切換時高度不跳動 */
+    min-height: 440px;
+    max-width: 560px;
+    padding-right: 16px;
+}
+
+/* ---- 進入畫面的說明文字 ---- */
+.pc-intro-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin: 0 0 24px;
+}
+
+.pc-intro-text {
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--text-secondary);
+    margin: 0 0 56px;
+}
+
+.pc-intro-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 0 28px;
+    font-size: 17px;
+    color: var(--pc-cta);
+}
+
+.pc-intro-arrow {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.pc-random-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 auto;
+    padding: 16px 34px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--pc-cta);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--transition-base);
+}
+
+.pc-random-btn:hover {
+    background-color: var(--pc-cta-hover);
+}
+
+.pc-random-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* ---- hover 行政區時的簡介 ---- */
+.pc-brief {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 16px 24px;
+}
+
+.pc-brief-heading {
+    align-self: center;
+}
+
+.pc-brief-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.pc-brief-romaji {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 4px 0 0;
+}
+
+.pc-brief-summary {
+    grid-column: 1 / -1;
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--text-secondary);
+    /* 簡介只露出前幾行，完整內容在點擊後的介紹頁 */
+    display: -webkit-box;
+    -webkit-line-clamp: 9;
+    line-clamp: 9;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ---- 80×80 圖示位置（設計稿保留，尚未提供圖片）---- */
+.pc-icon-slot {
+    width: 80px;
+    height: 80px;
+    flex: 0 0 auto;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.pc-icon-slot-empty {
+    background-color: #e4e4e6;
+}
+
+.pc-icon-slot-empty svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: #cfcfd2;
+    stroke-width: 2;
+}
+
+/* ============ 第二層：單一行政區完整介紹 ============ */
+.pc-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 40px;
+    padding: 32px;
+    align-items: start;
+}
+
+.pc-detail-map {
+    position: relative;
+}
+
+.pc-mini-map {
+    width: 180px;
+    height: 165px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.pc-single-map {
+    height: clamp(260px, 46vh, 420px);
+    margin-top: 24px;
+}
+
+.pc-detail-side {
+    max-width: 620px;
+    padding-top: 8px;
+}
+
+.pc-detail-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.pc-detail-titles {
+    min-width: 0;
+    padding-top: 4px;
+}
+
+.pc-detail-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pc-detail-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.pc-detail-romaji {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.pc-detail-oldname {
+    margin: 10px 0 0;
+    font-size: 20px;
+    color: #8d8d8d;
+}
+
+/* ---- 播放發音按鈕 ---- */
+.pc-audio-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: background-color var(--transition-base);
+}
+
+.pc-audio-btn svg {
+    width: 26px;
+    height: 26px;
+}
+
+.pc-audio-btn:hover:not(:disabled) {
+    background-color: rgba(45, 146, 193, 0.12);
+}
+
+.pc-audio-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* ---- 內文（過長才出現捲軸）---- */
+.pc-detail-body {
+    margin-top: 24px;
+    max-height: 330px;
+    overflow-y: auto;
+    padding-right: 18px;
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--text-secondary);
+}
+
+.pc-detail-body p {
+    margin: 0 0 14px;
+}
+
+.pc-detail-body::-webkit-scrollbar,
+.pc-oldname-modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pc-detail-body::-webkit-scrollbar-thumb,
+.pc-oldname-modal-body::-webkit-scrollbar-thumb {
+    background-color: #c9ccd4;
+    border-radius: 3px;
+}
+
+/* ---- 里舊名 ---- */
+.pc-oldnames {
+    margin-top: 32px;
+}
+
+.pc-oldnames-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+}
+
+.pc-oldnames-list {
+    margin: 0;
+    font-size: 16px;
+}
+
+.pc-oldname-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--pc-accent);
+    font-size: 16px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.pc-oldname-link:hover {
+    color: var(--pc-accent-dark);
+}
+
+.pc-oldnames-sep {
+    margin: 0 6px;
+    color: var(--text-muted);
+}
+
+/* ---- 載入 / 錯誤訊息 ---- */
+.pc-msg {
+    padding: 40px 0;
+    color: var(--text-muted);
+}
+
+.pc-msg-error {
+    color: #d84040;
+}
+
+/* ============ 里舊名懸浮視窗 ============ */
+.unified-modal-container.pc-oldname-modal {
+    max-width: 900px;
+}
+
+.pc-oldname-modal-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-right: 40px;
+}
+
+.pc-oldname-modal-heading h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--pc-accent);
+}
+
+.pc-oldname-modal-heading h2 span {
+    font-weight: 500;
+}
+
+.pc-oldname-modal-body {
+    margin-top: 20px;
+    max-height: 46vh;
+    overflow-y: auto;
+    padding-right: 14px;
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--text-secondary);
+}
+
+.pc-oldname-modal-body p {
+    margin: 0 0 14px;
+}
+
+/* 第一段左側的藍色標記（設計稿） */
+.pc-oldname-modal-body p:first-child {
+    border-left: 4px solid var(--color-primary);
+    padding-left: 10px;
+}
+
+/* ============ RWD ============ */
+@media (max-width: 1200px) {
+    .pc-overview,
+    .pc-detail {
+        gap: 28px;
+        padding: 24px;
+    }
+}
+
+@media (max-width: 900px) {
+    .pc-overview,
+    .pc-detail {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pc-overview-side {
+        min-height: 0;
+        max-width: none;
+        padding-right: 0;
+    }
+
+    .pc-detail-map {
+        min-height: 0;
+    }
+
+    .pc-single-map {
+        height: 300px;
+    }
+
+    .pc-detail-side {
+        max-width: none;
+    }
+
+    .pc-detail-body {
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .pc-toolbar {
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .pc-select-wrap {
+        width: calc(50% - 6px);
+    }
+
+    .pc-intro-title {
+        font-size: 19px;
+    }
+
+    .pc-intro-text {
+        margin-bottom: 32px;
+    }
+
+    .pc-mini-map {
+        width: 130px;
+        height: 120px;
+    }
+
+    .pc-detail-heading {
+        gap: 16px;
+    }
+
+    .pc-detail-name,
+    .pc-detail-romaji {
+        font-size: 20px;
+    }
+
+    .pc-detail-oldname {
+        font-size: 17px;
+    }
+}

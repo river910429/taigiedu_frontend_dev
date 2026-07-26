@@ -3,6 +3,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { useToast } from '../../../components/Toast';
 import AdminDataTable from '../../../components/AdminDataTable';
 import AdminModal from '../../../components/AdminModal';
+import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import DatePicker from '../../../components/DatePicker';
 import '../../../components/AdminDataTable/AdminDataTable.css';
 import './adminAnnouncementPage.css';
@@ -19,6 +20,25 @@ const STATUS_CLASS = {
   '排程中': 'ann-badge-blue',
   '已下架': 'ann-badge-gray',
 };
+
+// ── 字數限制（依設計稿）──
+const TITLE_MAX = 11;            // 公告標題上限 11 字
+const CONTENT_MAX_CHARS = 120;   // 內容上限 中文 120 字
+const CONTENT_MAX_UNITS = 240;   // = 240 字元（中文字以 2 字元計）
+const CONTENT_MAX_LINES = 4;     // 內容上限 4 行
+
+// 計算字元數：全形（中文等）算 2 字元，半形算 1 字元
+function countUnits(str = '') {
+  let units = 0;
+  for (const ch of str) {
+    units += ch.codePointAt(0) <= 0xFF ? 1 : 2;
+  }
+  return units;
+}
+
+function countLines(str = '') {
+  return str.split('\n').length;
+}
 
 function pad2(n) { return String(n).padStart(2, '0'); }
 
@@ -170,6 +190,9 @@ const AdminAnnouncementPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingItem, setDeletingItem] = useState(null);
 
+  // 字數超過上限時的提示彈窗
+  const [alertMsg, setAlertMsg] = useState('');
+
   // ── 自動計算停機公告的公告時間 ──
   const autoStart = useMemo(() => subtractDays(form.shutdownStart, 7), [form.shutdownStart]);
   const autoEnd = form.shutdownEnd || form.shutdownStart;
@@ -244,6 +267,19 @@ const AdminAnnouncementPage = () => {
     });
   };
 
+  // ── 內容字數／行數驗證（超過時跳出提示彈窗）──
+  const validateContentLimit = (text) => {
+    if (countUnits(text) > CONTENT_MAX_UNITS) {
+      setAlertMsg(`已超過字數上限！公告內容最多 ${CONTENT_MAX_CHARS} 字`);
+      return false;
+    }
+    if (countLines(text) > CONTENT_MAX_LINES) {
+      setAlertMsg(`已超過行數上限！公告內容最多 ${CONTENT_MAX_LINES} 行`);
+      return false;
+    }
+    return true;
+  };
+
   // ── 表單驗證 ──
   const validateForm = () => {
     if (!form.type) { showToast('請選擇公告類型', 'warning'); return false; }
@@ -251,7 +287,11 @@ const AdminAnnouncementPage = () => {
     if (form.type === '一般公告') {
       if (!form.generalStart) { showToast('請選擇公告開始日期', 'warning'); return false; }
       if (!form.title.trim()) { showToast('請填寫公告標題', 'warning'); return false; }
+      if (form.title.trim().length > TITLE_MAX) {
+        setAlertMsg(`已超過字數上限！公告標題最多 ${TITLE_MAX} 字`); return false;
+      }
       if (!form.content.trim()) { showToast('請填寫文字內容', 'warning'); return false; }
+      if (!validateContentLimit(form.content)) return false;
       const startISO = toISO(form.generalStart, form.generalStartTime);
       if (new Date(startISO) < now) { showToast('開始時間不可為過去時間', 'warning'); return false; }
       if (form.generalEnd) {
@@ -263,6 +303,7 @@ const AdminAnnouncementPage = () => {
     } else {
       if (!form.shutdownStart) { showToast('請選擇網站關閉開始時間', 'warning'); return false; }
       if (!form.shutdownContent.trim()) { showToast('請填寫預設文字內容', 'warning'); return false; }
+      if (!validateContentLimit(form.shutdownContent)) return false;
       const startISO = toISO(form.shutdownStart, form.shutdownStartTime);
       if (new Date(startISO) < now) { showToast('關閉開始時間不可為過去時間', 'warning'); return false; }
       if (form.shutdownEnd) {
@@ -455,12 +496,13 @@ const AdminAnnouncementPage = () => {
         <button className="ann-btn-add" onClick={openAdd}>＋ 新增公告</button>
         <div className="ann-filter">
           <label>目前狀態：</label>
-          <div className="ann-select-wrap">
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-              <option value="目前項目">目前項目</option>
-              <option value="已下架">已下架</option>
-            </select>
-          </div>
+          <CustomSelect
+            size="sm"
+            className="cs-w-md"
+            options={['目前項目', '已下架']}
+            value={statusFilter}
+            onChange={setStatusFilter}
+          />
         </div>
       </div>
 
@@ -489,19 +531,18 @@ const AdminAnnouncementPage = () => {
           <label className="form-label admin-form-label">
             <span className="ann-required">*</span>公告類型
           </label>
-          <select
-            className="form-select admin-form-control ann-type-select"
-            value={form.type}
-            onChange={e => setForm(f => ({
+          <CustomSelect
+            size="sm"
+            className="ann-type-select"
+            options={['一般公告', '停機公告']}
+            value={form.type || null}
+            placeholder="請選擇公告類型"
+            onChange={val => setForm(f => ({
               ...f,
-              type: e.target.value,
-              shutdownContent: e.target.value === '停機公告' ? SHUTDOWN_TEMPLATE : f.shutdownContent,
+              type: val,
+              shutdownContent: val === '停機公告' ? SHUTDOWN_TEMPLATE : f.shutdownContent,
             }))}
-          >
-            <option value="">請選擇公告類型</option>
-            <option value="一般公告">一般公告</option>
-            <option value="停機公告">停機公告</option>
-          </select>
+          />
         </div>
 
         {/* ── 一般公告欄位 ── */}
@@ -543,20 +584,24 @@ const AdminAnnouncementPage = () => {
 
             <div className="mb-3">
               <label className="form-label admin-form-label">
-                <span className="ann-required">*</span>公告標題
+                <span className="ann-required">*</span>公告標題（限 {TITLE_MAX} 字）
               </label>
               <input type="text" className="form-control admin-form-control"
                 value={form.title} onChange={e => setField('title', e.target.value)}
+                maxLength={TITLE_MAX}
                 placeholder="請輸入公告標題" />
             </div>
 
             <div className="mb-3">
               <label className="form-label admin-form-label">
-                <span className="ann-required">*</span>文字內容
+                <span className="ann-required">*</span>文字內容（限 {CONTENT_MAX_CHARS} 字）
               </label>
               <textarea className="form-control admin-form-control ann-textarea"
                 value={form.content} onChange={e => setField('content', e.target.value)}
-                placeholder="請輸入公告內容" rows={4} />
+                placeholder="請輸入公告內容" rows={CONTENT_MAX_LINES} />
+              <div className={`ann-counter ${countUnits(form.content) > CONTENT_MAX_UNITS ? 'ann-counter-over' : ''}`}>
+                目前字數：{countUnits(form.content)} / {CONTENT_MAX_UNITS} 字元
+              </div>
             </div>
           </>
         )}
@@ -618,12 +663,26 @@ const AdminAnnouncementPage = () => {
               </label>
               <textarea className="form-control admin-form-control ann-textarea"
                 value={form.shutdownContent} onChange={e => setField('shutdownContent', e.target.value)}
-                rows={4} />
+                rows={CONTENT_MAX_LINES} />
+              <div className={`ann-counter ${countUnits(form.shutdownContent) > CONTENT_MAX_UNITS ? 'ann-counter-over' : ''}`}>
+                目前字數：{countUnits(form.shutdownContent)} / {CONTENT_MAX_UNITS} 字元
+              </div>
               <div className="ann-auto-hint">「網站關閉時間」將自動替換為實際的關閉時間區間</div>
             </div>
           </>
         )}
       </AdminModal>
+
+      {/* 字數超過上限提示 Modal */}
+      {alertMsg && (
+        <div className="ann-alert-overlay" onClick={e => { if (e.target === e.currentTarget) setAlertMsg(''); }}>
+          <div className="ann-alert-modal">
+            <button type="button" className="ann-alert-close" onClick={() => setAlertMsg('')} aria-label="關閉">×</button>
+            <div className="ann-alert-text">{alertMsg}</div>
+            <button type="button" className="ann-alert-confirm" onClick={() => setAlertMsg('')}>確定</button>
+          </div>
+        </div>
+      )}
 
       {/* 刪除確認 Modal */}
       {showDeleteModal && (

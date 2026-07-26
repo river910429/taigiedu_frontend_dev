@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useToast } from '../../../components/Toast';
 import AdminModal from '../../../components/AdminModal';
+import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import AdminDataTable from '../../../components/AdminDataTable';
 import './adminSocialmediaPage.css';
 
@@ -400,33 +401,27 @@ const AdminSocialmediaPage = () => {
       <div className="admin-header-controls">
         <h5 className="d-flex align-items-center gap-2">
           媒體與社群資源 &gt;
-          <select
-            className="form-select admin-filter-select"
+          <CustomSelect
+            size="sm"
+            className="cs-w-auto"
+            options={['全部', ...Object.keys(menuItems)]}
             value={parentFilter}
-            onChange={(e) => {
-              setParentFilter(e.target.value);
+            onChange={(val) => {
+              setParentFilter(val);
               setChildFilter('全部');
             }}
-          >
-            <option value="全部">全部</option>
-            {Object.keys(menuItems).map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+          />
 
           {showChildFilter && (
             <>
               &gt;
-              <select
-                className="form-select admin-filter-select"
+              <CustomSelect
+                size="sm"
+                className="cs-w-auto"
+                options={['全部', ...childOptions]}
                 value={childFilter}
-                onChange={(e) => setChildFilter(e.target.value)}
-              >
-                <option value="全部">全部</option>
-                {childOptions.map(sub => (
-                  <option key={sub} value={sub}>{sub}</option>
-                ))}
-              </select>
+                onChange={setChildFilter}
+              />
             </>
           )}
         </h5>
@@ -445,14 +440,16 @@ const AdminSocialmediaPage = () => {
 
         <div className="status-filter">
           <span>目前狀態：</span>
-          <select
-            className="form-select admin-status-dropdown"
+          <CustomSelect
+            size="sm"
+            className="cs-w-md"
+            options={[
+              { value: 'published', label: '目前資源' },
+              { value: 'archived', label: '刪除紀錄' },
+            ]}
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="published">目前資源</option>
-            <option value="archived">刪除紀錄</option>
-          </select>
+            onChange={setStatusFilter}
+          />
         </div>
       </div>
 
@@ -465,6 +462,8 @@ const AdminSocialmediaPage = () => {
         error={error}
         onRetry={fetchData}
         emptyState={{ message: '暫無資料' }}
+        enablePagination={true}
+        pageSize={20}
       />
 
       {/* 使用 AdminModal 組件 */}

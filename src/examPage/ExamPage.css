@@ -61,6 +61,68 @@
     font-weight: 700;
     margin: 0;
     padding: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.exam-category-count {
+    color: #718096;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ─── 查看全部 / 返回全部類別 ─── */
+.exam-viewall-button,
+.exam-back-button {
+    border: 1px solid #cbd5e0;
+    background: #fff;
+    color: #017AB1;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.exam-viewall-button:hover,
+.exam-back-button:hover {
+    background: #017AB1;
+    border-color: #017AB1;
+    color: #fff;
+}
+
+/* ─── 完整列表工具列 ─── */
+.exam-list-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 20px 0;
+}
+
+.exam-list-summary {
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.exam-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: #718096;
+}
+
+/* ─── 卡片格線（每列 4 筆）─── */
+.exam-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.exam-grid .exam-card {
+    width: 100%;
 }
 
 /* ─── 各 Section 外層 ─── */
@@ -199,6 +261,22 @@
 
   .exam-card {
     width: 136px;
+  }
+
+  .exam-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .exam-list-toolbar {
+    padding: 16px 16px 0;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .exam-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

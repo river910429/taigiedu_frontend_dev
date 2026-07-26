@@ -1,11 +1,13 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
     useReactTable,
     getCoreRowModel,
     getSortedRowModel,
+    getPaginationRowModel,
     flexRender,
 } from '@tanstack/react-table';
+import Pagination from '../../mainSearchPage/Pagination';
 
 // 拖曳功能
 import {
@@ -111,6 +113,8 @@ SortableTableRow.propTypes = {
  * @param {string|null} error - 錯誤訊息
  * @param {Function} onRetry - 重試回調函數
  * @param {string} tableClassName - 自訂表格 className
+ * @param {boolean} enablePagination - 是否啟用分頁（資料筆數超過 pageSize 時才會顯示分頁元件）
+ * @param {number} pageSize - 每頁顯示筆數（預設 20）
  */
 const AdminDataTable = ({
     data = [],
@@ -123,11 +127,19 @@ const AdminDataTable = ({
     error = null,
     onRetry,
     tableClassName = '',
+    enablePagination = false,
+    pageSize = 20,
 }) => {
     const [sorting, setSorting] = useState([]);
     const [activeId, setActiveId] = useState(null);
     const [columnWidths, setColumnWidths] = useState([]);
+    const [pageIndex, setPageIndex] = useState(0);
     const tableRef = useRef(null);
+
+    // 資料（篩選條件）變動時自動回到第 1 頁
+    useEffect(() => {
+        setPageIndex(0);
+    }, [data]);
 
     // 拖曳感應器設定
     const sensors = useSensors(
@@ -146,12 +158,24 @@ const AdminDataTable = ({
         columns: tableColumns,
         state: {
             sorting,
+            ...(enablePagination
+                ? { pagination: { pageIndex: Math.min(pageIndex, Math.max(0, Math.ceil(data.length / pageSize) - 1)), pageSize } }
+                : {}),
         },
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
+        getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
         enableSorting,
     });
+
+    const totalPages = enablePagination ? Math.max(1, Math.ceil(data.length / pageSize)) : 1;
+    const currentPage = Math.min(pageIndex + 1, totalPages);
+
+    const handlePageChange = useCallback((newPage) => {
+        if (newPage < 1 || newPage > totalPages) return;
+        setPageIndex(newPage - 1);
+    }, [totalPages]);
 
     // 拖曳事件處理 - 捕獲實際欄寬
     const handleDragStart = useCallback((event) => {
@@ -400,24 +424,41 @@ const AdminDataTable = ({
     };
 
     return (
-        <div className="admin-table-responsive">
-            {enableDragging ? (
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    onDragCancel={handleDragCancel}
-                >
-                    {renderTableContent()}
-                    <DragOverlay>
-                        {renderDragOverlay()}
-                    </DragOverlay>
-                </DndContext>
-            ) : (
-                renderTableContent()
+        <>
+            <div className="admin-table-responsive">
+                {enableDragging ? (
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                        onDragCancel={handleDragCancel}
+                    >
+                        {renderTableContent()}
+                        <DragOverlay>
+                            {renderDragOverlay()}
+                        </DragOverlay>
+                    </DndContext>
+                ) : (
+                    renderTableContent()
+                )}
+            </div>
+
+            {/* 分頁：資料筆數超過每頁上限時才顯示 */}
+            {enablePagination && totalPages > 1 && (
+                <div className="admin-table-pagination">
+                    <div className="admin-table-pagination-summary">
+                        共 {data.length} 筆｜第 {currentPage}／{totalPages} 頁
+                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                        maxVisible={4}
+                    />
+                </div>
             )}
-        </div>
+        </>
     );
 };
 
@@ -434,6 +475,8 @@ AdminDataTable.propTypes = {
     error: PropTypes.string,
     onRetry: PropTypes.func,
     tableClassName: PropTypes.string,
+    enablePagination: PropTypes.bool,
+    pageSize: PropTypes.number,
 };
 
 export default AdminDataTable;

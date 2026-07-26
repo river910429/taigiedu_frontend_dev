@@ -3,6 +3,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { useToast } from '../../../components/Toast';
 import AdminDataTable from '../../../components/AdminDataTable';
 import AdminModal from '../../../components/AdminModal';
+import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import { authenticatedFetch } from '../../../services/authService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { FLAGS, hasFlag, getUserFlags } from '../../../config/permissions';
@@ -341,8 +342,7 @@ const AdminNewsPage = () => {
   };
 
   // 處理類別下拉選擇
-  const handleCategorySelect = (e) => {
-    const val = e.target.value;
+  const handleCategorySelect = (val) => {
     if (val === '__add_new__') {
       setShowNewCategoryInput(true);
       setIsEditingCategory(false);
@@ -447,8 +447,8 @@ const AdminNewsPage = () => {
     }
   };
 
-  const handleStatusFilterChange = (event) => {
-    setStatusFilter(event.target.value);
+  const handleStatusFilterChange = (value) => {
+    setStatusFilter(value);
   };
 
   return (
@@ -468,14 +468,16 @@ const AdminNewsPage = () => {
           )}
           <div className="status-filter">
             <span className="me-2 text-secondary">目前狀態：</span>
-            <select
-              className="form-select admin-status-dropdown"
+            <CustomSelect
+              size="sm"
+              className="cs-w-md"
+              options={[
+                { value: 'published', label: '目前公告' },
+                { value: 'archived', label: '刪除紀錄' },
+              ]}
               value={statusFilter}
               onChange={handleStatusFilterChange}
-            >
-              <option value="published">目前公告</option>
-              <option value="archived">刪除紀錄</option>
-            </select>
+            />
           </div>
         </div>
       </div>
@@ -529,19 +531,17 @@ const AdminNewsPage = () => {
             </>
           ) : (
             <div className="news-category-select-row">
-              <select
-                className="form-select admin-form-control"
+              <CustomSelect
+                size="sm"
                 id="newCategory"
-                value={showNewCategoryInput ? '__add_new__' : newCategory}
+                options={[
+                  ...categories.map((cat) => ({ value: cat, label: cat })),
+                  { value: '__add_new__', label: '＋ 新增項目' },
+                ]}
+                value={showNewCategoryInput ? '__add_new__' : (newCategory || null)}
+                placeholder="請選擇類別"
                 onChange={handleCategorySelect}
-                required
-              >
-                <option value="" disabled>請選擇類別</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-                <option value="__add_new__">＋ 新增項目</option>
-              </select>
+              />
               {newCategory && newCategory !== '__add_new__' && !showNewCategoryInput && (
                 <button type="button" className="btn btn-primary news-add-category-btn" onClick={handleStartEditCategory}>修改</button>
               )}

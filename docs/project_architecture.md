@@ -38,7 +38,13 @@
 - **閱讀 (`/read`)**: `readPage/ReadPage.jsx`，提供閩南語文章或相關文本的閱讀模組。
 - **翻譯 (`/translate`)**: `translatePage/TranslatePage.jsx`，可能是提供中台翻譯功能的工具。
 - **教學資源 (`/resource`)**: `resourcePage/ResourcePage.jsx`，讓使用者尋找、下載教學檔案。內含 `/file-preview` 與 `/download` 分支功能。
-- **主題融入資源 (`/featured-resource/topic-integration`)**: `featuredResourcePage/TopicIntegrationPage`。
+- **主題融入資源 (`/topic-integration`)**: `featuredResourcePage/TopicIntegrationPage`。
+- **台語地名與文化 (`/placename-culture`)**: `placenameCulturePage/PlacenameCulturePage.jsx`，臺南市 37 個行政區的地名由來與台語發音。
+  - 兩層導覽以 query string 切換：無參數為臺南全圖（滑過行政區看簡介），`?district=安平區` 為單一行政區的完整介紹。
+  - 地圖為 SVG，路徑資料在 `placenameCulturePage/tainanMapData.js`（自 Figma 設計稿匯出後轉檔，勿手改），由 `TainanMap.jsx` 依 `full` / `mini` / `single` 三種形態渲染。
+  - ⚠️ **內容目前來自 `services/placenameCultureMockApi.js` 假資料**；上方三個下拉選單為未來擴增其他縣市地圖保留，現階段僅開放臺南市。
+  - 由 `VITE_ENABLE_PLACENAME_CULTURE_FEATURE` 控制側邊欄與路由是否顯示。
+  - 後端 API 設計說明見 `docs/placename_culture_api.md`，草稿規格見 `docs/openapi/placename-culture.draft.openapi.json`。
 - **名人堂/台語人物 (`/celebrity`, `/celebrity/detail`)**: `celebrity/CelebrityPage.jsx` 與 `CelebrityDetails.jsx`，展示推廣台語或相關文化的人物介紹。
 - **文化介紹 (`/culture/food`, `/culture/festival`)**: 介紹台灣在地美食 (`CultureFood`) 與節慶 (`CultureFestival`)。
 - **社群媒體/影音 (`/socialmedia`)**: `socialmediaPage/SocialmediaPage`，整合外部平台（如 YouTube/Podcast）的影音資源。

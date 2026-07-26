@@ -25,6 +25,7 @@ const Sidebar = ({ isOpen = false, onClose }) => {
 
   const isUnstableFeaturesEnabled = envConfig.features.enableUnstableFeatures;
   const isTopicIntegrationFeatureEnabled = envConfig.features.enableTopicIntegrationFeature;
+  const isPlacenameCultureFeatureEnabled = envConfig.features.enablePlacenameCultureFeature;
 
   const allMenuItems = [
     { id: 1, label: "主頁搜尋", icon: homeIcon, path: "/" },
@@ -52,19 +53,30 @@ const Sidebar = ({ isOpen = false, onClose }) => {
       icon: featuredResourceIcon,
       hasSubmenu: true,
       submenuItems: [
-        { id: "topic-integration", label: "議題融入", path: "/featured-resource/topic-integration" },
+        { id: "topic-integration", label: "議題融入", path: "/topic-integration" },
         { id: 12, label: "親戚計算機", path: "/relative-calculator" },
+        { id: "placename-culture", label: "台語地名與文化", path: "/placename-culture" },
       ],
     },
   ];
 
-  const menuItems = allMenuItems.filter(item => {
-    if (!isTopicIntegrationFeatureEnabled && item.id === 11) return false;
-    if (!isUnstableFeaturesEnabled) {
-      if ([2, 3, 4].includes(item.id)) return false;
-    }
-    return true;
-  });
+  const menuItems = allMenuItems
+    .filter(item => {
+      if (!isTopicIntegrationFeatureEnabled && item.id === 11) return false;
+      if (!isUnstableFeaturesEnabled) {
+        if ([2, 3, 4].includes(item.id)) return false;
+      }
+      return true;
+    })
+    .map(item => {
+      if (!item.hasSubmenu) return item;
+      // 子選單也要吃 feature toggle
+      const submenuItems = item.submenuItems.filter(subItem => {
+        if (!isPlacenameCultureFeatureEnabled && subItem.id === "placename-culture") return false;
+        return true;
+      });
+      return { ...item, submenuItems };
+    });
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
   useEffect(() => {

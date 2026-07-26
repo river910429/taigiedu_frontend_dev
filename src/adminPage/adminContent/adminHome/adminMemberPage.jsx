@@ -7,6 +7,7 @@ import { authenticatedFetch } from '../../../services/authService';
 import AdminDataTable from '../../../components/AdminDataTable';
 import '../../../components/AdminDataTable/AdminDataTable.css';
 import AdminModal from '../../../components/AdminModal';
+import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import './adminMemberPage.css';
 import envConfig from '../../../config';
 import adjustmentsIcon from '../../../assets/adjustments-horizontal.svg';
@@ -621,8 +622,8 @@ const AdminMemberPage = () => {
     handleModalClose();
   };
 
-  const handleViewFilterChange = (event) => {
-    setViewFilter(event.target.value);
+  const handleViewFilterChange = (value) => {
+    setViewFilter(value);
   };
 
   return (
@@ -643,15 +644,17 @@ const AdminMemberPage = () => {
           {/* 已移除「新增會員」按鈕 */}
           <div className="status-filter">
             <span className="text-secondary">目前狀態：</span>
-            <select
-              className="form-select admin-status-dropdown"
+            <CustomSelect
+              size="sm"
+              className="cs-w-md"
+              options={[
+                { value: 'admins', label: '管理員名單' },
+                { value: 'members', label: '會員名單' },
+                { value: 'archivedMembers', label: '停用會員名單' },
+              ]}
               value={viewFilter}
               onChange={handleViewFilterChange}
-            >
-              <option value="admins">管理員名單</option>
-              <option value="members">會員名單</option>
-              <option value="archivedMembers">停用會員名單</option>
-            </select>
+            />
           </div>
         </div>
       </div>
@@ -666,6 +669,8 @@ const AdminMemberPage = () => {
         error={error}
         onRetry={fetchMembers}
         emptyState={{ message: '目前沒有會員資料' }}
+        enablePagination={true}
+        pageSize={20}
       />
 
       {/* 使用 AdminModal 組件 */}
@@ -733,16 +738,13 @@ const AdminMemberPage = () => {
           <label htmlFor="newRole" className="form-label admin-form-label">
             *角色
           </label>
-          <select
-            className="form-select admin-form-control"
+          <CustomSelect
+            size="sm"
             id="newRole"
+            options={['member', 'admin']}
             value={newRole}
-            onChange={(e) => setNewRole(e.target.value)}
-            required
-          >
-            <option value="member">member</option>
-            <option value="admin">admin</option>
-          </select>
+            onChange={setNewRole}
+          />
         </div>
         </div>
       </AdminModal>

@@ -26,6 +26,7 @@ import CultureFestival from "./culture/festival/FestivalPage";
 import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
 import ExamPage from "./examPage/ExamPage";
 import TopicIntegrationPage from "./featuredResourcePage/TopicIntegrationPage";
+import PlacenameCulturePage from "./placenameCulturePage/PlacenameCulturePage";
 import DownloadPage from "./resourcePage/DownloadPage";
 import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
@@ -74,6 +75,7 @@ const AppLayout = () => {
   const isAdminPage = location.pathname === '/admin';
   const isAdminContent = location.pathname.startsWith('/admin/');
   const isTopicIntegrationFeatureEnabled = envConfig.features.enableTopicIntegrationFeature;
+  const isPlacenameCultureFeatureEnabled = envConfig.features.enablePlacenameCultureFeature;
 
   // 路由切換時自動收起 sidebar（手機版）
   useEffect(() => {
@@ -147,10 +149,18 @@ const AppLayout = () => {
           <Route path="/socialmedia" element={<SocialmediaPage />} />
           <Route path="/exam" element={<ExamPage />} />
           <Route
-            path="/featured-resource/topic-integration"
+            path="/topic-integration"
             element={
               isTopicIntegrationFeatureEnabled
                 ? <TopicIntegrationPage />
+                : <Navigate to="/" replace />
+            }
+          />
+          <Route
+            path="/placename-culture"
+            element={
+              isPlacenameCultureFeatureEnabled
+                ? <PlacenameCulturePage />
                 : <Navigate to="/" replace />
             }
           />

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '../../../../components/Toast';
 import AdminModal from '../../../../components/AdminModal';
+import CustomSelect from '../../../../components/CustomSelect/CustomSelect';
 import AdminDataTable from '../../../../components/AdminDataTable';
 import './adminExamInfo.css';
 import editIcon from '../../../../assets/adminPage/pencil.svg';
@@ -355,27 +356,29 @@ const AdminExamInfo = () => {
           <div className="d-flex align-items-center gap-3">
             <div className="filter-breadcrumb">
               <span className="breadcrumb-label">篩選：</span>
-              <select
-                className="form-select admin-filter-select"
+              <CustomSelect
+                size="sm"
+                className="cs-w-auto"
+                options={[
+                  { value: 'all', label: '全部' },
+                  ...availableCategories.map(cat => ({ value: cat, label: cat })),
+                ]}
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="all">全部</option>
-                {availableCategories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+                onChange={setCategoryFilter}
+              />
             </div>
             <div className="status-filter">
               <span className="me-2 text-secondary">目前狀態：</span>
-              <select
-                className="form-select admin-status-dropdown"
+              <CustomSelect
+                size="sm"
+                className="cs-w-md"
+                options={[
+                  { value: 'published', label: '目前項目' },
+                  { value: 'archived', label: '刪除紀錄' },
+                ]}
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="published">目前項目</option>
-                <option value="archived">刪除紀錄</option>
-              </select>
+                onChange={setStatusFilter}
+              />
             </div>
           </div>
         </div>
@@ -388,6 +391,8 @@ const AdminExamInfo = () => {
         enableSorting={statusFilter !== 'archived'}
         isLoading={isLoading}
         emptyState={{ message: '目前沒有認證考試資料' }}
+        enablePagination={true}
+        pageSize={20}
       />
 
       <AdminModal
@@ -404,17 +409,13 @@ const AdminExamInfo = () => {
           <label className="form-label admin-form-label">*類別</label>
           {!isCustomCategory ? (
             <>
-              <select
-                className="form-select admin-form-control"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                required
-              >
-                <option value="" disabled>請選擇類別</option>
-                {availableCategories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+              <CustomSelect
+                size="sm"
+                options={availableCategories}
+                value={newCategory || null}
+                placeholder="請選擇類別"
+                onChange={setNewCategory}
+              />
               <button
                 type="button"
                 className="btn btn-link btn-sm p-0 mt-1 text-secondary"

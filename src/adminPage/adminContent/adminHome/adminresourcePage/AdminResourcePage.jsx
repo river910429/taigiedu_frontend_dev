@@ -4,7 +4,7 @@ import '../../../../resourcePage/ResourceHeader.css';
 // 使用前台的 ResourceCard 以符合視覺樣式
 import ResourceCard from '../../../../resourcePage/ResourceCard.jsx';
 import MultiSelect from '../../../../phrasePage/multiselect';
-import chevronUpIcon from '../../../../assets/chevron-up.svg';
+import CustomSelect from '../../../../components/CustomSelect/CustomSelect';
 import Pagination from '../../../../mainSearchPage/Pagination.jsx';
 import shieldIcon from '../../../../assets/adminPage/shield-exclamation.svg';
 import defaultPreviewImage from '../../../../assets/resourcepage/file_preview_demo.png';
@@ -24,7 +24,6 @@ export default function AdminResourcePage() {
 
   // 與 ResourcePage 同款的篩選與搜尋狀態
   const [selectedGrade, setSelectedGrade] = useState('階段');
-  const [isGradeOpen, setIsGradeOpen] = useState(false);
   const [isMultiSelectEnabled, setIsMultiSelectEnabled] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   // 從後台設定讀取內容類型，預設為前台一樣：學習單、簡報、教案、其他
@@ -154,8 +153,7 @@ export default function AdminResourcePage() {
   };
 
   // 行為：模擬 ResourceHeader 的互動
-  const handleGradeChange = (e) => {
-    const grade = e.target.value;
+  const handleGradeChange = (grade) => {
     setSelectedGrade(grade);
     if (grade === '全部') setSelectedCategories([...allVersions]);
     else if (grade !== '階段') setSelectedCategories([...getVersionOptions(grade)]);
@@ -289,20 +287,13 @@ export default function AdminResourcePage() {
       <div className="admin-toolbar">
         <div className="admin-filters left">
           <div className="resource-header">
-            <div className="dropdown-container">
-              <select
-                className={`grade-dropdown ${isGradeOpen ? 'open' : ''}`}
-                onClick={() => setIsGradeOpen(!isGradeOpen)}
-                value={selectedGrade}
+            <div className="grade-select">
+              <CustomSelect
+                options={['全部', '高中', '國中', '國小']}
+                value={selectedGrade === '階段' ? null : selectedGrade}
                 onChange={handleGradeChange}
-              >
-                <option hidden>階段</option>
-                <option value="全部">全部</option>
-                <option value="高中">高中</option>
-                <option value="國中">國中</option>
-                <option value="國小">國小</option>
-              </select>
-              <img src={chevronUpIcon} alt="dropdown arrow" className="dropdown-arrow" />
+                placeholder="階段"
+              />
             </div>
 
             <div className={`multiselect-wrapper ${isMultiSelectEnabled ? 'enabled' : 'disabled'} resource-multi`}>
@@ -340,9 +331,13 @@ export default function AdminResourcePage() {
         </div>
         <div className="admin-status">
           <span>目前狀態：</span>
-          <select className="admin-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-            {statuses.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <CustomSelect
+            size="sm"
+            className="cs-w-md"
+            options={statuses}
+            value={status}
+            onChange={setStatus}
+          />
         </div>
       </div>
 

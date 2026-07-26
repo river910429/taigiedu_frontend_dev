@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useToast } from '../../../components/Toast';
 import AdminModal from '../../../components/AdminModal';
+import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import AdminDataTable from '../../../components/AdminDataTable';
 import './adminFestivalPage.css';
 import jpgIcon from '../../../assets/adminPage/jpg icon.svg';
@@ -444,7 +445,7 @@ const AdminFestivalPage = () => {
     }
   };
 
-  const handleStatusFilterChange = (e) => setStatusFilter(e.target.value);
+  const handleStatusFilterChange = (value) => setStatusFilter(value);
 
   // 定義表格欄位
   const columns = useMemo(() => [
@@ -543,10 +544,16 @@ const AdminFestivalPage = () => {
           )}
           <div className="status-filter">
             <span className="me-2 text-secondary">目前狀態：</span>
-            <select className="form-select admin-status-dropdown" value={statusFilter} onChange={handleStatusFilterChange}>
-              <option value="published">目前項目</option>
-              <option value="archived">刪除紀錄</option>
-            </select>
+            <CustomSelect
+              size="sm"
+              className="cs-w-md"
+              options={[
+                { value: 'published', label: '目前項目' },
+                { value: 'archived', label: '刪除紀錄' },
+              ]}
+              value={statusFilter}
+              onChange={handleStatusFilterChange}
+            />
           </div>
         </div>
       </div>
@@ -621,10 +628,16 @@ const AdminFestivalPage = () => {
         <div className="mb-3 admin-form-grid-full">
           <label className="form-label admin-form-label">*日期</label>
           <div className="d-flex align-items-center gap-2 flex-wrap">
-            <select className="form-select admin-form-control" style={{ width: '110px' }} value={dateType} onChange={(e) => setDateType(e.target.value)}>
-              <option value="lunar">農曆</option>
-              <option value="solar">國曆</option>
-            </select>
+            <CustomSelect
+              size="sm"
+              className="festival-date-type-select"
+              options={[
+                { value: 'lunar', label: '農曆' },
+                { value: 'solar', label: '國曆' },
+              ]}
+              value={dateType}
+              onChange={setDateType}
+            />
             <input type="number" className="form-control admin-form-control" placeholder="月" value={dateMonth} min={1} max={12} onChange={(e) => setDateMonth(e.target.value)} style={{ width: '90px' }} />
             <span>月</span>
             <input type="number" className="form-control admin-form-control" placeholder="日" value={dateDay} min={1} max={dateType === 'solar' ? 31 : 30} onChange={(e) => setDateDay(e.target.value)} style={{ width: '90px' }} />

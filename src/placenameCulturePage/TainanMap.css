@@ -1,0 +1,87 @@
+/* ===== 臺南市行政區地圖（SVG）===== */
+/* 色票取自 Figma 設計稿：底色 #528897 @68%、選取 #1081A8、描邊白 2px */
+:root {
+    --pc-map-fill: rgba(82, 137, 151, 0.68);
+    --pc-map-fill-hover: rgba(82, 137, 151, 0.85);
+    --pc-map-fill-active: #1081a8;
+    --pc-map-stroke: #ffffff;
+}
+
+.pc-map {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.pc-map-area {
+    fill: var(--pc-map-fill);
+    stroke: var(--pc-map-stroke);
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    transition: fill var(--transition-base);
+}
+
+.pc-map-line {
+    fill: none;
+    stroke: var(--pc-map-stroke);
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+}
+
+/* ─── 完整地圖：可互動 ─────────────────────────────────── */
+.pc-map-full .pc-map-district {
+    cursor: pointer;
+    outline: none;
+}
+
+.pc-map-full .pc-map-district:hover .pc-map-area,
+.pc-map-full .pc-map-district.is-hovered .pc-map-area,
+.pc-map-full .pc-map-district:focus-visible .pc-map-area {
+    fill: var(--pc-map-fill-active);
+}
+
+.pc-map-district.is-active .pc-map-area {
+    fill: var(--pc-map-fill-active);
+}
+
+/* ─── 縮圖：整張可點擊回到完整地圖 ─────────────────────── */
+.pc-map-mini {
+    cursor: pointer;
+}
+
+.pc-map-mini .pc-map-area,
+.pc-map-mini .pc-map-line {
+    stroke-width: 1.5;
+}
+
+.pc-map-mini:hover .pc-map-area {
+    fill: rgba(82, 137, 151, 0.85);
+}
+
+.pc-map-mini .pc-map-district.is-active .pc-map-area {
+    fill: var(--pc-map-fill-active);
+}
+
+/* ─── 單一行政區放大 ───────────────────────────────────── */
+.pc-map-single .pc-map-area {
+    fill: #528897;
+    stroke: none;
+}
+
+.pc-map-single .pc-map-line {
+    stroke: none;
+}
+
+/* ─── hover 時浮出的區名標籤 ───────────────────────────── */
+.pc-map-label rect {
+    fill: #17607c;
+    opacity: 0.92;
+}
+
+.pc-map-label text {
+    fill: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}

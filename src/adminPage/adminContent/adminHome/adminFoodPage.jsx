@@ -3,6 +3,7 @@ import { useToast } from '../../../components/Toast';
 import { authenticatedFetch } from '../../../services/authService';
 import { uploadFile, resolveFileUrl } from '../../../services/uploadService';
 import AdminModal from '../../../components/AdminModal';
+import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import AdminDataTable from '../../../components/AdminDataTable';
 import './adminFoodPage.css';
 import jpgIcon from '../../../assets/adminPage/jpg icon.svg';
@@ -440,7 +441,7 @@ const AdminFoodPage = () => {
     }
   };
 
-  const handleStatusFilterChange = (e) => setStatusFilter(e.target.value);
+  const handleStatusFilterChange = (value) => setStatusFilter(value);
 
   const columns = useMemo(() => [
     // 刪除紀錄不需要修改功能
@@ -538,10 +539,16 @@ const AdminFoodPage = () => {
           )}
           <div className="status-filter">
             <span className="me-2 text-secondary">目前狀態：</span>
-            <select className="form-select admin-status-dropdown" value={statusFilter} onChange={handleStatusFilterChange}>
-              <option value="published">目前項目</option>
-              <option value="archived">刪除紀錄</option>
-            </select>
+            <CustomSelect
+              size="sm"
+              className="cs-w-md"
+              options={[
+                { value: 'published', label: '目前項目' },
+                { value: 'archived', label: '刪除紀錄' },
+              ]}
+              value={statusFilter}
+              onChange={handleStatusFilterChange}
+            />
           </div>
         </div>
       </div>

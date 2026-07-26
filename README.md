@@ -186,7 +186,8 @@ const imagePath = `${import.meta.env.VITE_IMAGE_URL}/path/to/image.jpg`;
 常用功能開關：
 
 - `VITE_ENABLE_UNSTABLE_FEATURES`：控制朗讀、翻譯、逐字稿等功能是否顯示。
-- `VITE_ENABLE_TOPIC_INTEGRATION_FEATURE`：控制「議題融入」是否顯示在側邊欄，並是否允許存取 `/featured-resource/topic-integration`。
+- `VITE_ENABLE_TOPIC_INTEGRATION_FEATURE`：控制「議題融入」是否顯示在側邊欄，並是否允許存取 `/topic-integration`。
+- `VITE_ENABLE_PLACENAME_CULTURE_FEATURE`：控制「台語地名與文化」是否顯示在側邊欄，並是否允許存取 `/placename-culture`。
 - `VITE_ENABLE_ROBOTS_NOINDEX`：控制是否注入 `noindex, nofollow` 的 robots meta tag。
 
 ### Firebase 公告服務設定

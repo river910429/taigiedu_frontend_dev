@@ -1,0 +1,531 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "台語地名與文化 API（草稿）",
+    "description": "臺南市 37 個行政區的地名由來與台語發音。此為前端依 mock 實作整理的草稿規格，供後端同仁參考與調整；完成後請合併回「台語教育平台 API」主文件。詳細設計說明見 docs/placename_culture_api.md。",
+    "version": "0.1.0-draft",
+    "contact": {
+      "name": "台語教育平台",
+      "url": "https://dev.taigiedu.com"
+    }
+  },
+  "servers": [],
+  "tags": [
+    { "name": "Placename", "description": "台語地名與文化（前台）" },
+    { "name": "Admin - Placename", "description": "台語地名與文化（後台管理）" }
+  ],
+  "paths": {
+    "/placename/counties": {
+      "post": {
+        "summary": "地區與縣市清單",
+        "description": "供頁面上方前兩個下拉選單使用。counties 為空陣列代表該地區的地圖尚未製作。若暫不開表，前端會先寫死此清單。",
+        "tags": ["Placename"],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/RegionCounties" }
+                },
+                "example": [
+                  { "region": "北部地區", "counties": [] },
+                  { "region": "中部地區", "counties": [] },
+                  { "region": "南部地區", "counties": ["臺南市"] },
+                  { "region": "東部地區", "counties": [] },
+                  { "region": "離島地區", "counties": [] }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/placename/districts": {
+      "post": {
+        "summary": "行政區清單（含簡介）",
+        "description": "第一層的主力 API。前端進頁面時呼叫一次並快取，之後滑鼠移過地圖各區都吃快取，不再打後端。\n\n※ 請勿回傳 description（完整長文），37 區加總可能數 MB。\n※ 只回傳上架狀態的資料，並依 sort_order 排序。",
+        "tags": ["Placename"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["county"],
+                "properties": {
+                  "county": { "type": "string", "description": "縣市名稱", "example": "臺南市" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DistrictBrief" }
+                },
+                "example": [
+                  {
+                    "name": "安平區",
+                    "code": "67000350",
+                    "name_tl": "An-pîng-khu",
+                    "old_name": "大員",
+                    "summary": "「大員」又稱「臺員」是一個古地名，原指臺南市安平區「臺江內海」。荷蘭時期乃指今日之安平區，當時也稱作「一鯤鯓」。",
+                    "figure": "/backend/static/placename/安平區.jpg",
+                    "audio_data": null
+                  },
+                  {
+                    "name": "七股區",
+                    "code": "67000400",
+                    "name_tl": "Tshit-kóo-khu",
+                    "old_name": "七股寮",
+                    "summary": "七股區（臺灣話：Tshit-kóo-khu）位於臺灣臺南市最西端，為台灣本島最西端的行政區。",
+                    "figure": "/backend/static/placename/七股區.jpg",
+                    "audio_data": null
+                  }
+                ]
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/placename/district/detail": {
+      "post": {
+        "summary": "單一行政區完整資料",
+        "description": "第二層的 API，使用者點選某區時呼叫。\n\n※ 查詢鍵目前設計為 name（前端網址即 ?district=安平區）。若後端偏好 code，請在 /placename/districts 一併回傳 code，前端會改帶 code。",
+        "tags": ["Placename"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["county", "name"],
+                "properties": {
+                  "county": { "type": "string", "example": "臺南市" },
+                  "name": { "type": "string", "description": "行政區名稱，須與前端地圖圖層名一致", "example": "安平區" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DistrictDetail" },
+                "example": {
+                  "name": "安平區",
+                  "code": "67000350",
+                  "name_tl": "An-pîng-khu",
+                  "old_name": "大員",
+                  "figure": "/backend/static/placename/安平區.jpg",
+                  "audio_data": "/backend/static/placename/audio/安平區.mp3",
+                  "description": [
+                    "【「大員」、「台灣」與大武壠族「臺窩灣社」，荷蘭時期的東番夷人、安平「臺江內海」、「熱蘭遮城」與「一鯤鯓」】",
+                    "「大員」又稱「臺員」是一個古地名，原指臺南市安平區「臺江內海」。荷蘭時期乃指今日之安平區，當時也稱作「一鯤鯓」。",
+                    "早在荷蘭人之前，漢人就在海上並且在赤崁（今台南市中西區）至魍港（今嘉義縣布袋鎮）一帶活動，與平埔族人做貿易。"
+                  ],
+                  "old_village_names": [
+                    {
+                      "name": "大員",
+                      "name_tl": "Tāi-Uân",
+                      "audio_data": null,
+                      "description": [
+                        "「大員」又稱「臺員」，是一個古地名，原指臺南市安平區的「臺江內海」。",
+                        "關於「大員」之由來，一種普遍的說法是此詞來自臺灣大武壠族大灣社或臺窩灣社之名轉化而來。"
+                      ]
+                    },
+                    {
+                      "name": "安順（庄）",
+                      "name_tl": "An-sūn",
+                      "audio_data": null,
+                      "description": ["「安順」為今日安南區的舊稱，日治時期設安順庄，隸屬臺南州新豐郡。"]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/admin/placename/district": {
+      "get": {
+        "summary": "顯示行政區列表",
+        "tags": ["Admin - Placename"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "totalCount": { "type": "integer" },
+                    "district_data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/DistrictAdminItem" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/admin/placename/district/add": {
+      "post": {
+        "summary": "新增行政區資料",
+        "tags": ["Admin - Placename"],
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DistrictPayload" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/SuccessMessage" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/admin/placename/district/modify": {
+      "post": {
+        "summary": "刪除／復原／編輯行政區資料",
+        "description": "與 /admin/culture/food/modify 同結構：action 1=刪除, 2=復原, 3=修改。",
+        "tags": ["Admin - Placename"],
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": ["id", "action"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "action": {
+                        "type": "string",
+                        "enum": ["1", "2", "3"],
+                        "description": "1=刪除, 2=復原, 3=修改"
+                      }
+                    }
+                  },
+                  { "$ref": "#/components/schemas/DistrictPayload" }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/SuccessMessage" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/admin/placename/village": {
+      "get": {
+        "summary": "顯示里舊名列表",
+        "tags": ["Admin - Placename"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "district_id",
+            "in": "query",
+            "required": false,
+            "description": "僅列出該行政區的里舊名；不帶則回傳全部",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "totalCount": { "type": "integer" },
+                    "village_data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/VillageAdminItem" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/admin/placename/village/add": {
+      "post": {
+        "summary": "新增里舊名",
+        "tags": ["Admin - Placename"],
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VillagePayload" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/SuccessMessage" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/admin/placename/village/modify": {
+      "post": {
+        "summary": "刪除／復原／編輯里舊名",
+        "tags": ["Admin - Placename"],
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": ["id", "action"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "action": {
+                        "type": "string",
+                        "enum": ["1", "2", "3"],
+                        "description": "1=刪除, 2=復原, 3=修改"
+                      }
+                    }
+                  },
+                  { "$ref": "#/components/schemas/VillagePayload" }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/SuccessMessage" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "使用 JWT Access Token 進行認證。格式: `Authorization: Bearer <token>`"
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "請求參數錯誤",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+        }
+      },
+      "Unauthorized": {
+        "description": "未授權或 Token 無效",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+        }
+      },
+      "NotFound": {
+        "description": "資源不存在",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+        }
+      },
+      "SuccessMessage": {
+        "description": "成功",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": true },
+                "message": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      },
+      "RegionCounties": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "enum": ["北部地區", "中部地區", "南部地區", "東部地區", "離島地區"]
+          },
+          "counties": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "該地區已建置地圖的縣市；空陣列代表尚未開放"
+          }
+        }
+      },
+      "DistrictBrief": {
+        "type": "object",
+        "required": ["name", "name_tl"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "行政區名稱。必須與前端地圖圖層名完全一致（37 個固定值，見 docs/placename_culture_api.md 第 8 節）",
+            "example": "安平區"
+          },
+          "code": { "type": "string", "description": "行政區代碼", "example": "67000350" },
+          "name_tl": { "type": "string", "description": "台羅拼音", "example": "An-pîng-khu" },
+          "old_name": { "type": "string", "nullable": true, "description": "古地名", "example": "大員" },
+          "summary": {
+            "type": "string",
+            "description": "簡介，第一層滑鼠移過時顯示。建議 200–400 字；未填可回空字串"
+          },
+          "figure": { "type": "string", "nullable": true, "description": "代表圖路徑（80×80 顯示位）" },
+          "audio_data": {
+            "type": "string",
+            "nullable": true,
+            "description": "區名發音。清單 API 建議回 null 或路徑，避免整包塞 37 段 Base64"
+          }
+        }
+      },
+      "DistrictDetail": {
+        "type": "object",
+        "required": ["name", "name_tl", "description"],
+        "properties": {
+          "name": { "type": "string", "example": "安平區" },
+          "code": { "type": "string", "example": "67000350" },
+          "name_tl": { "type": "string", "example": "An-pîng-khu" },
+          "old_name": { "type": "string", "nullable": true, "example": "大員" },
+          "figure": { "type": "string", "nullable": true },
+          "audio_data": {
+            "type": "string",
+            "nullable": true,
+            "description": "Base64 字串、相對路徑或完整網址皆可；無音檔請回 null（勿回空字串）"
+          },
+          "description": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "完整介紹。每個元素為一個段落，前端逐一渲染為 <p>，不做任何字串切割。若後端改回單一字串，請務必保留換行字元"
+          },
+          "old_village_names": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OldVillageName" },
+            "description": "里舊名清單，可為空陣列"
+          }
+        }
+      },
+      "OldVillageName": {
+        "type": "object",
+        "required": ["name", "name_tl", "description"],
+        "properties": {
+          "name": { "type": "string", "example": "大員" },
+          "name_tl": { "type": "string", "example": "Tāi-Uân" },
+          "audio_data": { "type": "string", "nullable": true },
+          "description": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "懸浮視窗內文，每個元素為一個段落"
+          }
+        }
+      },
+      "DistrictPayload": {
+        "type": "object",
+        "properties": {
+          "county": { "type": "string", "description": "縣市", "example": "臺南市" },
+          "code": { "type": "string", "description": "行政區代碼" },
+          "name": { "type": "string", "description": "行政區名稱（華文）" },
+          "name_tl": { "type": "string", "description": "行政區名稱（台羅）" },
+          "old_name": { "type": "string", "description": "古地名" },
+          "summary": { "type": "string", "description": "簡介（第一層用）" },
+          "description": { "type": "string", "description": "完整介紹（第二層用），請保留段落換行" },
+          "figure": { "type": "string", "description": "圖片連結" },
+          "audio_data": { "type": "string", "description": "語音資料（Base64 編碼或路徑）" },
+          "sort_order": { "type": "integer", "description": "排序" }
+        }
+      },
+      "DistrictAdminItem": {
+        "allOf": [
+          { "$ref": "#/components/schemas/DistrictPayload" },
+          {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "status": { "type": "string", "description": "沿用既有上下架狀態 enum" },
+              "timestamp": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "VillagePayload": {
+        "type": "object",
+        "properties": {
+          "district_id": { "type": "string", "description": "所屬行政區 id" },
+          "name": { "type": "string", "description": "里舊名（華文）" },
+          "name_tl": { "type": "string", "description": "里舊名（台羅）" },
+          "description": { "type": "string", "description": "說明，請保留段落換行" },
+          "audio_data": { "type": "string", "description": "語音資料（Base64 編碼或路徑）" },
+          "sort_order": { "type": "integer" }
+        }
+      },
+      "VillageAdminItem": {
+        "allOf": [
+          { "$ref": "#/components/schemas/VillagePayload" },
+          {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "status": { "type": "string" },
+              "timestamp": { "type": "string" }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

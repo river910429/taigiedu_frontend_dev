@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useToast } from '../../../../components/Toast';
 import AdminModal from '../../../../components/AdminModal';
+import CustomSelect from '../../../../components/CustomSelect/CustomSelect';
 import AdminDataTable from '../../../../components/AdminDataTable';
 import './adminExamChannels.css';
 import editIcon from '../../../../assets/adminPage/pencil.svg';
@@ -59,8 +60,8 @@ const AdminExamChannels = () => {
     return channels.filter(item => item.status === statusFilter);
   }, [channels, statusFilter]);
 
-  const handleStatusFilterChange = (e) => {
-    setStatusFilter(e.target.value);
+  const handleStatusFilterChange = (value) => {
+    setStatusFilter(value);
   };
 
   const handleAddClick = () => {
@@ -262,14 +263,16 @@ const AdminExamChannels = () => {
           )}
           <div className="status-filter">
             <span className="me-2 text-secondary">目前狀態：</span>
-            <select
-              className="form-select admin-status-dropdown"
+            <CustomSelect
+              size="sm"
+              className="cs-w-md"
+              options={[
+                { value: 'published', label: '目前項目' },
+                { value: 'archived', label: '刪除紀錄' },
+              ]}
               value={statusFilter}
               onChange={handleStatusFilterChange}
-            >
-              <option value="published">目前項目</option>
-              <option value="archived">刪除紀錄</option>
-            </select>
+            />
           </div>
         </div>
       </div>

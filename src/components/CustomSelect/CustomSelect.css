@@ -38,6 +38,10 @@
     text-overflow: ellipsis;
 }
 
+.custom-select-value.is-placeholder {
+    color: #8b95a1;
+}
+
 .custom-select-arrow {
     position: absolute;
     right: 12px;
@@ -53,17 +57,15 @@
     transform: translateY(-50%) rotate(180deg);
 }
 
+/* 選單以 portal 掛在 body，實際座標由 JS 以 position: fixed 指定 */
 .custom-select-options {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 4px;
+    position: fixed;
     background: white;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    /* 需高於 Bootstrap Modal (1055) */
+    z-index: 2000;
     max-height: 300px;
     overflow-y: auto;
     scrollbar-width: none;
@@ -89,4 +91,54 @@
 
 .custom-select-option.selected {
     background-color: rgba(185, 204, 224, 1);
+}
+
+/* 停用狀態 */
+.custom-select-header:disabled {
+    background-color: #f1f3f5;
+    color: #adb5bd;
+    cursor: not-allowed;
+}
+
+.custom-select-header:disabled:hover {
+    border-color: #ddd;
+    box-shadow: none;
+}
+
+/* ─── 小尺寸（後台篩選器／表單）─── */
+.custom-select-sm .custom-select-header {
+    height: 38px;
+    padding: 8px 34px 8px 12px;
+    font-size: 14px;
+    line-height: 20px;
+    border-radius: 6px;
+}
+
+.custom-select-sm .custom-select-arrow {
+    right: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+.custom-select-options-sm {
+    border-radius: 6px;
+}
+
+.custom-select-options-sm .custom-select-option {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+/* ─── 後台常用寬度（搭配 size="sm" 使用）─── */
+.cs-w-sm {
+    width: 120px;
+}
+
+.cs-w-md {
+    width: 160px;
+}
+
+.cs-w-auto {
+    width: auto;
+    min-width: 140px;
 }

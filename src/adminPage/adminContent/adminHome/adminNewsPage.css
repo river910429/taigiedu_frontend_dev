@@ -127,7 +127,8 @@
     align-items: center;
 }
 
-.news-category-select-row .form-select {
+.news-category-select-row .form-select,
+.news-category-select-row .custom-select {
     flex: 1;
 }
 

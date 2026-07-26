@@ -3,6 +3,7 @@ import { useToast } from '../../../components/Toast';
 import { authenticatedFetch } from '../../../services/authService';
 import AdminDataTable from '../../../components/AdminDataTable';
 import AdminModal from '../../../components/AdminModal';
+import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import './adminTestPage.css';
 import DragConfirmButton from '../../../components/DragConfirmButton/DragConfirmButton';
 import editIcon from '../../../assets/adminPage/pencil.svg';
@@ -310,8 +311,8 @@ const AdminTestPage = () => {
         }
     };
 
-    const handleStatusFilterChange = (event) => {
-        setStatusFilter(event.target.value);
+    const handleStatusFilterChange = (value) => {
+        setStatusFilter(value);
     };
 
     return (
@@ -331,14 +332,16 @@ const AdminTestPage = () => {
                     )}
                     <div className="status-filter">
                         <span className="me-2 text-secondary">目前狀態：</span>
-                        <select
-                            className="form-select admin-status-dropdown"
+                        <CustomSelect
+                            size="sm"
+                            className="cs-w-md"
+                            options={[
+                                { value: 'published', label: '目前公告' },
+                                { value: 'archived', label: '刪除紀錄' },
+                            ]}
                             value={statusFilter}
                             onChange={handleStatusFilterChange}
-                        >
-                            <option value="published">目前公告</option>
-                            <option value="archived">刪除紀錄</option>
-                        </select>
+                        />
                     </div>
                 </div>
             </div>
@@ -371,18 +374,14 @@ const AdminTestPage = () => {
                     <label htmlFor="newCategory" className="form-label admin-form-label">
                         *類別
                     </label>
-                    <select
-                        className="form-select admin-form-control"
+                    <CustomSelect
+                        size="sm"
                         id="newCategory"
-                        value={newCategory}
-                        onChange={(e) => setNewCategory(e.target.value)}
-                        required
-                    >
-                        <option value="" disabled>請選擇類別</option>
-                        {ALLOWED_CATEGORIES.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                    </select>
+                        options={ALLOWED_CATEGORIES}
+                        value={newCategory || null}
+                        placeholder="請選擇類別"
+                        onChange={setNewCategory}
+                    />
                 </div>
                 <div className="mb-3">
                     <label htmlFor="newContent" className="form-label admin-form-label">
