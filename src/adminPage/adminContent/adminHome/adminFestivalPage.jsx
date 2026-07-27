@@ -3,6 +3,8 @@ import { useToast } from '../../../components/Toast';
 import AdminModal from '../../../components/AdminModal';
 import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import AdminDataTable from '../../../components/AdminDataTable';
+import ReadOnlyNotice from '../../../components/ReadOnlyNotice/ReadOnlyNotice';
+import { useContentEditPermission, NO_EDIT_PERMISSION_MESSAGE } from '../../useContentEditPermission';
 import './adminFestivalPage.css';
 import jpgIcon from '../../../assets/adminPage/jpg icon.svg';
 import editIcon from '../../../assets/adminPage/pencil.svg';
@@ -70,6 +72,8 @@ const getFullAudioUrl = (path) => {
 
 const AdminFestivalPage = () => {
   const { showToast } = useToast();
+  // 新增／修改／刪除僅限內容管理員，系統管理員只能檢視
+  const canEditContent = useContentEditPermission();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [allFestival, setAllFestival] = useState([]);
@@ -173,7 +177,13 @@ const AdminFestivalPage = () => {
 
   useEffect(() => { fetchFestival(); }, [fetchFestival]);
 
-  const handleAddClick = () => { setShowAddModal(true); };
+  const handleAddClick = () => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
+    setShowAddModal(true);
+  };
   const handleEditClick = (item) => {
     setIsEditing(true); setCurrentEditItem(item);
     setNewZhName(item.zhName || ''); setNewTwName(item.twName || '');
@@ -357,6 +367,10 @@ const AdminFestivalPage = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     if (!newZhName || !newTwName || !newZhDesc || !newTwDesc) { showToast('請填寫必填欄位', 'warning'); return; }
     if (!dateMonth || !dateDay) { showToast('請填寫日期', 'warning'); return; }
     if (imageUploading) { showToast('圖片上傳中，請稍候', 'warning'); return; }
@@ -426,6 +440,10 @@ const AdminFestivalPage = () => {
   };
 
   const handleDeleteClick = async (itemId) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     const isRestore = statusFilter === 'archived';
     const confirmMsg = isRestore ? '確定要復原此筆已下架的項目嗎？' : '確定要下架此筆項目嗎？';
     if (!window.confirm(confirmMsg)) return;
@@ -449,8 +467,8 @@ const AdminFestivalPage = () => {
 
   // 定義表格欄位
   const columns = useMemo(() => [
-    // 刪除紀錄不需要修改功能
-    statusFilter !== 'archived' && {
+    // 刪除紀錄不需要修改功能；無編輯權限時也不顯示
+    statusFilter !== 'archived' && canEditContent && {
       id: 'edit',
       header: '修改',
       size: 50,
@@ -513,7 +531,7 @@ const AdminFestivalPage = () => {
         )
       )
     },
-    {
+    canEditContent && {
       id: 'action',
       header: statusFilter === 'archived' ? '復原' : '刪除',
       size: 50,
@@ -529,15 +547,15 @@ const AdminFestivalPage = () => {
       header: '日期',
       enableSorting: true,
     }
-  ].filter(Boolean), [statusFilter, playingId, handlePlayAudio]);
+  ].filter(Boolean), [statusFilter, canEditContent, playingId, handlePlayAudio]);
 
   return (
     <div className="admin-test-page p-4">
       <div className="admin-header-main">
         <h5 className="mb-3 text-secondary">節慶飲食 &gt; 節慶 &gt; <span>{statusFilter === 'published' ? '目前項目' : '刪除紀錄'}</span></h5>
         <div className="admin-controls-row">
-          {/* 刪除紀錄不需要新增項目功能 */}
-          {statusFilter !== 'archived' && (
+          {/* 刪除紀錄不需要新增項目功能；無編輯權限時也不顯示 */}
+          {statusFilter !== 'archived' && canEditContent && (
             <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
               <img src={addIcon} alt="新增項目" />新增項目
             </button>
@@ -557,6 +575,8 @@ const AdminFestivalPage = () => {
           </div>
         </div>
       </div>
+
+      <ReadOnlyNotice show={!canEditContent} />
 
       <AdminDataTable
         data={festivalList}

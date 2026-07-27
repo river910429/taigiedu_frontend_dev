@@ -28,30 +28,25 @@
   width: 100%;
 }
 
-/* 功能卡片網格 */
+/* 功能卡片網格：3 欄 grid，同一列的卡片高度自動對齊 */
 .function-grid {
-  column-count: 3;
-  column-gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  align-items: stretch;
   width: 100%;
 }
 
 /* 功能卡片樣式 */
 .function-card {
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  margin-bottom: 2rem;
-  break-inside: avoid;
   background: white;
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.function-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* 卡片標題 */
@@ -92,6 +87,13 @@
   gap: 0.5rem;
 }
 
+/* 項目較多的卡片（如媒體與社群資源）改用兩欄，避免卡片過高 */
+.function-links-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
 /* 功能連結樣式 */
 .function-link {
   padding: 0.5rem 0.75rem;
@@ -114,8 +116,8 @@
 /* 響應式設計 */
 @media (max-width: 1024px) {
   .function-grid {
-    column-count: 2;
-    column-gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
 }
 
@@ -129,8 +131,8 @@
   }
 
   .function-grid {
-    column-count: 1;
-    column-gap: 0;
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
   }
 
   .function-card {

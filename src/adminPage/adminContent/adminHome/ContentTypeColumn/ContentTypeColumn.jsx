@@ -3,7 +3,7 @@ import './ContentTypeColumn.css';
 import TableHeaderCell from '../TableHeaderCell/TableHeaderCell.jsx';
 import pencilIcon from '../../../../assets/adminPage/pencil.svg';
 
-const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
+const Row = ({ value, isEditing, onStartEdit, onChange, onCommit, readOnly = false }) => {
   return (
     <div className="ct-row">
       {isEditing ? (
@@ -20,7 +20,7 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
       ) : (
         <span className="ct-label">{value}</span>
       )}
-      {!isEditing && (
+      {!isEditing && !readOnly && (
         <button className="ct-icon-btn" onClick={onStartEdit} aria-label="edit">
           <img src={pencilIcon} className="ct-icon" alt="edit" />
         </button>
@@ -29,7 +29,7 @@ const Row = ({ value, isEditing, onStartEdit, onChange, onCommit }) => {
   );
 };
 
-export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
+export default function ContentTypeColumn({ items = [], onChange, onAddItem, readOnly = false }) {
   const [editIndex, setEditIndex] = useState(-1);
   const [editValue, setEditValue] = useState('');
   const [addingMode, setAddingMode] = useState(false);
@@ -52,6 +52,7 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
   }, []);
 
   const startEdit = (idx) => {
+    if (readOnly) return;
     setEditIndex(idx);
     setEditValue(items[idx] ?? '');
   };
@@ -114,6 +115,7 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
             onStartEdit={() => startEdit(idx)}
             onChange={(val) => setEditValue(val)}
             onCommit={commitEdit}
+            readOnly={readOnly}
           />
         ))}
         {addingMode ? (
@@ -131,12 +133,12 @@ export default function ContentTypeColumn({ items = [], onChange, onAddItem }) {
             />
             <button className="ct-submit" onClick={addItem}>確認</button>
           </div>
-        ) : (
+        ) : !readOnly ? (
           <div className="ct-add-row" onClick={addNewRow}>
             <span className="ct-plus">＋</span>
             <span className="ct-add-label">新增項目</span>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ import ElementarySchoolColumn from '../ElementarySchoolColumn/ElementarySchoolCo
 import ContentTypeColumn from '../ContentTypeColumn/ContentTypeColumn.jsx';
 import { authenticatedFetch } from '../../../../services/authService';
 import { useToast } from '../../../../components/Toast';
+import ReadOnlyNotice from '../../../../components/ReadOnlyNotice/ReadOnlyNotice';
+import { useContentEditPermission, NO_EDIT_PERMISSION_MESSAGE } from '../../../useContentEditPermission';
 
 const STORAGE_KEY = 'resourceHeaderConfig';
 
@@ -92,6 +94,8 @@ export default function ResourceHeaderPage() {
   const [config, setConfig] = useState(baseline);
   const [pending, setPending] = useState(false);
   const { showToast } = useToast();
+  // 新增／修改課本選單僅限內容管理員，系統管理員只能檢視
+  const canEditContent = useContentEditPermission();
 
   const apiBaseUrl = envConfig.apiUrl;
 
@@ -104,6 +108,10 @@ export default function ResourceHeaderPage() {
 
   // 呼叫 API 新增課本版本
   const handleAddBook = useCallback(async (stage, bookName) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return false;
+    }
     try {
       const response = await authenticatedFetch(`${apiBaseUrl}/admin/resource/add-book`, {
         method: 'POST',
@@ -126,10 +134,14 @@ export default function ResourceHeaderPage() {
       showToast(`新增失敗: ${error.message}`, 'error');
       return false;
     }
-  }, [apiBaseUrl, showToast]);
+  }, [apiBaseUrl, canEditContent, showToast]);
 
   // 呼叫 API 新增內容類型
   const handleAddContentType = useCallback(async (typeName) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return false;
+    }
     try {
       const response = await authenticatedFetch(`${apiBaseUrl}/admin/resource/add-content-type`, {
         method: 'POST',
@@ -151,9 +163,13 @@ export default function ResourceHeaderPage() {
       showToast(`新增失敗: ${error.message}`, 'error');
       return false;
     }
-  }, [apiBaseUrl, showToast]);
+  }, [apiBaseUrl, canEditContent, showToast]);
 
   const handleSave = () => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     saveConfig(config);
     setBaseline(config);
     setPending(false);
@@ -175,32 +191,40 @@ export default function ResourceHeaderPage() {
         <span className="sep">&gt;</span>
         <span className="section">編輯課本選單</span>
       </div>
+      <ReadOnlyNotice show={!canEditContent} message="您目前的權限僅能檢視課本選單設定，修改需要「內容管理員」權限。" />
+
       <div className="resconf-grid">
         <HighSchoolColumn
           items={config.versions['高中']}
           onChange={(next) => setStage('高中', next)}
           onAddItem={(bookName) => handleAddBook('高中', bookName)}
+          readOnly={!canEditContent}
         />
         <MiddleSchoolColumn
           items={config.versions['國中']}
           onChange={(next) => setStage('國中', next)}
           onAddItem={(bookName) => handleAddBook('國中', bookName)}
+          readOnly={!canEditContent}
         />
         <ElementarySchoolColumn
           items={config.versions['國小']}
           onChange={(next) => setStage('國小', next)}
           onAddItem={(bookName) => handleAddBook('國小', bookName)}
+          readOnly={!canEditContent}
         />
         <ContentTypeColumn
           items={config.contentTypes}
           onChange={setTypes}
           onAddItem={handleAddContentType}
+          readOnly={!canEditContent}
         />
       </div>
-      <div className="resconf-footer">
-        <button className="resconf-btn" disabled={!pending} onClick={() => setConfig(baseline)}>還原</button>
-        <button className="resconf-btn primary" disabled={!pending} onClick={handleSave}>儲存</button>
-      </div>
+      {canEditContent && (
+        <div className="resconf-footer">
+          <button className="resconf-btn" disabled={!pending} onClick={() => setConfig(baseline)}>還原</button>
+          <button className="resconf-btn primary" disabled={!pending} onClick={handleSave}>儲存</button>
+        </div>
+      )}
     </div>
   );
 }

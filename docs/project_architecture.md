@@ -64,6 +64,12 @@
 ### 3.3. 管理員後台頁面 (Admin - AdminRoute)
 需具備管理員權限，所有路由以 `/admin` 開頭，主要集中在 `src/adminPage/` 資料夾下，並有獨立的 `AdminSidebar` 導覽系統（選單定義於 `adminSidebar.jsx`）。各頁面元件多位於 `adminPage/adminContent/adminHome/`。主要功能為**網站內容建置與管理**：
 
+> **權限模型**：後台採 bitmask flags（`config/permissions.js`）：`CONTENT_MANAGER = 1`（內容增刪修、管理會員上傳資格）、`SYSTEM_MANAGER = 2`（公告管理、權限管理、系統設定）。flags 由 `/api/user/login`、`/auth/refresh`、`/auth/me` 回傳，舊 role 字串（`ADMIN`/`SUPER_ADMIN`）由 `legacyRoleToFlags` 過渡兼容。路由層以 `<ProtectedRoute requiredFlag={FLAGS.X}>` 控管，元件層用 `useAuth()` 的 `isSuperAdmin()`（= SYSTEM_MANAGER）／`isContentManager()`。
+>
+> **內容頁唯讀**：「新增／修改／刪除內容」僅限 CONTENT_MANAGER。所有內容管理頁一律用 `adminPage/useContentEditPermission.js` 取得 `canEditContent`，用它同時（1）隱藏新增鈕與表格的編輯／刪除欄、（2）關閉拖曳排序、（3）在送出的 handler 內再擋一次並吐 `NO_EDIT_PERMISSION_MESSAGE`，並在表格上方放 `components/ReadOnlyNotice`。新增內容管理頁時請沿用這個模式。
+>
+> **手機版**：`AdminSidebar` 與前台 `Sidebar` 一樣是滑入式抽屜，由 `Header` 漢堡鈕透過 `AppLayout` 的 `sidebarOpen` 控制（樣式在 `adminSidebar.css` 的 `.sidebar.admin-sidebar` media query）。
+
 - **首頁面板 (`/admin`)**: `adminMain.jsx`。
 - **主頁搜尋管理**:
   - 考試資訊 (`/admin/main-search/test`): `adminTestPage.jsx`。
@@ -72,10 +78,12 @@
 - **認證考試管理 (`/admin/exam/info`)**: `examPage/adminExamInfo.jsx`，編輯考試基本資訊。
   - 註：`examPage/` 下另有 `adminExamBooks.jsx`、`adminExamChannels.jsx`，但目前尚未在 `App.jsx` 中掛載路由。
 - **媒體與社群資源管理 (`/admin/socialmedia`)**: `adminSocialmediaPage.jsx`，編輯與新增推薦的影音/Podcast連結。
+  - 類別下拉選單由 API 資料動態產生（`item.category`，支援 `父>子` 格式）。支援 `?category=社群` 參數，後台首頁的類別連結即以此帶入預設篩選。
 - **教學資源平台管理**:
   - 審核/上傳資源 (`/admin/resource`, `/admin/resource/upload`): `adminresourcePage/AdminResourcePage.jsx`。
   - 編輯課本選單/首圖 (`/admin/resource/header`): `adminresourcePage/ResourceHeaderPage.jsx`。
 - **會員管理 (`/admin/member`)**: `adminMemberPage.jsx`，管理網站後台/前台會員權限。
+  - 「停用／恢復上傳資格」走 `POST /admin/member/status`（需 CONTENT_MANAGER）；「設定管理員身分」走 `POST /admin/member/flags`（需 SYSTEM_MANAGER，直接帶 flags 整數）。兩者封裝在 `services/memberService.js`。
 - **檔案預覽 (`/admin/file-preview`)**: 後台專屬預覽介面，`adminresourcePage/AdminFilePreview.jsx`。
 - **公告管理 (`/admin/announcement`)**: `adminAnnouncementPage.jsx`，管理一般公告與停機公告（含上架/排程/下架狀態）。
   - ⚠️ **目前此頁仍使用內建 `MOCK_DATA` 假資料，尚未串接後端 API**；新增/編輯/刪除僅更新本地 state，重整即重置。

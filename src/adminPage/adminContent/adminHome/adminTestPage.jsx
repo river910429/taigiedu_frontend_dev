@@ -4,6 +4,8 @@ import { authenticatedFetch } from '../../../services/authService';
 import AdminDataTable from '../../../components/AdminDataTable';
 import AdminModal from '../../../components/AdminModal';
 import CustomSelect from '../../../components/CustomSelect/CustomSelect';
+import ReadOnlyNotice from '../../../components/ReadOnlyNotice/ReadOnlyNotice';
+import { useContentEditPermission, NO_EDIT_PERMISSION_MESSAGE } from '../../useContentEditPermission';
 import './adminTestPage.css';
 import DragConfirmButton from '../../../components/DragConfirmButton/DragConfirmButton';
 import editIcon from '../../../assets/adminPage/pencil.svg';
@@ -20,6 +22,8 @@ const CONTENT_MAX_LENGTH = 20;
 
 const AdminTestPage = () => {
     const { showToast } = useToast();
+    // 新增／修改／刪除僅限內容管理員，系統管理員只能檢視
+    const canEditContent = useContentEditPermission();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [allTestInfo, setAllTestInfo] = useState([]);
@@ -104,6 +108,10 @@ const AdminTestPage = () => {
 
     // 刪除/恢復按鈕點擊
     const handleDeleteClick = useCallback(async (itemId) => {
+        if (!canEditContent) {
+            showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+            return;
+        }
         const isRestoreAction = statusFilter === 'archived';
 
         const confirmMessage = isRestoreAction
@@ -127,15 +135,15 @@ const AdminTestPage = () => {
             console.error(isRestoreAction ? "復原失敗:" : "刪除失敗:", error);
             showToast(`${isRestoreAction ? "復原" : "刪除"}失敗: ${error.message}`, 'error');
         }
-    }, [statusFilter, showToast, fetchTestInfo]);
+    }, [statusFilter, canEditContent, showToast, fetchTestInfo]);
 
     // 定義表格欄位
     const columns = useMemo(() => {
         const isArchived = statusFilter === 'archived';
 
         return [
-            // 刪除紀錄不需要修改功能
-            !isArchived && {
+            // 刪除紀錄不需要修改功能；無編輯權限時也不顯示
+            !isArchived && canEditContent && {
                 id: 'edit',
                 header: '修改',
                 size: 50,
@@ -166,7 +174,7 @@ const AdminTestPage = () => {
                     </a>
                 ),
             },
-            {
+            canEditContent && {
                 id: 'action',
                 header: isArchived ? '復原' : '刪除',
                 size: 50,
@@ -190,7 +198,7 @@ const AdminTestPage = () => {
                 enableSorting: true,
             }
         ].filter(Boolean);
-    }, [statusFilter, handleEditClick, handleDeleteClick]);
+    }, [statusFilter, canEditContent, handleEditClick, handleDeleteClick]);
 
     // 拖曳結束處理：只更新本地狀態，等待使用者點「確認順序」才送 API
     const handleDragEnd = useCallback((activeId, overId) => {
@@ -253,6 +261,10 @@ const AdminTestPage = () => {
     }, [allTestInfo, statusFilter, isLoading]);
 
     const handleAddClick = () => {
+        if (!canEditContent) {
+            showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+            return;
+        }
         if (testInfo.length >= 12 && statusFilter === 'published') {
             showToast('目前公告數量已滿12個項目，請先刪除一個再新增。', 'warning');
             return;
@@ -271,6 +283,10 @@ const AdminTestPage = () => {
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
+        if (!canEditContent) {
+            showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+            return;
+        }
         if (!newCategory || !newContent || !newLink) {
             showToast('請填寫所有欄位', 'warning');
             return;
@@ -323,8 +339,8 @@ const AdminTestPage = () => {
                     <span>{statusFilter === 'published' ? "目前公告" : "刪除記錄"}</span>
                 </h5>
                 <div className="admin-controls-row">
-                    {/* 刪除紀錄不需要新增項目功能 */}
-                    {statusFilter !== 'archived' && (
+                    {/* 刪除紀錄不需要新增項目功能；無編輯權限時也不顯示 */}
+                    {statusFilter !== 'archived' && canEditContent && (
                         <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
                             <img src={addIcon} alt="新增項目" />
                             新增項目
@@ -346,11 +362,13 @@ const AdminTestPage = () => {
                 </div>
             </div>
 
+            <ReadOnlyNotice show={!canEditContent} />
+
             <AdminDataTable
                 data={testInfo}
                 columns={columns}
                 enableSorting={statusFilter !== 'archived'}
-                enableDragging={statusFilter !== 'archived'}
+                enableDragging={statusFilter !== 'archived' && canEditContent}
                 onDragEnd={handleDragEnd}
                 isLoading={isLoading}
                 error={error}

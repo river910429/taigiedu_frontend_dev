@@ -7,6 +7,8 @@ import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import { authenticatedFetch } from '../../../services/authService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { FLAGS, hasFlag, getUserFlags } from '../../../config/permissions';
+import ReadOnlyNotice from '../../../components/ReadOnlyNotice/ReadOnlyNotice';
+import { useContentEditPermission, NO_EDIT_PERMISSION_MESSAGE } from '../../useContentEditPermission';
 import './adminNewsPage.css';
 import DragConfirmButton from '../../../components/DragConfirmButton/DragConfirmButton';
 import editIcon from '../../../assets/adminPage/pencil.svg';
@@ -44,6 +46,8 @@ const AdminNewsPage = () => {
   const { user } = useAuth();
   // SYSTEM_MANAGER 可省略快訊連結（其他人必填）
   const isLinkOptional = hasFlag(getUserFlags(user), FLAGS.SYSTEM_MANAGER);
+  // 新增／修改／刪除僅限內容管理員，系統管理員只能檢視
+  const canEditContent = useContentEditPermission();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [allNews, setAllNews] = useState([]);
@@ -136,6 +140,10 @@ const AdminNewsPage = () => {
 
   // 刪除/恢復按鈕點擊
   const handleDeleteClick = useCallback(async (itemId) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     const isRestoreAction = statusFilter === 'archived';
 
     const confirmMessage = isRestoreAction
@@ -164,15 +172,15 @@ const AdminNewsPage = () => {
       console.error(isRestoreAction ? "復原失敗:" : "下架失敗:", error);
       showToast(`${isRestoreAction ? "復原" : "下架"}失敗: ${error.message}`, 'error');
     }
-  }, [statusFilter, showToast, fetchNews]);
+  }, [statusFilter, canEditContent, showToast, fetchNews]);
 
   // 使用 useMemo 定義表格欄位
   const columns = useMemo(() => {
     const isArchived = statusFilter === 'archived';
 
     return [
-      // 編輯按鈕欄位（刪除紀錄不需要修改功能）
-      !isArchived && columnHelper.display({
+      // 編輯按鈕欄位（刪除紀錄不需要修改功能；無編輯權限時也不顯示）
+      !isArchived && canEditContent && columnHelper.display({
         id: 'edit',
         size: 50,
         enableSorting: false,
@@ -208,8 +216,8 @@ const AdminNewsPage = () => {
         ),
         enableSorting: true,
       }),
-      // 刪除/恢復按鈕欄位
-      columnHelper.display({
+      // 刪除/恢復按鈕欄位（無編輯權限時不顯示）
+      canEditContent && columnHelper.display({
         id: 'delete',
         size: 50,
         enableSorting: false,
@@ -239,7 +247,7 @@ const AdminNewsPage = () => {
         },
       }),
     ].filter(Boolean);
-  }, [statusFilter, handleEditClick, handleDeleteClick]);
+  }, [statusFilter, canEditContent, handleEditClick, handleDeleteClick]);
 
   // 拖曳結束處理
   const handleDragEnd = useCallback(async (activeId, overId) => {
@@ -305,6 +313,10 @@ const AdminNewsPage = () => {
 
   // 新增功能
   const handleAddClick = () => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     if (newsList.length >= 12 && statusFilter === 'published') {
       showToast('目前快訊數量已滿12個項目，請先刪除一個再新增。', 'warning');
       return;
@@ -393,6 +405,10 @@ const AdminNewsPage = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     // 必填驗證：SUPER_ADMIN 的連結為非必填，其餘角色連結必填
     if (!newCategory || !newContent || (!isLinkOptional && !newLink)) {
       showToast('請填寫所有必填欄位', 'warning');
@@ -459,8 +475,8 @@ const AdminNewsPage = () => {
           <span>{statusFilter === 'published' ? "目前公告" : "刪除紀錄"}</span>
         </h5>
         <div className="admin-controls-row">
-          {/* 刪除紀錄不需要新增項目功能 */}
-          {statusFilter !== 'archived' && (
+          {/* 刪除紀錄不需要新增項目功能；無編輯權限時也不顯示 */}
+          {statusFilter !== 'archived' && canEditContent && (
             <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
               <img src={addIcon} alt="新增項目" />
               新增項目
@@ -482,12 +498,14 @@ const AdminNewsPage = () => {
         </div>
       </div>
 
+      <ReadOnlyNotice show={!canEditContent} />
+
       {/* 使用 AdminDataTable 組件 */}
       <AdminDataTable
         data={newsList}
         columns={columns}
         enableSorting={statusFilter !== 'archived'}
-        enableDragging={statusFilter !== 'archived'}
+        enableDragging={statusFilter !== 'archived' && canEditContent}
         onDragEnd={handleDragEnd}
         isLoading={isLoading}
         error={error}

@@ -4,6 +4,8 @@ import { createPortal } from 'react-dom';
 import { createColumnHelper } from '@tanstack/react-table';
 import { useToast } from '../../../components/Toast';
 import { authenticatedFetch } from '../../../services/authService';
+import { updateMemberFlags, updateMemberStatus } from '../../../services/memberService';
+import { FLAG_OPTIONS, flagsToRoleLabel, getUserFlags } from '../../../config/permissions';
 import AdminDataTable from '../../../components/AdminDataTable';
 import '../../../components/AdminDataTable/AdminDataTable.css';
 import AdminModal from '../../../components/AdminModal';
@@ -14,6 +16,16 @@ import adjustmentsIcon from '../../../assets/adjustments-horizontal.svg';
 import uturnIcon from '../../../assets/adminPage/uturn.svg';
 
 const columnHelper = createColumnHelper();
+
+/**
+ * 帳號是否為「停用」狀態
+ *
+ * 後端目前回傳的是「被停用」（role: SUSPENDED），
+ * 這裡一併相容舊的「停用／已停用」字串，避免改字就漏掉。
+ */
+const SUSPENDED_STATUSES = ['被停用', '停用', '已停用'];
+const isSuspendedStatus = (member) =>
+  member?.role === 'SUSPENDED' || SUSPENDED_STATUSES.includes(member?.status);
 
 /**
  * 解析並格式化「使用網站動機」欄位
@@ -67,7 +79,8 @@ const formatReasonDisplay = (reason) => {
 const ActionCell = ({
   row,
   viewFilter,
-  isSuperAdmin,
+  canManageMembers,
+  canManageAdmins,
   handleDeleteClick,
   handleDisableUpload,
   handleAssignAdmin,
@@ -107,17 +120,18 @@ const ActionCell = ({
     setActiveMenuId(activeMenuId === row.original.id ? null : row.original.id);
   };
 
-  // 停用會員名單：顯示恢復按鈕
+  // 停用會員名單：顯示恢復按鈕（需內容管理員權限）
   if (viewFilter === 'archivedMembers') {
     return (
       <div className="action-menu-container">
         <button
           className="admin-action-btn restore-btn"
+          disabled={!canManageMembers}
           onClick={(e) => {
             e.stopPropagation();
             handleDeleteClick(row.original.id);
           }}
-          title="恢復上傳資格"
+          title={canManageMembers ? '恢復上傳資格' : '僅內容管理員可操作'}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
@@ -129,10 +143,19 @@ const ActionCell = ({
   }
 
   // 會員名單與管理員名單：顯示下拉選單
+  // 管理員名單只處理身分調整，因此需要系統管理員權限；會員名單只要有其中一種權限即可開啟
+  const hasAnyAction = viewFilter === 'admins'
+    ? canManageAdmins
+    : (canManageMembers || canManageAdmins);
+
   return (
     <div className="action-menu-container">
-      {viewFilter === 'admins' && !isSuperAdmin ? (
-        <button className="admin-action-btn menu-btn" disabled title="僅超級管理員可操作">
+      {!hasAnyAction ? (
+        <button
+          className="admin-action-btn menu-btn"
+          disabled
+          title={viewFilter === 'admins' ? '僅系統管理員可調整管理員身分' : '您沒有管理會員的權限'}
+        >
           <img src={adjustmentsIcon} alt="管理" className="admin-action-icon" style={{ opacity: 0.5 }} />
         </button>
       ) : (
@@ -155,24 +178,28 @@ const ActionCell = ({
                 zIndex: 9999
               }}
             >
-              <button
-                className="action-menu-item"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDisableUpload(row.original);
-                }}
-              >
-                停用上傳資格
-              </button>
-              <button
-                className="action-menu-item"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAssignAdmin(row.original);
-                }}
-              >
-                {row.original.status === '管理員' ? '解除管理員身分' : '指定擔任管理員'}
-              </button>
+              {canManageMembers && (
+                <button
+                  className="action-menu-item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDisableUpload(row.original);
+                  }}
+                >
+                  停用上傳資格
+                </button>
+              )}
+              {canManageAdmins && (
+                <button
+                  className="action-menu-item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAssignAdmin(row.original);
+                  }}
+                >
+                  設定管理員身分
+                </button>
+              )}
             </div>,
             document.body
           )}
@@ -210,9 +237,11 @@ const AdminMemberPage = () => {
   const [disableReason, setDisableReason] = useState('');
   const [disableNote, setDisableNote] = useState('');
 
-  // 指定管理員彈窗狀態
+  // 設定管理員身分彈窗狀態
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [adminTarget, setAdminTarget] = useState(null);
+  const [selectedFlags, setSelectedFlags] = useState(0);
+  const [isSubmittingFlags, setIsSubmittingFlags] = useState(false);
 
   // 點擊外部關閉選單
   useEffect(() => {
@@ -229,8 +258,11 @@ const AdminMemberPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [activeMenuId]);
 
-  const { isSuperAdmin: checkIsSuperAdmin } = useAuth();
-  const isSuperAdmin = checkIsSuperAdmin();
+  const { isSuperAdmin: checkIsSystemManager, isContentManager: checkIsContentManager } = useAuth();
+  // 指派／解除管理員身分：SYSTEM_MANAGER
+  const canManageAdmins = checkIsSystemManager();
+  // 停用／恢復會員上傳資格：CONTENT_MANAGER
+  const canManageMembers = checkIsContentManager();
 
   // API base URL
   const apiBaseUrl = envConfig.apiUrl;
@@ -258,8 +290,12 @@ const AdminMemberPage = () => {
           reason: member.reason || '',
           timestamp: member.timestamp || '',
           status: member.status || '會員',
-          // 額外欄位（如果需要）
-          role: member.status === '管理員' ? 'admin' : 'member',
+          // 權限 flags：目前 /admin/member/list 尚未回傳 flags，
+          // 由 role 字串推導（SUPER_ADMIN→3、ADMIN→1、其餘→0）。
+          // 後端補上 flags 後 getUserFlags 會自動優先採用真值。
+          flags: getUserFlags(member),
+          // 帳號是否被停用（API 目前回「被停用」，另相容舊字串）
+          isSuspended: isSuspendedStatus(member),
         }));
         setAllMembers(members);
       } else {
@@ -279,9 +315,9 @@ const AdminMemberPage = () => {
 
   // 刪除/恢復按鈕點擊（停用/啟用）
   const handleDeleteClick = useCallback(async (itemId) => {
-    // 管理員名單下僅允許超級管理員停用/啟用
-    if (viewFilter === 'admins' && !isSuperAdmin) {
-      showToast('僅超級管理員可停用/啟用管理員', 'warning');
+    // 停用/啟用會員屬於「管理會員」，需要內容管理員權限
+    if (!canManageMembers) {
+      showToast('僅內容管理員可停用/啟用會員', 'warning');
       return;
     }
 
@@ -289,31 +325,20 @@ const AdminMemberPage = () => {
     const action = isRestoreAction ? '恢復會員' : '停用會員';
 
     try {
-      // 呼叫 API
-      const response = await authenticatedFetch(`${apiBaseUrl}/admin/member/status`, {
-        method: 'POST',
-        body: JSON.stringify({
-          id: String(itemId),
-          action: action,
-          reason: isRestoreAction ? '管理員恢復' : '系統停用',
-          detail: ''
-        })
+      const result = await updateMemberStatus({
+        id: itemId,
+        action,
+        reason: isRestoreAction ? '管理員恢復' : '系統停用',
       });
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        showToast(result.message || (isRestoreAction ? '帳號已成功啟用！' : '帳號已成功停用！'), 'success');
-        // 重新載入會員列表以確保資料同步
-        fetchMembers();
-      } else {
-        throw new Error(result.message || `${action}失敗`);
-      }
+      showToast(result.message || (isRestoreAction ? '帳號已成功啟用！' : '帳號已成功停用！'), 'success');
+      // 重新載入會員列表以確保資料同步
+      fetchMembers();
     } catch (error) {
       console.error(isRestoreAction ? "啟用失敗:" : "停用失敗:", error);
       showToast(`${isRestoreAction ? "啟用" : "停用"}失敗: ${error.message}`, 'error');
     }
-  }, [viewFilter, isSuperAdmin, showToast, apiBaseUrl, fetchMembers]);
+  }, [viewFilter, canManageMembers, showToast, fetchMembers]);
 
   // 停用上傳資格
   const handleDisableUpload = useCallback((member) => {
@@ -335,79 +360,72 @@ const AdminMemberPage = () => {
     const fullReason = disableNote ? `${disableReason}（${disableNote}）` : disableReason;
 
     try {
-      // 呼叫 API
-      const response = await authenticatedFetch(`${apiBaseUrl}/admin/member/status`, {
-        method: 'POST',
-        body: JSON.stringify({
-          id: String(disableTarget.id),
-          action: '停用會員',
-          reason: fullReason,
-          detail: disableNote || ''
-        })
+      const result = await updateMemberStatus({
+        id: disableTarget.id,
+        action: '停用會員',
+        reason: fullReason,
+        detail: disableNote || '',
       });
 
-      const result = await response.json();
-
-      console.log('停用會員 API 回應:', { status: response.status, result });
-
-      if (response.ok && result.success) {
-        showToast(result.message || `已停用 ${disableTarget.name} 的上傳資格`, 'success');
-        setShowDisableModal(false);
-        setDisableTarget(null);
-        // 重新載入會員列表以確保資料同步
-        fetchMembers();
-      } else {
-        throw new Error(result.message || result.error || '停用失敗');
-      }
+      showToast(result.message || `已停用 ${disableTarget.name} 的上傳資格`, 'success');
+      setShowDisableModal(false);
+      setDisableTarget(null);
+      // 重新載入會員列表以確保資料同步
+      fetchMembers();
     } catch (error) {
       console.error('停用會員失敗:', error);
       console.error('停用會員請求參數:', { id: disableTarget?.id, action: '停用會員', reason: fullReason });
       showToast(`停用失敗: ${error.message}`, 'error');
     }
-  }, [disableTarget, disableReason, disableNote, showToast, apiBaseUrl, fetchMembers]);
+  }, [disableTarget, disableReason, disableNote, showToast, fetchMembers]);
 
-  // 指定擔任管理員
+  const handleAdminModalClose = useCallback(() => {
+    setShowAdminModal(false);
+    setAdminTarget(null);
+  }, []);
+
+  // 設定管理員身分
   const handleAssignAdmin = useCallback((member) => {
-    // 開啟確認彈窗
+    // 開啟身分設定彈窗，預設帶入目前的 flags
     setAdminTarget(member);
+    setSelectedFlags(member.flags ?? 0);
     setShowAdminModal(true);
     setActiveMenuId(null);
   }, []);
 
-  // 確認指定擔任管理員或解除管理員身分
+  // 確認設定管理員身分（POST /admin/member/flags，需 SYSTEM_MANAGER）
   const confirmAssignAdmin = useCallback(async () => {
-    const isDemoting = adminTarget?.status === '管理員';
-    const action = isDemoting ? '恢復會員' : '設置管理員';
-    const successMsg = isDemoting ? `已解除 ${adminTarget.name} 的管理員身分` : `已將 ${adminTarget.name} 指定為管理員`;
-
-    try {
-      // 呼叫 API
-      const response = await authenticatedFetch(`${apiBaseUrl}/admin/member/status`, {
-        method: 'POST',
-        body: JSON.stringify({
-          id: String(adminTarget.id),
-          action: action,
-          reason: isDemoting ? '解除管理員權限' : '指定為管理員',
-          detail: ''
-        })
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        showToast(result.message || `已將 ${adminTarget.name} 指定為管理員`, 'success');
-        setShowAdminModal(false);
-        setAdminTarget(null);
-        // 重新載入會員列表以確保資料同步
-        fetchMembers();
-      } else {
-        throw new Error(result.message || '指定管理員失敗');
-      }
-    } catch (error) {
-      console.error('指定管理員失敗:', error);
-      showToast(`指定管理員失敗: ${error.message}`, 'error');
+    if (!canManageAdmins) {
+      showToast('僅系統管理員可設定管理員身分', 'warning');
+      return;
     }
-  }, [adminTarget, showToast, apiBaseUrl, fetchMembers]);
+    if (!adminTarget) return;
+
+    const currentFlags = adminTarget.flags ?? 0;
+    if (selectedFlags === currentFlags) {
+      showToast('身分未變更', 'warning');
+      return;
+    }
+
+    setIsSubmittingFlags(true);
+    try {
+      const result = await updateMemberFlags(adminTarget.id, selectedFlags);
+
+      showToast(
+        result.message || `已將 ${adminTarget.name} 設定為${flagsToRoleLabel(selectedFlags)}`,
+        'success'
+      );
+      setShowAdminModal(false);
+      setAdminTarget(null);
+      // 重新載入會員列表以確保資料同步
+      fetchMembers();
+    } catch (error) {
+      console.error('設定管理員身分失敗:', error);
+      showToast(`設定管理員身分失敗: ${error.message}`, 'error');
+    } finally {
+      setIsSubmittingFlags(false);
+    }
+  }, [adminTarget, selectedFlags, canManageAdmins, showToast, fetchMembers]);
 
   // 欄位定義
   const columns = useMemo(() => {
@@ -474,9 +492,9 @@ const AdminMemberPage = () => {
         cell: info => info.getValue(),
         enableSorting: true,
       }),
-      columnHelper.accessor('role', {
+      columnHelper.accessor('flags', {
         header: '身份',
-        cell: info => (info.getValue() === 'admin' ? '管理員' : '會員'),
+        cell: info => flagsToRoleLabel(info.getValue() ?? 0),
         enableSorting: true,
         size: 120,
       }),
@@ -516,7 +534,8 @@ const AdminMemberPage = () => {
           <ActionCell
             row={row}
             viewFilter={viewFilter}
-            isSuperAdmin={isSuperAdmin}
+            canManageMembers={canManageMembers}
+            canManageAdmins={canManageAdmins}
             handleDeleteClick={handleDeleteClick}
             handleDisableUpload={handleDisableUpload}
             handleAssignAdmin={handleAssignAdmin}
@@ -530,7 +549,7 @@ const AdminMemberPage = () => {
         ),
       }),
     ];
-  }, [viewFilter, isSuperAdmin, handleDeleteClick, activeMenuId, handleDisableUpload, handleAssignAdmin]);
+  }, [viewFilter, canManageMembers, canManageAdmins, handleDeleteClick, activeMenuId, handleDisableUpload, handleAssignAdmin]);
 
   useEffect(() => {
     fetchMembers();
@@ -541,14 +560,14 @@ const AdminMemberPage = () => {
     if (allMembers.length > 0 || isLoading === false) {
       let filtered = [];
       if (viewFilter === 'admins') {
-        // 管理員名單：status 為 "管理員"
-        filtered = allMembers.filter(item => item.status === '管理員');
+        // 管理員名單：有任何後台權限（含系統管理員、超級管理員）
+        filtered = allMembers.filter(item => !item.isSuspended && item.flags > 0);
       } else if (viewFilter === 'members') {
-        // 會員名單：status 為 "會員"
-        filtered = allMembers.filter(item => item.status === '會員');
+        // 會員名單：無後台權限
+        filtered = allMembers.filter(item => !item.isSuspended && item.flags === 0);
       } else if (viewFilter === 'archivedMembers') {
-        // 停用會員名單：status 為 "停用" 或 "已停用"
-        filtered = allMembers.filter(item => item.status === '停用' || item.status === '已停用');
+        // 停用會員名單
+        filtered = allMembers.filter(item => item.isSuspended);
       }
 
       // 文字搜尋過濾：僅姓名
@@ -588,9 +607,9 @@ const AdminMemberPage = () => {
       return;
     }
 
-    // 僅超級管理員可新增或編輯為管理員角色
-    if (newRole === 'admin' && !isSuperAdmin) {
-      showToast('僅超級管理員可新增/編輯為管理員角色', 'warning');
+    // 僅系統管理員可新增或編輯為管理員角色
+    if (newRole === 'admin' && !canManageAdmins) {
+      showToast('僅系統管理員可新增/編輯為管理員角色', 'warning');
       return;
     }
 
@@ -810,48 +829,55 @@ const AdminMemberPage = () => {
         </div>
       )}
 
-      {/* 指定管理員彈窗 */}
-      {showAdminModal && adminTarget && (
-        <div className="admin-modal-overlay" onClick={() => setShowAdminModal(false)}>
-          <div className="admin-assign-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3>{adminTarget?.status === '管理員' ? '解除管理員身分' : '指定管理員'}</h3>
-              <button
-                className="admin-modal-close"
-                onClick={() => setShowAdminModal(false)}
-              >
-                &times;
-              </button>
+      {/* 設定管理員身分彈窗（沿用共用的 AdminModal，樣式與其他後台彈窗一致） */}
+      <AdminModal
+        isOpen={showAdminModal && !!adminTarget}
+        onClose={handleAdminModalClose}
+        title="設定管理員身分"
+        onSubmit={confirmAssignAdmin}
+        submitText={isSubmittingFlags ? '設定中…' : '確定'}
+        submitDisabled={isSubmittingFlags}
+        size="md"
+      >
+        {adminTarget && (
+          <>
+            <p className="admin-confirm-text">
+              *請選擇要指派給此人員的身分
+            </p>
+            <p className="admin-permission-note">
+              （目前身分：{flagsToRoleLabel(adminTarget.flags ?? 0)}；設定為「會員」即解除全部後台權限）
+            </p>
+
+            <div className="admin-flags-group">
+              {FLAG_OPTIONS.map((option) => (
+                <label
+                  key={option.value}
+                  className={`admin-flags-option ${selectedFlags === option.value ? 'selected' : ''}`}
+                >
+                  <input
+                    type="radio"
+                    name="memberFlags"
+                    value={option.value}
+                    checked={selectedFlags === option.value}
+                    onChange={() => setSelectedFlags(option.value)}
+                  />
+                  <span className="admin-flags-option-text">
+                    <span className="admin-flags-option-label">{option.label}</span>
+                    <span className="admin-flags-option-desc">{option.description}</span>
+                  </span>
+                </label>
+              ))}
             </div>
-            <div className="admin-modal-body">
-              <p className="admin-confirm-text">
-                {adminTarget?.status === '管理員'
-                  ? '*您確定要解除此人員的「管理員」身分？'
-                  : '*您確定要將此會員指定為「管理員」？'}
-              </p>
-              <p className="admin-permission-note">
-                {adminTarget?.status === '管理員'
-                  ? '（解除後該帳號將回歸為一般會員身分，並喪失後台管理權限）'
-                  : '（其管理權限包含：使用者內容審查與下架處理、管理會員名單與權限指派）'}
-              </p>
-              <div className="admin-member-info">
-                <p><span>姓名：</span>{adminTarget.name}</p>
-                <p><span>信箱：</span>{adminTarget.email}</p>
-                <p><span>服務單位：</span>{adminTarget.dept}</p>
-                <p><span>使用網站動機：</span>{formatReasonDisplay(adminTarget.reason)}</p>
-              </div>
+
+            <div className="admin-member-info">
+              <p><span>姓名：</span>{adminTarget.name}</p>
+              <p><span>信箱：</span>{adminTarget.email}</p>
+              <p><span>服務單位：</span>{adminTarget.dept}</p>
+              <p><span>使用網站動機：</span>{formatReasonDisplay(adminTarget.reason)}</p>
             </div>
-            <div className="admin-modal-footer">
-              <button
-                className="admin-confirm-btn"
-                onClick={confirmAssignAdmin}
-              >
-                確定
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </AdminModal>
     </div>
   );
 };

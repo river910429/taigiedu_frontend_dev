@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import "./adminSidebar.css";
 import bookIcon from '../assets/adminPage/book.svg';
 import cloudIcon from '../assets/adminPage/cloudComputing.svg';
@@ -45,28 +46,36 @@ const MENU_ITEMS = [
     ]
   },
   { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" },
-  { id: 7, label: "公告管理", icon: shieldIcon, path: "/admin/announcement" }
+  // 公告管理（Popup 公告）僅系統管理員可見
+  { id: 7, label: "公告管理", icon: shieldIcon, path: "/admin/announcement", requireSystemManager: true }
 ];
 
-const AdminSidebar = () => {
+const AdminSidebar = ({ isOpen = false, onClose }) => {
   const [activeItem, setActiveItem] = useState(null); // 目前展開或被點擊的主選單 id
   const [activeSubItem, setActiveSubItem] = useState(null); // 被選取的子選單 id
   const [isSubMenuOpen, setIsSubMenuOpen] = useState({}); // { [主選單id]: true/false }
   const navigate = useNavigate();
   const location = useLocation();
+  const { isSuperAdmin } = useAuth();
+
+  // 依權限過濾選單
+  const menuItems = useMemo(() => {
+    const canManageAnnouncement = isSuperAdmin();
+    return MENU_ITEMS.filter(item => !item.requireSystemManager || canManageAnnouncement);
+  }, [isSuperAdmin]);
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
   // 根據目前路徑決定哪個主選單/子選單高亮與展開
   useEffect(() => {
     // 1. 先找是否直接匹配單層（無子選單）
-    const direct = MENU_ITEMS.find(item => item.path && item.path === location.pathname);
+    const direct = menuItems.find(item => item.path && item.path === location.pathname);
     if (direct) {
       setActiveItem(direct.id);
       setActiveSubItem(null);
       return;
     }
     // 2. 找子選單
-    const parent = MENU_ITEMS.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.path === location.pathname));
+    const parent = menuItems.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.path === location.pathname));
     if (parent) {
       const sub = parent.submenuItems.find(s => s.path === location.pathname);
       setActiveItem(parent.id);
@@ -76,7 +85,7 @@ const AdminSidebar = () => {
     }
     // 3. 沒有匹配，重置
     setActiveItem(null); setActiveSubItem(null);
-  }, [location.pathname]);
+  }, [location.pathname, menuItems]);
 
   const handleClick = (id, path, hasSubmenu) => {
     if (hasSubmenu) {
@@ -87,6 +96,7 @@ const AdminSidebar = () => {
       setActiveItem(id);
       setActiveSubItem(null);
       if (path) navigate(path);
+      onClose?.(); // 手機版：點選後收起抽屜
     }
   };
   const handleSubItemClick = (subItemId, path, parentId) => {
@@ -94,11 +104,15 @@ const AdminSidebar = () => {
     setActiveItem(parentId); // 保留父選單高亮
     setIsSubMenuOpen(prev => ({ ...prev, [parentId]: true }));
     navigate(path);
+    onClose?.(); // 手機版：點選後收起抽屜
   };
 
   return (
-    <div className="sidebar">
-      {MENU_ITEMS.map((item) => (
+    <div
+      className={`sidebar admin-sidebar${isOpen ? ' sidebar-open' : ''}`}
+      data-testid="admin-sidebar"
+    >
+      {menuItems.map((item) => (
         <div key={item.id}>
           <button
             className={`menu-item ${activeItem === item.id ? "active" : ""}`}

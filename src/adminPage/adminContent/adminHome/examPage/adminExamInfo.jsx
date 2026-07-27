@@ -3,6 +3,8 @@ import { useToast } from '../../../../components/Toast';
 import AdminModal from '../../../../components/AdminModal';
 import CustomSelect from '../../../../components/CustomSelect/CustomSelect';
 import AdminDataTable from '../../../../components/AdminDataTable';
+import ReadOnlyNotice from '../../../../components/ReadOnlyNotice/ReadOnlyNotice';
+import { useContentEditPermission, NO_EDIT_PERMISSION_MESSAGE } from '../../../useContentEditPermission';
 import './adminExamInfo.css';
 import editIcon from '../../../../assets/adminPage/pencil.svg';
 import deleteIcon from '../../../../assets/adminPage/trash.svg';
@@ -33,6 +35,8 @@ const normalizeStatus = (status) => {
 
 const AdminExamInfo = () => {
   const { showToast } = useToast();
+  // 新增／修改／刪除僅限內容管理員，系統管理員只能檢視
+  const canEditContent = useContentEditPermission();
   const [examTypes, setExamTypes] = useState([]);
   const [availableCategories, setAvailableCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,6 +105,10 @@ const AdminExamInfo = () => {
   }, [examTypes, statusFilter, categoryFilter]);
 
   const handleAddClick = () => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     setIsEditing(false);
     setCurrentEditId(null);
     resetForm();
@@ -123,6 +131,10 @@ const AdminExamInfo = () => {
   };
 
   const handleDeleteClick = async (id) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     try {
       const response = await authenticatedFetch(`${API_BASE_URL}/admin/exam/modify`, {
         method: 'POST',
@@ -138,6 +150,10 @@ const AdminExamInfo = () => {
   };
 
   const handleRestoreClick = async (id) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     try {
       const response = await authenticatedFetch(`${API_BASE_URL}/admin/exam/modify`, {
         method: 'POST',
@@ -201,6 +217,10 @@ const AdminExamInfo = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
 
     if (!newCategory) {
       showToast('請選擇類別', 'warning');
@@ -270,8 +290,8 @@ const AdminExamInfo = () => {
   };
 
   const columns = useMemo(() => [
-    // 刪除紀錄不需要修改功能
-    statusFilter !== 'archived' && {
+    // 刪除紀錄不需要修改功能；無編輯權限時也不顯示
+    statusFilter !== 'archived' && canEditContent && {
       id: 'edit',
       header: '修改',
       size: 50,
@@ -319,7 +339,7 @@ const AdminExamInfo = () => {
         </a>
       )
     },
-    {
+    canEditContent && {
       id: 'action',
       header: statusFilter === 'archived' ? '復原' : '刪除',
       size: 50,
@@ -337,7 +357,7 @@ const AdminExamInfo = () => {
       )
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  ].filter(Boolean), [statusFilter]);
+  ].filter(Boolean), [statusFilter, canEditContent]);
 
   return (
     <div className="admin-exam-info-page p-4">
@@ -346,8 +366,8 @@ const AdminExamInfo = () => {
           認證考試 &gt; {categoryFilter === 'all' ? '全部' : categoryFilter} &gt; <span>{statusFilter === 'published' ? '目前項目' : '刪除紀錄'}</span>
         </h5>
         <div className="admin-controls-row">
-          {/* 刪除紀錄不需要新增項目功能 */}
-          {statusFilter !== 'archived' && (
+          {/* 刪除紀錄不需要新增項目功能；無編輯權限時也不顯示 */}
+          {statusFilter !== 'archived' && canEditContent && (
             <button className="btn btn-primary me-3 admin-add-button" onClick={handleAddClick}>
               <img src={addIcon} alt="新增項目" />
               新增項目
@@ -383,6 +403,8 @@ const AdminExamInfo = () => {
           </div>
         </div>
       </div>
+
+      <ReadOnlyNotice show={!canEditContent} />
 
       <AdminDataTable
         data={displayItems}

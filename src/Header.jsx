@@ -9,7 +9,7 @@ import adminLogo from "./assets/adminPage/Logo + Title2.svg";
 // 導入原本的 LoginPage
 import LoginPage from "./resourcePage/LoginPage";
 
-const Header = ({ onMenuToggle, sidebarOpen }) => {
+const Header = ({ onMenuToggle, sidebarOpen, showMenuButton = true }) => {
   const { user, isAuthenticated, isLoading, logout, isAdmin } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -21,8 +21,9 @@ const Header = ({ onMenuToggle, sidebarOpen }) => {
   const adminMenuTarget = isAdminPage ? '/' : '/admin';
   const adminMenuLabel = isAdminPage ? '回到官網' : '後台管理';
 
-  // 是否顯示漢堡選單（非 admin 頁才顯示）
-  const showHamburger = !isAdminPage;
+  // 是否顯示漢堡選單：由 AppLayout 依當前頁面是否有側邊欄決定
+  // （後台內容頁也有 AdminSidebar，因此手機版同樣需要漢堡選單）
+  const showHamburger = showMenuButton;
 
   // 處理登出
   const handleLogout = async () => {

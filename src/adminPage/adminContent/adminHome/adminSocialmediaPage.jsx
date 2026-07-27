@@ -1,8 +1,11 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../../components/Toast';
 import AdminModal from '../../../components/AdminModal';
 import CustomSelect from '../../../components/CustomSelect/CustomSelect';
 import AdminDataTable from '../../../components/AdminDataTable';
+import ReadOnlyNotice from '../../../components/ReadOnlyNotice/ReadOnlyNotice';
+import { useContentEditPermission, NO_EDIT_PERMISSION_MESSAGE } from '../../useContentEditPermission';
 import './adminSocialmediaPage.css';
 
 // 圖標導入
@@ -29,6 +32,12 @@ const getFullImageUrl = (path) => {
 
 const AdminSocialmediaPage = () => {
   const { showToast } = useToast();
+  // 新增／修改／刪除僅限內容管理員，系統管理員只能檢視
+  const canEditContent = useContentEditPermission();
+  const [searchParams] = useSearchParams();
+  // 由後台首頁的類別連結帶進來的預設篩選（?category=社群）
+  const categoryParam = searchParams.get('category');
+  const appliedCategoryRef = useRef(null);
 
   // 基本狀態
   const [menuItems, setMenuItems] = useState({});
@@ -69,6 +78,10 @@ const AdminSocialmediaPage = () => {
   };
 
   const openCreate = () => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     resetForm();
     setAttemptedSubmit(false);
     setShowModal(true);
@@ -162,6 +175,21 @@ const AdminSocialmediaPage = () => {
     fetchData();
   }, [fetchData]);
 
+  // 資料載入後套用網址帶入的類別（同一個類別只套用一次，避免蓋掉使用者後續的手動切換）
+  useEffect(() => {
+    if (!categoryParam) return;
+    if (appliedCategoryRef.current === categoryParam) return;
+    if (Object.keys(menuItems).length === 0) return;
+
+    appliedCategoryRef.current = categoryParam;
+    if (menuItems[categoryParam]) {
+      setParentFilter(categoryParam);
+      setChildFilter('全部');
+    } else {
+      showToast(`找不到「${categoryParam}」類別，已顯示全部項目`, 'warning');
+    }
+  }, [categoryParam, menuItems, showToast]);
+
   // 取得子選項
   const childOptions = useMemo(() => {
     if (parentFilter === '全部') return [];
@@ -182,6 +210,10 @@ const AdminSocialmediaPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     setAttemptedSubmit(true);
 
     if (!name.trim()) {
@@ -276,6 +308,10 @@ const AdminSocialmediaPage = () => {
   };
 
   const handleDeleteClick = useCallback(async (id) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     const item = allItems.find(i => i.id === id);
     if (!item) return;
 
@@ -293,7 +329,7 @@ const AdminSocialmediaPage = () => {
     } catch (err) {
       showToast(`操作失敗: ${err.message}`, 'error');
     }
-  }, [allItems, showToast, fetchData]);
+  }, [allItems, canEditContent, showToast, fetchData]);
 
   const showChildFilter = parentFilter === '全部'
     ? childOptions.length > 0
@@ -318,7 +354,7 @@ const AdminSocialmediaPage = () => {
   // 定義表格欄位
   const columns = useMemo(() => [
     // 刪除紀錄不需要修改功能
-    statusFilter !== 'archived' && {
+    statusFilter !== 'archived' && canEditContent && {
       id: 'edit',
       header: '編輯',
       size: 50,
@@ -375,7 +411,7 @@ const AdminSocialmediaPage = () => {
         )
       )
     },
-    {
+    canEditContent && {
       id: 'action',
       header: statusFilter === 'archived' ? '復原' : '刪除',
       size: 50,
@@ -394,7 +430,7 @@ const AdminSocialmediaPage = () => {
       header: '建立時間',
       enableSorting: true,
     }
-  ].filter(Boolean), [handleDeleteClick, statusFilter]);
+  ].filter(Boolean), [handleDeleteClick, statusFilter, canEditContent]);
 
   return (
     <div className="admin-content-wrapper">
@@ -428,8 +464,8 @@ const AdminSocialmediaPage = () => {
       </div>
 
       <div className="admin-controls-row">
-        {/* 刪除紀錄不需要新增項目功能 */}
-        {statusFilter !== 'archived' ? (
+        {/* 刪除紀錄不需要新增項目功能；無編輯權限時也不顯示 */}
+        {statusFilter !== 'archived' && canEditContent ? (
           <button className="btn btn-primary admin-add-button" onClick={openCreate}>
             <img src={addIcon} alt="新增" />
             新增項目
@@ -452,6 +488,8 @@ const AdminSocialmediaPage = () => {
           />
         </div>
       </div>
+
+      <ReadOnlyNotice show={!canEditContent} />
 
       <AdminDataTable
         data={filteredItems}

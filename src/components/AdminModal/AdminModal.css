@@ -86,6 +86,15 @@
     box-shadow: 0 0 0 0.2rem rgba(45, 146, 193, 0.25);
 }
 
+/* 底部按鈕圓角：與後台其他按鈕（.admin-btn、表單欄位）一致的 8px，
+   而不是 global.css `.btn { border-radius: var(--radius-full) }` 的膠囊造型。
+   用 .admin-modal-footer .btn 提高權重，確保不受載入順序影響。 */
+.admin-modal-footer .btn,
+.admin-btn-cancel,
+.admin-btn-submit {
+    border-radius: var(--radius-md, 8px);
+}
+
 /* 取消按鈕 */
 .admin-btn-cancel {
     background-color: #6c757d;

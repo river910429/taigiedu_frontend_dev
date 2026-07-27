@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { ToastProvider } from './components/Toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute, { AdminRoute } from './components/ProtectedRoute';
+import { FLAGS } from './config/permissions';
 import envConfig from './config';
 import "./styles/global.css";
 import "./App.css";
@@ -92,16 +93,22 @@ const AppLayout = () => {
   }, [isAdminPage, isAdminContent]);
 
   const showSidebar = !isPreviewPage && !isDownloadPage && !isCelebrityDetail && !isAdminPage && !isAdminContent;
+  // 後台內容頁使用 AdminSidebar（手機版同樣以漢堡選單開合）
+  const showAdminSidebar = !isPreviewPage && !isDownloadPage && !isCelebrityDetail && isAdminContent;
 
   return (
     <div className="app">
       <ServiceSuspensionNotice />
       {!isAdminPage && !isAdminContent && <GeneralAnnouncementModal />}
       <OutageTopBanner />
-      <Header onMenuToggle={() => setSidebarOpen(prev => !prev)} sidebarOpen={sidebarOpen} />
+      <Header
+        onMenuToggle={() => setSidebarOpen(prev => !prev)}
+        sidebarOpen={sidebarOpen}
+        showMenuButton={showSidebar || showAdminSidebar}
+      />
 
       {/* 手機版 sidebar overlay 遮罩 */}
-      {showSidebar && (
+      {(showSidebar || showAdminSidebar) && (
         <div
           className={`sidebar-overlay ${sidebarOpen ? 'active' : ''}`}
           onClick={() => setSidebarOpen(false)}
@@ -111,7 +118,9 @@ const AppLayout = () => {
 
       <div className={`maincontent ${isPreviewPage || isDownloadPage || isCelebrityDetail || isAdminPage ? 'preview-page' : ''}`}>
         {showSidebar && <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
-        {!isPreviewPage && !isDownloadPage && !isCelebrityDetail && isAdminContent && <AdminSidebar />}
+        {showAdminSidebar && (
+          <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        )}
         <div className={isAdminContent ? 'admin-content-scroll' : ''}>
         <Routes>
           <Route path="/" element={<MainContent />} />
@@ -265,12 +274,13 @@ const AppLayout = () => {
               </AdminRoute>
             }
           />
+          {/* 公告管理（Popup 公告）僅系統管理員可進入 */}
           <Route
             path="/admin/announcement"
             element={
-              <AdminRoute>
+              <ProtectedRoute requireAuth={true} requiredFlag={FLAGS.SYSTEM_MANAGER}>
                 <AdminAnnouncementPage />
-              </AdminRoute>
+              </ProtectedRoute>
             }
           />
         </Routes>

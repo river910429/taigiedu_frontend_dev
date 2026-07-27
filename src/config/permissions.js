@@ -30,6 +30,31 @@ export const FLAGS = {
 };
 
 /**
+ * 身分選項（供後台「設定管理員身分」下拉/單選使用）
+ * value 直接對應 POST /admin/member/flags 的 flags 整數
+ */
+export const FLAG_OPTIONS = [
+  { value: 0, label: '會員', description: '無任何後台權限' },
+  { value: FLAGS.CONTENT_MANAGER, label: '內容管理員', description: '新增／修改／刪除內容、管理會員上傳資格' },
+  { value: FLAGS.SYSTEM_MANAGER, label: '系統管理員', description: '公告管理、權限管理、系統設定' },
+  { value: FLAGS.CONTENT_MANAGER | FLAGS.SYSTEM_MANAGER, label: '超級管理員', description: '同時具備內容管理員與系統管理員權限' },
+];
+
+/**
+ * 將 flags 整數轉為顯示用的身分名稱
+ * @param {number} flags
+ * @returns {string}
+ */
+export function flagsToRoleLabel(flags) {
+  const isSystem = hasFlag(flags, FLAGS.SYSTEM_MANAGER);
+  const isContent = hasFlag(flags, FLAGS.CONTENT_MANAGER);
+  if (isSystem && isContent) return '超級管理員';
+  if (isSystem) return '系統管理員';
+  if (isContent) return '內容管理員';
+  return '會員';
+}
+
+/**
  * 將舊 role 字串轉換為對應的 flags 整數（過渡期兼容用）
  * @param {string|undefined} role
  * @returns {number}

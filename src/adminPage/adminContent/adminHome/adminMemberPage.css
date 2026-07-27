@@ -330,60 +330,7 @@
     background-color: #3A7A8E;
 }
 
-/* 指定管理員彈窗樣式 */
-.admin-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-}
-
-.admin-assign-modal {
-    background: white;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.admin-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 24px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.admin-modal-header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #111827;
-}
-
-.admin-modal-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-.admin-modal-close:hover {
-    color: #111827;
-}
-
-.admin-modal-body {
-    padding: 24px;
-}
+/* 指定管理員彈窗已改用共用的 AdminModal（見 components/AdminModal），原本的自訂 overlay／圓角按鈕樣式已移除 */
 
 .admin-confirm-text {
     font-size: 14px;
@@ -413,26 +360,59 @@
     color: #111827;
 }
 
-.admin-modal-footer {
+/* ===== 設定管理員身分 - 身分選項 ===== */
+
+.admin-flags-group {
     display: flex;
-    justify-content: center;
-    padding: 16px 24px 24px;
+    flex-direction: column;
+    gap: 8px;
+    margin: 4px 0 8px;
 }
 
-.admin-confirm-btn {
-    background-color: #4A90A4;
-    color: white;
-    border: none;
-    padding: 10px 48px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
+.admin-flags-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: border-color 0.2s, background-color 0.2s;
 }
 
-.admin-confirm-btn:hover {
-    background-color: #3A7A8E;
+.admin-flags-option:hover {
+    background-color: #f9fafb;
+}
+
+.admin-flags-option.selected {
+    border-color: #4A90A4;
+    background-color: #eef6f9;
+}
+
+.admin-flags-option input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: #4A90A4;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.admin-flags-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-flags-option-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.admin-flags-option-desc {
+    font-size: 12px;
+    color: #6b7280;
 }
 
 /* ===== 會員管理頁面 - 表格滾動覆寫樣式 ===== */

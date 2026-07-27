@@ -12,6 +12,8 @@ import { authenticatedFetch } from '../../../../services/authService';
 import { useToast } from '../../../../components/Toast';
 import { useAuth } from '../../../../contexts/AuthContext';
 import TakedownDialog from './TakedownDialog';
+import ReadOnlyNotice from '../../../../components/ReadOnlyNotice/ReadOnlyNotice';
+import { useContentEditPermission, NO_EDIT_PERMISSION_MESSAGE } from '../../../useContentEditPermission';
 
 import envConfig from '../../../../config';
 
@@ -21,6 +23,8 @@ const API_BASE_URL = envConfig.apiUrl;
 export default function AdminResourcePage() {
   const { showToast } = useToast();
   const { user } = useAuth();
+  // 下架／復原資源屬於內容管理，系統管理員只能檢視
+  const canEditContent = useContentEditPermission();
 
   // 與 ResourcePage 同款的篩選與搜尋狀態
   const [selectedGrade, setSelectedGrade] = useState('階段');
@@ -164,7 +168,14 @@ export default function AdminResourcePage() {
   const handleContentTypeChange = (selected) => setSelectedContentTypes(selected);
   const handleSearch = (e) => { e.preventDefault(); };
 
-  const openAction = (item) => { setSelected(item); setActionOpen(true); };
+  const openAction = (item) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
+    setSelected(item);
+    setActionOpen(true);
+  };
   const openPreview = (resource) => {
     try {
       const getFullImageUrl = (url) => {
@@ -196,6 +207,10 @@ export default function AdminResourcePage() {
 
   // 下架資源
   const confirmAction = async () => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     if (!selected?.id) return;
 
     const body = {
@@ -240,6 +255,10 @@ export default function AdminResourcePage() {
 
   // 復原資源（取消下架）
   const handleUndown = async (resource) => {
+    if (!canEditContent) {
+      showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
+      return;
+    }
     if (!resource?.id) return;
 
     const body = {
@@ -341,6 +360,8 @@ export default function AdminResourcePage() {
         </div>
       </div>
 
+      <ReadOnlyNotice show={!canEditContent} message="您目前的權限僅能檢視資源，下架／復原需要「內容管理員」權限。" />
+
       <div className={`admin-card-grid four-cols ${status === '已下架項目' ? 'down-mode' : ''}`}>
         {isLoading ? (
           <div className="empty-state">載入中...</div>
@@ -362,7 +383,7 @@ export default function AdminResourcePage() {
                   </div>
                   <div className="reported-controls">
                     <button className="reported-button" onClick={(e) => { e.stopPropagation(); openPreview(r); }}>預覽</button>
-                    <button className="reported-button" onClick={(e) => { e.stopPropagation(); openAction(r); }}>下架</button>
+                    {canEditContent && <button className="reported-button" onClick={(e) => { e.stopPropagation(); openAction(r); }}>下架</button>}
                   </div>
                 </>
               )}
@@ -371,7 +392,7 @@ export default function AdminResourcePage() {
                   <div className="normal-overlay" />
                   <div className="normal-controls">
                     <button className="normal-button primary" onClick={(e) => { e.stopPropagation(); openPreview(r); }}>預覽</button>
-                    <button className="normal-button" onClick={(e) => { e.stopPropagation(); openAction(r); }}>下架</button>
+                    {canEditContent && <button className="normal-button" onClick={(e) => { e.stopPropagation(); openAction(r); }}>下架</button>}
                   </div>
                 </>
               )}
@@ -380,7 +401,7 @@ export default function AdminResourcePage() {
                   <div className="down-overlay" />
                   <div className="down-controls">
                     <button className="down-button primary" onClick={(e) => { e.stopPropagation(); openPreview(r); }}>預覽</button>
-                    <button className="down-button" onClick={(e) => { e.stopPropagation(); handleUndown(r); }}>取消下架</button>
+                    {canEditContent && <button className="down-button" onClick={(e) => { e.stopPropagation(); handleUndown(r); }}>取消下架</button>}
                   </div>
                 </>
               )}
