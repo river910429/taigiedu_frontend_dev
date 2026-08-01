@@ -2,11 +2,11 @@
  * 後台會員管理 API
  *
  * 權限說明：
- * - POST /admin/member/flags  需要 SYSTEM_MANAGER 權限（指派管理員身分）
- * - POST /admin/member/status 需要 CONTENT_MANAGER 權限（停用／恢復會員上傳資格）
+ * - POST /admin/member/flags  需要 SYSTEM_MANAGER 權限（設定後台權限 flags）
+ * - POST /admin/member/status 需要 CONTENT_MANAGER 權限（停用／恢復會員，切換 isSuspended）
  *
- * 註：/admin/member/status 的 action 為 binary（設置管理員／恢復會員），
- *     無法指定要給哪一種身分，因此指派管理員一律改用 /admin/member/flags。
+ * 註：flags（後台權限）與 isSuspended（帳號啟用狀態）是兩件獨立的事，
+ *     分別由上面兩支 API 管理，不要用其中一支去推導另一個。
  */
 
 import envConfig from '../config';
@@ -39,11 +39,11 @@ export const updateMemberFlags = async (id, flags) => {
 };
 
 /**
- * 更新會員狀態（停用／恢復上傳資格）
+ * 更新會員帳號狀態（停用／恢復；後端據此設定 isSuspended、suspendAt、suspendReason）
  * @param {Object} params
  * @param {string|number} params.id
- * @param {string} params.action - '停用會員' | '恢復會員'
- * @param {string} [params.reason]
+ * @param {string} params.action - '停用會員'（isSuspended = true）| '恢復會員'（isSuspended = false）
+ * @param {string} [params.reason] - 停用理由，會寫入 suspendReason
  * @param {string} [params.detail]
  */
 export const updateMemberStatus = async ({ id, action, reason = '', detail = '' }) => {

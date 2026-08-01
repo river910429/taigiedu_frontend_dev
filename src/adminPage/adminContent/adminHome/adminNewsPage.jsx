@@ -409,7 +409,7 @@ const AdminNewsPage = () => {
       showToast(NO_EDIT_PERMISSION_MESSAGE, 'warning');
       return;
     }
-    // 必填驗證：SUPER_ADMIN 的連結為非必填，其餘角色連結必填
+    // 必填驗證：SYSTEM_MANAGER 的連結為非必填，其餘身分連結必填
     if (!newCategory || !newContent || (!isLinkOptional && !newLink)) {
       showToast('請填寫所有必填欄位', 'warning');
       return;

@@ -5,10 +5,9 @@
  *  CONTENT_MANAGER = 1  新增/修改/刪除內容、管理會員上傳資格
  *  SYSTEM_MANAGER  = 2  權限管理、系統設定、升級管理員、Popup公告
  *
- * ─── 舊角色對應 ────────────────────────────────────────
- *  MEMBER      → flags = 0
- *  ADMIN       → flags = 1  (CONTENT_MANAGER)
- *  SUPER_ADMIN → flags = 3  (CONTENT_MANAGER | SYSTEM_MANAGER)
+ *  後端已全面改用 flags，不再回傳 role 字串（SUPER_ADMIN 這個角色也已移除）。
+ *  所有回傳使用者身分的 API（/api/user/login、/auth/refresh、/auth/me、
+ *  /admin/member/list）都會帶 flags 整數。
  *
  * ─── 使用方式 ──────────────────────────────────────────
  *  import { FLAGS, hasFlag } from '../config/permissions';
@@ -55,27 +54,15 @@ export function flagsToRoleLabel(flags) {
 }
 
 /**
- * 將舊 role 字串轉換為對應的 flags 整數（過渡期兼容用）
- * @param {string|undefined} role
- * @returns {number}
- */
-export function legacyRoleToFlags(role) {
-  switch (role?.toUpperCase()) {
-    case 'SUPER_ADMIN': return 3;
-    case 'ADMIN':       return 1;
-    default:            return 0;
-  }
-}
-
-/**
- * 取得 user 的有效 flags（優先使用 flags，後端未更新時 fallback 到 role）
- * @param {{ flags?: number, role?: string }|null|undefined} user
+ * 取得 user 的有效 flags
+ *
+ * flags 是唯一的權限來源；取不到（未登入、或資料尚未載入）一律視為 0（無後台權限）。
+ * @param {{ flags?: number }|null|undefined} user
  * @returns {number}
  */
 export function getUserFlags(user) {
-  if (!user) return 0;
-  if (typeof user.flags === 'number') return user.flags;
-  return legacyRoleToFlags(user.role);
+  const flags = Number(user?.flags);
+  return Number.isFinite(flags) ? flags : 0;
 }
 
 /**

@@ -18,16 +18,6 @@ import uturnIcon from '../../../assets/adminPage/uturn.svg';
 const columnHelper = createColumnHelper();
 
 /**
- * 帳號是否為「停用」狀態
- *
- * 後端目前回傳的是「被停用」（role: SUSPENDED），
- * 這裡一併相容舊的「停用／已停用」字串，避免改字就漏掉。
- */
-const SUSPENDED_STATUSES = ['被停用', '停用', '已停用'];
-const isSuspendedStatus = (member) =>
-  member?.role === 'SUSPENDED' || SUSPENDED_STATUSES.includes(member?.status);
-
-/**
  * 解析並格式化「使用網站動機」欄位
  * API 回傳格式可能是：
  * - JSON 陣列：[{"type": "編課"}, {"type": "自學"}, {"type": "其他", "custom": "測試"}]
@@ -218,15 +208,6 @@ const AdminMemberPage = () => {
   // 視圖切換：admins（管理員名單）| members（會員名單）| archivedMembers（停用會員名單）
   const [viewFilter, setViewFilter] = useState('members');
 
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentEditItem, setCurrentEditItem] = useState(null);
-
-  const [newName, setNewName] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [newDept, setNewDept] = useState('');
-  const [newReason, setNewReason] = useState('');
-  const [newRole, setNewRole] = useState('member');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
@@ -289,13 +270,12 @@ const AdminMemberPage = () => {
           dept: member.dept || '',
           reason: member.reason || '',
           timestamp: member.timestamp || '',
-          status: member.status || '會員',
-          // 權限 flags：目前 /admin/member/list 尚未回傳 flags，
-          // 由 role 字串推導（SUPER_ADMIN→3、ADMIN→1、其餘→0）。
-          // 後端補上 flags 後 getUserFlags 會自動優先採用真值。
+          // 後台權限（0=會員 / 1=內容管理員 / 2=系統管理員 / 3=兩者皆是）
           flags: getUserFlags(member),
-          // 帳號是否被停用（API 目前回「被停用」，另相容舊字串）
-          isSuspended: isSuspendedStatus(member),
+          // 帳號啟用狀態與停用資訊（與 flags 各自獨立）
+          isSuspended: Boolean(member.isSuspended),
+          suspendReason: member.suspendReason || '',
+          suspendAt: member.suspendAt || '',
         }));
         setAllMembers(members);
       } else {
@@ -438,7 +418,7 @@ const AdminMemberPage = () => {
           cell: info => info.getValue(),
           enableSorting: true,
         }),
-        columnHelper.accessor('archivedReason', {
+        columnHelper.accessor('suspendReason', {
           header: '停用理由',
           cell: info => (<span className="text-truncate-cell">{info.getValue() || ''}</span>),
           enableSorting: true,
@@ -461,13 +441,13 @@ const AdminMemberPage = () => {
           enableSorting: true,
           size: 220,
         }),
-        columnHelper.accessor('archivedAt', {
+        columnHelper.accessor('suspendAt', {
           header: '停用時間',
           cell: info => info.getValue() || '',
           enableSorting: true,
           sortingFn: (rowA, rowB) => {
-            const dateA = new Date(rowA.original.archivedAt || 0);
-            const dateB = new Date(rowB.original.archivedAt || 0);
+            const dateA = new Date(rowA.original.suspendAt || 0);
+            const dateB = new Date(rowB.original.suspendAt || 0);
             return dateA.getTime() - dateB.getTime();
           },
         }),
@@ -555,7 +535,7 @@ const AdminMemberPage = () => {
     fetchMembers();
   }, [fetchMembers]);
 
-  // 根據狀態篩選資料（使用 API 回傳的 status 字串）
+  // 根據狀態篩選資料（依 API 回傳的 isSuspended 與 flags）
   useEffect(() => {
     if (allMembers.length > 0 || isLoading === false) {
       let filtered = [];
@@ -580,66 +560,6 @@ const AdminMemberPage = () => {
       setMemberList(filtered);
     }
   }, [allMembers, viewFilter, isLoading, searchQuery]);
-
-  //（移除新增會員按鈕，保留原有編輯流程所需的狀態與函式）
-
-  // Modal 關閉
-  const handleModalClose = () => {
-    setShowAddModal(false);
-    setIsEditing(false);
-    setCurrentEditItem(null);
-    setNewName('');
-    setNewEmail('');
-    setNewDept('');
-    setNewReason('');
-    setNewRole('member');
-  };
-
-  // 送出表單
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-    if (!newName || !newEmail || !newDept || !newReason || !newRole) {
-      showToast('請填寫所有欄位', 'warning');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-      showToast('請輸入有效的 Email', 'warning');
-      return;
-    }
-
-    // 僅系統管理員可新增或編輯為管理員角色
-    if (newRole === 'admin' && !canManageAdmins) {
-      showToast('僅系統管理員可新增/編輯為管理員角色', 'warning');
-      return;
-    }
-
-    const now = new Date();
-    const timestamp = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-
-    if (isEditing && currentEditItem) {
-      setAllMembers(prevInfo => prevInfo.map(item =>
-        item.id === currentEditItem.id
-          ? { ...item, name: newName, email: newEmail, dept: newDept, reason: newReason, role: newRole }
-          : item
-      ));
-      showToast('會員資料已成功更新！', 'success');
-    } else {
-      const newId = 'member-' + Date.now();
-      const newItem = {
-        id: newId,
-        name: newName,
-        email: newEmail,
-        dept: newDept,
-        reason: newReason,
-        role: newRole,
-        timestamp,
-        status: '會員',
-      };
-      setAllMembers(prevInfo => [newItem, ...prevInfo]);
-      showToast('新會員已成功新增！', 'success');
-    }
-    handleModalClose();
-  };
 
   const handleViewFilterChange = (value) => {
     setViewFilter(value);
@@ -691,82 +611,6 @@ const AdminMemberPage = () => {
         enablePagination={true}
         pageSize={20}
       />
-
-      {/* 使用 AdminModal 組件 */}
-      <AdminModal
-        isOpen={showAddModal}
-        onClose={handleModalClose}
-        title={isEditing ? '編輯會員' : '新增會員'}
-        onSubmit={handleFormSubmit}
-        size="lg"
-      >
-        <div className="admin-form-grid">
-        <div className="mb-3">
-          <label htmlFor="newName" className="form-label admin-form-label">
-            *姓名
-          </label>
-          <input
-            type="text"
-            className="form-control admin-form-control"
-            id="newName"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="newEmail" className="form-label admin-form-label">
-            *Email
-          </label>
-          <input
-            type="email"
-            className="form-control admin-form-control"
-            id="newEmail"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="newDept" className="form-label admin-form-label">
-            *服務單位
-          </label>
-          <input
-            type="text"
-            className="form-control admin-form-control"
-            id="newDept"
-            value={newDept}
-            onChange={(e) => setNewDept(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="newReason" className="form-label admin-form-label">
-            *使用網站動機
-          </label>
-          <input
-            type="text"
-            className="form-control admin-form-control"
-            id="newReason"
-            value={newReason}
-            onChange={(e) => setNewReason(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3 admin-form-grid-full">
-          <label htmlFor="newRole" className="form-label admin-form-label">
-            *角色
-          </label>
-          <CustomSelect
-            size="sm"
-            id="newRole"
-            options={['member', 'admin']}
-            value={newRole}
-            onChange={setNewRole}
-          />
-        </div>
-        </div>
-      </AdminModal>
 
       {/* 停用上傳資格彈窗 */}
       {showDisableModal && (

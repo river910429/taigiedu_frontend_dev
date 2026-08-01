@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
-import { FLAGS, hasFlag, getUserFlags } from "./config/permissions";
+import { flagsToRoleLabel, getUserFlags } from "./config/permissions";
 import "./Header.css";
 import logo from "./assets/new_logo_1111.svg";
 import adminLogo from "./assets/adminPage/Logo + Title2.svg";
@@ -53,16 +53,8 @@ const Header = ({ onMenuToggle, sidebarOpen, showMenuButton = true }) => {
     return '使用者';
   };
 
-  // 取得用戶角色標籤
-  const getRoleLabel = () => {
-    const flags = getUserFlags(user);
-    const isSystem  = hasFlag(flags, FLAGS.SYSTEM_MANAGER);
-    const isContent = hasFlag(flags, FLAGS.CONTENT_MANAGER);
-    if (isSystem && isContent) return '超級管理員';
-    if (isSystem)  return '系統管理員';
-    if (isContent) return '內容管理員';
-    return '會員';
-  };
+  // 取得用戶身分標籤（依 flags）
+  const getRoleLabel = () => flagsToRoleLabel(getUserFlags(user));
 
   // 處理登入按鈕點擊
   const handleLoginClick = () => {
