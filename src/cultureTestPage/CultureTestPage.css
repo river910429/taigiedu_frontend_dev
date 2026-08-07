@@ -1,72 +1,12 @@
 /* ===== 台語文化（test）=====
-   導覽與版面沿用「議題融入」（.ti-*）的視覺語彙，
-   內容區改為「媒體與社群資源」那種圖片 + 主標的卡片牆。 */
+   篩選與呈現方式比照「媒體與社群資源」（SocialmediaPage.css），
+   class 前綴使用 ctp- 以避開 ContentTypeColumn 既有的 .ct-* 命名。 */
 
 .culture-test-page {
     width: 100%;
 }
 
-/* ================= 起始頁（維持原設計）=================
-   置中的固定寬容器 + 灰底圓角搜尋框（輸入框撐滿 + 外掛方形按鈕） */
-.ctp-page-narrow {
-    width: 100%;
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px 16px;
-}
-
-.ctp-toolbar {
-    width: 100%;
-    padding: 0 12px;
-}
-
-.ctp-search-form {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.ctp-search-form .ctp-search-input {
-    flex: 1;
-    min-height: 42px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-right: none;
-    border-radius: 6px 0 0 6px;
-    outline: none;
-    font-size: 16px;
-}
-
-.ctp-search-form .ctp-search-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 5px rgba(45, 146, 193, 0.3);
-}
-
-.ctp-search-form .ctp-search-btn {
-    min-height: 42px;
-    min-width: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 1px solid #ddd;
-    border-left: none;
-    border-radius: 0 6px 6px 0;
-    background-color: #fff;
-    cursor: pointer;
-}
-
-.ctp-search-form .ctp-search-icon {
-    width: 30px;
-    height: 30px;
-}
-
-/* ================= 分類頁頁首 =================
-   滿版白底橫幅 + 靠左上的窄搜尋框（版型比照「媒體與社群資源」） */
+/* ---- 頁首：白底橫幅 + 分類下拉 + 搜尋 ---- */
 .ctp-header {
     background: #fff;
     padding: 20px 0;
@@ -78,15 +18,169 @@
     gap: 20px;
 }
 
+/* ---- 分類多選下拉 ---- */
+.ctp-dropdown {
+    position: relative;
+    width: 250px;
+    z-index: 500;
+}
+
+.ctp-dropdown-container {
+    position: relative;
+    display: flex;
+    width: 250px;
+}
+
+.ctp-dropdown-header {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 48px;
+    padding: 12px 40px 12px 16px;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    color: #424242;
+    font-size: 16px;
+    line-height: 22px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.ctp-dropdown-header:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+
+.ctp-dropdown-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+.ctp-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 200px;
+    width: 100%;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 8px 0;
+    z-index: 501;
+}
+
+.ctp-dropdown-row {
+    position: relative;
+}
+
+.ctp-dropdown-item,
+.ctp-submenu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.ctp-dropdown-item:hover,
+.ctp-submenu-item:hover {
+    background-color: #f5f5f5;
+}
+
+.ctp-dropdown-item.selected,
+.ctp-submenu-item.selected,
+.ctp-dropdown-item.with-submenu.has-selected-children {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.ctp-dropdown-item.selected:hover,
+.ctp-submenu-item.selected:hover,
+.ctp-dropdown-item.with-submenu.has-selected-children:hover {
+    background-color: #bbdefb;
+}
+
+.ctp-dropdown-label {
+    flex: 1;
+}
+
+.ctp-submenu-arrow {
+    margin-left: auto;
+    font-size: 18px;
+    line-height: 1;
+    color: #718096;
+}
+
+/* 第二層子選單：桌機為滑過展開的飛出選單 */
+.ctp-submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 8px 0;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 502;
+}
+
+.ctp-dropdown-row:hover .ctp-submenu,
+.ctp-submenu:hover {
+    opacity: 1;
+    visibility: visible;
+}
+
+.ctp-submenu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ctp-submenu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.ctp-submenu::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.ctp-checkbox {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #1976d2;
+}
+
+/* ---- 搜尋 ---- */
 .ctp-search-container {
     position: relative;
     display: flex;
+    justify-content: center;
     align-items: center;
     flex-grow: 0.5;
     max-width: 30%;
 }
 
-.ctp-search-container .ctp-search-input {
+.ctp-search-input {
     width: 100%;
     padding: 0.75rem 2.5rem 0.75rem 0.75rem;
     border: 1px solid #cbd5e0;
@@ -95,13 +189,13 @@
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.ctp-search-container .ctp-search-input:focus,
-.ctp-search-container .ctp-search-input:hover {
+.ctp-search-input:focus,
+.ctp-search-input:hover {
     border-color: var(--color-primary-light);
     box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
 }
 
-.ctp-search-container .ctp-search-btn {
+.ctp-search-btn {
     position: absolute;
     right: 0.5rem;
     display: flex;
@@ -113,175 +207,75 @@
     cursor: pointer;
 }
 
-/* ================= 分類索引（第一層）================= */
-.ctp-index {
-    /* 起始頁在 .ctp-page-narrow 內，自行處理左右內距 */
-    margin-top: 28px;
-    padding: 8px 12px 32px;
+/* ---- 類別區塊 ---- */
+.ctp-section {
+    margin-bottom: 40px;
 }
 
-.ctp-index-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #333;
-    text-align: center;
-    margin: 8px 0 28px;
-}
-
-.ctp-topic-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 20px 24px;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.ctp-topic-btn {
-    min-height: 46px;
-    padding: 10px 12px;
-    border: 1px solid #cfe0f2;
-    border-radius: 10px;
-    background-color: #eaf2fb;
-    color: #1f4d7a;
-    font-size: 16px;
-    font-weight: 500;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.15s ease, transform 0.05s ease;
-}
-
-.ctp-topic-btn:hover {
-    background-color: #dbe9f8;
-}
-
-.ctp-topic-btn:active {
-    transform: translateY(1px);
-}
-
-/* ================= 分類頁 ================= */
-.ctp-detail {
-    margin-top: 24px;
-    padding-bottom: 32px;
-}
-
-/* ---- 麵包屑 ---- */
-.ctp-breadcrumb {
+.ctp-section-header {
     display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 20px;
-}
-
-.ctp-crumb-item {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 8px;
-}
-
-.ctp-crumb-link {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 15px;
-    color: #666;
-    cursor: pointer;
-}
-
-.ctp-crumb-link:hover {
-    color: var(--color-primary);
-    text-decoration: underline;
-}
-
-.ctp-crumb-sep {
-    color: #999;
-    font-size: 15px;
-}
-
-.ctp-crumb-current {
-    font-size: 24px;
-    font-weight: 700;
-    color: #2f6fb0;
-    line-height: 1.2;
-}
-
-/* ---- 分類 chip 列 ---- */
-.ctp-chip-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(147px, 1fr));
+    align-items: center;
+    justify-content: space-between;
     gap: 12px;
-    margin-bottom: 20px;
 }
 
-.ctp-chip {
-    min-height: 50px;
-    padding: 6px 10px;
+.ctp-category-title {
+    color: var(--color-primary-dark);
+    font-size: 24px;
+    margin: 30px 0 20px 0;
+    padding: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    line-height: 1.3;
-    border: 1px solid var(--bg-sidebar-hover);
-    border-radius: 8px;
-    background-color: var(--bg-sidebar);
-    color: #000;
-    font-size: 15px;
-    cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.ctp-chip:hover {
-    background-color: var(--bg-sidebar-hover);
-}
-
-.ctp-chip.is-active {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-    color: #fff;
-    font-weight: 600;
-}
-
-/* ---- 結果摘要（含目前生效的搜尋關鍵字）---- */
-.ctp-summary {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    align-items: baseline;
     gap: 10px;
-    margin-bottom: 12px;
+}
+
+.ctp-category-count {
+    color: #718096;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.ctp-viewall-button,
+.ctp-back-button {
+    border: 1px solid #cbd5e0;
+    background: #fff;
+    color: var(--color-primary-dark);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.ctp-viewall-button:hover,
+.ctp-back-button:hover {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    color: #fff;
+}
+
+/* ---- 完整列表工具列 ---- */
+.ctp-list-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 24px;
+}
+
+.ctp-list-summary {
     font-size: 14px;
     color: #4a5568;
 }
 
-.ctp-keyword-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 10px;
-    border: 1px solid var(--color-primary);
-    border-radius: 999px;
-    background-color: #eaf4f9;
-    color: var(--color-primary-dark);
-    font-size: 13px;
-    line-height: 1.6;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
+.ctp-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: #718096;
 }
 
-.ctp-keyword-tag:hover {
-    background-color: #d8ecf5;
-}
-
-.ctp-keyword-clear {
-    font-weight: 700;
-}
-
-/* ---- 卡片牆 ---- */
-.ctp-card-grid {
-    margin-bottom: 8px;
-}
-
+/* ---- 卡片（圖片 + 主標）---- */
 .ctp-card {
     background: none;
     border: none;
@@ -319,46 +313,56 @@
     word-break: break-word;
 }
 
-/* ---- 狀態訊息 / 分頁 ---- */
-.ctp-msg {
-    padding: 60px 20px;
-    text-align: center;
-    color: #718096;
-}
-
-.ctp-msg-error {
-    color: #d84040;
-}
-
-.ctp-pagination-wrap {
-    margin-top: 24px;
-}
-
 /* ---- RWD ---- */
 @media (max-width: 768px) {
-    /* 手機版搜尋框撐滿，與媒體與社群資源一致 */
+    .ctp-header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .ctp-dropdown,
+    .ctp-dropdown-container {
+        width: 100%;
+    }
+
     .ctp-search-container {
         max-width: 100%;
         flex-grow: 1;
     }
 
-    .ctp-topic-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 12px;
+    /* 手機沒有 hover，子選單改為內嵌常駐並縮排
+       （媒體與社群資源在手機版是直接把子選單藏起來、選不到第二層，這裡不沿用） */
+    .ctp-submenu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
     }
 
-    .ctp-chip-group {
-        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-        gap: 8px;
+    .ctp-submenu-item {
+        padding-left: 40px;
     }
 
-    .ctp-chip {
-        min-height: 44px;
-        font-size: 14px;
+    .ctp-submenu-arrow {
+        display: none;
     }
 
-    .ctp-crumb-current {
+    .ctp-dropdown-menu {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .ctp-category-title {
         font-size: 20px;
+    }
+
+    .ctp-section-header {
+        flex-wrap: wrap;
     }
 }
 

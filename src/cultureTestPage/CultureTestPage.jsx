@@ -1,348 +1,421 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import searchIcon from '../assets/home/search_logo.svg';
-import noPics from '../assets/culture/festivalN.png';
-import Pagination from '../mainSearchPage/Pagination';
-import { getChildren, getItems, findNode } from '../services/cultureTestMockApi';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import './CultureTestPage.css';
+import searchIcon from '../assets/home/search_logo.svg';
+import chevronUp from '../assets/chevron-up.svg';
+import noPics from '../assets/culture/festivalN.png';
+import PageLoading from '../components/PageLoading/PageLoading';
+import Pagination from '../mainSearchPage/Pagination';
+import { fetchCultureItems, CATEGORY_TREE } from '../services/cultureTestMockApi';
 
 /**
  * 台語文化（test）
  *
- * 導覽：用 query string 切換層級，所有層級一律以「麵包屑 + chip 列」操作，
- * 上方只保留搜尋框（不放分類下拉，避免同一批選項在兩處重複呈現）。
- *   無參數                        -> 分類索引（第一層大按鈕）
- *   ?l1=文化                      -> 麵包屑 + 第二層 chip + 卡片
- *   ?l1=文化&l2=戲曲              -> 麵包屑 + 第三層 chip + 卡片
- *   ?l1=文化&l2=戲曲&l3=歌仔戲    -> 麵包屑 + 同層 chip（自己 active）+ 卡片
+ * 篩選與呈現方式比照「媒體與社群資源」（socialmediaPage）：
+ *   - 頁首白底橫幅：分類下拉（第一層 + 第二層子選單，可複選）+ 關鍵字搜尋
+ *   - 未篩選時依第一層分區預覽，每區顯示第一列並附「查看全部」
+ *   - 有篩選或搜尋時攤平成完整列表 + 分頁
+ *   - 內容為「圖片 + 主標」卡片，點擊開新分頁到該筆影音
  *
- * 搜尋：**只搜尋目前點選的範圍**。在「戲曲」底下搜尋就只找戲曲底下的影音；
- * 尚未選任何分類（索引頁）時範圍才是全部。切換分類時關鍵字會沿用並套到新範圍，
- * 因此摘要列一定會把目前生效的關鍵字顯示出來並提供清除，避免變成隱形狀態。
- *
- * 內容呈現比照「媒體與社群資源」：圖片 + 主標的卡片，點擊開新分頁到該筆影音。
- *
- * ⚠️ 分類樹是不規則的（深度 1~3），所以 chip 列一律看「目前節點有沒有子分類」決定，
- *    不能假設固定三層。例如「新聞/訪談」第一層即末端，點下去直接是卡片。
+ * 分類取來源表的前兩層，第三層依 PM 決定捨棄、網頁不呈現。
+ * 「新聞/訪談」沒有第二層，下拉需支援無子選單的情況。
  *
  * ⚠️ 資料來自 services/cultureTestMockApi.js 假資料，尚未串接後端。
  */
 
-const PAGE_SIZE = 20; // 4 欄 × 5 列
+// 顯示規則：桌機每列 4 筆、每頁最多 5 列；未篩選時每區預覽第一列
+const ITEMS_PER_ROW = 4;
+const MAX_ROWS_PER_PAGE = 5;
+const PAGE_SIZE = ITEMS_PER_ROW * MAX_ROWS_PER_PAGE;
+const PREVIEW_COUNT = ITEMS_PER_ROW;
 
 const CultureTestPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const level1 = searchParams.get('l1') || '';
-  const level2 = searchParams.get('l2') || '';
-  const level3 = searchParams.get('l3') || '';
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
-
-  const [items, setItems] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  // keyword = 輸入框內容；activeKeyword = 已送出、目前生效的關鍵字
-  const [keyword, setKeyword] = useState('');
-  const [activeKeyword, setActiveKeyword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [itemsByCategory, setItemsByCategory] = useState({});
+  const [categoryOrder, setCategoryOrder] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 目前選到的路徑與節點
-  const selectedPath = useMemo(
-    () => [level1, level2, level3].filter(Boolean),
-    [level1, level2, level3]
-  );
-  const currentNode = useMemo(
-    () => (selectedPath.length ? findNode(selectedPath) : null),
-    [selectedPath]
-  );
+  // 已選分類，格式 { 第一層: [第二層, ...] }；空陣列代表整個第一層被選取
+  const [selectedItems, setSelectedItems] = useState({});
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [activeQuery, setActiveQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // chip 列要顯示誰：
-  //   目前節點還有下一層 -> 顯示它的子分類（沒有 active）
-  //   目前節點已是末端   -> 顯示同層的兄弟分類，並把自己標成 active，
-  //                        讓使用者不用回上一層就能換分類
-  //   還沒選任何分類     -> 顯示第一層，供搜尋結果頁縮小範圍
-  const hasChildren = (currentNode?.children?.length || 0) > 0;
-  const chipParentPath = useMemo(
-    () => (hasChildren ? selectedPath : selectedPath.slice(0, -1)),
-    [hasChildren, selectedPath]
-  );
-  const chipNodes = useMemo(() => getChildren(chipParentPath), [chipParentPath]);
-  const activeChip = hasChildren ? '' : selectedPath[selectedPath.length - 1];
+  const dropdownRef = useRef(null);
 
-  const rootCategories = useMemo(() => getChildren([]), []);
+  // 第一層 -> 第二層清單
+  const subCategoriesOf = useMemo(() => {
+    const map = {};
+    CATEGORY_TREE.forEach(node => { map[node.name] = node.children; });
+    return map;
+  }, []);
 
-  // 目前搜尋範圍的名稱（未選分類時為全部）
-  const scopeName = selectedPath.length ? selectedPath[selectedPath.length - 1] : '';
-
-  // 有選分類、或有生效中的關鍵字時才進入結果頁；否則顯示分類索引
-  const isIndex = !level1 && !activeKeyword;
-
-  // 更新 query string 的統一入口（值為空字串時移除該參數）
-  const updateParams = useCallback(
-    (patch) => {
-      const next = new URLSearchParams(searchParams);
-      Object.entries(patch).forEach(([key, value]) => {
-        if (value) next.set(key, value);
-        else next.delete(key);
-      });
-      setSearchParams(next);
-    },
-    [searchParams, setSearchParams]
-  );
-
-  // ---- 導覽動作 ----
-  const goToIndex = () => updateParams({ l1: '', l2: '', l3: '', page: '' });
-  const selectLevel1 = (name) => updateParams({ l1: name, l2: '', l3: '', page: '' });
-  const selectLevel2 = (name) => updateParams({ l2: name, l3: '', page: '' });
-  const selectLevel3 = (name) => updateParams({ l3: name, page: '' });
-
-  // 點 chip：依 chip 所屬的層級決定要填哪個參數
-  const selectChip = (name) => {
-    if (chipParentPath.length === 0) selectLevel1(name);
-    else if (chipParentPath.length === 1) selectLevel2(name);
-    else selectLevel3(name);
-  };
-
-  const handlePageChange = (nextPage) => {
-    updateParams({ page: nextPage > 1 ? String(nextPage) : '' });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // ---- 載入影音列表（範圍 = 目前選到的分類）----
-  useEffect(() => {
-    // 沒選分類也沒搜尋 -> 停在索引頁，不查資料
-    if (!level1 && !activeKeyword) {
-      setItems([]);
-      setTotal(0);
-      setTotalPages(1);
-      return undefined;
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const res = await fetchCultureItems();
+      const order = res?.category_order || Object.keys(res?.data || {});
+      setItemsByCategory(res?.data || {});
+      setCategoryOrder(order.filter(name => res?.data?.[name]));
+    } catch (err) {
+      console.error('載入台語文化資料失敗:', err);
+      setError('載入台語文化資料時發生錯誤');
+    } finally {
+      setIsLoading(false);
     }
-
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
-
-    getItems({
-      level1,
-      level2,
-      level3,
-      keyword: activeKeyword,
-      page,
-      pageSize: PAGE_SIZE,
-    })
-      .then((res) => {
-        if (cancelled) return;
-        if (res?.status !== 'success' || !Array.isArray(res.data)) {
-          throw new Error('mock api response format invalid');
-        }
-        setItems(res.data);
-        setTotal(res.total || 0);
-        setTotalPages(res.totalPages || 1);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        console.error('載入台語文化影音失敗:', err);
-        setError('載入資料時發生錯誤，請稍後再試。');
-        setItems([]);
-        setTotal(0);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [level1, level2, level3, activeKeyword, page]);
-
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    setActiveKeyword(keyword.trim());
-    if (page !== 1) updateParams({ page: '' });
   };
 
-  const clearKeyword = () => {
-    setKeyword('');
-    setActiveKeyword('');
-    if (page !== 1) updateParams({ page: '' });
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedItems, activeQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
+
+  // 無子選單的第一層：整層選取／取消
+  const toggleCategory = (category) => {
+    setSelectedItems(prev => {
+      const next = { ...prev };
+      if (next[category]) delete next[category];
+      else next[category] = [];
+      return next;
+    });
+  };
+
+  // 有子選單的第一層：點父項＝該層全選／全不選
+  const toggleAllSubCategories = (category) => {
+    const subs = subCategoriesOf[category] || [];
+    setSelectedItems(prev => {
+      const next = { ...prev };
+      const current = next[category] || [];
+      const isAll = subs.length > 0 && subs.every(sub => current.includes(sub));
+      if (isAll) delete next[category];
+      else next[category] = [...subs];
+      return next;
+    });
+  };
+
+  const toggleSubCategory = (category, sub) => {
+    setSelectedItems(prev => {
+      const next = { ...prev };
+      const current = next[category] || [];
+      const updated = current.includes(sub)
+        ? current.filter(name => name !== sub)
+        : [...current, sub];
+      if (updated.length === 0) delete next[category];
+      else next[category] = updated;
+      return next;
+    });
+  };
+
+  const isSubSelected = (category, sub) => (selectedItems[category] || []).includes(sub);
+
+  // 下拉按鈕上的文字
+  const dropdownLabel = useMemo(() => {
+    const categories = Object.keys(selectedItems);
+    if (categories.length === 0) return '分類';
+
+    const total = categories.reduce(
+      (sum, category) => sum + Math.max(1, selectedItems[category].length),
+      0
+    );
+
+    if (categories.length === 1) {
+      const [category] = categories;
+      const subs = selectedItems[category];
+      if (subs.length === 0) return category;
+      if (subs.length === 1) return `${category} > ${subs[0]}`;
+      return `${category} > ${subs.length} 個選項`;
+    }
+    return `${total} 個選項`;
+  }, [selectedItems]);
+
+  const hasCategoryFilter = Object.keys(selectedItems).length > 0;
+  const hasQuery = activeQuery !== '';
+
+  // 依分類勾選與關鍵字過濾，維持第一層分組
+  const filteredByCategory = useMemo(() => {
+    const term = activeQuery.toLowerCase();
+    const result = {};
+
+    categoryOrder.forEach(category => {
+      if (hasCategoryFilter && !selectedItems[category]) return;
+
+      let items = itemsByCategory[category] || [];
+
+      const subs = selectedItems[category];
+      if (subs && subs.length > 0) {
+        items = items.filter(item => subs.includes(item.subcategory));
+      }
+
+      if (term) {
+        items = items.filter(item =>
+          `${item.title} ${item.category} ${item.subcategory}`.toLowerCase().includes(term)
+        );
+      }
+
+      if (items.length > 0) result[category] = items;
+    });
+
+    return result;
+  }, [categoryOrder, itemsByCategory, selectedItems, hasCategoryFilter, activeQuery]);
+
+  const visibleCategories = categoryOrder.filter(category => filteredByCategory[category]);
+
+  // 未篩選也未搜尋 → 分區預覽；否則 → 完整列表 + 分頁
+  const isFullList = hasCategoryFilter || hasQuery;
+
+  const flatItems = visibleCategories.flatMap(category =>
+    filteredByCategory[category].map(item => ({ item, category }))
+  );
+  const totalItems = flatItems.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageItems = flatItems.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  const pageGroups = [];
+  pageItems.forEach(({ item, category }) => {
+    const last = pageGroups[pageGroups.length - 1];
+    if (last && last.category === category) last.items.push(item);
+    else pageGroups.push({ category, items: [item] });
+  });
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    setActiveQuery(query.trim().toLowerCase());
   };
 
   const handleCardClick = (url) => {
     if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  // 麵包屑：最後一段是純文字，前面都可點回去
-  const crumbs = [
-    level1 && { label: level1, onClick: () => updateParams({ l2: '', l3: '', page: '' }) },
-    level2 && { label: level2, onClick: () => updateParams({ l3: '', page: '' }) },
-    level3 && { label: level3, onClick: null },
-  ].filter(Boolean);
+  const handleViewAll = (category) => {
+    setSelectedItems({ [category]: [] });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  // 兩頁的搜尋框結構相同，只差外層 class：
-  //   .ctp-search-form      起始頁：置中容器內的灰底圓角框，輸入框撐滿 + 外掛方形按鈕
-  //   .ctp-search-container 分類頁：白底滿版橫幅內的窄輸入框，放大鏡疊在框內右側
-  const renderSearchForm = (wrapperClass) => (
-    <form className={wrapperClass} onSubmit={handleSearchSubmit}>
-      <input
-        type="text"
-        className="ctp-search-input"
-        value={keyword}
-        onChange={(event) => setKeyword(event.target.value)}
-        placeholder={scopeName ? `在「${scopeName}」中搜尋...` : '搜尋全部分類...'}
-      />
-      <button type="submit" className="ctp-search-btn" aria-label="搜尋">
-        <img src={searchIcon} alt="搜尋" className="ctp-search-icon" />
-      </button>
-    </form>
+  const handleClearFilter = () => {
+    setSelectedItems({});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderCard = (item, category) => (
+    <div
+      key={`${category}-${item.id}`}
+      className="col-6 col-md-4 col-lg-3"
+      onClick={() => handleCardClick(item.url)}
+    >
+      <div className="ctp-card">
+        <div className="ctp-card-image-wrap">
+          <img
+            src={item.image || noPics}
+            alt={item.title}
+            className="ctp-card-image"
+            onError={(e) => { e.target.src = noPics; }}
+          />
+        </div>
+        <h5 className="ctp-card-title">{item.title}</h5>
+      </div>
+    </div>
   );
+
+  if (isLoading) {
+    return (
+      <div className="culture-test-page">
+        <PageLoading text="載入台語文化資料中..." />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="culture-test-page">
+        <div className="text-center py-5">
+          <p className="text-danger">{error}</p>
+          <button className="btn btn-primary mt-3" onClick={loadData}>重新載入</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="culture-test-page">
-      {/* ============ 起始頁：維持原設計（置中容器 + 灰底搜尋框 + 分類索引）============ */}
-      {isIndex && (
-        <div className="ctp-page-narrow">
-          <div className="ctp-toolbar">{renderSearchForm('ctp-search-form')}</div>
-
-          <section className="ctp-index">
-            <h2 className="ctp-index-title">分類索引</h2>
-            <div className="ctp-topic-grid">
-              {rootCategories.map(node => (
-                <button
-                  key={node.name}
-                  type="button"
-                  className="ctp-topic-btn"
-                  title={node.desc || undefined}
-                  onClick={() => selectLevel1(node.name)}
+      <div className="ctp-header">
+        <div className="container px-4">
+          <div className="ctp-header-content">
+            {/* 分類下拉：第一層 + 第二層子選單 */}
+            <div className="ctp-dropdown" ref={dropdownRef}>
+              <div className="ctp-dropdown-container">
+                <div
+                  className="ctp-dropdown-header"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
-                  {node.name}
-                </button>
-              ))}
-            </div>
-          </section>
-        </div>
-      )}
+                  {dropdownLabel}
+                </div>
+                <img src={chevronUp} alt="" className="ctp-dropdown-arrow" />
+              </div>
 
-      {/* 分類頁頁首：滿版白底橫幅，搜尋框靠左上對齊（版型比照「媒體與社群資源」） */}
-      {!isIndex && (
-        <div className="ctp-header">
-          <div className="container px-4">
-            <div className="ctp-header-content">
-              {renderSearchForm('ctp-search-container')}
+              {isDropdownOpen && (
+                <div className="ctp-dropdown-menu">
+                  {categoryOrder.map(category => {
+                    const subs = subCategoriesOf[category] || [];
+                    const selected = selectedItems[category];
+                    const hasSelectedChildren = selected && selected.length > 0;
+                    const isAllSelected =
+                      subs.length > 0 && subs.every(sub => isSubSelected(category, sub));
+
+                    // 無第二層（如「新聞/訪談」）：直接當成可勾選項目
+                    if (subs.length === 0) {
+                      return (
+                        <div key={category} className="ctp-dropdown-row">
+                          <div
+                            className={`ctp-dropdown-item ${selected ? 'selected' : ''}`}
+                            onClick={(e) => { e.stopPropagation(); toggleCategory(category); }}
+                          >
+                            <span className="ctp-checkbox">{selected ? '✓' : ''}</span>
+                            {category}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={category} className="ctp-dropdown-row">
+                        <div
+                          className={`ctp-dropdown-item with-submenu ${hasSelectedChildren ? 'has-selected-children' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); toggleAllSubCategories(category); }}
+                        >
+                          <span className="ctp-checkbox">{isAllSelected ? '✓' : ''}</span>
+                          <span className="ctp-dropdown-label">{category}</span>
+                          <span className="ctp-submenu-arrow">›</span>
+                        </div>
+
+                        <div className="ctp-submenu" onClick={(e) => e.stopPropagation()}>
+                          {subs.map(sub => (
+                            <div
+                              key={sub}
+                              className={`ctp-submenu-item ${isSubSelected(category, sub) ? 'selected' : ''}`}
+                              onClick={() => toggleSubCategory(category, sub)}
+                            >
+                              <span className="ctp-checkbox">
+                                {isSubSelected(category, sub) ? '✓' : ''}
+                              </span>
+                              {sub}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
+
+            {/* 關鍵字搜尋 */}
+            <form onSubmit={handleSearch} className="ctp-search-container">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="搜尋..."
+                className="ctp-search-input"
+              />
+              <button type="submit" className="ctp-search-btn" aria-label="搜尋">
+                <img src={searchIcon} alt="搜尋" className="ctp-search-icon" />
+              </button>
+            </form>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ============ 分類頁 / 搜尋結果（麵包屑 + chip + 卡片）============ */}
-      {!isIndex && (
-        <section className="ctp-detail">
+      {isFullList ? (
+        /* ─── 完整列表（含分頁）─── */
+        <>
           <div className="container px-4">
-          <nav className="ctp-breadcrumb" aria-label="breadcrumb">
-            <button type="button" className="ctp-crumb-link" onClick={goToIndex}>
-              分類索引
-            </button>
-            {crumbs.length === 0 ? (
-              <span className="ctp-crumb-item">
-                <span className="ctp-crumb-sep">&gt;</span>
-                <span className="ctp-crumb-current">搜尋結果</span>
-              </span>
-            ) : (
-              crumbs.map((crumb, index) => (
-                <span key={crumb.label} className="ctp-crumb-item">
-                  <span className="ctp-crumb-sep">&gt;</span>
-                  {index === crumbs.length - 1 ? (
-                    <span className="ctp-crumb-current">{crumb.label}</span>
-                  ) : (
-                    <button type="button" className="ctp-crumb-link" onClick={crumb.onClick}>
-                      {crumb.label}
-                    </button>
-                  )}
-                </span>
-              ))
-            )}
-          </nav>
-
-          {/* 分類 chip 列（子分類或同層兄弟，見上方 chipParentPath 說明） */}
-          {chipNodes.length > 0 && (
-            <div className="ctp-chip-group">
-              {chipNodes.map(node => (
-                <button
-                  key={node.name}
-                  type="button"
-                  className={`ctp-chip ${node.name === activeChip ? 'is-active' : ''}`}
-                  title={node.desc || undefined}
-                  onClick={() => selectChip(node.name)}
-                >
-                  {node.name}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* 結果摘要：關鍵字生效時一定顯示出來，並可一鍵清除 */}
-          {!isLoading && !error && (
-            <div className="ctp-summary">
-              <span>
-                共 {total} 筆{totalPages > 1 && `｜第 ${page}／${totalPages} 頁`}
-              </span>
-              {activeKeyword && (
-                <button type="button" className="ctp-keyword-tag" onClick={clearKeyword}>
-                  <span>
-                    在「{scopeName || '全部分類'}」中搜尋：{activeKeyword}
-                  </span>
-                  <span className="ctp-keyword-clear" aria-hidden="true">✕</span>
+            <div className="ctp-list-toolbar">
+              <div className="ctp-list-summary">
+                共 {totalItems} 筆｜第 {safePage}／{totalPages} 頁
+              </div>
+              {hasCategoryFilter && (
+                <button type="button" className="ctp-back-button" onClick={handleClearFilter}>
+                  返回全部類別
                 </button>
               )}
             </div>
-          )}
+          </div>
 
-          {/* 卡片 */}
-          {isLoading ? (
-            <div className="ctp-msg">載入中…</div>
-          ) : error ? (
-            <div className="ctp-msg ctp-msg-error">{error}</div>
-          ) : items.length === 0 ? (
-            <div className="ctp-msg">
-              {activeKeyword
-                ? `在「${scopeName || '全部分類'}」中找不到符合「${activeKeyword}」的影音。`
-                : '查無符合的影音。'}
+          {totalItems === 0 ? (
+            <div className="container px-4">
+              <div className="ctp-empty">沒有符合條件的資料</div>
             </div>
           ) : (
-            <div className="row g-2 g-sm-4 ctp-card-grid">
-              {items.map(item => (
-                <div
-                  key={item.id}
-                  className="col-6 col-md-4 col-lg-3"
-                  onClick={() => handleCardClick(item.url)}
-                >
-                  <div className="ctp-card">
-                    <div className="ctp-card-image-wrap">
-                      <img
-                        src={item.image || noPics}
-                        alt={item.title}
-                        className="ctp-card-image"
-                        onError={(e) => { e.target.src = noPics; }}
-                      />
-                    </div>
-                    <h5 className="ctp-card-title">{item.title}</h5>
+            pageGroups.map((group, index) => (
+              <div key={`${group.category}-${index}`} className="ctp-section">
+                <div className="container px-4">
+                  <h2 className="ctp-category-title">{group.category}</h2>
+                  <div className="row g-2 g-sm-4">
+                    {group.items.map(item => renderCard(item, group.category))}
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))
           )}
 
-          {!isLoading && !error && totalPages > 1 && (
-            <div className="ctp-pagination-wrap">
+          {totalPages > 1 && (
+            <div className="container px-4">
               <Pagination
-                currentPage={page}
+                currentPage={safePage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
+                maxVisible={4}
               />
             </div>
           )}
-          </div>
-        </section>
+        </>
+      ) : (
+        /* ─── 依第一層分區預覽（每區顯示第一列）─── */
+        visibleCategories.map(category => {
+          const items = filteredByCategory[category];
+          return (
+            <div key={category} className="ctp-section">
+              <div className="container px-4">
+                <div className="ctp-section-header">
+                  <h2 className="ctp-category-title">
+                    {category}
+                    <span className="ctp-category-count">共 {items.length} 筆</span>
+                  </h2>
+                  <button
+                    type="button"
+                    className="ctp-viewall-button"
+                    onClick={() => handleViewAll(category)}
+                  >
+                    查看全部 ›
+                  </button>
+                </div>
+                <div className="row g-2 g-sm-4">
+                  {items.slice(0, PREVIEW_COUNT).map(item => renderCard(item, category))}
+                </div>
+              </div>
+            </div>
+          );
+        })
       )}
     </div>
   );
