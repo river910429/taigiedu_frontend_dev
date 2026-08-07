@@ -1,0 +1,373 @@
+/* ===== 台語文化（test）=====
+   導覽與版面沿用「議題融入」（.ti-*）的視覺語彙，
+   內容區改為「媒體與社群資源」那種圖片 + 主標的卡片牆。 */
+
+.culture-test-page {
+    width: 100%;
+}
+
+/* ================= 起始頁（維持原設計）=================
+   置中的固定寬容器 + 灰底圓角搜尋框（輸入框撐滿 + 外掛方形按鈕） */
+.ctp-page-narrow {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px 16px;
+}
+
+.ctp-toolbar {
+    width: 100%;
+    padding: 0 12px;
+}
+
+.ctp-search-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ctp-search-form .ctp-search-input {
+    flex: 1;
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    outline: none;
+    font-size: 16px;
+}
+
+.ctp-search-form .ctp-search-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 5px rgba(45, 146, 193, 0.3);
+}
+
+.ctp-search-form .ctp-search-btn {
+    min-height: 42px;
+    min-width: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid #ddd;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.ctp-search-form .ctp-search-icon {
+    width: 30px;
+    height: 30px;
+}
+
+/* ================= 分類頁頁首 =================
+   滿版白底橫幅 + 靠左上的窄搜尋框（版型比照「媒體與社群資源」） */
+.ctp-header {
+    background: #fff;
+    padding: 20px 0;
+}
+
+.ctp-header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.ctp-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-grow: 0.5;
+    max-width: 30%;
+}
+
+.ctp-search-container .ctp-search-input {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.ctp-search-container .ctp-search-input:focus,
+.ctp-search-container .ctp-search-input:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+
+.ctp-search-container .ctp-search-btn {
+    position: absolute;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+/* ================= 分類索引（第一層）================= */
+.ctp-index {
+    /* 起始頁在 .ctp-page-narrow 內，自行處理左右內距 */
+    margin-top: 28px;
+    padding: 8px 12px 32px;
+}
+
+.ctp-index-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    margin: 8px 0 28px;
+}
+
+.ctp-topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.ctp-topic-btn {
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 1px solid #cfe0f2;
+    border-radius: 10px;
+    background-color: #eaf2fb;
+    color: #1f4d7a;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.ctp-topic-btn:hover {
+    background-color: #dbe9f8;
+}
+
+.ctp-topic-btn:active {
+    transform: translateY(1px);
+}
+
+/* ================= 分類頁 ================= */
+.ctp-detail {
+    margin-top: 24px;
+    padding-bottom: 32px;
+}
+
+/* ---- 麵包屑 ---- */
+.ctp-breadcrumb {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.ctp-crumb-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.ctp-crumb-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 15px;
+    color: #666;
+    cursor: pointer;
+}
+
+.ctp-crumb-link:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.ctp-crumb-sep {
+    color: #999;
+    font-size: 15px;
+}
+
+.ctp-crumb-current {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2f6fb0;
+    line-height: 1.2;
+}
+
+/* ---- 分類 chip 列 ---- */
+.ctp-chip-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(147px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ctp-chip {
+    min-height: 50px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.3;
+    border: 1px solid var(--bg-sidebar-hover);
+    border-radius: 8px;
+    background-color: var(--bg-sidebar);
+    color: #000;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.ctp-chip:hover {
+    background-color: var(--bg-sidebar-hover);
+}
+
+.ctp-chip.is-active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ---- 結果摘要（含目前生效的搜尋關鍵字）---- */
+.ctp-summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.ctp-keyword-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border: 1px solid var(--color-primary);
+    border-radius: 999px;
+    background-color: #eaf4f9;
+    color: var(--color-primary-dark);
+    font-size: 13px;
+    line-height: 1.6;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.ctp-keyword-tag:hover {
+    background-color: #d8ecf5;
+}
+
+.ctp-keyword-clear {
+    font-weight: 700;
+}
+
+/* ---- 卡片牆 ---- */
+.ctp-card-grid {
+    margin-bottom: 8px;
+}
+
+.ctp-card {
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.ctp-card:hover {
+    transform: translateY(-5px);
+}
+
+.ctp-card-image-wrap {
+    position: relative;
+    width: 100%;
+    padding-bottom: 77.1%;  /* 與媒體與社群資源相同的 332:256 比例 */
+    overflow: hidden;
+}
+
+.ctp-card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ctp-card-title {
+    margin-top: 8px;
+    font-size: 16px;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* ---- 狀態訊息 / 分頁 ---- */
+.ctp-msg {
+    padding: 60px 20px;
+    text-align: center;
+    color: #718096;
+}
+
+.ctp-msg-error {
+    color: #d84040;
+}
+
+.ctp-pagination-wrap {
+    margin-top: 24px;
+}
+
+/* ---- RWD ---- */
+@media (max-width: 768px) {
+    /* 手機版搜尋框撐滿，與媒體與社群資源一致 */
+    .ctp-search-container {
+        max-width: 100%;
+        flex-grow: 1;
+    }
+
+    .ctp-topic-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .ctp-chip-group {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 8px;
+    }
+
+    .ctp-chip {
+        min-height: 44px;
+        font-size: 14px;
+    }
+
+    .ctp-crumb-current {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ctp-card {
+        padding: 4px;
+    }
+
+    .ctp-card-title {
+        font-size: 14px;
+    }
+}

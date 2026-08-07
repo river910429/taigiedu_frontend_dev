@@ -1,0 +1,16 @@
+.admin-culture-test-placeholder {
+    margin-top: 1rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px dashed #c9c9c9;
+    border-radius: 8px;
+    background-color: #fafafa;
+    color: #6c757d;
+}
+
+.admin-culture-test-placeholder ul {
+    padding-left: 1.25rem;
+}
+
+.admin-culture-test-placeholder li {
+    line-height: 1.9;
+}

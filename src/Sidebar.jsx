@@ -58,6 +58,8 @@ const Sidebar = ({ isOpen = false, onClose }) => {
         { id: "placename-culture", label: "台語地名與文化", path: "/placename-culture" },
       ],
     },
+    // 節慶飲食的新版重寫，與舊版並存，待後端串接完成後取代舊版
+    { id: 13, label: "台語文化（test）", icon: cultureIcon, path: "/culture-test" },
   ];
 
   const menuItems = allMenuItems
