@@ -47,7 +47,9 @@ const MENU_ITEMS = [
   },
   { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" },
   // 公告管理（Popup 公告）僅系統管理員可見
-  { id: 7, label: "公告管理", icon: shieldIcon, path: "/admin/announcement", requireSystemManager: true }
+  { id: 7, label: "公告管理", icon: shieldIcon, path: "/admin/announcement", requireSystemManager: true },
+  // 節慶飲食的新版重寫，與舊版並存，待後端串接完成後取代舊版
+  { id: 8, label: "台語文化（test）", icon: bookIcon, path: "/admin/culture-test" }
 ];
 
 const AdminSidebar = ({ isOpen = false, onClose }) => {

@@ -28,6 +28,7 @@ import SocialmediaPage from "./socialmediaPage/SocialmediaPage";
 import ExamPage from "./examPage/ExamPage";
 import TopicIntegrationPage from "./featuredResourcePage/TopicIntegrationPage";
 import PlacenameCulturePage from "./placenameCulturePage/PlacenameCulturePage";
+import CultureTestPage from "./cultureTestPage/CultureTestPage";
 import DownloadPage from "./resourcePage/DownloadPage";
 import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
@@ -48,6 +49,7 @@ import AdminMemberPage from "./adminPage/adminContent/adminHome/adminMemberPage"
 import AdminFilePreview from "./adminPage/adminContent/adminHome/adminresourcePage/AdminFilePreview";
 import AdminFoodPage from "./adminPage/adminContent/adminHome/adminFoodPage";
 import AdminFestivalPage from "./adminPage/adminContent/adminHome/adminFestivalPage";
+import AdminCultureTestPage from "./adminPage/adminContent/adminHome/adminCultureTestPage";
 import AdminSocialmediaPage from "./adminPage/adminContent/adminHome/adminSocialmediaPage";
 import AdminResourcePage from "./adminPage/adminContent/adminHome/adminresourcePage/AdminResourcePage";
 import ResourceHeaderPage from "./adminPage/adminContent/adminHome/adminresourcePage/ResourceHeaderPage";
@@ -173,6 +175,8 @@ const AppLayout = () => {
                 : <Navigate to="/" replace />
             }
           />
+          {/* 台語文化（test）：節慶飲食的新版重寫，與舊版並存 */}
+          <Route path="/culture-test" element={<CultureTestPage />} />
           <Route path="/relative-calculator" element={<RelativeCalculatorPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -215,6 +219,15 @@ const AppLayout = () => {
             element={
               <AdminRoute>
                 <AdminFestivalPage />
+              </AdminRoute>
+            }
+          />
+          {/* 台語文化（test）後台：與舊版節慶飲食後台並存 */}
+          <Route
+            path="/admin/culture-test"
+            element={
+              <AdminRoute>
+                <AdminCultureTestPage />
               </AdminRoute>
             }
           />
