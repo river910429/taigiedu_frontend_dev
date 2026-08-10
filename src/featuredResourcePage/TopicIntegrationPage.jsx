@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import searchIcon from "../assets/home/search_logo.svg";
 import CustomSelect from "../components/CustomSelect/CustomSelect";
-import Pagination from "../mainSearchPage/Pagination";
+import SearchResults from "../mainSearchPage/SearchResults";
 import {
   getTopics,
   getSubTopics,
@@ -30,7 +30,10 @@ const TopicIntegrationPage = () => {
   const [subTopics, setSubTopics] = useState([]);
   const [resources, setResources] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  // keyword = 輸入框當下的值；submittedKeyword = 已送出查詢的值（實際帶入 API）
   const [keyword, setKeyword] = useState("");
+  const [submittedKeyword, setSubmittedKeyword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -88,6 +91,7 @@ const TopicIntegrationPage = () => {
     if (!topic) {
       setResources([]);
       setTotalPages(1);
+      setTotalItems(0);
       return;
     }
 
@@ -95,7 +99,7 @@ const TopicIntegrationPage = () => {
     setIsLoading(true);
     setError(null);
 
-    getResources({ topic, subTopic, keyword: keyword.trim(), page, pageSize: PAGE_SIZE })
+    getResources({ topic, subTopic, keyword: submittedKeyword, page, pageSize: PAGE_SIZE })
       .then((res) => {
         if (cancelled) return;
         if (res?.status !== "success" || !Array.isArray(res.data)) {
@@ -103,12 +107,14 @@ const TopicIntegrationPage = () => {
         }
         setResources(res.data);
         setTotalPages(res.totalPages || 1);
+        setTotalItems(res.total || 0);
       })
       .catch((err) => {
         if (cancelled) return;
         console.error("載入議題融入資源失敗:", err);
         setError("載入資料時發生錯誤，請稍後再試。");
         setResources([]);
+        setTotalItems(0);
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -117,26 +123,13 @@ const TopicIntegrationPage = () => {
     return () => {
       cancelled = true;
     };
-    // keyword 透過送出搜尋後才觸發（見 handleSearchSubmit），此處以 topic/subTopic/page 為主
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topic, subTopic, page]);
+  }, [topic, subTopic, page, submittedKeyword]);
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
-    // 重新以第一頁載入（keyword 已在 state，改由重設 page 觸發 effect）
-    if (page !== 1) {
-      updateParams({ page: "" });
-    } else {
-      // page 沒變，手動重跑一次查詢
-      setIsLoading(true);
-      getResources({ topic, subTopic, keyword: keyword.trim(), page: 1, pageSize: PAGE_SIZE })
-        .then((res) => {
-          setResources(res?.data || []);
-          setTotalPages(res?.totalPages || 1);
-        })
-        .catch((err) => console.error("搜尋失敗:", err))
-        .finally(() => setIsLoading(false));
-    }
+    // 送出關鍵字並回到第一頁；兩者皆為上方 effect 的依賴，會自動重新查詢
+    setSubmittedKeyword(keyword.trim());
+    if (page !== 1) updateParams({ page: "" });
   };
 
   const topicOptions = useMemo(() => topics, [topics]);
@@ -240,64 +233,26 @@ const TopicIntegrationPage = () => {
             </div>
           )}
 
-          {/* 資源列表 table */}
-          <div className="ti-table-wrap">
-            <table className="ti-table">
-              <thead>
-                <tr>
-                  <th className="ti-col-resource">資源出處</th>
-                  <th className="ti-col-content">內容</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={2} className="ti-table-msg">
-                      載入中…
-                    </td>
-                  </tr>
-                ) : error ? (
-                  <tr>
-                    <td colSpan={2} className="ti-table-msg ti-table-error">
-                      {error}
-                    </td>
-                  </tr>
-                ) : resources.length === 0 ? (
-                  <tr>
-                    <td colSpan={2} className="ti-table-msg">
-                      查無符合的資源。
-                    </td>
-                  </tr>
-                ) : (
-                  resources.map((item) => (
-                    <tr key={item.id}>
-                      <td className="ti-col-resource">{item.resource}</td>
-                      <td className="ti-col-content">
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ti-content-link"
-                          dangerouslySetInnerHTML={{ __html: item.content }}
-                        />
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          {/* 資源列表：沿用主頁搜尋的搜尋結果外觀（分頁由本頁控制） */}
+          <div className="ti-results">
+            <SearchResults
+              results={resources}
+              isLoading={isLoading}
+              error={error}
+              keyword={submittedKeyword}
+              totalItems={totalItems}
+              summary={
+                <>
+                  共 <strong>{totalItems}</strong> 筆
+                  {submittedKeyword ? `含有「${submittedKeyword}」的` : ""}資源
+                </>
+              }
+              emptyMessage="查無符合的資源。"
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
-
-          {/* 分頁 */}
-          {!isLoading && !error && totalPages > 1 && (
-            <div className="ti-pagination-wrap">
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          )}
         </section>
       )}
     </div>
