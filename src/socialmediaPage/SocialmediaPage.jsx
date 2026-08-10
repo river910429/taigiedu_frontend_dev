@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import './SocialmediaPage.css';
 import searchIcon from '../assets/home/search_logo.svg';
 import chevronUp from '../assets/chevron-up.svg';
@@ -7,6 +7,9 @@ import noPics from "../assets/culture/festivalN.png";
 import envConfig from "../config";
 import PageLoading from "../components/PageLoading/PageLoading";
 import Pagination from "../mainSearchPage/Pagination";
+import CategoryFilterSheet from "../components/CategoryFilterSheet/CategoryFilterSheet";
+import { getTriggerLabel } from "../components/CategoryFilterSheet/categorySelection";
+import useIsMobile from "../components/CategoryFilterSheet/useIsMobile";
 
 // 顯示規則：桌機版每列 4 筆、每頁最多 15 列；未篩選時每類別預覽第一列（4 筆）
 const ITEMS_PER_ROW = 4;
@@ -32,6 +35,21 @@ const SocialmediaPage = () => {
 
     // 儲存每個分類的滾動位置引用
     const categoryRefs = useRef({});
+
+    // 手機版改用 bottom sheet（選擇先存 draft、按確認才套用）
+    const isMobile = useIsMobile();
+
+    // bottom sheet 的分類結構：{ name, label, subs }
+    const filterGroups = useMemo(
+        () => categoryOrder
+            .filter(category => menuItems[category])
+            .map(category => ({
+                name: category,
+                label: category || "（空白類別）",
+                subs: menuItems[category].subItems || [],
+            })),
+        [categoryOrder, menuItems]
+    );
 
     // 從 API 獲取社交媒體資料
     const fetchSocialMediaData = async () => {
@@ -125,7 +143,9 @@ const SocialmediaPage = () => {
         setCurrentPage(1);
     }, [selectedItems, query]);
 
+    // 桌機下拉：點擊面板外關閉（手機版改由 bottom sheet 的遮罩處理）
     React.useEffect(() => {
+        if (isMobile) return undefined;
         const handleClickOutside = (event) => {
             if (isDropdownOpen && !event.target.closest('.social-custom-dropdown')) {
                 setIsDropdownOpen(false);
@@ -136,7 +156,12 @@ const SocialmediaPage = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isDropdownOpen]);
+    }, [isDropdownOpen, isMobile]);
+
+    // 桌機／手機切換時關閉面板，避免殘留另一種型態的開啟狀態
+    useEffect(() => {
+        setIsDropdownOpen(false);
+    }, [isMobile]);
 
     // 更新顯示文字的統一函數
     const updateDisplayText = (selectedItemsObj) => {
@@ -334,6 +359,15 @@ const SocialmediaPage = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    // ---- 手機版 bottom sheet ----
+    // 確認：套用 draft 並同步觸發器文字（桌機下拉仍讀 selectedType）
+    const handleSheetConfirm = (nextSelectedItems) => {
+        setSelectedItems(nextSelectedItems);
+        updateDisplayText(nextSelectedItems);
+        setIsDropdownOpen(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     // 單張卡片
     const renderCard = (item, category) => (
         <div key={`${category}-${item.id}`}
@@ -423,13 +457,26 @@ const SocialmediaPage = () => {
                         <div className="social-custom-dropdown">
                             <div className="dropdown-container">
                                 <div
-                                    className="dropdown-header social-type-dropdown"
-                                    onClick={() => {
-                                        console.log("dropdown-header clicked");
-                                        setIsDropdownOpen(!isDropdownOpen);
+                                    className={`dropdown-header social-type-dropdown ${
+                                        isMobile && Object.keys(selectedItems).length === 0
+                                            ? 'is-placeholder'
+                                            : ''
+                                    }`}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-haspopup={isMobile ? 'dialog' : 'listbox'}
+                                    aria-expanded={isDropdownOpen}
+                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            setIsDropdownOpen(!isDropdownOpen);
+                                        }
                                     }}
                                 >
-                                    {selectedType}
+                                    {isMobile
+                                        ? getTriggerLabel(filterGroups, selectedItems)
+                                        : selectedType}
                                 </div>
                                 <img
                                     src={chevronUp}
@@ -437,7 +484,7 @@ const SocialmediaPage = () => {
                                     className="dropdown-arrow"
                                 />
                             </div>
-                            {isDropdownOpen && (
+                            {!isMobile && isDropdownOpen && (
                                 <div className="social-dropdown-menu">
                                     {/* 使用 categoryOrder 來控制顯示順序 */}
                                     {categoryOrder.map(type => {
@@ -605,6 +652,15 @@ const SocialmediaPage = () => {
                 <img src={questionMarkIcon} className="question-icon" />
                 如有任何問題，請點此回報問題
             </div> */}
+
+            {/* ─── 手機版分類 bottom sheet ─── */}
+            <CategoryFilterSheet
+                open={isMobile && isDropdownOpen}
+                groups={filterGroups}
+                value={selectedItems}
+                onConfirm={handleSheetConfirm}
+                onDismiss={() => setIsDropdownOpen(false)}
+            />
         </div>
     );
 };

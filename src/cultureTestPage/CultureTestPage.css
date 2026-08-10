@@ -331,30 +331,9 @@
         flex-grow: 1;
     }
 
-    /* 手機沒有 hover，子選單改為內嵌常駐並縮排
-       （媒體與社群資源在手機版是直接把子選單藏起來、選不到第二層，這裡不沿用） */
-    .ctp-submenu {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        max-height: none;
-        overflow: visible;
-        padding: 0;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    .ctp-submenu-item {
-        padding-left: 40px;
-    }
-
-    .ctp-submenu-arrow {
-        display: none;
-    }
-
-    .ctp-dropdown-menu {
-        max-height: 60vh;
-        overflow-y: auto;
+    /* 未選任何分類時，觸發器文字為 placeholder 灰字 */
+    .ctp-dropdown-header.is-placeholder {
+        color: #9aa5b1;
     }
 
     .ctp-category-title {

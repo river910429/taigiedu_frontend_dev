@@ -390,26 +390,15 @@
     max-width: 100%;
   }
 
-  /* 手機版隱藏子選單 */
-  .social-submenu {
-    display: none;
-  }
-
-  .social-dropdown-item-container:hover .social-submenu,
-  .social-submenu:hover {
-    display: none;
-  }
-
+  /* 手機版的分類篩選改為 bottom sheet（見 components/CategoryFilterSheet），
+     桌機下拉整組不再渲染，因此這裡只需處理觸發器本身 */
   .social-custom-dropdown {
     width: 100%;
   }
 
-  .social-dropdown-menu {
-    width: 100%;
-  }
-
-  .social-dropdown-item.with-submenu {
-    justify-content: flex-start;
+  /* 未選任何分類時，觸發器文字為 placeholder 灰字 */
+  .social-type-dropdown.is-placeholder {
+    color: #9aa5b1;
   }
 
   .hidden-mobile {

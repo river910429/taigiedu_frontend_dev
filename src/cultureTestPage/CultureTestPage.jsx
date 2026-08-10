@@ -5,6 +5,9 @@ import chevronUp from '../assets/chevron-up.svg';
 import noPics from '../assets/culture/festivalN.png';
 import PageLoading from '../components/PageLoading/PageLoading';
 import Pagination from '../mainSearchPage/Pagination';
+import CategoryFilterSheet from '../components/CategoryFilterSheet/CategoryFilterSheet';
+import { getTriggerLabel } from '../components/CategoryFilterSheet/categorySelection';
+import useIsMobile from '../components/CategoryFilterSheet/useIsMobile';
 import { fetchCultureItems, CATEGORY_TREE } from '../services/cultureTestMockApi';
 
 /**
@@ -36,10 +39,13 @@ const CultureTestPage = () => {
 
   // 已選分類，格式 { 第一層: [第二層, ...] }；空陣列代表整個第一層被選取
   const [selectedItems, setSelectedItems] = useState({});
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeQuery, setActiveQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // 手機版改用 bottom sheet（選擇先存 draft、按確認才套用），由元件自行處理
+  const isMobile = useIsMobile();
 
   const dropdownRef = useRef(null);
 
@@ -74,55 +80,76 @@ const CultureTestPage = () => {
     setCurrentPage(1);
   }, [selectedItems, activeQuery]);
 
+  // 桌機下拉：點擊面板外關閉（手機版改由 bottom sheet 的遮罩處理）
   useEffect(() => {
+    if (isMobile) return undefined;
     const handleClickOutside = (event) => {
-      if (isDropdownOpen && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+      if (isFilterOpen && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsFilterOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isDropdownOpen]);
+  }, [isFilterOpen, isMobile]);
+
+  // 桌機／手機切換時關閉面板，避免殘留另一種型態的開啟狀態
+  useEffect(() => {
+    setIsFilterOpen(false);
+  }, [isMobile]);
+
+  // ---- 選取狀態的純函式（桌機直接套用到 selectedItems，手機套用到 draftSelected）----
 
   // 無子選單的第一層：整層選取／取消
-  const toggleCategory = (category) => {
-    setSelectedItems(prev => {
-      const next = { ...prev };
-      if (next[category]) delete next[category];
-      else next[category] = [];
-      return next;
-    });
+  const withCategoryToggled = (source, category) => {
+    const next = { ...source };
+    if (next[category]) delete next[category];
+    else next[category] = [];
+    return next;
   };
 
   // 有子選單的第一層：點父項＝該層全選／全不選
-  const toggleAllSubCategories = (category) => {
-    const subs = subCategoriesOf[category] || [];
-    setSelectedItems(prev => {
-      const next = { ...prev };
-      const current = next[category] || [];
-      const isAll = subs.length > 0 && subs.every(sub => current.includes(sub));
-      if (isAll) delete next[category];
-      else next[category] = [...subs];
-      return next;
-    });
+  const withAllSubsToggled = (source, category, subs) => {
+    const next = { ...source };
+    const current = next[category] || [];
+    const isAll = subs.length > 0 && subs.every(sub => current.includes(sub));
+    if (isAll) delete next[category];
+    else next[category] = [...subs];
+    return next;
   };
 
-  const toggleSubCategory = (category, sub) => {
-    setSelectedItems(prev => {
-      const next = { ...prev };
-      const current = next[category] || [];
-      const updated = current.includes(sub)
-        ? current.filter(name => name !== sub)
-        : [...current, sub];
-      if (updated.length === 0) delete next[category];
-      else next[category] = updated;
-      return next;
-    });
+  const withSubToggled = (source, category, sub) => {
+    const next = { ...source };
+    const current = next[category] || [];
+    const updated = current.includes(sub)
+      ? current.filter(name => name !== sub)
+      : [...current, sub];
+    if (updated.length === 0) delete next[category];
+    else next[category] = updated;
+    return next;
   };
+
+  const toggleCategory = (category) =>
+    setSelectedItems(prev => withCategoryToggled(prev, category));
+
+  const toggleAllSubCategories = (category) =>
+    setSelectedItems(prev => withAllSubsToggled(prev, category, subCategoriesOf[category] || []));
+
+  const toggleSubCategory = (category, sub) =>
+    setSelectedItems(prev => withSubToggled(prev, category, sub));
 
   const isSubSelected = (category, sub) => (selectedItems[category] || []).includes(sub);
 
-  // 下拉按鈕上的文字
+  // bottom sheet 的分類結構：{ name, label, subs }
+  const filterGroups = useMemo(
+    () => categoryOrder.map(category => ({
+      name: category,
+      label: category,
+      subs: subCategoriesOf[category] || [],
+    })),
+    [categoryOrder, subCategoriesOf]
+  );
+
+  // 桌機下拉按鈕上的文字
   const dropdownLabel = useMemo(() => {
     const categories = Object.keys(selectedItems);
     if (categories.length === 0) return '分類';
@@ -141,6 +168,20 @@ const CultureTestPage = () => {
     }
     return `${total} 個選項`;
   }, [selectedItems]);
+
+  // 手機版觸發器文字：未選 -> placeholder、1 項 -> 該項名稱、多項 -> 首項 +N
+  const triggerLabel = isMobile
+    ? getTriggerLabel(filterGroups, selectedItems)
+    : dropdownLabel;
+  const isTriggerPlaceholder = isMobile && Object.keys(selectedItems).length === 0;
+
+  const dismissSheet = () => setIsFilterOpen(false);
+
+  const confirmSheet = (next) => {
+    setSelectedItems(next);
+    setIsFilterOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const hasCategoryFilter = Object.keys(selectedItems).length > 0;
   const hasQuery = activeQuery !== '';
@@ -260,19 +301,29 @@ const CultureTestPage = () => {
       <div className="ctp-header">
         <div className="container px-4">
           <div className="ctp-header-content">
-            {/* 分類下拉：第一層 + 第二層子選單 */}
+            {/* 分類篩選：桌機為下拉選單，手機為 bottom sheet */}
             <div className="ctp-dropdown" ref={dropdownRef}>
               <div className="ctp-dropdown-container">
                 <div
-                  className="ctp-dropdown-header"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className={`ctp-dropdown-header ${isTriggerPlaceholder ? 'is-placeholder' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-haspopup={isMobile ? 'dialog' : 'listbox'}
+                  aria-expanded={isFilterOpen}
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setIsFilterOpen(!isFilterOpen);
+                    }
+                  }}
                 >
-                  {dropdownLabel}
+                  {triggerLabel}
                 </div>
                 <img src={chevronUp} alt="" className="ctp-dropdown-arrow" />
               </div>
 
-              {isDropdownOpen && (
+              {!isMobile && isFilterOpen && (
                 <div className="ctp-dropdown-menu">
                   {categoryOrder.map(category => {
                     const subs = subCategoriesOf[category] || [];
@@ -417,6 +468,16 @@ const CultureTestPage = () => {
           );
         })
       )}
+
+      {/* ─── 手機版分類 bottom sheet ─── */}
+      <CategoryFilterSheet
+        open={isMobile && isFilterOpen}
+        groups={filterGroups}
+        value={selectedItems}
+        onConfirm={confirmSheet}
+        onDismiss={dismissSheet}
+      />
+
     </div>
   );
 };
