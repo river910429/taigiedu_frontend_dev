@@ -138,6 +138,7 @@ const ExamPage = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    // 單張卡片（外觀比照「媒體與社群資源」：圖片 + 置中標題）
     const renderCard = (item, category) => (
         <div
             key={`${category}-${item.id}`}
@@ -154,12 +155,7 @@ const ExamPage = () => {
                     }}
                 />
             </div>
-            <div className="exam-card-body">
-                {item.subcategory && (
-                    <span className="exam-card-badge">{item.subcategory}</span>
-                )}
-                <p className="exam-card-title">{item.title}</p>
-            </div>
+            <h5 className="text-center mt-2">{item.title}</h5>
         </div>
     );
 

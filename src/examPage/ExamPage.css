@@ -113,16 +113,12 @@
     color: #718096;
 }
 
-/* ─── 卡片格線（每列 4 筆）─── */
+/* ─── 卡片格線（每列 4 筆；間距對齊媒體與社群資源的 bootstrap g-sm-4）─── */
 .exam-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 24px;
     padding: 0 20px;
-}
-
-.exam-grid .exam-card {
-    width: 100%;
 }
 
 /* ─── 各 Section 外層 ─── */
@@ -152,30 +148,34 @@
     padding: 0 12px;
 }
 
-/* ─── 單張卡片（寬度由 hsr-slide 決定，卡片填滿） ─── */
+/* ─── 單張卡片（外觀比照 .socialmedia-card：無框無底、hover 上浮）─── */
 .exam-card {
-    width: 160px;
+    width: 100%;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 10px;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border-radius: 10px;
-    overflow: hidden;
-    background: white;
-    border: 1px solid #eef2f6;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s;
 }
 
 .exam-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(1, 122, 177, 0.14);
+    transform: translateY(-5px);
 }
 
-/* 圖片區（4:3 比例） */
+.exam-card h5 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* 圖片區（比照 .social-image-container，256/332 比例） */
 .exam-image-container {
-    width: 100%;
-    padding-bottom: 75%;
     position: relative;
+    width: 100%;
+    padding-bottom: 77.1%;
     overflow: hidden;
-    background: #f0f4f8;
+    border-radius: 0;
 }
 
 .exam-image {
@@ -185,39 +185,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.exam-card:hover .exam-image {
-    transform: scale(1.05);
-}
-
-/* 文字區 */
-.exam-card-body {
-    padding: 10px;
-}
-
-.exam-card-badge {
-    display: inline-block;
-    background: #e8f4fb;
-    color: #017AB1;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 4px;
-    padding: 1px 6px;
-    margin-bottom: 4px;
-}
-
-.exam-card-title {
-    font-size: 13px;
-    line-height: 1.5;
-    color: #2d3748;
-    margin: 0;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    font-weight: 500;
 }
 
 .exam-report-issue {
@@ -260,12 +227,12 @@
   }
 
   .exam-card {
-    width: 136px;
+    padding: 4px;
   }
 
   .exam-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
     padding: 0 16px;
   }
 
@@ -280,12 +247,8 @@
   }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 360px) {
   .exam-card {
-    width: 120px;
-  }
-
-  .exam-card-title {
-    font-size: 12px;
+    padding: 2px;
   }
 }
