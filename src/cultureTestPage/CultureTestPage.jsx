@@ -19,8 +19,12 @@ import { fetchCultureItems, CATEGORY_TREE } from '../services/cultureTestMockApi
  *   - 有篩選或搜尋時攤平成完整列表 + 分頁
  *   - 內容為「圖片 + 主標」卡片，點擊開新分頁到該筆影音
  *
- * 分類取來源表的前兩層，第三層依 PM 決定捨棄、網頁不呈現。
- * 「新聞/訪談」沒有第二層，下拉需支援無子選單的情況。
+ * 分類範圍（2026-08 依 PM 指示調整）：**只收來源表第一層的「文化」這一支**，
+ * 並取其後兩層當作篩選：
+ *   篩選第一層 = 來源表第二層：戲曲 / 祭典 / 傳統工藝 / 地方,產業
+ *   篩選第二層 = 來源表第三層（列舉細項）：歌仔戲 / 布袋戲 / …
+ * 來源表第一層不出現在篩選與畫面上；其餘 A 分類（職業台語、文學、教育、
+ * 新聞/訪談、藝術表現）本頁不收，詳見 services/cultureTestMockApi.js。
  *
  * ⚠️ 資料來自 services/cultureTestMockApi.js 假資料，尚未串接後端。
  */
@@ -37,7 +41,7 @@ const CultureTestPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 已選分類，格式 { 第一層: [第二層, ...] }；空陣列代表整個第一層被選取
+  // 已選分類，格式 { 篩選第一層: [篩選第二層, ...] }；空陣列代表整個第一層被選取
   const [selectedItems, setSelectedItems] = useState({});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -49,7 +53,7 @@ const CultureTestPage = () => {
 
   const dropdownRef = useRef(null);
 
-  // 第一層 -> 第二層清單
+  // 篩選第一層 -> 篩選第二層清單
   const subCategoriesOf = useMemo(() => {
     const map = {};
     CATEGORY_TREE.forEach(node => { map[node.name] = node.children; });
@@ -332,7 +336,7 @@ const CultureTestPage = () => {
                     const isAllSelected =
                       subs.length > 0 && subs.every(sub => isSubSelected(category, sub));
 
-                    // 無第二層（如「新聞/訪談」）：直接當成可勾選項目
+                    // 無第三層的分類：直接當成可勾選項目（目前四類都有第三層，保留作防呆）
                     if (subs.length === 0) {
                       return (
                         <div key={category} className="ctp-dropdown-row">

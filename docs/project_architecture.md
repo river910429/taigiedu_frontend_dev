@@ -48,9 +48,13 @@
 - **名人堂/台語人物 (`/celebrity`, `/celebrity/detail`)**: `celebrity/CelebrityPage.jsx` 與 `CelebrityDetails.jsx`，展示推廣台語或相關文化的人物介紹。
 - **文化介紹 (`/culture/food`, `/culture/festival`)**: 介紹台灣在地美食 (`CultureFood`) 與節慶 (`CultureFestival`)。
 - **台語文化（test） (`/culture-test`)**: `cultureTestPage/CultureTestPage.jsx`，影音資料庫的分類瀏覽頁，也是「節慶飲食」的**新版重寫**（舊版兩頁在新分類中併入 `文化 > 地方/產業`）。
-  - **分類取來源表的前兩層**：6 個第一層（文化、職業台語、文學、教育、新聞/訪談、藝術表現）＋ 18 個第二層。**第三層依 PM 決定捨棄，網頁不呈現**。
-  - ⚠️ 「新聞/訪談」在**目前的假資料**中沒有第二層，第一層即末端，因此下拉必須支援「無子選單」的分類（直接當可勾選項目處理）。
-    - **這是暫時狀態**：真實資料進來後「新聞/訪談」也會是兩層。無子選單的處理先留著等資料，屆時若確認所有第一層都有子項，可再評估是否移除這條分支。
+  - **分類只收來源表第一層的「文化」這一支，並取其後兩層**（2026-08 PM 調整，前一版是「取前兩層、涵蓋 6 個第一層」）：
+    - 篩選第一層 ＝ 來源表第二層：戲曲、祭典、傳統工藝、地方/產業（4 項）
+    - 篩選第二層 ＝ 來源表第三層「列舉細項」：歌仔戲、布袋戲…（合計 21 項）
+    - 來源表第一層（固定「文化」）**不出現在畫面上**，只留在 `parent` / `parent_category` 欄位供後端對照。
+    - **其餘 A 分類（職業台語、文學、教育、新聞/訪談、藝術表現）PM 確認本頁不收**，已從假資料整批移除，勿再加回。
+  - ⚠️ 第三層的「其他類」**同時屬於「傳統工藝」與「地方/產業」**，名稱不唯一。前端因為是在同一個第二層內比對才沒事；後端資料表的唯一鍵必須是 `(parent_id, name)`。
+  - 下拉仍保留「無子選單分類」的分支（父項本身即可勾選），目前四類都有第三層，留作日後分類調整的防呆。
   - **篩選與呈現整套比照「媒體與社群資源」**（`socialmediaPage/`）：
     - 頁首白底橫幅：分類下拉（第一層 + 第二層飛出子選單，可跨第一層複選）+ 關鍵字搜尋
     - 點第一層＝該層底下第二層全選／全不選；已選狀態顯示於下拉按鈕文字
@@ -60,16 +64,16 @@
   - **手機版（`max-width: 768px`）的分類篩選改為 bottom sheet**，與桌機下拉是兩套 UI，由 `matchMedia` 在 JS 端擇一渲染（不是純 CSS 切換），因為兩者行為不同：
     - 由下往上滑出，高度上限 `70vh`，選項區可捲動、底部 56px 操作列固定；點遮罩、下滑手勢皆等同取消
     - **選擇暫存在 `draftSelected`，按「確認」才寫回 `selectedItems`**；桌機下拉則是點了就即時套用
-    - 父分類在此為**不可選的 sticky 標題**（灰色小字加粗），只有第二層可勾選；但「新聞/訪談」無第二層，第一層本身仍渲染成可勾選項目（見上方假資料註記，之後會變兩層）
+    - 父分類在此為**不可選的 sticky 標題**（灰色小字加粗），只有子項可勾選；若某分類沒有子項，父項本身仍會渲染成可勾選項目（目前四類都有子項，此分支為防呆）
     - 觸發器文字：未選為 placeholder「選擇分類」、選 1 項顯示該項名稱、多項顯示「首項 +N」（桌機沿用原本的「N 個選項」規則）
     - ⚠️ 「確認」在未選任何項目時 disabled，因此**無法在面板內把已選條件清成空**（按了「清除」後確認鈕就 disabled，這次清空送不出去）；要清空需用列表上方的「返回全部類別」。
       **這是 PM 確認過要保留的行為，不是 bug，請勿自行改成「有變更就可送出」。**
     - 選取狀態的異動邏輯抽成 `withCategoryToggled` / `withAllSubsToggled` / `withSubToggled` 三個純函式，桌機套用到 `selectedItems`、手機套用到 `draftSelected`。
   - 媒體與社群資源在手機版是直接把子選單 `display: none`（等於選不到第二層），此頁刻意不沿用該行為。
-  - ⚠️ **內容目前來自 `services/cultureTestMockApi.js` 假資料**：`CATEGORY_TREE` 為上述兩層分類，影音由 `buildMockData()` 依第二層生成（每組 20~45 筆，合計約 580 筆）。回傳格式刻意比照 `POST /media`：`{ category_order, data: { 第一層: [{ ..., subcategory }] } }`，一次給全部，篩選／搜尋／分頁皆由前台處理。接上真實 API 時換掉 `fetchCultureItems()` 即可，頁面不需改動。
-  - 新舊兩套**刻意並存**，待新版 API 完成後才會取代舊版並移除 `/culture/food`、`/culture/festival`。
+  - ⚠️ **內容目前來自 `services/cultureTestMockApi.js` 假資料**：`CATEGORY_TREE` 為上述兩層分類，影音由 `buildMockData()` 依第三層生成（每組 20~45 筆，合計約 660 筆）。回傳格式刻意比照 `POST /media`：`{ category_order, data: { 篩選第一層: [{ ..., subcategory }] } }`，一次給全部，篩選／搜尋／分頁皆由前台處理。接上真實 API 時換掉 `fetchCultureItems()` 即可，頁面不需改動。
+  - **後端 API 需求規格見 `docs/culture_test_api.md`**（含前台 `POST /culture-media`、後台影音與分類 CRUD、資料表建議、待確認事項）。
+  - 新舊兩套**刻意並存**，待新版 API 完成後才會取代舊版並移除 `/culture/food`、`/culture/festival`（舊版兩頁在新分類中對應到「地方/產業 > 飲食」與「地方/產業 > 節慶」）。
   - ⚠️ 開發中頁面，但**未加 feature toggle**，前台側邊欄一律顯示（含正式環境）。
-  - ⚠️ 頁面內容已擴及職業台語、文學、教育、新聞/訪談、藝術表現，**範圍大於「台語文化」這個名字**，正式上線前建議重新命名。
 - **社群媒體/影音 (`/socialmedia`)**: `socialmediaPage/SocialmediaPage`，整合外部平台（如 YouTube/Podcast）的影音資源。
 - **認證考試 (`/exam`)**: `examPage/ExamPage`，提供台語認證的相關資訊。
 - **親屬關係計算機 (`/relative-calculator`)**: `relativeCalculatorPage/RelativeCalculatorPage.jsx`，提供親屬稱謂查詢與計算功能。
