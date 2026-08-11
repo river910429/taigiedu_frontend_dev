@@ -94,30 +94,32 @@
   margin: 8px 0 28px;
 }
 
+/* 由左而右自然換行（不置中、不等寬），約占兩行 */
 .ti-topic-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px 24px;
-  max-width: 900px;
-  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  gap: 14px 12px;
+  width: 100%;
 }
 
+/* 樣式對齊首頁關鍵字按鈕（MainContent.css 的 .button） */
 .ti-topic-btn {
-  min-height: 46px;
-  padding: 10px 12px;
-  border: 1px solid var(--ti-chip-border);
-  border-radius: 10px;
-  background-color: var(--ti-chip-bg);
-  color: var(--ti-blue-dark);
-  font-size: 16px;
-  font-weight: 500;
+  padding: 0.4rem 1rem;
+  border: none;
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-primary, #2D92C1);
+  color: white;
+  font-size: 0.9rem;
   text-align: center;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.05s ease;
+  transition: background-color 0.2s ease-in-out, transform 0.05s ease;
 }
 
 .ti-topic-btn:hover {
-  background-color: #dbe9f8;
+  background-color: var(--color-primary-dark, #017AB1);
 }
 
 .ti-topic-btn:active {
@@ -224,9 +226,6 @@
 
 /* ================= RWD ================= */
 @media (max-width: 1024px) {
-  .ti-topic-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
   .ti-chip-group {
     grid-template-columns: repeat(5, minmax(130px, 1fr));
   }
@@ -243,7 +242,11 @@
     flex-basis: 100%;
   }
   .ti-topic-grid {
-    grid-template-columns: repeat(3, 1fr);
+    gap: 10px 8px;
+  }
+  .ti-topic-btn {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.875rem;
   }
   .ti-chip-group {
     grid-template-columns: repeat(3, minmax(110px, 1fr));
@@ -254,9 +257,6 @@
 }
 
 @media (max-width: 480px) {
-  .ti-topic-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .ti-chip-group {
     grid-template-columns: repeat(2, 1fr);
   }
