@@ -55,7 +55,6 @@ const AdminExamInfo = () => {
   const [imageFile, setImageFile] = useState(null);
   const [imageName, setImageName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [uploadedImagePath, setUploadedImagePath] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
 
@@ -207,7 +206,6 @@ const AdminExamInfo = () => {
     setNewLink('');
     setNewCategory(availableCategories[0] || '');
     setNewSubcategory('');
-    setIsCustomCategory(false);
     setImageFile(null);
     setUploadedImagePath('');
     setImageUploading(false);
@@ -429,42 +427,14 @@ const AdminExamInfo = () => {
         <div className="admin-form-grid">
         <div className="mb-3">
           <label className="form-label admin-form-label">*類別</label>
-          {!isCustomCategory ? (
-            <>
-              <CustomSelect
-                size="sm"
-                options={availableCategories}
-                value={newCategory || null}
-                placeholder="請選擇類別"
-                onChange={setNewCategory}
-              />
-              <button
-                type="button"
-                className="btn btn-link btn-sm p-0 mt-1 text-secondary"
-                onClick={() => { setIsCustomCategory(true); setNewCategory(''); }}
-              >
-                ＋ 新增自訂類別
-              </button>
-            </>
-          ) : (
-            <>
-              <input
-                type="text"
-                className="form-control admin-form-control"
-                placeholder="輸入新類別名稱，例如：推薦用書與教材"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                className="btn btn-link btn-sm p-0 mt-1 text-secondary"
-                onClick={() => { setIsCustomCategory(false); setNewCategory(availableCategories[0] || ''); }}
-              >
-                ← 回到選擇現有類別
-              </button>
-            </>
-          )}
+          {/* 認證考試類別為固定項目，僅能從既有類別中選擇，不開放自訂新增 */}
+          <CustomSelect
+            size="sm"
+            options={availableCategories}
+            value={newCategory || null}
+            placeholder="請選擇類別"
+            onChange={setNewCategory}
+          />
         </div>
 
         <div className="mb-3">
