@@ -2,11 +2,12 @@
 
 /* 表格容器 */
 .admin-table-responsive {
-    overflow-x: scroll;
+    /* auto：內容沒有超出寬度時就不顯示水平捲軸 */
+    overflow-x: auto;
     width: 100%;
 }
 
-/* 強制在 macOS/WebKit 上常駐顯示水平捲軸 */
+/* 需要捲動時，在 macOS/WebKit 上顯示常駐樣式的水平捲軸 */
 .admin-table-responsive::-webkit-scrollbar {
     height: 8px;
 }
@@ -30,9 +31,45 @@
     width: 100%;
     margin-bottom: 0;
     border-collapse: separate;
-    border-spacing: 0 0.5px;
+    /* 0 間距：列與列之間不留縫隙，避免露出底下的白色背景 */
+    border-spacing: 0;
     table-layout: auto;
     /* 改為 auto，讓欄位根據內容調整寬度 */
+}
+
+/* 覆寫 Bootstrap 預設：移除每個儲存格的底線與 accent 陰影（造成列間的白色浮凸線） */
+.admin-data-table>:not(caption)>*>* {
+    border-bottom-width: 0;
+    box-shadow: none;
+}
+
+/* 覆寫 Bootstrap 預設：移除 thead 與 tbody 之間的 2px 分隔線 */
+.admin-data-table>:not(:first-child) {
+    border-top: 0;
+}
+
+/* ===== 圓角：整個表格只有最外圍四個角有圓角 ===== */
+.admin-data-table thead th,
+.admin-data-table tbody tr,
+.admin-data-table tbody tr td {
+    border-radius: 0;
+}
+
+.admin-data-table thead tr:first-child th:first-child {
+    border-top-left-radius: .25rem;
+}
+
+.admin-data-table thead tr:first-child th:last-child {
+    border-top-right-radius: .25rem;
+}
+
+/* 排除拖曳覆層（它有自己的 8px 圓角） */
+.admin-data-table:not(.drag-overlay-table) tbody tr:last-child td:first-child {
+    border-bottom-left-radius: .25rem;
+}
+
+.admin-data-table:not(.drag-overlay-table) tbody tr:last-child td:last-child {
+    border-bottom-right-radius: .25rem;
 }
 
 /* 表頭樣式 */
@@ -69,17 +106,9 @@
 
 .admin-data-table thead th.drag-handle-column {
     background-color: #f5f5f5;
-    border-top-left-radius: .25rem;
-    /* 左側拖曳欄要連成一直線，只有最上與最下才有圓角 */
-    border-bottom-left-radius: 0;
     width: 40px;
     min-width: 40px;
     max-width: 40px;
-}
-
-.admin-data-table thead th:last-child {
-    border-top-right-radius: .25rem;
-    border-bottom-right-radius: .25rem;
 }
 
 .admin-table-header {
@@ -99,22 +128,21 @@
 }
 
 /* 表格行樣式 */
-.admin-data-table tbody tr {
-    background-color: #DFEAF2;
-    border: 1px solid #dee2e6;
-    border-radius: .25rem;
-    margin-bottom: 8px;
-    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.admin-data-table tbody tr:hover {
-    background-color: #e2f0fa;
-    box-shadow: 0 .25rem .5rem rgba(0, 0, 0, .1);
-}
-
+/* 背景色畫在 td 上（而非 tr），這樣四個外圍角落的圓角才會正確裁切背景 */
 .admin-data-table tbody tr td {
     vertical-align: middle;
     padding: 0.5rem 0.75rem;
+    background-color: #DFEAF2;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.admin-data-table tbody tr:hover td {
+    background-color: #e2f0fa;
+}
+
+/* 列與列之間用極淡的分隔線（非白色），維持扁平不浮凸 */
+.admin-data-table tbody tr:not(:last-child) td {
+    border-bottom: 1px solid rgba(45, 146, 193, 0.12);
 }
 
 .admin-data-table tbody tr td.action-column {
@@ -135,27 +163,11 @@
        想看完整內容請點編輯鈕；個別欄位可用 columnDef.meta.maxWidth 覆寫此上限。 */
 }
 
-.admin-data-table tbody tr:not(:last-child) {
-    margin-bottom: 8px;
-}
-
 .admin-data-table tbody tr td.drag-handle-column {
     background-color: #f5f5f5;
-    /* 中間各列不要圓角，讓拖曳欄的邊緣是一直線 */
-    border-radius: 0;
     width: 40px;
     min-width: 40px;
     max-width: 40px;
-}
-
-/* 只有最後一列的拖曳格保留左下圓角 */
-.admin-data-table tbody tr:last-child td.drag-handle-column {
-    border-bottom-left-radius: .25rem;
-}
-
-.admin-data-table tbody tr td:last-child {
-    border-top-right-radius: .25rem;
-    border-bottom-right-radius: .25rem;
 }
 
 /* 連結樣式 - 文字截斷 */
@@ -271,7 +283,7 @@
     display: table-row;
 }
 
-.dragging-overlay-row td {
+.drag-overlay-table .dragging-overlay-row td {
     padding: 0.5rem 0.75rem;
     vertical-align: middle;
     font-size: inherit;
@@ -280,6 +292,18 @@
     text-overflow: ellipsis;
     border: none;
     background-color: #e6f7ff;
+    border-radius: 0;
+}
+
+/* 覆層維持自身的四角圓角（8px） */
+.drag-overlay-table .dragging-overlay-row td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.drag-overlay-table .dragging-overlay-row td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 .dragging-overlay-row td.drag-handle-column {
