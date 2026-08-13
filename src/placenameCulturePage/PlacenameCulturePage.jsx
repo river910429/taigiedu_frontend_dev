@@ -293,12 +293,12 @@ const PlacenameCulturePage = () => {
                                 </div>
 
                                 <div className="pc-detail-body">
-                                    {detail.description.map((paragraph, index) => (
+                                    {(detail.description || []).map((paragraph, index) => (
                                         <p key={index}>{paragraph}</p>
                                     ))}
                                 </div>
 
-                                {detail.oldVillageNames.length > 0 && (
+                                {(detail.oldVillageNames || []).length > 0 && (
                                     <div className="pc-oldnames">
                                         <h2 className="pc-oldnames-title">里舊名：</h2>
                                         <p className="pc-oldnames-list">
@@ -339,7 +339,7 @@ const PlacenameCulturePage = () => {
                             <AudioButton audioUrl={openOldName.audioUrl} label={openOldName.name} />
                         </div>
                         <div className="pc-oldname-modal-body">
-                            {openOldName.description.map((paragraph, index) => (
+                            {(openOldName.description || []).map((paragraph, index) => (
                                 <p key={index}>{paragraph}</p>
                             ))}
                         </div>
