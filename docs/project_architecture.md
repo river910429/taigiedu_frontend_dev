@@ -155,7 +155,28 @@ src/
 - **一般公告（前台顯示）**: 由 `components/Announcement/GeneralAnnouncementModal.jsx` 呈現。
 - **公告管理（後台）**: `adminAnnouncementPage.jsx` 目前為 **mock 階段**，尚未與上述前台資料來源（Firestore/API）打通。若要正式上線，需在 `services/` 新增公告 API 模組並替換頁內的 `MOCK_DATA` 與本地 state 操作。
 
-## 6. 常見工作流程建議 (Workflow Tips)
+## 6. 資料列表頁的篩選列與下拉選單（共用規範）
+
+前台各資料列表頁的搜尋／篩選列行為已統一，新增或修改列表頁時請沿用：
+
+- **Sticky 篩選列**：具搜尋／篩選功能的資料列表頁，外層套 `global.css` 的 `.page-filter-header`。
+  它負責白底、陰影與 `position: sticky`，`top` 為 `calc(var(--header-height) + var(--otb-height, 0px))`，
+  因此停機橫幅出現時也會自動往下讓位。已套用：教學資源共享平台、俗諺語、媒體與社群資源、認證考試、台語文化（test）。
+  - 篩選列若位於左右有 padding 的容器內（如 `/resource`），加上 `.is-bleed` 並在容器上設 `--filter-bleed-x`，白底才會通到邊緣。
+  - **例外**：台語文字轉換（`/translate`）**刻意不 sticky**，篩選列隨內容正常捲動（PM 指定）。
+- **下拉選單定位**：所有篩選下拉一律 portal 到 `#root`、以 `position: fixed` 定位，座標由
+  `components/AnchoredMenu/useAnchoredMenu.js` 依 trigger 的 `getBoundingClientRect()` 算出，並在
+  `scroll`（capture）／`resize` 時重算。效果是：頁面捲動時選單永遠貼著原篩選欄位，且下方空間不足會往上翻、
+  左右超出會夾回畫面內、過長則以 `max-height` + 內部捲動處理。
+  使用此 hook 的元件：`components/CustomSelect`、`phrasePage/multiselect`（教學資源／俗諺語／主頁搜尋／後台資源審核共用）、
+  `socialmediaPage/SocialmediaPage` 與 `cultureTestPage/CultureTestPage` 的分類下拉。
+  - ⚠️ 選單 portal 之後就不在 trigger 的 DOM 子樹內，**click-outside 判斷必須同時排除 trigger 與選單**。
+  - 媒體與社群資源、台語文化（test）的第二層飛出子選單改由 React state 控制顯示（不再靠 CSS `:hover`），
+    並同樣以 `position: fixed` 定位（見各頁的 `positionSubmenu`）——因為主選單加了內部捲動，
+    子選單若維持 `absolute` 會被 `overflow` 裁掉。
+  - 手機版（`max-width: 768px`）的分類篩選仍是 bottom sheet（`components/CategoryFilterSheet`），不走上述下拉。
+
+## 7. 常見工作流程建議 (Workflow Tips)
 - **新增公開頁面**: 在 `src/` 下建立對應的資料夾與元件，於 `App.jsx` 引入並添加 `<Route>`，並視情況更新 `Sidebar.jsx` 的選單路徑。
 - **新增後台管理項目**: 於 `src/adminPage/adminContent/adminHome/` 建立管理面板，在 `App.jsx` 使用 `<AdminRoute>` 添加路由，最後更新 `adminSidebar.jsx` 的選單陣列。
 - **API 串接**: 若要讀取或更新資料，請先檢視 `src/services/` 下是否已有相關模組（多透過 `authService.js` 的 `authenticatedFetch` 帶 Token 發送請求），並注意在元件中妥善處理 loading／error 等異步狀態。部分頁面（如公告管理）仍為 mock，串接時需自行補上 service 層。

@@ -73,6 +73,7 @@
   --z-overlay: 800;
   --z-modal: 10000;
   --z-dropdown: 1001;
+  --z-filter-bar: 500;
 }
 
 /* ─── 2. 頁面基礎容器 ─────────────────────────────────────── */
@@ -195,14 +196,28 @@
 
 /* ─── 6. 頁面頂部篩選列（page-filter-header） ───────────────── */
 
-/* 包含搜尋框 + 下拉篩選的 header 列 */
+/* 具搜尋／篩選功能的資料列表頁一律套用這個 class：
+   頁面向下捲動時，篩選列固定於頂部導覽列（必要時再加上停機橫幅）下方，
+   只有下方的資料內容隨頁面捲動。
+   例外：台語文字轉換（/translate）刻意不 sticky，篩選列隨內容正常捲動。 */
 .page-filter-header {
   background: #fff;
-  padding: 1rem 0;
+  padding: 20px 0;
   position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow-sm);
+  top: calc(var(--header-height, 58px) + var(--otb-height, 0px));
+  /* 低於 Sidebar (900) 與 Header (1000)，高於一般內容 */
+  z-index: var(--z-filter-bar, 500);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 篩選列位於左右有 padding 的容器內時，用這個 modifier 讓白底延伸到容器邊緣 */
+.page-filter-header.is-bleed {
+  /* 覆蓋頁面自訂的 width: 100%，否則負 margin 只會把整條往左推而非左右撐開 */
+  width: auto;
+  margin-left: calc(var(--filter-bleed-x, 0px) * -1);
+  margin-right: calc(var(--filter-bleed-x, 0px) * -1);
+  padding-left: var(--filter-bleed-x, 0px);
+  padding-right: var(--filter-bleed-x, 0px);
 }
 
 .page-filter-row {

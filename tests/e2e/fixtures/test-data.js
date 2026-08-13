@@ -53,7 +53,7 @@ export const testData = {
 
     // 首頁區塊標題（用於驗證）
     homePageSections: [
-        '俗語諺輪播',
+        '俗諺語輪播',
         '今日大事',
         '考試資訊',
         '活動快訊',

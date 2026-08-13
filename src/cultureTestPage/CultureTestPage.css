@@ -6,11 +6,8 @@
     width: 100%;
 }
 
-/* ---- 頁首：白底橫幅 + 分類下拉 + 搜尋 ---- */
-.ctp-header {
-    background: #fff;
-    padding: 20px 0;
-}
+/* ---- 頁首：白底橫幅 + 分類下拉 + 搜尋 ----
+   .ctp-header 的 sticky／白底／陰影統一由 global.css 的 .page-filter-header 提供 */
 
 .ctp-header-content {
     display: flex;
@@ -63,17 +60,16 @@
     pointer-events: none;
 }
 
+/* 選單以 portal 掛在 #root，實際座標由 useAnchoredMenu 以 position: fixed 指定 */
 .ctp-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
+    position: fixed;
     min-width: 200px;
-    width: 100%;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     padding: 8px 0;
-    z-index: 501;
+    /* 需高於 Bootstrap Modal (1055)，與 CustomSelect / MultiSelect 一致 */
+    z-index: 2000;
 }
 
 .ctp-dropdown-row {
@@ -120,28 +116,19 @@
     color: #718096;
 }
 
-/* 第二層子選單：桌機為滑過展開的飛出選單 */
+/* 第二層子選單：桌機為滑過展開的飛出選單。
+   由 JS 以 position: fixed 定位（座標見 CultureTestPage.jsx 的 positionSubmenu），
+   主選單有內部捲動時才不會被裁切，右側／下方放不下時也會自動翻轉夾在畫面內。
+   顯示與否改由 React state 控制（hover 第一層才 render），不再靠 CSS :hover。 */
 .ctp-submenu {
-    position: absolute;
-    left: 100%;
-    top: 0;
+    position: fixed;
     min-width: 200px;
-    max-height: 300px;
     overflow-y: auto;
     padding: 8px 0;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease-in-out;
-    z-index: 502;
-}
-
-.ctp-dropdown-row:hover .ctp-submenu,
-.ctp-submenu:hover {
-    opacity: 1;
-    visibility: visible;
+    z-index: 2001;
 }
 
 .ctp-submenu::-webkit-scrollbar {

@@ -1,11 +1,4 @@
-.exam-header {
-    background: #fff;
-    padding: 20px 0;
-    position: sticky;
-    top: var(--header-height, 58px);
-    z-index: 100;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+/* .exam-header 的 sticky／白底／陰影統一由 global.css 的 .page-filter-header 提供 */
 
 .exam-header-container {
     padding: 0 20px;

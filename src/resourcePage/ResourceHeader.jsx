@@ -131,7 +131,7 @@ const ResourceHeader = ({ onUploadOpen, isLoggedIn, onSearch }) => {
 
 
   return (
-    <div className="resource-header">
+    <div className="resource-header page-filter-header is-bleed">
       {/* 階段下拉選單 */}
       <div className="grade-select">
         <CustomSelect

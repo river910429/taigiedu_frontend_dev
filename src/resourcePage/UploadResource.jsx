@@ -364,8 +364,14 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
       const apiFormData = new FormData();
 
       // 上傳者資訊 - 從 auth context 獲取用戶資訊
-      apiFormData.append("uploader_id", user.id);
-      apiFormData.append("uploader_name", user.name || user.email?.split('@')[0] || "使用者");
+      const userId = user?.id || user?.user_id || user?.sub;
+      if (!userId) {
+        showToast("無法取得使用者資訊，請重新登入", "error");
+        setIsProcessing(false);
+        return;
+      }
+      apiFormData.append("uploader_id", userId);
+      apiFormData.append("uploader_name", user?.name || user?.username || user?.email?.split('@')[0] || "使用者");
 
       // 資源資訊
       apiFormData.append("title", formData.name);

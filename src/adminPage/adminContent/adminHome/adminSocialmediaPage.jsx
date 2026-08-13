@@ -21,6 +21,31 @@ import envConfig from '../../../config';
 
 const API_BASE_URL = envConfig.apiUrl;
 
+/** 多個類別在後端是以逗號串成同一個字串 */
+const CATEGORY_SEPARATOR = ', ';
+
+/**
+ * 把後端的 category 字串拆成標準化的類別 key 陣列
+ * 後端格式為「以逗號分隔、每段可為 `父>子`」，例如 "工具>辭典或翻譯, Podcast"
+ * 標準化後一律去除 `>` 與逗號前後的空白，才能跟勾選框的 key 對得起來
+ */
+const parseCategories = (raw) => {
+  if (!raw) return [];
+  return String(raw)
+    .split(',')
+    .map(part => part.split('>').map(s => s.trim()).filter(Boolean).join('>'))
+    .filter(Boolean);
+};
+
+/** 把勾選的類別 key 陣列組回後端格式（與 parseCategories 對稱） */
+const serializeCategories = (list) => list.join(CATEGORY_SEPARATOR);
+
+/** 將 `父>子` 拆成 [父, 子]，沒有子分類時子為空字串 */
+const splitCategoryKey = (key) => {
+  const [parent = '', sub = ''] = String(key || '').split('>');
+  return [parent, sub];
+};
+
 const getFullImageUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) return path;
@@ -41,6 +66,8 @@ const AdminSocialmediaPage = () => {
 
   // 基本狀態
   const [menuItems, setMenuItems] = useState({});
+  // 資料中實際出現過的所有類別 key（含只有父層的），即勾選框的選項來源
+  const [categoryKeys, setCategoryKeys] = useState([]);
   const [allItems, setAllItems] = useState([]);
   const [parentFilter, setParentFilter] = useState('全部');
   const [childFilter, setChildFilter] = useState('全部');
@@ -57,6 +84,8 @@ const AdminSocialmediaPage = () => {
   const [pickedCategories, setPickedCategories] = useState([]);
   const [imageName, setImageName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  // 編輯時原本的 figure 完整路徑，沒有重新上傳圖片就原封不動送回（imageName 只是顯示用的檔名）
+  const [existingFigurePath, setExistingFigurePath] = useState('');
   const [uploadedImagePath, setUploadedImagePath] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
@@ -69,6 +98,7 @@ const AdminSocialmediaPage = () => {
     setPickedCategories([]);
     setImageName('');
     setImageUrl('');
+    setExistingFigurePath('');
     setUploadedImagePath('');
     setImageUploading(false);
   };
@@ -95,6 +125,7 @@ const AdminSocialmediaPage = () => {
     setPickedCategories(item.categories || []);
     setImageName(item.imageName || '');
     setImageUrl(item.imageUrl || '');
+    setExistingFigurePath(item.figurePath || '');
     setUploadedImagePath('');
     setImageUploading(false);
     setAttemptedSubmit(false);
@@ -119,34 +150,31 @@ const AdminSocialmediaPage = () => {
       const items = [];
       const records = result.data || [];
       const categoryMap = {};
+      const allCategoryKeys = new Set();
 
       records.forEach(item => {
-        let mainCategory = '其他';
-        let subCategory = '';
-        if (item.category) {
-          const parts = item.category.includes('>') ? item.category.split('>') : [item.category];
-          mainCategory = parts[0].trim() || '其他';
-          if (parts.length > 1) {
-            subCategory = parts[1].trim();
+        // 一筆資料可能同時屬於多個類別，全部都要進選單，否則編輯時會勾不回來
+        const categories = parseCategories(item.category);
+
+        categories.forEach(key => {
+          allCategoryKeys.add(key);
+          const [parent, sub] = splitCategoryKey(key);
+          if (!categoryMap[parent]) {
+            categoryMap[parent] = new Set();
           }
-        }
-        
-        if (!categoryMap[mainCategory]) {
-          categoryMap[mainCategory] = new Set();
-        }
-        if (subCategory) {
-          categoryMap[mainCategory].add(subCategory);
-        }
+          if (sub) {
+            categoryMap[parent].add(sub);
+          }
+        });
 
         items.push({
           id: item.id || `media-${Date.now()}-${Math.random()}`,
-          mainCategory,
-          subCategory,
-          categories: item.category ? [item.category] : [],
+          categories,
           name: item.name || '未命名',
           link: item.link || '#',
           imageUrl: getFullImageUrl(item.figure),
           imageName: item.figure ? item.figure.split('/').pop() : '',
+          figurePath: item.figure || '',
           status: (item.status === 'publish' || item.status === 'published') ? 'published' : (item.status === 'archive' || item.status === 'archived' || item.status === 'deleted') ? 'archived' : item.status,
           timestamp: item.timestamp || new Date().toLocaleDateString('zh-TW')
         });
@@ -161,6 +189,7 @@ const AdminSocialmediaPage = () => {
       });
 
       setMenuItems(dynamicMenu);
+      setCategoryKeys(Array.from(allCategoryKeys).sort());
       setAllItems(items);
     } catch (err) {
       console.error('載入失敗:', err);
@@ -196,14 +225,14 @@ const AdminSocialmediaPage = () => {
     return menuItems[parentFilter]?.subItems || [];
   }, [parentFilter, menuItems]);
 
-  // 過濾邏輯
+  // 過濾邏輯：一筆資料只要有任一個類別符合就算命中（同一筆可能跨多個類別）
   const filteredItems = useMemo(() => {
     let list = allItems.filter(i => i.status === statusFilter);
     if (parentFilter !== '全部') {
-      list = list.filter(i => i.mainCategory === parentFilter);
-    }
-    if (childFilter !== '全部') {
-      list = list.filter(i => i.subCategory === childFilter);
+      list = list.filter(i => i.categories.some(key => {
+        const [parent, sub] = splitCategoryKey(key);
+        return parent === parentFilter && (childFilter === '全部' || sub === childFilter);
+      }));
     }
     return list;
   }, [allItems, parentFilter, childFilter, statusFilter]);
@@ -238,7 +267,8 @@ const AdminSocialmediaPage = () => {
       return;
     }
 
-    const figureValue = uploadedImagePath || imageName;
+    // 沒有重新上傳就沿用原本的完整路徑；imageName 只是檔名，直接送回去會讓圖片失效
+    const figureValue = uploadedImagePath || existingFigurePath;
 
     try {
       if (isEditing && currentEditId) {
@@ -249,7 +279,7 @@ const AdminSocialmediaPage = () => {
             action: '3',
             name,
             link,
-            category: pickedCategories.join(', '),
+            category: serializeCategories(pickedCategories),
             figure: figureValue
           })
         });
@@ -262,7 +292,7 @@ const AdminSocialmediaPage = () => {
           body: JSON.stringify({
             name,
             link,
-            category: pickedCategories.join(', '),
+            category: serializeCategories(pickedCategories),
             figure: figureValue
           })
         });
@@ -335,21 +365,12 @@ const AdminSocialmediaPage = () => {
     ? childOptions.length > 0
     : !!menuItems[parentFilter]?.hasSubMenu && childOptions.length > 0;
 
-  // 將類別攤平成 parent/sub 顯示
-  const flatCategoryOptions = useMemo(() => {
-    const arr = [];
-    Object.entries(menuItems).forEach(([parent, cfg]) => {
-      if (cfg.hasSubMenu) {
-        cfg.subItems.forEach(sub => arr.push({
-          key: parent + '>' + sub,
-          label: parent + '/' + sub
-        }));
-      } else {
-        arr.push({ key: parent, label: parent });
-      }
-    });
-    return arr;
-  }, [menuItems]);
+  // 直接以「資料中實際存在的類別」為選項，確保每一筆資料都勾得回來
+  // （例如同一個父類別下，有些資料有子分類、有些只掛在父類別上，兩種都要能選）
+  const flatCategoryOptions = useMemo(
+    () => categoryKeys.map(key => ({ key, label: key.replace('>', '/') })),
+    [categoryKeys]
+  );
 
   // 定義表格欄位
   const columns = useMemo(() => [
@@ -370,13 +391,9 @@ const AdminSocialmediaPage = () => {
       header: '類別',
       enableSorting: false,
       cell: ({ row }) => (
-        row.original.mainCategory
-          ? (row.original.subCategory
-            ? `${row.original.mainCategory} > ${row.original.subCategory}`
-            : row.original.mainCategory)
-          : (row.original.categories && row.original.categories.length > 0
-            ? row.original.categories.join(', ')
-            : '—')
+        row.original.categories.length > 0
+          ? row.original.categories.map(key => key.replace('>', ' > ')).join('、')
+          : '—'
       )
     },
     {

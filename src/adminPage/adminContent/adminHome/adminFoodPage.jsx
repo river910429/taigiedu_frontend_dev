@@ -371,6 +371,12 @@ const AdminFoodPage = () => {
         figureData = newImageUrl;
       } else if (newImageName) {
         figureData = newImageName;
+      } else if (newImageUrl) {
+        figureData = newImageUrl;
+      }
+
+      if (!figureData) {
+        showToast('請上傳圖片', 'warning'); return;
       }
 
       // 準備音訊資料

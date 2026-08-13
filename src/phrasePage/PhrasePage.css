@@ -1,13 +1,17 @@
+.phrase-page {
+    width: 100%;
+}
+
 .page-container {
     width: 100%;
     margin: 0 auto;
     padding: 0 5%;
 }
 
+/* 篩選列的內層容器：與內容區同寬並置中（外層 .page-filter-header 負責 sticky 與白底） */
 .search-bar-container {
     width: 100%;
-    max-width: 1000px;
-    margin: 20px auto 0 auto;
+    padding: 0 5%;
     display: flex;
     justify-content: center;
 }
@@ -15,7 +19,7 @@
 .phrase-results-container {
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 20px auto 0 auto;
 }
 
 /* ─── RWD ───────────────────────────────────────────────── */
@@ -27,7 +31,7 @@
 
     .search-bar-container {
         width: 100%;
-        padding-left: 0;
+        padding: 0 3%;
     }
 
     .phrase-results-container {

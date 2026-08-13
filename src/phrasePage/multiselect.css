@@ -54,17 +54,15 @@
   transform: rotate(180deg);
 }
 
+/* 選單以 portal 掛在 #root，實際座標由 useAnchoredMenu 以 position: fixed 指定 */
 .options-container {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 4px;
+  position: fixed;
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  /* 需高於 Bootstrap Modal (1055)，與 CustomSelect 一致 */
+  z-index: 2000;
   max-height: 300px;
   overflow-y: auto;
   scrollbar-width: none; /* Firefox */

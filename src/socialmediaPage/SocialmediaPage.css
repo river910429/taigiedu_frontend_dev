@@ -1,7 +1,5 @@
-.socialmedia-header {
-    background: #fff;
-    padding: 20px 0;
-}
+/* .socialmedia-header 的 sticky／白底／陰影統一由 global.css 的 .page-filter-header 提供 */
+
 .socialmedia-header-content {
     display: flex;
     align-items: center;
@@ -187,17 +185,16 @@
     z-index: 500;
 }
 
-/* 修改下拉選單樣式 */
+/* 選單以 portal 掛在 #root，實際座標由 useAnchoredMenu 以 position: fixed 指定 */
 .social-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
+    position: fixed;
     min-width: 200px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     padding: 8px 0;
-    z-index: 501;
+    /* 需高於 Bootstrap Modal (1055)，與 CustomSelect / MultiSelect 一致 */
+    z-index: 2000;
 }
 
 /* 修改子選單容器樣式 */
@@ -215,21 +212,17 @@
     width: 100%;
 }
 
-/* 修改子選單顯示 */
+/* 第二層子選單：由 JS 以 position: fixed 定位（座標見 SocialmediaPage.jsx 的 positionSubmenu），
+   主選單有內部捲動時才不會被裁切，右側／下方放不下時也會自動翻轉夾在畫面內。
+   顯示與否改由 React state 控制（hover 主分類才 render），不再靠 CSS :hover。 */
 .social-submenu {
-    position: absolute;
-    left: 100%;
-    top: 0;
+    position: fixed;
     min-width: 200px;
-    max-height: 250%; /* 添加最大高度 */
-    overflow-y: auto; /* 添加垂直滾動 */
+    overflow-y: auto;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease-in-out;
-    z-index: 502;
+    z-index: 2001;
     padding: 8px 0;
 }
 
@@ -249,12 +242,6 @@
 
 .social-submenu::-webkit-scrollbar-thumb:hover {
     background: #666;
-}
-
-/* 改用父容器 hover 觸發子選單 */
-.social-dropdown-item-container:hover .social-submenu {
-    opacity: 1;
-    visibility: visible;
 }
 
 /* 統一選項樣式 */
@@ -320,21 +307,6 @@
     color: #017ab1;
     font-weight: bold;
     margin-left: 8px;
-}
-
-/* 修改子選單顯示邏輯，保持下拉選單開啟狀態 */
-.social-dropdown-item-container:hover .social-submenu,
-.social-submenu:hover,
-.social-dropdown-item.with-submenu:hover .social-submenu {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* 增加子選單與主選單的間距 */
-.social-submenu {
-    padding: 8px 0;
-    max-height: 300px;
-    overflow-y: auto;
 }
 
 /* 阻止子選單的點擊事件冒泡導致選單關閉 */

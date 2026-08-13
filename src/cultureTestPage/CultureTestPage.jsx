@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import './CultureTestPage.css';
 import searchIcon from '../assets/home/search_logo.svg';
 import chevronUp from '../assets/chevron-up.svg';
@@ -8,6 +9,7 @@ import Pagination from '../mainSearchPage/Pagination';
 import CategoryFilterSheet from '../components/CategoryFilterSheet/CategoryFilterSheet';
 import { getTriggerLabel } from '../components/CategoryFilterSheet/categorySelection';
 import useIsMobile from '../components/CategoryFilterSheet/useIsMobile';
+import useAnchoredMenu, { getMenuPortalTarget } from '../components/AnchoredMenu/useAnchoredMenu';
 import { fetchCultureItems, CATEGORY_TREE } from '../services/cultureTestMockApi';
 
 /**
@@ -52,6 +54,69 @@ const CultureTestPage = () => {
   const isMobile = useIsMobile();
 
   const dropdownRef = useRef(null);
+  const dropdownMenuRef = useRef(null);
+
+  // 桌機下拉：以觸發欄位為定位基準（與認證考試的 CustomSelect 同一套）
+  const { menuStyle, updatePosition } = useAnchoredMenu(
+    dropdownRef,
+    !isMobile && isFilterOpen,
+    { gap: 8, matchTriggerWidth: false }
+  );
+
+  // 第二層子選單：主選單會內部捲動，子選單改用 fixed + JS 定位才不會被裁切或超出畫面
+  const [openSubmenuCategory, setOpenSubmenuCategory] = useState(null);
+  const [submenuStyle, setSubmenuStyle] = useState(null);
+  const submenuAnchorRef = useRef(null);
+
+  const positionSubmenu = useCallback(() => {
+    const anchorEl = submenuAnchorRef.current;
+    if (!anchorEl) return;
+
+    const MARGIN = 8;
+    const rect = anchorEl.getBoundingClientRect();
+    const minWidth = Math.max(rect.width, 200);
+    const maxHeight = Math.min(300, window.innerHeight - MARGIN * 2);
+
+    // 右側放不下就翻到左邊；上下夾在畫面內
+    let left = rect.right;
+    if (left + minWidth > window.innerWidth - MARGIN) {
+      left = Math.max(MARGIN, rect.left - minWidth);
+    }
+    const top = Math.max(MARGIN, Math.min(rect.top, window.innerHeight - MARGIN - maxHeight));
+
+    setSubmenuStyle({ position: 'fixed', top, left, minWidth, maxHeight });
+  }, []);
+
+  const handleCategoryHover = (category, hasSubs, el) => {
+    if (!hasSubs) {
+      submenuAnchorRef.current = null;
+      setOpenSubmenuCategory(null);
+      return;
+    }
+    submenuAnchorRef.current = el;
+    setOpenSubmenuCategory(category);
+    positionSubmenu();
+  };
+
+  // 子選單開啟期間跟著捲動／縮放重新定位
+  useEffect(() => {
+    if (!openSubmenuCategory) return undefined;
+    const onReposition = () => positionSubmenu();
+    window.addEventListener('scroll', onReposition, true);
+    window.addEventListener('resize', onReposition);
+    return () => {
+      window.removeEventListener('scroll', onReposition, true);
+      window.removeEventListener('resize', onReposition);
+    };
+  }, [openSubmenuCategory, positionSubmenu]);
+
+  // 主選單收合時一併關閉子選單
+  useEffect(() => {
+    if (!isFilterOpen) {
+      submenuAnchorRef.current = null;
+      setOpenSubmenuCategory(null);
+    }
+  }, [isFilterOpen]);
 
   // 篩選第一層 -> 篩選第二層清單
   const subCategoriesOf = useMemo(() => {
@@ -88,9 +153,11 @@ const CultureTestPage = () => {
   useEffect(() => {
     if (isMobile) return undefined;
     const handleClickOutside = (event) => {
-      if (isFilterOpen && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsFilterOpen(false);
-      }
+      if (!isFilterOpen) return;
+      // 選單已 portal 到 #root，觸發器與選單都要排除
+      if (dropdownRef.current?.contains(event.target)) return;
+      if (dropdownMenuRef.current?.contains(event.target)) return;
+      setIsFilterOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -302,7 +369,7 @@ const CultureTestPage = () => {
 
   return (
     <div className="culture-test-page">
-      <div className="ctp-header">
+      <div className="ctp-header page-filter-header">
         <div className="container px-4">
           <div className="ctp-header-content">
             {/* 分類篩選：桌機為下拉選單，手機為 bottom sheet */}
@@ -314,10 +381,14 @@ const CultureTestPage = () => {
                   tabIndex={0}
                   aria-haspopup={isMobile ? 'dialog' : 'listbox'}
                   aria-expanded={isFilterOpen}
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  onClick={() => {
+                    if (!isFilterOpen) updatePosition();
+                    setIsFilterOpen(!isFilterOpen);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
+                      if (!isFilterOpen) updatePosition();
                       setIsFilterOpen(!isFilterOpen);
                     }
                   }}
@@ -327,8 +398,8 @@ const CultureTestPage = () => {
                 <img src={chevronUp} alt="" className="ctp-dropdown-arrow" />
               </div>
 
-              {!isMobile && isFilterOpen && (
-                <div className="ctp-dropdown-menu">
+              {!isMobile && isFilterOpen && menuStyle && createPortal(
+                <div className="ctp-dropdown-menu" ref={dropdownMenuRef} style={menuStyle}>
                   {categoryOrder.map(category => {
                     const subs = subCategoriesOf[category] || [];
                     const selected = selectedItems[category];
@@ -352,7 +423,16 @@ const CultureTestPage = () => {
                     }
 
                     return (
-                      <div key={category} className="ctp-dropdown-row">
+                      <div
+                        key={category}
+                        className="ctp-dropdown-row"
+                        onMouseEnter={(e) => handleCategoryHover(category, true, e.currentTarget)}
+                        onMouseLeave={() => {
+                          if (openSubmenuCategory !== category) return;
+                          submenuAnchorRef.current = null;
+                          setOpenSubmenuCategory(null);
+                        }}
+                      >
                         <div
                           className={`ctp-dropdown-item with-submenu ${hasSelectedChildren ? 'has-selected-children' : ''}`}
                           onClick={(e) => { e.stopPropagation(); toggleAllSubCategories(category); }}
@@ -362,24 +442,31 @@ const CultureTestPage = () => {
                           <span className="ctp-submenu-arrow">›</span>
                         </div>
 
-                        <div className="ctp-submenu" onClick={(e) => e.stopPropagation()}>
-                          {subs.map(sub => (
-                            <div
-                              key={sub}
-                              className={`ctp-submenu-item ${isSubSelected(category, sub) ? 'selected' : ''}`}
-                              onClick={() => toggleSubCategory(category, sub)}
-                            >
-                              <span className="ctp-checkbox">
-                                {isSubSelected(category, sub) ? '✓' : ''}
-                              </span>
-                              {sub}
-                            </div>
-                          ))}
-                        </div>
+                        {openSubmenuCategory === category && submenuStyle && (
+                          <div
+                            className="ctp-submenu"
+                            style={submenuStyle}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {subs.map(sub => (
+                              <div
+                                key={sub}
+                                className={`ctp-submenu-item ${isSubSelected(category, sub) ? 'selected' : ''}`}
+                                onClick={() => toggleSubCategory(category, sub)}
+                              >
+                                <span className="ctp-checkbox">
+                                  {isSubSelected(category, sub) ? '✓' : ''}
+                                </span>
+                                {sub}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
-                </div>
+                </div>,
+                getMenuPortalTarget()
               )}
             </div>
 

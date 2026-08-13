@@ -172,7 +172,7 @@ const ExamPage = () => {
     if (error) {
         return (
             <div className="exam-page">
-                <div className="exam-header">
+                <div className="exam-header page-filter-header">
                     <div className="exam-header-container">
                         <div className="text-center">
                             <p>載入失敗：{error}</p>
@@ -218,7 +218,7 @@ const ExamPage = () => {
 
     return (
         <div className="exam-page">
-            <div className="exam-header">
+            <div className="exam-header page-filter-header">
                 <div className="exam-header-container">
                     <div className="exam-header-content">
                         <div className="exam-type-select">

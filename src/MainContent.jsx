@@ -211,8 +211,8 @@ const MainContent = () => {
 
       if (data.status === "success" && Array.isArray(data.data)) {
         // 過濾掉標題為「今日無大事」或包含「OO」佔位符的項
-        const filteredEvents = data.data.filter(item => 
-          item.title !== "今日無大事" && 
+        const filteredEvents = data.data.filter(item =>
+          item.title !== "今日無大事" &&
           !item.title.includes("OO")
         );
         setTodayEvents(filteredEvents);
@@ -321,7 +321,7 @@ const MainContent = () => {
         {/* Left Top Column */}
         <div className="fade-in">
           <div className="content-section">
-            <h2 className="section-title">俗語諺輪播</h2>
+            <h2 className="section-title">俗諺語輪播</h2>
             <div style={{ color: '#4b5563' }}>
               {idiomLoading ? (
                 <span style={{ color: '#6b7280' }}>載入俗語諺中...</span>
@@ -355,8 +355,8 @@ const MainContent = () => {
         <div className="fade-in">
           <div className="content-section">
             <h2 className="section-title">
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="section-title-link"
                 onClick={(e) => {
                   e.preventDefault();
@@ -377,7 +377,7 @@ const MainContent = () => {
                   todayEvents.map((item, index) => {
                     const hasContent = item.content && item.content.trim() !== "";
                     const displayTitle = `歷史上的今天：${item.title} ${item.date ? `( ${item.date} )` : ""}`;
-                    
+
                     return (
                       <li key={index}>
                         {hasContent ? (

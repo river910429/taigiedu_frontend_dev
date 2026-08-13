@@ -169,20 +169,25 @@ const PhrasePage = () => {
     };
 
     return (
-        <div className="page-container">
-            <div className="search-bar-container">
-                <PhraseSearchBar
-                    availableCategories={availableCategories}
-                    onCategoryFilter={filterPhrasesByCategories}
-                    allPhrases={allPhrases}
-                />
+        <div className="phrase-page">
+            {/* 篩選列置於 .page-container 之外，白底才能通到左右邊緣（sticky 樣式見 global.css） */}
+            <div className="page-filter-header">
+                <div className="search-bar-container">
+                    <PhraseSearchBar
+                        availableCategories={availableCategories}
+                        onCategoryFilter={filterPhrasesByCategories}
+                        allPhrases={allPhrases}
+                    />
+                </div>
             </div>
-            <div className="phrase-results-container">
-                <PhraseResult
-                    phrases={phrases}
-                    loading={loading}
-                    error={error}
-                />
+            <div className="page-container">
+                <div className="phrase-results-container">
+                    <PhraseResult
+                        phrases={phrases}
+                        loading={loading}
+                        error={error}
+                    />
+                </div>
             </div>
         </div>
     );

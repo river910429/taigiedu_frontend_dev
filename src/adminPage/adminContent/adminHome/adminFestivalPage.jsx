@@ -375,6 +375,7 @@ const AdminFestivalPage = () => {
     if (!dateMonth || !dateDay) { showToast('請填寫日期', 'warning'); return; }
     if (imageUploading) { showToast('圖片上傳中，請稍候', 'warning'); return; }
     if (newImageFile && !newImageUrl) { showToast('圖片尚未上傳成功，請重新選擇圖片', 'warning'); return; }
+    if (!newImageFile && !newImageUrl && !newImageName) { showToast('請上傳圖片', 'warning'); return; }
     // 範圍防呆
     const m = Number(dateMonth); const d = Number(dateDay);
     if (isNaN(m) || isNaN(d)) { showToast('日期需為數字', 'warning'); return; }
@@ -398,7 +399,7 @@ const AdminFestivalPage = () => {
         mappedAudio = newAudioUrl ? newAudioUrl.split('/').pop() : '';
       }
     }
-    const finalImage = newImageFile ? newImageUrl : newImageName;
+    const finalImage = newImageFile ? newImageUrl : (newImageName || newImageUrl);
 
     const payload = {
       name: newZhName,

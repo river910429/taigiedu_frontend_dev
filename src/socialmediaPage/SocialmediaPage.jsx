@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import './SocialmediaPage.css';
 import searchIcon from '../assets/home/search_logo.svg';
 import chevronUp from '../assets/chevron-up.svg';
@@ -10,6 +11,7 @@ import Pagination from "../mainSearchPage/Pagination";
 import CategoryFilterSheet from "../components/CategoryFilterSheet/CategoryFilterSheet";
 import { getTriggerLabel } from "../components/CategoryFilterSheet/categorySelection";
 import useIsMobile from "../components/CategoryFilterSheet/useIsMobile";
+import useAnchoredMenu, { getMenuPortalTarget } from "../components/AnchoredMenu/useAnchoredMenu";
 
 // 顯示規則：桌機版每列 4 筆、每頁最多 15 列；未篩選時每類別預覽第一列（4 筆）
 const ITEMS_PER_ROW = 4;
@@ -38,6 +40,70 @@ const SocialmediaPage = () => {
 
     // 手機版改用 bottom sheet（選擇先存 draft、按確認才套用）
     const isMobile = useIsMobile();
+
+    // 桌機下拉：以觸發欄位為定位基準（與認證考試的 CustomSelect 同一套）
+    const dropdownTriggerRef = useRef(null);
+    const dropdownMenuRef = useRef(null);
+    const { menuStyle, updatePosition } = useAnchoredMenu(
+        dropdownTriggerRef,
+        !isMobile && isDropdownOpen,
+        { gap: 8, matchTriggerWidth: false }
+    );
+
+    // 第二層子選單：主選單會內部捲動，子選單改用 fixed + JS 定位才不會被裁切或超出畫面
+    const [openSubmenuType, setOpenSubmenuType] = useState(null);
+    const [submenuStyle, setSubmenuStyle] = useState(null);
+    const submenuAnchorRef = useRef(null);
+
+    const positionSubmenu = useCallback(() => {
+        const anchorEl = submenuAnchorRef.current;
+        if (!anchorEl) return;
+
+        const MARGIN = 8;
+        const rect = anchorEl.getBoundingClientRect();
+        const minWidth = Math.max(rect.width, 200);
+        const maxHeight = Math.min(300, window.innerHeight - MARGIN * 2);
+
+        // 右側放不下就翻到左邊；上下夾在畫面內
+        let left = rect.right;
+        if (left + minWidth > window.innerWidth - MARGIN) {
+            left = Math.max(MARGIN, rect.left - minWidth);
+        }
+        const top = Math.max(MARGIN, Math.min(rect.top, window.innerHeight - MARGIN - maxHeight));
+
+        setSubmenuStyle({ position: 'fixed', top, left, minWidth, maxHeight });
+    }, []);
+
+    const handleCategoryHover = (type, hasSubMenu, el) => {
+        if (!hasSubMenu) {
+            submenuAnchorRef.current = null;
+            setOpenSubmenuType(null);
+            return;
+        }
+        submenuAnchorRef.current = el;
+        setOpenSubmenuType(type);
+        positionSubmenu();
+    };
+
+    // 子選單開啟期間跟著捲動／縮放重新定位
+    useEffect(() => {
+        if (!openSubmenuType) return undefined;
+        const onReposition = () => positionSubmenu();
+        window.addEventListener('scroll', onReposition, true);
+        window.addEventListener('resize', onReposition);
+        return () => {
+            window.removeEventListener('scroll', onReposition, true);
+            window.removeEventListener('resize', onReposition);
+        };
+    }, [openSubmenuType, positionSubmenu]);
+
+    // 主選單收合時一併關閉子選單
+    useEffect(() => {
+        if (!isDropdownOpen) {
+            submenuAnchorRef.current = null;
+            setOpenSubmenuType(null);
+        }
+    }, [isDropdownOpen]);
 
     // bottom sheet 的分類結構：{ name, label, subs }
     const filterGroups = useMemo(
@@ -147,9 +213,11 @@ const SocialmediaPage = () => {
     React.useEffect(() => {
         if (isMobile) return undefined;
         const handleClickOutside = (event) => {
-            if (isDropdownOpen && !event.target.closest('.social-custom-dropdown')) {
-                setIsDropdownOpen(false);
-            }
+            if (!isDropdownOpen) return;
+            // 選單已 portal 到 #root，觸發器與選單都要排除
+            if (event.target.closest('.social-custom-dropdown')) return;
+            if (dropdownMenuRef.current?.contains(event.target)) return;
+            setIsDropdownOpen(false);
         };
 
         document.addEventListener('mousedown', handleClickOutside);
@@ -451,10 +519,10 @@ const SocialmediaPage = () => {
 
     return (
         <div className="socialmedia-page">
-            <div className="socialmedia-header">
+            <div className="socialmedia-header page-filter-header">
                 <div className="container px-4">
                     <div className="socialmedia-header-content">
-                        <div className="social-custom-dropdown">
+                        <div className="social-custom-dropdown" ref={dropdownTriggerRef}>
                             <div className="dropdown-container">
                                 <div
                                     className={`dropdown-header social-type-dropdown ${
@@ -466,10 +534,14 @@ const SocialmediaPage = () => {
                                     tabIndex={0}
                                     aria-haspopup={isMobile ? 'dialog' : 'listbox'}
                                     aria-expanded={isDropdownOpen}
-                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    onClick={() => {
+                                        if (!isDropdownOpen) updatePosition();
+                                        setIsDropdownOpen(!isDropdownOpen);
+                                    }}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter' || e.key === ' ') {
                                             e.preventDefault();
+                                            if (!isDropdownOpen) updatePosition();
                                             setIsDropdownOpen(!isDropdownOpen);
                                         }
                                     }}
@@ -484,8 +556,8 @@ const SocialmediaPage = () => {
                                     className="dropdown-arrow"
                                 />
                             </div>
-                            {!isMobile && isDropdownOpen && (
-                                <div className="social-dropdown-menu">
+                            {!isMobile && isDropdownOpen && menuStyle && createPortal(
+                                <div className="social-dropdown-menu" ref={dropdownMenuRef} style={menuStyle}>
                                     {/* 使用 categoryOrder 來控制顯示順序 */}
                                     {categoryOrder.map(type => {
                                         const menuItem = menuItems[type];
@@ -495,7 +567,16 @@ const SocialmediaPage = () => {
                                         const hasSelectedChildren = selectedItems[type] && selectedItems[type].length > 0;
 
                                         return (
-                                            <div key={type} className="social-dropdown-item-container">
+                                            <div
+                                                key={type}
+                                                className="social-dropdown-item-container"
+                                                onMouseEnter={(e) => handleCategoryHover(type, hasSubMenu, e.currentTarget)}
+                                                onMouseLeave={() => {
+                                                    if (openSubmenuType !== type) return;
+                                                    submenuAnchorRef.current = null;
+                                                    setOpenSubmenuType(null);
+                                                }}
+                                            >
                                                 {!hasSubMenu ? (
                                                     <div
                                                         className={`social-dropdown-item ${selectedItems[type] ? 'selected' : ''}`}
@@ -523,8 +604,10 @@ const SocialmediaPage = () => {
                                                         <span className="checkbox-indicator"></span>
                                                         <span>{type || "（空白類別）"}</span>
                                                         <span className="social-submenu-arrow hidden-mobile">›</span>
+                                                        {openSubmenuType === type && submenuStyle && (
                                                         <div
                                                             className="social-submenu"
+                                                            style={submenuStyle}
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
                                                             {subItems.map(subItem => (
@@ -544,12 +627,14 @@ const SocialmediaPage = () => {
                                                                 </div>
                                                             ))}
                                                         </div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
                                         );
                                     })}
-                                </div>
+                                </div>,
+                                getMenuPortalTarget()
                             )}
                         </div>
 

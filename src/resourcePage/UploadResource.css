@@ -85,14 +85,36 @@
   font-size: 22px;
 }
 
-.form-label input[name="name"],
-.form-label input[name="versionOther"],
-.form-label input[name="book"],
-.form-label input[name="contentTypeOther"] {
+/* ⚠️ .radio-group / .form-label 是全域類名，RegisterPage.css 也有同名規則且
+   在 App.jsx 較晚 import（會贏過同權重宣告），以下一律加 .upload-resource-form
+   前綴提高權重，避免被覆蓋。 */
+.upload-resource-form .form-label input[name="name"],
+.upload-resource-form .form-label input[name="versionOther"],
+.upload-resource-form .form-label input[name="book"],
+.upload-resource-form .form-label input[name="contentTypeOther"] {
   padding: 10px;
-  align-self: stretch;
   border-radius: 8px;
   border: 1px solid var(--system-btn-outline-d, #a6a6a6);
+}
+
+/* 主要文字輸入框：限制寬度，不要撐滿整個 modal */
+.upload-resource-form .form-label input[name="name"] {
+  width: 100%;
+  max-width: 480px;
+}
+
+.upload-resource-form .form-label input[name="book"] {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* 「其他」旁邊的補充輸入框：固定寬度、較矮，避免把整列拉高 */
+.upload-resource-form .form-label input[name="versionOther"],
+.upload-resource-form .form-label input[name="contentTypeOther"] {
+  width: 180px;
+  max-width: 100%;
+  padding: 6px 10px;
+  font-size: 18px;
 }
 
 .form-label input[name="name"]::placeholder {
@@ -104,14 +126,17 @@
   /* 116.667% */
 }
 
-.radio-group {
+.upload-resource-form .radio-group {
   display: flex;
-  gap: 12px;
+  /* 讓每個選項以自身高度置中對齊，不會被較高的「其他」輸入框往下拉 */
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   margin-top: 0px;
 }
 
-.radio-group label,
-.file-name {
+.upload-resource-form .radio-group label,
+.upload-resource-form .file-name {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -124,6 +149,17 @@
   font-weight: 400;
   line-height: 21px;
   /* 28.8px */
+}
+
+/* 選項文字不換行、也不被壓縮，維持每個 radio 在同一水平線上 */
+.upload-resource-form .radio-group label {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.upload-resource-form .radio-group input[type="radio"] {
+  flex-shrink: 0;
+  margin: 0;
 }
 
 .form-label p,

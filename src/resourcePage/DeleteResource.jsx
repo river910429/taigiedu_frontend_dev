@@ -41,8 +41,8 @@ const DeleteResource = () => {
       }
 
       if (user) {
-        const currentUserId = user.id?.toString();
-        const currentUsername = user.name || user.email?.split('@')[0];
+        const currentUserId = (user.id || user.user_id || user.sub)?.toString();
+        const currentUsername = user.name || user.username || user.email?.split('@')[0];
         setUserId(currentUserId);
         setUsername(currentUsername);
         fetchResources(currentUserId, currentUsername);

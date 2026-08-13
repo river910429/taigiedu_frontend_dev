@@ -1,15 +1,15 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import './CustomSelect.css';
+import useAnchoredMenu, { getMenuPortalTarget } from '../AnchoredMenu/useAnchoredMenu';
 import chevronUp from '../../assets/chevron-up.svg';
 
 // 全站共用的客製化單選下拉選單（樣式參考臺語俗諺語「意涵分類」）
 // options 可為字串陣列或 { value, label } 陣列
 // size：'md'（前台預設，48px）｜'sm'（後台篩選器／表單，38px）
 // 選單以 portal 掛到 App 根節點（#root），避免被 Modal（overflow: auto）或表格容器裁切；
-// 注意：必須掛在 React 根節點內，掛到 document.body 會讓 React 事件（onClick）收不到。
-const getPortalTarget = () => document.getElementById('root') || document.body;
+// 定位交給 useAnchoredMenu：跟著 trigger 捲動、空間不足時翻轉並夾在畫面內。
 const CustomSelect = ({
     options = [],
     value,
@@ -21,22 +21,9 @@ const CustomSelect = ({
     id,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [menuStyle, setMenuStyle] = useState(null);
     const dropdownRef = useRef(null);
     const menuRef = useRef(null);
-
-    // 依觸發按鈕的位置計算選單座標（fixed 定位）
-    const updateMenuPosition = useCallback(() => {
-        const el = dropdownRef.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        setMenuStyle({
-            position: 'fixed',
-            top: rect.bottom + 4,
-            left: rect.left,
-            width: rect.width,
-        });
-    }, []);
+    const { menuStyle, updatePosition } = useAnchoredMenu(dropdownRef, isOpen);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -48,19 +35,6 @@ const CustomSelect = ({
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    // 開啟時跟著捲動／縮放更新位置
-    useEffect(() => {
-        if (!isOpen) return;
-        updateMenuPosition();
-        const onReposition = () => updateMenuPosition();
-        window.addEventListener('scroll', onReposition, true);
-        window.addEventListener('resize', onReposition);
-        return () => {
-            window.removeEventListener('scroll', onReposition, true);
-            window.removeEventListener('resize', onReposition);
-        };
-    }, [isOpen, updateMenuPosition]);
 
     // 停用時強制收合，避免選單留在展開狀態
     useEffect(() => {
@@ -79,7 +53,7 @@ const CustomSelect = ({
 
     const handleToggle = () => {
         if (disabled) return;
-        if (!isOpen) updateMenuPosition();
+        if (!isOpen) updatePosition();
         setIsOpen(!isOpen);
     };
 
@@ -121,7 +95,7 @@ const CustomSelect = ({
                         </div>
                     ))}
                 </div>,
-                getPortalTarget()
+                getMenuPortalTarget()
             )}
         </div>
     );

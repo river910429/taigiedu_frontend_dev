@@ -1,17 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import './multiselect.css';
+import useAnchoredMenu, { getMenuPortalTarget } from '../components/AnchoredMenu/useAnchoredMenu';
 import chevonUp from '../assets/chevron-up.svg';
 
-const MultiSelect = ({ 
-  options, 
-  selectedOptions, 
-  onChange, 
+// 選單以 portal 掛到 #root、由 useAnchoredMenu 以 trigger 為基準做 fixed 定位，
+// 與 CustomSelect（認證考試）同一套：捲動時跟著欄位走，且不會超出畫面。
+const MultiSelect = ({
+  options,
+  selectedOptions,
+  onChange,
   placeholder = "請選擇...",
   displayText = "請選擇"
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(selectedOptions || []);
   const dropdownRef = useRef(null);
+  const menuRef = useRef(null);
+  const { menuStyle, updatePosition } = useAnchoredMenu(dropdownRef, isOpen);
 
   // 當 selectedOptions 或 options 變更時，同步更新內部 selected 狀態
   useEffect(() => {
@@ -23,9 +29,10 @@ const MultiSelect = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
+      // 選單已 portal 到 #root，觸發器與選單都要排除
+      if (dropdownRef.current?.contains(event.target)) return;
+      if (menuRef.current?.contains(event.target)) return;
+      setIsOpen(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -58,9 +65,12 @@ const MultiSelect = ({
 
   return (
     <div className="multi-select" ref={dropdownRef}>
-      <div 
+      <div
         className={`select-header ${isOpen ? 'active' : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isOpen) updatePosition();
+          setIsOpen(!isOpen);
+        }}
       >
         <div className="selected-options">
           {selected.length > 0 ? (
@@ -72,8 +82,8 @@ const MultiSelect = ({
         <span className={`arrow ${isOpen ? 'up' : 'down'}`}><img src={chevonUp} /></span>
       </div>
       
-      {isOpen && (
-        <div className="options-container">
+      {isOpen && menuStyle && createPortal(
+        <div className="options-container" ref={menuRef} style={menuStyle}>
           {/* 加入全選選項 */}
           <div
             className={`option ${selected.length === options.length && options.length > 0 ? 'selected' : ''}`}
@@ -105,7 +115,8 @@ const MultiSelect = ({
               </div>
             );
           })}
-        </div>
+        </div>,
+        getMenuPortalTarget()
       )}
     </div>
   );

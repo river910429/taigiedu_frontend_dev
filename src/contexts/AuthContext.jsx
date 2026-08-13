@@ -5,12 +5,21 @@ import { FLAGS, getUserFlags, hasFlag, hasAnyAdminAccess } from '../config/permi
 // 建立 Auth Context
 const AuthContext = createContext(null);
 
+// 正規化 User 物件，確保 id 欄位相容 (id / user_id / sub)
+const normalizeUser = (u) => {
+    if (!u) return null;
+    return {
+        ...u,
+        id: u.id || u.user_id || u.sub,
+    };
+};
+
 // Auth Provider 組件
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
         try {
             const savedUser = localStorage.getItem('user');
-            return savedUser ? JSON.parse(savedUser) : null;
+            return savedUser ? normalizeUser(JSON.parse(savedUser)) : null;
         } catch (e) {
             console.error('Failed to parse user from localStorage:', e);
             return null;
