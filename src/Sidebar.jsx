@@ -26,6 +26,7 @@ const Sidebar = ({ isOpen = false, onClose }) => {
   const isUnstableFeaturesEnabled = envConfig.features.enableUnstableFeatures;
   const isTopicIntegrationFeatureEnabled = envConfig.features.enableTopicIntegrationFeature;
   const isPlacenameCultureFeatureEnabled = envConfig.features.enablePlacenameCultureFeature;
+  const isCultureTestFeatureEnabled = envConfig.features.enableCultureTestFeature;
 
   const allMenuItems = [
     { id: 1, label: "主頁搜尋", icon: homeIcon, path: "/" },
@@ -64,6 +65,7 @@ const Sidebar = ({ isOpen = false, onClose }) => {
 
   const menuItems = allMenuItems
     .filter(item => {
+      if (!isCultureTestFeatureEnabled && item.id === 13) return false;
       if (!isTopicIntegrationFeatureEnabled && item.id === 11) return false;
       if (!isUnstableFeaturesEnabled) {
         if ([2, 3, 4].includes(item.id)) return false;

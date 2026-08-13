@@ -79,6 +79,7 @@ const AppLayout = () => {
   const isAdminContent = location.pathname.startsWith('/admin/');
   const isTopicIntegrationFeatureEnabled = envConfig.features.enableTopicIntegrationFeature;
   const isPlacenameCultureFeatureEnabled = envConfig.features.enablePlacenameCultureFeature;
+  const isCultureTestFeatureEnabled = envConfig.features.enableCultureTestFeature;
 
   // 路由切換時自動收起 sidebar（手機版）
   useEffect(() => {
@@ -176,7 +177,14 @@ const AppLayout = () => {
             }
           />
           {/* 台語文化（test）：節慶飲食的新版重寫，與舊版並存 */}
-          <Route path="/culture-test" element={<CultureTestPage />} />
+          <Route
+            path="/culture-test"
+            element={
+              isCultureTestFeatureEnabled
+                ? <CultureTestPage />
+                : <Navigate to="/" replace />
+            }
+          />
           <Route path="/relative-calculator" element={<RelativeCalculatorPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -227,7 +235,9 @@ const AppLayout = () => {
             path="/admin/culture-test"
             element={
               <AdminRoute>
-                <AdminCultureTestPage />
+                {isCultureTestFeatureEnabled
+                  ? <AdminCultureTestPage />
+                  : <Navigate to="/admin" replace />}
               </AdminRoute>
             }
           />

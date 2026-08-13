@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import envConfig from "../config";
 import "./adminSidebar.css";
 import bookIcon from '../assets/adminPage/book.svg';
 import cloudIcon from '../assets/adminPage/cloudComputing.svg';
@@ -60,10 +61,13 @@ const AdminSidebar = ({ isOpen = false, onClose }) => {
   const location = useLocation();
   const { isSuperAdmin } = useAuth();
 
-  // 依權限過濾選單
+  // 依權限與功能開關過濾選單
   const menuItems = useMemo(() => {
     const canManageAnnouncement = isSuperAdmin();
-    return MENU_ITEMS.filter(item => !item.requireSystemManager || canManageAnnouncement);
+    const isCultureTestFeatureEnabled = envConfig.features.enableCultureTestFeature;
+    return MENU_ITEMS
+      .filter(item => !item.requireSystemManager || canManageAnnouncement)
+      .filter(item => isCultureTestFeatureEnabled || item.id !== 8);
   }, [isSuperAdmin]);
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
