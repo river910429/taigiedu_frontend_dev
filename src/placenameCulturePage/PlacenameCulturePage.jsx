@@ -4,6 +4,7 @@ import CustomSelect from '../components/CustomSelect/CustomSelect';
 import { UnifiedModal } from '../components/UnifiedModal/UnifiedModal';
 import TainanMap from './TainanMap';
 import { TAINAN_DISTRICTS } from './tainanMapData';
+import { getDistrictIcon } from './districtIcons';
 import {
     getRegions,
     getCounties,
@@ -39,10 +40,14 @@ const DiceIcon = () => (
     </svg>
 );
 
-// 尚未提供圖片時的 80×80 佔位（設計稿標註「保留 icon 位置 80*80」）
-const IconSlot = ({ src, alt }) =>
-    src ? (
-        <img className="pc-icon-slot" src={src} alt={alt} />
+// 80×80 的行政區圖示（設計稿標註「保留 icon 位置 80*80」）
+// 後端提供 iconUrl 時優先使用，否則以 assets/tainan_map/ 內同名的圖檔遞補；
+// 兩者皆無（例如未來新增的縣市）才顯示空版位。
+const IconSlot = ({ src, name }) => {
+    const iconSrc = src || getDistrictIcon(name);
+
+    return iconSrc ? (
+        <img className="pc-icon-slot" src={iconSrc} alt={name} />
     ) : (
         <div className="pc-icon-slot pc-icon-slot-empty" aria-hidden="true">
             <svg viewBox="0 0 80 80">
@@ -51,6 +56,7 @@ const IconSlot = ({ src, alt }) =>
             </svg>
         </div>
     );
+};
 
 // 音檔尚未提供，先以停用狀態保留播放按鈕的版位
 const AudioButton = ({ audioUrl, label }) => (
@@ -216,7 +222,7 @@ const PlacenameCulturePage = () => {
                     <div className="pc-overview-side">
                         {brief ? (
                             <div className="pc-brief">
-                                <IconSlot src={brief.iconUrl} alt={brief.name} />
+                                <IconSlot src={brief.iconUrl} name={brief.name} />
                                 <div className="pc-brief-heading">
                                     <h2 className="pc-brief-name">{brief.name}</h2>
                                     <p className="pc-brief-romaji">{brief.romaji}</p>
@@ -275,7 +281,7 @@ const PlacenameCulturePage = () => {
                         {detail && (
                             <>
                                 <div className="pc-detail-heading">
-                                    <IconSlot src={detail.iconUrl} alt={detail.name} />
+                                    <IconSlot src={detail.iconUrl} name={detail.name} />
                                     <div className="pc-detail-titles">
                                         <div className="pc-detail-title-row">
                                             <h1 className="pc-detail-name">{detail.name}</h1>

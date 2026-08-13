@@ -148,13 +148,13 @@
     overflow: hidden;
 }
 
-/* ---- 80×80 圖示位置（設計稿保留，尚未提供圖片）---- */
+/* ---- 80×80 圖示位置（圖檔為 960×960 的線稿，等比縮放置中）---- */
 .pc-icon-slot {
     width: 80px;
     height: 80px;
     flex: 0 0 auto;
     border-radius: 4px;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .pc-icon-slot-empty {
