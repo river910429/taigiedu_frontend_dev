@@ -267,8 +267,18 @@ const AdminSocialmediaPage = () => {
       return;
     }
 
+    if (imageName && !uploadedImagePath && !existingFigurePath) {
+      showToast('圖片尚未上傳成功，請重新選擇圖片', 'warning');
+      return;
+    }
+
     // 沒有重新上傳就沿用原本的完整路徑；imageName 只是檔名，直接送回去會讓圖片失效
     const figureValue = uploadedImagePath || existingFigurePath;
+
+    if (!figureValue) {
+      showToast('請上傳圖片', 'warning');
+      return;
+    }
 
     try {
       if (isEditing && currentEditId) {
@@ -610,6 +620,9 @@ const AdminSocialmediaPage = () => {
               <span className="upload-hint" style={{ fontSize: '13px' }}>
                 ※限 JPG、PNG 可上傳，限制 2MB。
               </span>
+              {attemptedSubmit && !(uploadedImagePath || existingFigurePath) && (
+                <div className="invalid-hint text-danger mt-1" style={{ fontSize: '13px' }}>請上傳圖片</div>
+              )}
             </div>
           </div>
           {(imageName || imageUrl) && (
