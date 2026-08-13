@@ -21,25 +21,8 @@ import envConfig from '../../../config';
 const API_BASE_URL = envConfig.apiUrl;
 const columnHelper = createColumnHelper();
 
-const NEWS_CATEGORIES_KEY = 'newsCategories';
-const DEFAULT_CATEGORIES = ['教育部', '成大'];
 const NEWS_ORDER_KEY = 'newsPublishedOrder';
 const CONTENT_MAX_LENGTH = 20;
-
-function loadCategories() {
-  try {
-    const raw = localStorage.getItem(NEWS_CATEGORIES_KEY);
-    if (!raw) return [...DEFAULT_CATEGORIES];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : [...DEFAULT_CATEGORIES];
-  } catch {
-    return [...DEFAULT_CATEGORIES];
-  }
-}
-
-function saveCategories(cats) {
-  localStorage.setItem(NEWS_CATEGORIES_KEY, JSON.stringify(cats));
-}
 
 const AdminNewsPage = () => {
   const { showToast } = useToast();
@@ -63,12 +46,31 @@ const AdminNewsPage = () => {
   const [currentEditItem, setCurrentEditItem] = useState(null);
   const [isDirty, setIsDirty] = useState(false);
 
-  // 動態類別管理
-  const [categories, setCategories] = useState(loadCategories);
+  // 下拉類別完全來自後端資料：取「目前公告」這些快訊的 category 去重，沒有任何前端寫死的清單。
+  // 後端沒有獨立的類別表（category 只是每筆快訊上的字串欄位），所以在此新增的類別
+  // 會跟著快訊一起存進後端，重新載入後自動出現在選單，所有人共用。
+  // 刻意排除已下架的快訊，否則下架區的舊類別（教育部、成大…）會一直留在選單裡。
+  const categories = useMemo(() => {
+    const inUse = allNews
+      .filter(item => item.status === 'published')
+      .map(item => item.category)
+      .filter(Boolean);
+    return [...new Set(inUse)];
+  }, [allNews]);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [newCategoryInput, setNewCategoryInput] = useState('');
-  const [isEditingCategory, setIsEditingCategory] = useState(false);
-  const [editCategoryInput, setEditCategoryInput] = useState('');
+
+  // CustomSelect 靠 options 反查要顯示的文字，所以「已選定但還沒隨快訊送出」的新類別
+  // 也必須放進選項，否則下拉會找不到對應項目而退回顯示 placeholder。
+  const categoryOptions = useMemo(() => {
+    const names = newCategory && !categories.includes(newCategory)
+      ? [...categories, newCategory]
+      : categories;
+    return [
+      ...names.map((cat) => ({ value: cat, label: cat })),
+      { value: '__add_new__', label: '＋ 新增項目' },
+    ];
+  }, [categories, newCategory]);
 
   // 編輯按鈕點擊
   const handleEditClick = useCallback((item) => {
@@ -333,21 +335,16 @@ const AdminNewsPage = () => {
     setNewLink('');
     setShowNewCategoryInput(false);
     setNewCategoryInput('');
-    setIsEditingCategory(false);
-    setEditCategoryInput('');
   };
 
-  // 新增類別
+  // 新增類別：只套用到這筆快訊，送出後由 fetchNews 帶回，才會出現在下拉清單
   const handleAddCategory = () => {
     const trimmed = newCategoryInput.trim();
     if (!trimmed) return;
     if (categories.includes(trimmed)) {
-      showToast('此類別已存在', 'warning');
+      showToast('此類別已存在，請直接從下拉選單選擇', 'warning');
       return;
     }
-    const updated = [...categories, trimmed];
-    setCategories(updated);
-    saveCategories(updated);
     setNewCategory(trimmed);
     setShowNewCategoryInput(false);
     setNewCategoryInput('');
@@ -357,51 +354,15 @@ const AdminNewsPage = () => {
   const handleCategorySelect = (val) => {
     if (val === '__add_new__') {
       setShowNewCategoryInput(true);
-      setIsEditingCategory(false);
       setNewCategory('');
     } else {
       setShowNewCategoryInput(false);
-      setIsEditingCategory(false);
       setNewCategory(val);
     }
   };
 
-  // 開始編輯類別名稱
-  const handleStartEditCategory = () => {
-    if (!newCategory || newCategory === '__add_new__') {
-      showToast('請先選擇一個類別再修改', 'warning');
-      return;
-    }
-    setIsEditingCategory(true);
-    setEditCategoryInput(newCategory);
-    setShowNewCategoryInput(false);
-  };
-
-  // 確認修改類別名稱
-  const handleConfirmEditCategory = () => {
-    const trimmed = editCategoryInput.trim();
-    if (!trimmed) return;
-    if (trimmed === newCategory) {
-      setIsEditingCategory(false);
-      return;
-    }
-    if (categories.includes(trimmed)) {
-      showToast('此類別名稱已存在', 'warning');
-      return;
-    }
-    const oldName = newCategory;
-    const updated = categories.map(c => c === oldName ? trimmed : c);
-    setCategories(updated);
-    saveCategories(updated);
-    // 同步更新所有使用舊類別名稱的快訊
-    setAllNews(prev => prev.map(item =>
-      item.category === oldName ? { ...item, category: trimmed } : item
-    ));
-    setNewCategory(trimmed);
-    setIsEditingCategory(false);
-    setEditCategoryInput('');
-    showToast(`類別已從「${oldName}」更新為「${trimmed}」`, 'success');
-  };
+  // 註：原本這裡有「修改類別名稱」功能，但後端沒有類別 API，改名只改到前端 state，
+  // 重整就還原，等同假功能，故移除。要改名請逐筆編輯該類別下的快訊。
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
@@ -530,42 +491,17 @@ const AdminNewsPage = () => {
           <label htmlFor="newCategory" className="form-label admin-form-label">
             *類別
           </label>
-          {isEditingCategory ? (
-            <>
-              <div className="news-edit-category-hint">
-                確認後，系統將會把所有舊有的項目，同步更新為您修改的新項目。
-              </div>
-              <div className="news-add-category-row">
-                <input
-                  type="text"
-                  className="form-control admin-form-control"
-                  value={editCategoryInput}
-                  onChange={(e) => setEditCategoryInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleConfirmEditCategory(); } }}
-                  autoFocus
-                />
-                <button type="button" className="btn btn-primary news-add-category-btn" onClick={handleConfirmEditCategory}>確認</button>
-              </div>
-            </>
-          ) : (
-            <div className="news-category-select-row">
-              <CustomSelect
-                size="sm"
-                id="newCategory"
-                options={[
-                  ...categories.map((cat) => ({ value: cat, label: cat })),
-                  { value: '__add_new__', label: '＋ 新增項目' },
-                ]}
-                value={showNewCategoryInput ? '__add_new__' : (newCategory || null)}
-                placeholder="請選擇類別"
-                onChange={handleCategorySelect}
-              />
-              {newCategory && newCategory !== '__add_new__' && !showNewCategoryInput && (
-                <button type="button" className="btn btn-primary news-add-category-btn" onClick={handleStartEditCategory}>修改</button>
-              )}
-            </div>
-          )}
-          {showNewCategoryInput && !isEditingCategory && (
+          <div className="news-category-select-row">
+            <CustomSelect
+              size="sm"
+              id="newCategory"
+              options={categoryOptions}
+              value={showNewCategoryInput ? '__add_new__' : (newCategory || null)}
+              placeholder="請選擇類別"
+              onChange={handleCategorySelect}
+            />
+          </div>
+          {showNewCategoryInput && (
             <div className="news-add-category-row">
               <input
                 type="text"
