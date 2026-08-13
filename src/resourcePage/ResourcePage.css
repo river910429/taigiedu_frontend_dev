@@ -1,5 +1,5 @@
 .resource-page {
-  padding: 20px 60px;
+  padding: 0 60px 20px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -10,14 +10,14 @@
 
 @media (max-width: 1200px) {
   .resource-page {
-    padding: 30px 40px;
+    padding: 0 40px 30px;
     --filter-bleed-x: 40px;
   }
 }
 
 @media (max-width: 768px) {
   .resource-page {
-    padding: 20px;
+    padding: 0 20px 20px;
     --filter-bleed-x: 20px;
   }
 }
