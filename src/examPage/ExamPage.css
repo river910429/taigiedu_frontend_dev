@@ -180,10 +180,9 @@
     object-fit: cover;
 }
 
+/* 回報問題入口：與卡片格線同樣的左右內距（外觀樣式見 components/ReportIssue/ReportIssue.css） */
 .exam-report-issue {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    margin: 0 20px 32px;
 }
 
 /* ─── RWD ───────────────────────────────────────────────── */
@@ -231,6 +230,10 @@
 
   .exam-list-toolbar {
     padding: 16px 16px 0;
+  }
+
+  .exam-report-issue {
+    margin: 0 16px 24px;
   }
 }
 

@@ -4,6 +4,7 @@ import './PhrasePage.css';
 import PhraseSearchBar from './PhraseSearchBar';
 import PhraseResult from './PhraseResult';
 import { useToast } from '../components/Toast';
+import ReportIssueLink from '../components/ReportIssue/ReportIssueLink';
 
 const PhrasePage = () => {
     const { showToast } = useToast();
@@ -188,6 +189,8 @@ const PhrasePage = () => {
                         error={error}
                     />
                 </div>
+                {/* 內容載入完成前不顯示回報入口，避免載入中就跳出一行連結 */}
+                {!loading && <ReportIssueLink pageKey="phrase" className="phrase-report-issue" />}
             </div>
         </div>
     );

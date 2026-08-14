@@ -22,6 +22,14 @@
     margin: 20px auto 0 auto;
 }
 
+/* 回報問題入口：與結果列表同寬並靠左（樣式見 components/ReportIssue/ReportIssue.css） */
+.phrase-report-issue {
+    display: flex;
+    width: 100%;
+    max-width: 1000px;
+    margin: 24px auto 32px;
+}
+
 /* ─── RWD ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
     .page-container {

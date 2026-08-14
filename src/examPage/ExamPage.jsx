@@ -4,8 +4,8 @@ import CustomSelect from '../components/CustomSelect/CustomSelect';
 import PageLoading from '../components/PageLoading/PageLoading';
 import Pagination from '../mainSearchPage/Pagination';
 import searchIcon from '../assets/home/search_logo.svg';
-// import questionMarkIcon from '../assets/question-mark.svg';
 import foodImage from '../assets/culture/foodN.png';
+import ReportIssueLink from '../components/ReportIssue/ReportIssueLink';
 
 // 顯示規則：桌機版每列 4 筆、每頁最多 15 列；未篩選時每類別預覽第一列（4 筆）
 const ITEMS_PER_ROW = 4;
@@ -312,10 +312,7 @@ const ExamPage = () => {
                     ))}
                 </div>
             )}
-            {/* <div className="text-start mt-4 exam-report-issue">
-                <img src={questionMarkIcon} className="question-icon" />
-                如有任何問題，請點此回報問題
-            </div> */}
+            <ReportIssueLink pageKey="exam" className="exam-report-issue" />
         </div>
     );
 };

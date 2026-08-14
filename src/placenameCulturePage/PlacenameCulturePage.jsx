@@ -189,21 +189,23 @@ const PlacenameCulturePage = () => {
 
     return (
         <div className="placename-culture-page">
-            {/* 上方工具列：地區 / 縣市 / 區域（目前僅開放臺南市，其餘保留未來擴增） */}
-            <div className="pc-toolbar">
-                <div className="pc-select-wrap">
-                    <CustomSelect options={regions} value={region} onChange={setRegion} placeholder="地區" />
-                </div>
-                <div className="pc-select-wrap">
-                    <CustomSelect options={counties} value={county} onChange={setCounty} placeholder="縣市" />
-                </div>
-                <div className="pc-select-wrap">
-                    <CustomSelect
-                        options={districtNames}
-                        value={district}
-                        onChange={goToDistrict}
-                        placeholder="區域"
-                    />
+            {/* 上方工具列：地區 / 縣市 / 區域（sticky 效果由 page-filter-header 提供） */}
+            <div className="pc-toolbar page-filter-header">
+                <div className="pc-toolbar-content">
+                    <div className="pc-select-wrap">
+                        <CustomSelect options={regions} value={region} onChange={setRegion} placeholder="地區" />
+                    </div>
+                    <div className="pc-select-wrap">
+                        <CustomSelect options={counties} value={county} onChange={setCounty} placeholder="縣市" />
+                    </div>
+                    <div className="pc-select-wrap">
+                        <CustomSelect
+                            options={districtNames}
+                            value={district}
+                            onChange={goToDistrict}
+                            placeholder="區域"
+                        />
+                    </div>
                 </div>
             </div>
 

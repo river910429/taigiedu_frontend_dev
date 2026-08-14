@@ -37,17 +37,10 @@
     max-width: 20%;
 }
 
+/* 回報問題入口的間距（外觀樣式見 components/ReportIssue/ReportIssue.css） */
 .festival-report-issue {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .festival-question-icon {
-    width: 17px;  /* Match text height */
-    height: 17px;
-    vertical-align: middle;
-  }
+    margin: 24px 0 8px;
+}
 
 /* 載入狀態樣式 */
 .festival-loading {

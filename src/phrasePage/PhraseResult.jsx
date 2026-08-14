@@ -97,7 +97,6 @@ const PhraseResult = ({ phrases = [], loading, error }) => {
 					isOpen={isModalOpen}
 					onClose={() => setIsModalOpen(false)}
 					phrase={selectedPhrase.Data}
-					type={selectedPhrase.Type}
 					pronunciation={selectedPhrase.Tai_lo}
 					interpretation={selectedPhrase.Explain}
 					pronun_diff={selectedPhrase["Pronunciation variants"]}

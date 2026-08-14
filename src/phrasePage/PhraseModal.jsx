@@ -3,7 +3,7 @@ import { UnifiedModal, InfoRow } from '../components/UnifiedModal/UnifiedModal';
 import megaphoneIcon from '../assets/megaphone.svg';
 import './PhraseModal.css';
 
-const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, pronun_diff, audio, type }) => {
+const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, pronun_diff, audio }) => {
   console.log("Modal 接收的數據:", { phrase, pronunciation, interpretation, pronun_diff, audio });
 
   const audioRef = useRef(null);
@@ -258,15 +258,14 @@ const PhraseModal = ({ isOpen, onClose, phrase, pronunciation, interpretation, p
   return (
     <UnifiedModal isOpen={isOpen} onClose={onClose} className="phrase-modal">
       <div className="phrase-modal-header" style={{ marginBottom: '20px' }}>
-        <div className="phrase-title-container" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <h2 style={{ margin: 0, color: 'var(--color-primary-dark)' }}>{phrase}</h2>
-          {type && <span className="phrase-type-pill" style={{ border: '2px solid #A6A6A6', color: '#A6A6A6', padding: '2px 8px', borderRadius: '20px', fontSize: '14px' }}>{type}</span>}
+        <div className="phrase-title-container">
+          <h2 style={{ margin: 0, color: 'var(--color-primary-dark)', wordBreak: 'break-word', lineHeight: '1.4' }}>{phrase}</h2>
         </div>
       </div>
       <div className="phrase-modal-body">
-        <div className="phrase-pronunciation-container" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-          <div style={{ fontSize: '20px', fontWeight: 'bold' }}>{pronunciation}</div>
-          <button onClick={playAudio} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+        <div className="phrase-pronunciation-container" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '15px' }}>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', wordBreak: 'break-word', flex: 1 }}>{pronunciation}</div>
+          <button onClick={playAudio} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, marginTop: '2px' }}>
             <img src={megaphoneIcon} alt="播放" style={{ width: '24px' }} />
           </button>
         </div>

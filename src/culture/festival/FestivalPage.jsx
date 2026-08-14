@@ -4,7 +4,7 @@ import FestivalModal from './FestivalModal';
 import festivalN from "../../assets/culture/festivalN.png"; // 預設無圖片
 import { useToast } from '../../components/Toast'; // 引入 Toast 通知
 import PageLoading from '../../components/PageLoading/PageLoading';
-import questionMark from "../../assets/question-mark.svg"; // 修正問題圖標引用方式
+import ReportIssueLink from '../../components/ReportIssue/ReportIssueLink';
 
 const FestivalPage = () => {
     const { showError } = useToast();
@@ -165,10 +165,8 @@ const FestivalPage = () => {
                     ))}
                 </div>
             )}
-            {/* <div className="text-start mt-4 exam-report-issue">
-                <img src={questionMarkIcon} className="question-icon" />
-                如有任何問題，請點此回報問題
-            </div> */}
+            {/* 內容載入完成前不顯示回報入口，避免載入中就跳出一行連結 */}
+            {!isLoading && <ReportIssueLink pageKey="cultureFestival" className="festival-report-issue" />}
             <FestivalModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}

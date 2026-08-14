@@ -148,16 +148,9 @@
     margin-bottom: 40px;
 }
 
+/* 回報問題入口的間距（外觀樣式見 components/ReportIssue/ReportIssue.css） */
 .socialmedia-report-issue {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.question-icon {
-    width: 17px;
-    height: 17px;
-    vertical-align: middle;
+    margin: 8px 0 32px;
 }
 
 .social-image-container {

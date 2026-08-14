@@ -1,0 +1,229 @@
+/* ─── 回報問題：入口連結 (Report Issue Entry Link) ─── */
+
+.report-issue-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: var(--text-secondary, #333333);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.report-issue-link-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.report-issue-link-action {
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.report-issue-link:hover .report-issue-link-action {
+    color: var(--color-primary-dark, #017AB1);
+}
+
+/* ─── 回報問題：彈窗 (Report Issue Modal) ─── */
+
+/* UnifiedModal 預設 max-width 為 650px，此彈窗依設計稿放寬 */
+.unified-modal-container.report-issue-modal {
+    max-width: 880px;
+}
+
+.report-issue-title {
+    margin: 0 0 24px;
+    padding-right: 40px;
+    /* 讓出右上角關閉鈕的位置 */
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.report-issue-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.report-issue-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.report-issue-label {
+    font-size: 14px;
+    color: #374151;
+}
+
+.report-issue-required {
+    color: #DC2626;
+    margin-right: 2px;
+}
+
+.report-issue-selects {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.report-issue-select-type {
+    width: 116px;
+}
+
+.report-issue-select-detail {
+    width: 205px;
+}
+
+.report-issue-input,
+.report-issue-textarea {
+    width: 100%;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--text-secondary, #333333);
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.report-issue-input {
+    height: 40px;
+}
+
+.report-issue-textarea {
+    min-height: 160px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.report-issue-input:focus,
+.report-issue-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary, #2D92C1);
+    box-shadow: 0 0 0 2px rgba(45, 146, 193, 0.15);
+}
+
+/* ─── 上傳檔案 ─── */
+
+.report-issue-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.report-issue-file-input {
+    display: none;
+}
+
+.report-issue-upload-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: #E4EEF5;
+    color: var(--color-primary, #2D92C1);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.report-issue-upload-button:hover {
+    background: #D6E6F0;
+}
+
+/* 已選檔案：改為藍框藍字的淺底樣式（設計稿的「已上傳檔案!」） */
+.report-issue-upload-button.has-file {
+    background: #DCEBFA;
+    border-color: var(--color-primary, #2D92C1);
+}
+
+.report-issue-upload-icon {
+    flex-shrink: 0;
+}
+
+.report-issue-upload-hint {
+    font-size: 14px;
+    color: #4B5563;
+}
+
+/* ─── 送出 ─── */
+
+.report-issue-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.report-issue-submit {
+    min-width: 87px;
+    height: 40px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: var(--color-primary, #2D92C1);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+.report-issue-submit:hover:not(:disabled) {
+    background: var(--color-primary-dark, #017AB1);
+}
+
+.report-issue-submit:disabled {
+    background: #9CA3AF;
+    cursor: not-allowed;
+}
+
+/* 送出後的完成狀態（設計稿的「已送出!」） */
+.report-issue-submit.is-submitted,
+.report-issue-submit.is-submitted:disabled {
+    background: #DCEBFA;
+    border-color: var(--color-primary, #2D92C1);
+    color: var(--color-primary, #2D92C1);
+}
+
+/* ─── RWD ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .report-issue-title {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .report-issue-selects {
+        gap: 12px;
+    }
+
+    .report-issue-select-type,
+    .report-issue-select-detail {
+        width: 100%;
+    }
+
+    .report-issue-textarea {
+        min-height: 120px;
+    }
+
+    .report-issue-upload-hint {
+        font-size: 13px;
+    }
+
+    .report-issue-submit {
+        width: 100%;
+    }
+}

@@ -138,6 +138,7 @@ src/
  │    ├── DragConfirmButton/   # 拖曳確認按鈕
  │    ├── HorizontalScrollRow/ # 水平捲動列
  │    ├── UnifiedModal/        # 通用 Modal
+ │    ├── ReportIssue/         # 前台「回報問題」入口與彈窗（建構在 UnifiedModal 之上）
  │    ├── ProtectedRoute.jsx   # 路由守衛（含 AdminRoute）
  │    └── Toast.jsx            # 全局提示
  ├── config/             # 環境/全域設置：index.js、permissions.js、firebaseOutage.js
@@ -161,7 +162,7 @@ src/
 
 - **Sticky 篩選列**：具搜尋／篩選功能的資料列表頁，外層套 `global.css` 的 `.page-filter-header`。
   它負責白底、陰影與 `position: sticky`，`top` 為 `calc(var(--header-height) + var(--otb-height, 0px))`，
-  因此停機橫幅出現時也會自動往下讓位。已套用：教學資源共享平台、俗諺語、媒體與社群資源、認證考試、台語文化（test）。
+  因此停機橫幅出現時也會自動往下讓位。已套用：教學資源共享平台、俗諺語、媒體與社群資源、認證考試、台語文化（test）、台語地名與文化。
   - 篩選列若位於左右有 padding 的容器內（如 `/resource`），加上 `.is-bleed` 並在容器上設 `--filter-bleed-x`，白底才會通到邊緣。
   - **例外**：台語文字轉換（`/translate`）**刻意不 sticky**，篩選列隨內容正常捲動（PM 指定）。
 - **下拉選單定位**：所有篩選下拉一律 portal 到 `#root`、以 `position: fixed` 定位，座標由
@@ -176,7 +177,28 @@ src/
     子選單若維持 `absolute` 會被 `overflow` 裁掉。
   - 手機版（`max-width: 768px`）的分類篩選仍是 bottom sheet（`components/CategoryFilterSheet`），不走上述下拉。
 
-## 7. 常見工作流程建議 (Workflow Tips)
+## 7. 回報問題 (Report Issue)
+
+前台頁面共用的「回報問題」流程，元件放在 `components/ReportIssue/`，依 Figma
+（PD 台語文 workshop － WF paper prototype 2025，node `2946-3629`）實作：
+
+- **一行接入**：頁面內容區最後放 `<ReportIssueLink pageKey="phrase" className="…" />` 即可，
+  彈窗開關由元件自己管理；`className` 只用來給該頁的間距／對齊。
+  已套用：台語俗諺語、節慶飲食（飲食／節慶）、媒體與社群資源、認證考試。
+- **彈窗是 UnifiedModal 的延伸**：`ReportIssueModal` 以 `components/UnifiedModal` 當外框
+  （沿用遮罩、關閉鈕、動畫與手機版 bottom sheet），只負責表單內容，因此不需要改動 UnifiedModal 本身。
+- **各頁差異全部收斂在 `reportIssueConfig.js`**：一個 `pageKey` 對應「彈窗標題後綴」與「第二層問題細項選項」。
+  新頁面要加入回報功能時，只要在這支檔案加一筆設定，不必碰彈窗程式碼。
+- **兩層下拉的連動**：第一層固定為「問題回報 / 其他」；**只有選「問題回報」才會出現第二層細項**，
+  切回「其他」時會清掉第二層的值（避免送出殘留資料）。兩個下拉都用共用的 `components/CustomSelect`。
+- **附件**：非必填，**僅收 JPG／PNG、上限 100MB**，送出時先呼叫 `services/uploadService.js` 的
+  `uploadFile()` 取得路徑再帶進 payload。
+  （設計稿中「媒體與社群資源」那張圖的提示文字寫成 PDF／PPT／DOC，與流程圖註記衝突，一律以「只有圖片檔」為準。）
+- ⚠️ **後端 `POST /issue_report` 尚未實作**：`services/reportIssueService.js` 預設走 mock（只在 console 印 payload）。
+  後端上線後把 `.env` 的 `VITE_ENABLE_REPORT_ISSUE_MOCK` 設為 `false` 即改打真實 API，元件不需修改。
+  API 規格與待確認事項見 `docs/report_issue_api.md`。
+
+## 8. 常見工作流程建議 (Workflow Tips)
 - **新增公開頁面**: 在 `src/` 下建立對應的資料夾與元件，於 `App.jsx` 引入並添加 `<Route>`，並視情況更新 `Sidebar.jsx` 的選單路徑。
 - **新增後台管理項目**: 於 `src/adminPage/adminContent/adminHome/` 建立管理面板，在 `App.jsx` 使用 `<AdminRoute>` 添加路由，最後更新 `adminSidebar.jsx` 的選單陣列。
 - **API 串接**: 若要讀取或更新資料，請先檢視 `src/services/` 下是否已有相關模組（多透過 `authService.js` 的 `authenticatedFetch` 帶 Token 發送請求），並注意在元件中妥善處理 loading／error 等異步狀態。部分頁面（如公告管理）仍為 mock，串接時需自行補上 service 層。

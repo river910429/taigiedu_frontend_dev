@@ -9,20 +9,22 @@
 
 .placename-culture-page {
     width: 100%;
-    max-width: var(--content-max-width);
     margin: 0 auto;
     padding-bottom: 40px;
 }
 
-/* ---- 上方工具列：地區 / 縣市 / 區域 ---- */
+/* ---- 上方工具列：地區 / 縣市 / 區域（sticky 由 global.css 的 .page-filter-header 提供） ---- */
 .pc-toolbar {
+    padding: 20px 32px;
+}
+
+.pc-toolbar-content {
     display: flex;
     gap: 24px;
     align-items: center;
     flex-wrap: wrap;
-    padding: 20px 32px;
-    background-color: #fff;
-    border-bottom: 1px solid var(--border-light);
+    max-width: var(--content-max-width);
+    margin: 0 auto;
 }
 
 .pc-select-wrap {
@@ -37,6 +39,8 @@
     align-items: center;
     gap: 40px;
     padding: 32px;
+    max-width: var(--content-max-width);
+    margin: 0 auto;
 }
 
 .pc-overview-map {
@@ -176,6 +180,8 @@
     gap: 40px;
     padding: 32px;
     align-items: start;
+    max-width: var(--content-max-width);
+    margin: 0 auto;
 }
 
 .pc-detail-map {
@@ -425,8 +431,11 @@
 
 @media (max-width: 768px) {
     .pc-toolbar {
-        gap: 12px;
         padding: 16px;
+    }
+
+    .pc-toolbar-content {
+        gap: 12px;
     }
 
     .pc-select-wrap {
