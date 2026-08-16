@@ -193,3 +193,26 @@
   visibility: visible;
 }
   */
+
+/* ===== composition 相容層 =====
+ * ResourceCard 內部已改用 components/Card 的積木（class 前綴 cc-）。
+ * 上面的既有規則一律沒有改動；這裡只用「加法」補回資源共享平台脈絡下的尺寸與間距，
+ * 也就是積木刻意不管的部分（積木只負責「長什麼樣」，不負責「多大」）。
+ *
+ * 沒列在這裡的兩項，是因為舊 class 仍掛在元素上、既有規則本來就還生效：
+ *   - 卡片高度 400px      → 根節點仍有 .resource-card
+ *   - 預覽圖高度 222px    → 預覽元素仍有 .card-header
+ *     （.card-header 不能拿掉：index.html 的 Bootstrap CDN 也定義了它，
+ *       提供預覽圖下緣 1px 底線與上緣 3px 圓角，拿掉畫面會變）
+ */
+
+/* 對應原 .card-content 的固定高度與裁切（padding 16px、gap 8px 由 .cc-content 提供） */
+.resource-card .cc-content {
+  height: 178px; /* 400px - header height(222px) */
+  overflow: hidden;
+}
+
+/* 對應原 .card-tags 的 margin-top：標題→上傳者 8px、上傳者→標籤 20px 的不對稱間距 */
+.resource-card .cc-tags {
+  margin-top: 12px;
+}
