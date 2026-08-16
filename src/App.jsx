@@ -29,6 +29,8 @@ import ExamPage from "./examPage/ExamPage";
 import TopicIntegrationPage from "./featuredResourcePage/TopicIntegrationPage";
 import PlacenameCulturePage from "./placenameCulturePage/PlacenameCulturePage";
 import CultureTestPage from "./cultureTestPage/CultureTestPage";
+import OccupationTestPage from "./occupationTestPage/OccupationTestPage";
+import OccupationDetailPage from "./occupationTestPage/OccupationDetailPage";
 import DownloadPage from "./resourcePage/DownloadPage";
 import LoginPage from "./resourcePage/LoginPage";
 import RegisterPage from "./resourcePage/RegisterPage";
@@ -80,6 +82,7 @@ const AppLayout = () => {
   const isTopicIntegrationFeatureEnabled = envConfig.features.enableTopicIntegrationFeature;
   const isPlacenameCultureFeatureEnabled = envConfig.features.enablePlacenameCultureFeature;
   const isCultureTestFeatureEnabled = envConfig.features.enableCultureTestFeature;
+  const isOccupationTestFeatureEnabled = envConfig.features.enableOccupationTestFeature;
 
   // 路由切換時自動收起 sidebar（手機版）
   useEffect(() => {
@@ -182,6 +185,23 @@ const AppLayout = () => {
             element={
               isCultureTestFeatureEnabled
                 ? <CultureTestPage />
+                : <Navigate to="/" replace />
+            }
+          />
+          {/* 職業台語（test）：版面比照教學資源共享平台，詳細頁在站內開啟（不另開分頁） */}
+          <Route
+            path="/occupation-test"
+            element={
+              isOccupationTestFeatureEnabled
+                ? <OccupationTestPage />
+                : <Navigate to="/" replace />
+            }
+          />
+          <Route
+            path="/occupation-test/:id"
+            element={
+              isOccupationTestFeatureEnabled
+                ? <OccupationDetailPage />
                 : <Navigate to="/" replace />
             }
           />

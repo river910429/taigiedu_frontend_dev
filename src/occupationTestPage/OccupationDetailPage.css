@@ -1,0 +1,126 @@
+/* 職業台語（test）— 資源詳細頁
+   視覺沿用 resourcePage/FilePreview.css 的字級、標籤與按鈕樣式，
+   但改為站內頁面（保留側邊欄），按鈕用 flex 排在標題右側而非絕對定位。 */
+
+.occupation-detail-page {
+  width: 100%;
+  padding: 24px 60px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 1200px) {
+  .occupation-detail-page {
+    padding: 24px 40px 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .occupation-detail-page {
+    padding: 16px 20px 40px;
+  }
+}
+
+/* ─── 返回列表 ─── */
+
+.otd-back-button {
+  align-self: flex-start;
+  padding: 8px 16px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  background: #fff;
+  color: #101828;
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.otd-back-button:hover {
+  border-color: #2D92C1;
+  color: #2D92C1;
+}
+
+/* ─── 標題區 ─── */
+
+.otd-title {
+  color: #101828;
+  font-feature-settings: "liga" off, "clig" off;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  margin: 0;
+}
+
+.otd-separator {
+  height: 13px;
+  flex-shrink: 0;
+  background-color: #d9d9d9;
+  margin: 12px 0;
+}
+
+/* ─── 內容預覽 ─── */
+
+.otd-preview {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.otd-preview-doc {
+  width: 100%;
+  max-width: 840px;
+  padding: 48px 56px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+  .otd-preview-doc {
+    padding: 24px 20px;
+  }
+}
+
+.otd-preview-summary {
+  color: #101828;
+  font-size: 16px;
+  line-height: 30px;
+  margin-bottom: 32px;
+}
+
+.otd-preview-section {
+  margin-bottom: 24px;
+}
+
+.otd-preview-heading {
+  font-size: 17px;
+  font-weight: 700;
+  color: #101828;
+  margin-bottom: 8px;
+}
+
+.otd-preview-body {
+  font-size: 16px;
+  line-height: 30px;
+  color: #344054;
+  margin: 0;
+}
+
+.otd-preview-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 32px;
+  border-radius: 8px;
+}
+
+.otd-empty {
+  padding: 80px 0;
+  text-align: center;
+  color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}

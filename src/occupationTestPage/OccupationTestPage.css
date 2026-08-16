@@ -1,0 +1,240 @@
+/* 職業台語（test）— 列表頁
+   版面比照「台語教學資源共享平台」（ResourcePage.css / ResourceContent.css），
+   卡片本身沿用 resourcePage/ResourceCard 的樣式，這裡只負責外框、篩選列與網格。 */
+
+.occupation-test-page {
+  padding: 0 60px 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* 供 .page-filter-header.is-bleed 把白底延伸到容器左右邊緣 */
+  --filter-bleed-x: 60px;
+}
+
+@media (max-width: 1200px) {
+  .occupation-test-page {
+    padding: 0 40px 30px;
+    --filter-bleed-x: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .occupation-test-page {
+    padding: 0 20px 20px;
+    --filter-bleed-x: 20px;
+  }
+}
+
+/* ─── 篩選列（單一分類下拉 + 搜尋） ─── */
+
+.otp-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.otp-category-select {
+  position: relative;
+  display: inline-block;
+  width: 148px;
+  flex-shrink: 0;
+}
+
+.otp-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 250px;
+  max-width: 800px;
+  height: 48px;
+}
+
+.otp-search-input {
+  width: 100%;
+  height: 100%;
+  padding: 0 3rem 0 1rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  margin: 0;
+  outline: none;
+}
+
+.otp-search-input:focus,
+.otp-search-input:hover {
+  border-color: #4AA3BA;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+
+.otp-search-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.otp-search-icon {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 768px) {
+  .otp-header {
+    gap: 12px;
+  }
+
+  .otp-category-select {
+    width: 100%;
+  }
+
+  .otp-search-container {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* ─── 卡片牆 ─── */
+
+.otp-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.otp-grid {
+  position: relative;
+  margin: 20px auto;
+  padding-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 300px));
+  justify-content: center;
+  column-gap: 30px;
+  row-gap: 50px;
+  min-height: 200px;
+  align-items: start;
+  width: 100%;
+}
+
+.otp-grid > * {
+  width: 100%;
+  max-width: 300px;
+  justify-self: center;
+}
+
+/* 卡片：外觀比照資源共享平台（預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤），
+   差別只在不顯示點讚數與下載次數。
+   ⚠️ 這裡是本頁自己的樣式，不會影響 resourcePage/ResourceCard.css。 */
+.otp-card {
+  width: 100%;
+  max-width: 300px;
+  height: 400px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.otp-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.otp-card-header {
+  position: relative;
+  width: 100%;
+  height: 222px;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* 檔案類型標籤（pdf / ppt / doc） */
+.otp-card-filetype {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: 120px;
+  height: 35px;
+  padding: 7px 40px;
+  justify-content: center;
+  align-items: center;
+  background: #424242;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.otp-card-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 178px; /* 400px - header(222px) */
+  overflow: hidden;
+}
+
+.otp-card-title {
+  margin: 0;
+  color: #000;
+  font-feature-settings: "liga" off, "clig" off;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.otp-card-uploader,
+.otp-card-tag {
+  margin: 0;
+  color: #787878;
+  font-feature-settings: "liga" off, "clig" off;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.otp-card-tags {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.otp-card-tag {
+  display: flex;
+  padding: 3px 6px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100px;
+  border: 1.4px solid #787878;
+  white-space: nowrap;
+}
+
+.otp-empty {
+  width: 100%;
+  padding: 80px 0;
+  text-align: center;
+  color: #6b7280;
+}
