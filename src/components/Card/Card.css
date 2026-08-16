@@ -1,0 +1,173 @@
+/* Card — composition 式卡片積木
+ *
+ * 規則（勿破壞）：
+ * 1. 這支檔案**只能**出現 `cc-` 開頭的選擇器，不得使用任何既有 class 名。
+ * 2. **不寫死任何高度**：卡片高、預覽圖高、內容區高都交給使用端的 CSS。
+ * 3. 子元件不帶 margin，行距一律由容器的 flex `gap` 提供，
+ *    因此任意增減子元件都不會出現異常空隙。
+ * 4. 數值集中在 `.cc-card` 的 CSS variables，使用端覆寫變數即可微調，不必改這裡。
+ */
+
+.cc-card {
+  /* --- 卡片外觀 --- */
+  --cc-card-bg: #ffffff;
+  --cc-card-radius: 8px;
+  --cc-card-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  --cc-card-shadow-hover: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  --cc-card-hover-lift: -5px;
+  --cc-card-transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  /* --- 間距 --- */
+  --cc-card-gap: 0px;          /* 預覽圖與內容區之間 */
+  --cc-content-padding: 16px;  /* 內容區內距 */
+  --cc-content-gap: 8px;       /* 內容區各行之間 */
+  --cc-tags-gap: 4px;          /* 標籤彼此之間 */
+
+  /* --- 文字 --- */
+  --cc-title-color: #000;
+  --cc-title-size: 18px;
+  --cc-text-color: #787878;
+  --cc-text-size: 14px;
+
+  /* --- 檔案類型標籤 --- */
+  --cc-file-type-bg: #424242;
+  --cc-file-type-color: #fff;
+  --cc-file-type-size: 16px;
+
+  /* --- 點讚／下載數 --- */
+  --cc-stats-color: var(--system-primary-text, #041833);
+  --cc-stats-size: 9px;
+  --cc-stats-icon-size: 22px;
+
+  /* --- 標籤 --- */
+  --cc-tag-color: #787878;
+  --cc-tag-border: 1.4px solid #787878;
+  --cc-tag-radius: 100px;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--cc-card-gap);
+  width: 100%;
+  background-color: var(--cc-card-bg);
+  border-radius: var(--cc-card-radius);
+  box-shadow: var(--cc-card-shadow);
+  transition: var(--cc-card-transition);
+  /* ⚠️ 刻意不加 overflow: hidden —— 現行卡片的預覽圖並未被圓角裁切，加了會改變外觀 */
+}
+
+.cc-card:hover {
+  transform: translateY(var(--cc-card-hover-lift));
+  box-shadow: var(--cc-card-shadow-hover);
+  cursor: pointer;
+}
+
+/* 預覽圖 —— ⚠️ 高度由使用端給（背景圖不撐高度，沒給就是 0 高） */
+.cc-preview {
+  position: relative;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.cc-file-type {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+
+  display: flex;
+  width: 120px;
+  height: 35px;
+  padding: 7px 40px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+
+  background: var(--cc-file-type-bg);
+  color: var(--cc-file-type-color);
+  font-size: var(--cc-file-type-size);
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.cc-stats {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: row;
+}
+
+.cc-stats .cc-likes,
+.cc-stats .cc-downloads {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 4px;
+
+  align-self: stretch;
+  color: var(--cc-stats-color);
+  text-align: center;
+  font-size: var(--cc-stats-size);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 262.5% */
+}
+
+.cc-likes-icon,
+.cc-downloads-icon {
+  display: flex;
+  width: var(--cc-stats-icon-size);
+  height: var(--cc-stats-icon-size);
+  justify-content: center;
+  align-items: center;
+}
+
+/* 文字內容區 —— 高度同樣由使用端決定（要裁切就自行加 overflow: hidden） */
+.cc-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cc-content-gap);
+  padding: var(--cc-content-padding);
+}
+
+.cc-title {
+  margin: 0;
+  color: var(--cc-title-color);
+  font-feature-settings: "liga" off, "clig" off;
+  font-size: var(--cc-title-size);
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.cc-uploader,
+.cc-tag {
+  margin: 0;
+  color: var(--cc-text-color);
+  font-feature-settings: "liga" off, "clig" off;
+  font-size: var(--cc-text-size);
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.cc-tags {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--cc-tags-gap);
+  flex-wrap: wrap; /* 若超出空間，自動換行 */
+}
+
+.cc-tag {
+  display: flex;
+  padding: 3px 6px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: var(--cc-tag-color);
+  border: var(--cc-tag-border);
+  border-radius: var(--cc-tag-radius);
+  white-space: nowrap; /* 防止標籤換行 */
+}
