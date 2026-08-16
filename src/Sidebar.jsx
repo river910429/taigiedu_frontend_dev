@@ -27,6 +27,7 @@ const Sidebar = ({ isOpen = false, onClose }) => {
   const isTopicIntegrationFeatureEnabled = envConfig.features.enableTopicIntegrationFeature;
   const isPlacenameCultureFeatureEnabled = envConfig.features.enablePlacenameCultureFeature;
   const isCultureTestFeatureEnabled = envConfig.features.enableCultureTestFeature;
+  const isOccupationTestFeatureEnabled = envConfig.features.enableOccupationTestFeature;
 
   const allMenuItems = [
     { id: 1, label: "主頁搜尋", icon: homeIcon, path: "/" },
@@ -61,11 +62,14 @@ const Sidebar = ({ isOpen = false, onClose }) => {
     },
     // 節慶飲食的新版重寫，與舊版並存，待後端串接完成後取代舊版
     { id: 13, label: "台語文化（test）", icon: cultureIcon, path: "/culture-test" },
+    // 職業台語（test）：版面比照教學資源共享平台，開發中
+    { id: 14, label: "職業台語（test）", icon: resourceIcon, path: "/occupation-test" },
   ];
 
   const menuItems = allMenuItems
     .filter(item => {
       if (!isCultureTestFeatureEnabled && item.id === 13) return false;
+      if (!isOccupationTestFeatureEnabled && item.id === 14) return false;
       if (!isTopicIntegrationFeatureEnabled && item.id === 11) return false;
       if (!isUnstableFeaturesEnabled) {
         if ([2, 3, 4].includes(item.id)) return false;

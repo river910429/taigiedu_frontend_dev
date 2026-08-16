@@ -74,6 +74,30 @@
   - **後端 API 需求規格見 `docs/culture_test_api.md`**（含前台 `POST /culture-media`、後台影音與分類 CRUD、資料表建議、待確認事項）。
   - 新舊兩套**刻意並存**，待新版 API 完成後才會取代舊版並移除 `/culture/food`、`/culture/festival`（舊版兩頁在新分類中對應到「地方/產業 > 飲食」與「地方/產業 > 節慶」）。
   - ⚠️ 開發中頁面，但**未加 feature toggle**，前台側邊欄一律顯示（含正式環境）。
+- **職業台語（test） (`/occupation-test`, `/occupation-test/:id`)**: `occupationTestPage/OccupationTestPage.jsx`，職場情境台語教材的資源列表。
+  - **版面沿用「台語教學資源共享平台」**（`resourcePage/`）：sticky 篩選列 + 卡片牆（每頁 12 筆）+ 分頁；
+    網格與間距在 `OccupationTestPage.css` 比照 `ResourceContent.css`。
+  - ⚠️ **卡片是本資料夾自己的 `OccupationCard.jsx`，不是 `resourcePage/ResourceCard`。**
+    因為本頁只要「預覽圖 + 標題 + 上傳者」，與資源共享平台的卡片需求不同，
+    **禁止為了本頁去改動 `resourcePage/` 的共用元件**（不加 prop 開關、不改 JSX），需求不同就在本資料夾另寫一份。
+  - 與資源共享平台刻意不同的兩點（PM 指定）：
+    1. 篩選只有**一個**分類下拉（共用 `components/CustomSelect`，含「全部」選項）+ 關鍵字搜尋，
+       沒有階段／版本／內容類型多選，也沒有「上傳／刪除我的資源」按鈕。
+    2. 點卡片**不另開新分頁**（資源共享平台是 `window.open` 到 `/file-preview`），改用 `navigate()`
+       在站內開啟 `/occupation-test/:id`，保留側邊欄與 Header，並在詳細頁提供「返回職業台語列表」。
+  - 詳細頁 `OccupationDetailPage.jsx` 比 `resourcePage/FilePreview` **精簡很多，只有「返回列表 + 標題 + 分隔線 + 內容」**：
+    日期／點讚數／下載數、AUTHOR、標籤、「下載資源」與「點讚資源」按鈕**這頁一律不放**（2026-08 PM 指定），
+    需要時才從 FilePreview 補回來。
+  - 卡片內容為「預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤」，尺寸與資源共享平台相同（300×400）；
+    與它的唯一差別是**不顯示右上角的點讚數與下載次數**（本功能不記錄這兩個數字，
+    mock 資料也沒有 `likes` / `downloads` 欄位）。
+  - 列表**不顯示「共 N 筆」總數**（僅底部分頁），與資源共享平台一致。
+  - ⚠️ **內容來自 `services/occupationTestMockApi.js` 假資料**：分類 `CATEGORY_OPTIONS` 目前為
+    **醫療長照／行業台語**兩項，各 18 筆（合計 36 筆），一次回傳全部，篩選／搜尋／分頁皆由前台處理。
+    分類與內容日後改由後端資料庫匯入，屆時換掉 `fetchOccupationResources()` / `fetchOccupationCategories()` 即可，頁面不需改動。
+    詳細頁的點讚只改前端狀態、下載尚無實際檔案。
+  - 由 `VITE_ENABLE_OCCUPATION_TEST_FEATURE` 控制側邊欄與兩條路由是否顯示。
+  - 目前**只有前台，沒有後台管理頁**。
 - **社群媒體/影音 (`/socialmedia`)**: `socialmediaPage/SocialmediaPage`，整合外部平台（如 YouTube/Podcast）的影音資源。
 - **認證考試 (`/exam`)**: `examPage/ExamPage`，提供台語認證的相關資訊。
 - **親屬關係計算機 (`/relative-calculator`)**: `relativeCalculatorPage/RelativeCalculatorPage.jsx`，提供親屬稱謂查詢與計算功能。
@@ -162,7 +186,7 @@ src/
 
 - **Sticky 篩選列**：具搜尋／篩選功能的資料列表頁，外層套 `global.css` 的 `.page-filter-header`。
   它負責白底、陰影與 `position: sticky`，`top` 為 `calc(var(--header-height) + var(--otb-height, 0px))`，
-  因此停機橫幅出現時也會自動往下讓位。已套用：教學資源共享平台、俗諺語、媒體與社群資源、認證考試、台語文化（test）、台語地名與文化。
+  因此停機橫幅出現時也會自動往下讓位。已套用：教學資源共享平台、俗諺語、媒體與社群資源、認證考試、台語文化（test）、台語地名與文化、職業台語（test）。
   - 篩選列若位於左右有 padding 的容器內（如 `/resource`），加上 `.is-bleed` 並在容器上設 `--filter-bleed-x`，白底才會通到邊緣。
   - **例外**：台語文字轉換（`/translate`）**刻意不 sticky**，篩選列隨內容正常捲動（PM 指定）。
 - **下拉選單定位**：所有篩選下拉一律 portal 到 `#root`、以 `position: fixed` 定位，座標由

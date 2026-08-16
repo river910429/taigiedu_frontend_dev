@@ -1,0 +1,171 @@
+/* 職業台語（test）— 列表頁
+   版面比照「台語教學資源共享平台」（ResourcePage.css / ResourceContent.css），
+   卡片本身沿用 resourcePage/ResourceCard 的樣式，這裡只負責外框、篩選列與網格。 */
+
+.occupation-test-page {
+  padding: 0 60px 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* 供 .page-filter-header.is-bleed 把白底延伸到容器左右邊緣 */
+  --filter-bleed-x: 60px;
+}
+
+@media (max-width: 1200px) {
+  .occupation-test-page {
+    padding: 0 40px 30px;
+    --filter-bleed-x: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .occupation-test-page {
+    padding: 0 20px 20px;
+    --filter-bleed-x: 20px;
+  }
+}
+
+/* ─── 篩選列（單一分類下拉 + 搜尋） ─── */
+
+.otp-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.otp-category-select {
+  position: relative;
+  display: inline-block;
+  width: 148px;
+  flex-shrink: 0;
+}
+
+.otp-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 250px;
+  max-width: 800px;
+  height: 48px;
+}
+
+.otp-search-input {
+  width: 100%;
+  height: 100%;
+  padding: 0 3rem 0 1rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  margin: 0;
+  outline: none;
+}
+
+.otp-search-input:focus,
+.otp-search-input:hover {
+  border-color: #4AA3BA;
+  box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+
+.otp-search-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.otp-search-icon {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 768px) {
+  .otp-header {
+    gap: 12px;
+  }
+
+  .otp-category-select {
+    width: 100%;
+  }
+
+  .otp-search-container {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* ─── 卡片牆 ─── */
+
+.otp-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.otp-grid {
+  position: relative;
+  margin: 20px auto;
+  padding-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 300px));
+  justify-content: center;
+  column-gap: 30px;
+  row-gap: 50px;
+  min-height: 200px;
+  align-items: start;
+  width: 100%;
+}
+
+.otp-grid > * {
+  width: 100%;
+  max-width: 300px;
+  justify-self: center;
+}
+
+/* 卡片：直接組裝 components/Card 的積木（預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤），
+   與資源共享平台的差別只在不放 <Card.Stats>，所以沒有點讚數與下載次數。
+
+   顏色、圓角、陰影、字級、hover、標籤外框等「長什麼樣」的部分全部由積木提供；
+   ⚠️ 這裡只寫「在本頁多大」——積木刻意不管高度，各頁自己給。
+   要調整本頁卡片，改這一段就好，**不要去改 components/Card 的樣式**（那是跨頁共用的）。 */
+.otp-grid > .cc-card {
+  max-width: 300px;
+  height: 400px;
+  margin: 0 auto;
+  overflow: hidden; /* 預覽圖跟著卡片圓角一起裁切 */
+}
+
+.otp-grid .cc-preview {
+  height: 222px;
+  flex-shrink: 0;
+}
+
+.otp-grid .cc-content {
+  height: 178px; /* 400px - preview(222px) */
+  overflow: hidden;
+}
+
+.otp-grid .cc-tags {
+  margin-top: 12px;
+}
+
+.otp-empty {
+  width: 100%;
+  padding: 80px 0;
+  text-align: center;
+  color: #6b7280;
+}

@@ -1,10 +1,24 @@
 import React from "react";
+import Card from "../components/Card/Card";
 import "./ResourceCard.css";
-import loveIconFilled from "../assets/Union (Stroke).svg";
-import loveIconOutline from "../assets/resourcepage/heart-outline.svg";
-import downloadIcon from "../assets/arrow-down-circle.svg";
 import filePreviewDemo from "../assets/resourcepage/file_preview_demo.png"; // 預設圖片
 
+/**
+ * 台語教學資源共享平台的資源卡片。
+ *
+ * 內部已改為 `components/Card` 的 composition 積木組裝，**對外 props 介面完全沒變**
+ * （`/resource`、`/delete-resource`、`/admin/resource` 三個呼叫端不需要任何修改）。
+ *
+ * 兩個刻意保留的相容細節，改動前請先看 ResourceCard.css 底部的「composition 相容層」：
+ * 1. 根節點同時掛 `cc-card` 與 `resource-card`——`ResourceContent.css` 與 `AdminResourcePage.css`
+ *    靠 `.resource-card` 這個名字覆寫尺寸與下架／被檢舉狀態，不能拿掉。
+ * 2. 內層有兩個元素刻意保留舊 class 名，因為**專案外部有同名規則正在生效**，拿掉畫面就會變：
+ *    - 預覽圖 `cc-preview card-header`：`index.html` 從 CDN 載入的 Bootstrap 5.1.1 也定義了
+ *      `.card-header`，提供預覽圖下緣 1px 底線與上緣 3px 圓角。
+ *    - 標題 `cc-title card-title`：`adminPage/adminMain.css` 的 `.card-title` 排在本檔之後，
+ *      實際生效的字級／字重／顏色／下方 16px 間距其實來自那裡，不是本檔的 `.card-title`。
+ *    其餘內層元素經實測沒有任何外部規則命中，已全部改為純 cc- 前綴。
+ */
 const ResourceCard = ({
   imageUrl,
   fileType,
@@ -13,7 +27,7 @@ const ResourceCard = ({
   title,
   uploader, // 這可能是從 uploader_name 傳入的
   tags = [],
-  date,
+  date, // 三個呼叫端都有傳但本元件未使用，保留在對外介面（勿順手清掉）
   isLiked = false,
   onCardClick, // 控制點擊事件的 prop
 }) => {
@@ -62,51 +76,24 @@ const ResourceCard = ({
   };
 
   return (
-    <div className="resource-card" onClick={handleCardClick}>
+    <Card className="resource-card" onClick={handleCardClick}>
       {/* 卡片標頭區域，背景圖片 */}
-      <div
-        className="card-header"
-        style={{ backgroundImage: `url(${getFullImageUrl(imageUrl)})` }}
-      >
-        <div className="file-type">{fileType}</div>
-        <div className="stats">
-          {/* 顯示喜歡數量 */}
-          <div className="likes">
-            <img
-              src={isLiked ? loveIconFilled : loveIconOutline}
-              alt={isLiked ? "Liked" : "Not liked"}
-              className="likes-icon"
-            />
-            <span>{likes}</span>
-          </div>
-          {/* 顯示下載數量 */}
-          <div className="downloads">
-            <img
-              src={downloadIcon}
-              alt="Downloads"
-              className="downloads-icon"
-            />
-            <span>{downloads}</span>
-          </div>
-        </div>
-      </div>
+      <Card.Preview className="card-header" imageUrl={getFullImageUrl(imageUrl)}>
+        <Card.FileType>{fileType}</Card.FileType>
+        {/* 顯示喜歡與下載數量 */}
+        <Card.Stats likes={likes} downloads={downloads} isLiked={isLiked} />
+      </Card.Preview>
 
       {/* 卡片內容 */}
-      <div className="card-content">
+      <Card.Content>
         {/* 資源標題 */}
-        <h3 className="card-title">{title}</h3>
+        <Card.Title className="card-title">{title}</Card.Title>
         {/* 上傳者名稱 */}
-        <p className="card-uploader">上傳者：{uploader}</p>
+        <Card.Uploader name={uploader} />
         {/* 資源標籤 */}
-        <div className="card-tags">
-          {tags.map((tag, index) => (
-            <span key={index} className="card-tag">
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
+        <Card.Tags tags={tags} />
+      </Card.Content>
+    </Card>
   );
 };
 
