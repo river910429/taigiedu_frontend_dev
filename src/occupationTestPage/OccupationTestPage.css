@@ -136,100 +136,31 @@
   justify-self: center;
 }
 
-/* 卡片：外觀比照資源共享平台（預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤），
-   差別只在不顯示點讚數與下載次數。
-   ⚠️ 這裡是本頁自己的樣式，不會影響 resourcePage/ResourceCard.css。 */
-.otp-card {
-  width: 100%;
+/* 卡片：直接組裝 components/Card 的積木（預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤），
+   與資源共享平台的差別只在不放 <Card.Stats>，所以沒有點讚數與下載次數。
+
+   顏色、圓角、陰影、字級、hover、標籤外框等「長什麼樣」的部分全部由積木提供；
+   ⚠️ 這裡只寫「在本頁多大」——積木刻意不管高度，各頁自己給。
+   要調整本頁卡片，改這一段就好，**不要去改 components/Card 的樣式**（那是跨頁共用的）。 */
+.otp-grid > .cc-card {
   max-width: 300px;
   height: 400px;
   margin: 0 auto;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden; /* 預覽圖跟著卡片圓角一起裁切 */
 }
 
-.otp-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-}
-
-.otp-card-header {
-  position: relative;
-  width: 100%;
+.otp-grid .cc-preview {
   height: 222px;
   flex-shrink: 0;
-  background-size: cover;
-  background-position: center;
 }
 
-/* 檔案類型標籤（pdf / ppt / doc） */
-.otp-card-filetype {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  width: 120px;
-  height: 35px;
-  padding: 7px 40px;
-  justify-content: center;
-  align-items: center;
-  background: #424242;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: normal;
-}
-
-.otp-card-content {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  height: 178px; /* 400px - header(222px) */
+.otp-grid .cc-content {
+  height: 178px; /* 400px - preview(222px) */
   overflow: hidden;
 }
 
-.otp-card-title {
-  margin: 0;
-  color: #000;
-  font-feature-settings: "liga" off, "clig" off;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: normal;
-}
-
-.otp-card-uploader,
-.otp-card-tag {
-  margin: 0;
-  color: #787878;
-  font-feature-settings: "liga" off, "clig" off;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: normal;
-}
-
-.otp-card-tags {
-  display: flex;
-  align-items: flex-start;
-  gap: 4px;
-  flex-wrap: wrap;
+.otp-grid .cc-tags {
   margin-top: 12px;
-}
-
-.otp-card-tag {
-  display: flex;
-  padding: 3px 6px;
-  justify-content: center;
-  align-items: center;
-  border-radius: 100px;
-  border: 1.4px solid #787878;
-  white-space: nowrap;
 }
 
 .otp-empty {

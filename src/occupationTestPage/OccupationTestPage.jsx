@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './OccupationTestPage.css';
+import envConfig from '../config';
 import searchIcon from '../assets/home/search_logo.svg';
 import CustomSelect from '../components/CustomSelect/CustomSelect';
-import OccupationCard from './OccupationCard';
+import Card from '../components/Card/Card';
+import defaultPreviewImage from '../assets/resourcepage/file_preview_demo.png';
 import PageLoading from '../components/PageLoading/PageLoading';
 import Pagination from '../mainSearchPage/Pagination';
 import { fetchOccupationResources } from '../services/occupationTestMockApi';
@@ -12,9 +14,10 @@ import { fetchOccupationResources } from '../services/occupationTestMockApi';
  * 職業台語（test）
  *
  * 版面沿用「台語教學資源共享平台」（resourcePage）：sticky 篩選列 + 卡片牆 + 分頁，
- * 卡片用本資料夾自己的 OccupationCard（預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤），
- * 與資源共享平台的差別只在**不顯示點讚數與下載次數**。
- * ⚠️ **不可改動 resourcePage/ResourceCard**——那是資源共享平台的共用元件，需求不同就自己寫一份。
+ * 卡片直接組裝 `components/Card` 的積木（預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤），
+ * 與資源共享平台的差別只在**不顯示點讚數與下載次數**——不放 `<Card.Stats>` 就是了。
+ * 卡片在本頁的尺寸（300×400、預覽圖 222px…）寫在 OccupationTestPage.css，
+ * ⚠️ 需要調整只能改本頁 CSS，**不可改動 components/Card 的積木樣式**，那是跨頁共用的。
  *
  * 與資源共享平台刻意不同的兩點（PM 指定）：
  *   1. 篩選只有**一個**分類下拉 + 關鍵字搜尋，沒有階段／版本／內容類型，也沒有上傳／刪除按鈕
@@ -89,6 +92,14 @@ const OccupationTestPage = () => {
     setActiveQuery(query.trim());
   };
 
+  // 預覽圖：相對路徑補上 API base，沒有圖就用預設圖
+  const resolveImageUrl = (url) => {
+    if (!url) return defaultPreviewImage;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    const base = String(envConfig.apiUrl || '').replace(/\/+$/, '');
+    return `${base}/${String(url).replace(/^\/+/, '')}`;
+  };
+
   // 分類下拉：選「全部」等同清空條件
   const handleCategoryChange = (value) => {
     setSelectedCategory(value === '全部' ? null : value);
@@ -157,15 +168,16 @@ const OccupationTestPage = () => {
         ) : (
           <div className="otp-grid">
             {pageItems.map(item => (
-              <OccupationCard
-                key={item.id}
-                imageUrl={item.imageUrl}
-                fileType={item.fileType}
-                title={item.title}
-                uploader={item.uploader}
-                tags={item.tags}
-                onCardClick={() => handleCardClick(item)}
-              />
+              <Card key={item.id} onClick={() => handleCardClick(item)}>
+                <Card.Preview imageUrl={resolveImageUrl(item.imageUrl)}>
+                  <Card.FileType>{item.fileType}</Card.FileType>
+                </Card.Preview>
+                <Card.Content>
+                  <Card.Title>{item.title}</Card.Title>
+                  <Card.Uploader name={item.uploader} />
+                  <Card.Tags tags={item.tags} />
+                </Card.Content>
+              </Card>
             ))}
           </div>
         )}
