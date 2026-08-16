@@ -77,9 +77,11 @@
 - **職業台語（test） (`/occupation-test`, `/occupation-test/:id`)**: `occupationTestPage/OccupationTestPage.jsx`，職場情境台語教材的資源列表。
   - **版面沿用「台語教學資源共享平台」**（`resourcePage/`）：sticky 篩選列 + 卡片牆（每頁 12 筆）+ 分頁；
     網格與間距在 `OccupationTestPage.css` 比照 `ResourceContent.css`。
-  - ⚠️ **卡片是本資料夾自己的 `OccupationCard.jsx`，不是 `resourcePage/ResourceCard`。**
-    因為本頁只要「預覽圖 + 標題 + 上傳者」，與資源共享平台的卡片需求不同，
-    **禁止為了本頁去改動 `resourcePage/` 的共用元件**（不加 prop 開關、不改 JSX），需求不同就在本資料夾另寫一份。
+  - **卡片直接在頁面內組裝 `components/Card` 的積木**（見 §9），不是 `resourcePage/ResourceCard`，
+    本資料夾也不再有自己的卡片元件（`OccupationCard.jsx` 已於 2026-08 移除）。
+    「本頁不顯示點讚數與下載次數」的作法就是**不放 `<Card.Stats>`**——不加 prop 開關、不 fork。
+    卡片在本頁的尺寸（300×400、預覽圖 222px、內容區 178px、標籤上緣 12px）寫在 `OccupationTestPage.css`
+    的 `.otp-grid > .cc-card` 那一段；⚠️ 要調整只能改本頁 CSS，**不可改動 `components/Card` 的積木樣式**。
   - 與資源共享平台刻意不同的兩點（PM 指定）：
     1. 篩選只有**一個**分類下拉（共用 `components/CustomSelect`，含「全部」選項）+ 關鍵字搜尋，
        沒有階段／版本／內容類型多選，也沒有「上傳／刪除我的資源」按鈕。
@@ -88,7 +90,8 @@
   - 詳細頁 `OccupationDetailPage.jsx` 比 `resourcePage/FilePreview` **精簡很多，只有「返回列表 + 標題 + 分隔線 + 內容」**：
     日期／點讚數／下載數、AUTHOR、標籤、「下載資源」與「點讚資源」按鈕**這頁一律不放**（2026-08 PM 指定），
     需要時才從 FilePreview 補回來。
-  - 卡片內容為「預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤」，尺寸與資源共享平台相同（300×400）；
+  - 卡片內容為「預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤」（即 `Card.Preview` + `Card.FileType` +
+    `Card.Title` + `Card.Uploader` + `Card.Tags`），尺寸與資源共享平台相同（300×400）；
     與它的唯一差別是**不顯示右上角的點讚數與下載次數**（本功能不記錄這兩個數字，
     mock 資料也沒有 `likes` / `downloads` 欄位）。
   - 列表**不顯示「共 N 筆」總數**（僅底部分頁），與資源共享平台一致。
@@ -154,6 +157,7 @@ src/
  │    └── adminContent/adminHome/  # 各後台管理頁（公告、會員、資源、考試、節慶飲食…）
  ├── assets/             # 靜態圖片、圖示資源
  ├── components/         # 共用 UI 元件，重要子目錄：
+ │    ├── Card/               # 卡片積木（composition，class 前綴 cc-），見 §9
  │    ├── Announcement/        # 前台公告：ServiceSuspensionNotice、GeneralAnnouncementModal
  │    ├── OutageTopBanner/     # 全站停機頂部橫幅
  │    ├── AdminDataTable/      # 後台資料表格（tanstack table 封裝）
@@ -226,3 +230,50 @@ src/
 - **新增公開頁面**: 在 `src/` 下建立對應的資料夾與元件，於 `App.jsx` 引入並添加 `<Route>`，並視情況更新 `Sidebar.jsx` 的選單路徑。
 - **新增後台管理項目**: 於 `src/adminPage/adminContent/adminHome/` 建立管理面板，在 `App.jsx` 使用 `<AdminRoute>` 添加路由，最後更新 `adminSidebar.jsx` 的選單陣列。
 - **API 串接**: 若要讀取或更新資料，請先檢視 `src/services/` 下是否已有相關模組（多透過 `authService.js` 的 `authenticatedFetch` 帶 Token 發送請求），並注意在元件中妥善處理 loading／error 等異步狀態。部分頁面（如公告管理）仍為 mock，串接時需自行補上 service 層。
+
+## 9. 卡片元件與共用元件的修改規範
+
+### 9.1 修改共用元件的前置程序
+
+`src/components/` 與 `src/resourcePage/` 底下的共用元件**預設不可修改**。
+確實需要改動時：
+
+1. **先說明**改哪個檔、為什麼、對現有頁面的影響，**經同意才動手**；
+2. 只允許**向下相容的加法**改動（不改既有 props 語意、不改既有 class 的宣告內容）；
+3. 完成後回報**所有被修改的檔案清單與驗證結果**。
+
+### 9.2 卡片一律用積木組裝，不 fork
+
+- **基礎積木在 `src/components/Card/`**：`Card`、`Card.Preview`、`Card.FileType`、`Card.Stats`、
+  `Card.Content`、`Card.Title`、`Card.Uploader`、`Card.Tags`，由使用端自行組裝需要的部分。
+- **業務卡片命名 `[名詞]Card`**（如 `ResourceCard`），且**必須由積木組裝**。
+- **差異僅在「顯示哪些欄位」者，一律用組裝解決**——不要 fork 一份新元件，也**不要加 boolean prop 開關**。
+  例：職業台語頁不顯示點讚數與下載次數，作法就是不放 `<Card.Stats>`。
+- **積木只負責「長什麼樣」（顏色、圓角、陰影、字級、hover），不負責「多大」**：
+  積木刻意不寫死任何高度，卡片高、預覽圖高、內容區高由使用端的 CSS 自己給。
+  ⚠️ `Card.Preview` 以 background-image 呈現，**使用端沒給高度就是 0 高**。
+- **要微調視覺**，優先覆寫 `.cc-card` 層級的 CSS variables（`--cc-card-radius`、`--cc-content-gap`…），
+  在**使用端自己的 CSS** 覆寫；**禁止為了單一頁面去改 `components/Card/Card.css`**。
+- 現有的兩個使用端可當範例：`resourcePage/ResourceCard.jsx`（含 Stats）、
+  `occupationTestPage/OccupationTestPage.jsx`（不含 Stats，尺寸寫在該頁 CSS）。
+
+## 10. 外部樣式表依賴（Bootstrap CDN）
+
+`index.html` 從 CDN 載入 **Bootstrap 5.1.1 的完整 CSS 與 JS**
+（`https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/…`，CSS 在 `<head>`，因此**排在所有專案樣式之前**）。
+它是全域的，會命中任何同名 class。
+
+⚠️ **新增元件時，class 命名必須檢查是否與 Bootstrap 交集**（`.card`、`.card-header`、`.card-title`、
+`.card-body`、`.badge`、`.row`、`.col`、`.btn`… 都是 Bootstrap 既有名稱）。
+命名撞上時，Bootstrap 的宣告會成為該元素樣式的一部分，日後改名就會「莫名其妙掉樣式」。
+`components/Card/` 全面採用 `cc-` 前綴就是為了避開這件事。
+
+已知正踩在這個坑上、**不可自行清理**的兩處（`resourcePage/ResourceCard.jsx` 內有註解說明）：
+
+| 元素 | 保留的舊 class | 實際樣式來源 |
+| --- | --- | --- |
+| 資源卡片預覽圖 | `card-header` | Bootstrap 的 `.card-header`：預覽圖下緣 1px 底線、上緣 3px 圓角 |
+| 資源卡片標題 | `card-title` | `adminPage/adminMain.css` 的 `.card-title`（排在 `ResourceCard.css` 之後）：字級／字重／顏色／下方 16px |
+
+另外 `.resource-card` 這個名稱同時被 `celebrity/CelebrityDetails.css` 定義並使用，
+兩者靠打包後的載入順序在互相覆蓋——動到其中任一支的 `.resource-card` 規則時，請一併確認另一頁。
