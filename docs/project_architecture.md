@@ -87,7 +87,10 @@
        沒有階段／版本／內容類型多選，也沒有「上傳／刪除我的資源」按鈕。
     2. 點卡片**不另開新分頁**（資源共享平台是 `window.open` 到 `/file-preview`），改用 `navigate()`
        在站內開啟 `/occupation-test/:id`，保留側邊欄與 Header，並在詳細頁提供「返回職業台語列表」。
-  - 詳細頁 `OccupationDetailPage.jsx` 比 `resourcePage/FilePreview` **精簡很多，只有「返回列表 + 標題 + 分隔線 + 內容」**：
+  - 詳細頁 `OccupationDetailPage.jsx` 為「返回列表 + 標題 + 分隔線 + **檔案預覽 + 底部『閱讀全部』按鈕**」，
+    預覽區與按鈕的結構／樣式比照 `resourcePage/FilePreview`（`.otd-preview` 固定高度並 `overflow: hidden`
+    裁切圖片下緣，`.otd-bottom-fixed` 絕對定位覆蓋在底部，點擊後帶檔案資訊 `navigate('/download')`）。
+    **原本的說明文字（`summary` / `sections`）已於 2026-08 依 PM 指定移除**，mock 資料也不再提供這兩個欄位；
     日期／點讚數／下載數、AUTHOR、標籤、「下載資源」與「點讚資源」按鈕**這頁一律不放**（2026-08 PM 指定），
     需要時才從 FilePreview 補回來。
   - 卡片內容為「預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤」（即 `Card.Preview` + `Card.FileType` +

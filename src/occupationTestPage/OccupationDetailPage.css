@@ -59,60 +59,81 @@
   margin: 12px 0;
 }
 
-/* ─── 內容預覽 ─── */
+/* ─── 檔案預覽 ───
+   比照 resourcePage/FilePreview：預覽區固定高度並裁切圖片下緣，
+   底部覆蓋一條「閱讀全部」按鈕（FilePreview 的 .file-bottom-fixed）。 */
 
 .otd-preview {
-  display: flex;
-  justify-content: center;
+  position: relative;
   width: 100%;
-}
-
-.otd-preview-doc {
-  width: 100%;
-  max-width: 840px;
-  padding: 48px 56px;
+  height: calc(100vh - 300px);
+  min-height: 420px;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-@media (max-width: 768px) {
-  .otd-preview-doc {
-    padding: 24px 20px;
-  }
-}
-
-.otd-preview-summary {
-  color: #101828;
-  font-size: 16px;
-  line-height: 30px;
-  margin-bottom: 32px;
-}
-
-.otd-preview-section {
-  margin-bottom: 24px;
-}
-
-.otd-preview-heading {
-  font-size: 17px;
-  font-weight: 700;
-  color: #101828;
-  margin-bottom: 8px;
-}
-
-.otd-preview-body {
-  font-size: 16px;
-  line-height: 30px;
-  color: #344054;
-  margin: 0;
+  overflow: hidden;
 }
 
 .otd-preview-image {
-  display: block;
+  margin: auto;
+  width: 60%;
+  max-width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.otd-preview-image img {
   width: 100%;
   height: auto;
-  margin-top: 32px;
   border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .otd-preview {
+    height: calc(100vh - 240px);
+    min-height: 320px;
+  }
+
+  .otd-preview-image {
+    width: 100%;
+  }
+}
+
+/* 底部「閱讀全部」按鈕 */
+.otd-bottom-fixed {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 96px;
+  gap: 10px;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  color: var(--Primary2, #edf0f7);
+  text-align: center;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 21px;
+
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s ease;
+}
+
+.otd-bottom-fixed:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+  .otd-bottom-fixed {
+    height: 64px;
+    font-size: 22px;
+  }
 }
 
 .otd-empty {
