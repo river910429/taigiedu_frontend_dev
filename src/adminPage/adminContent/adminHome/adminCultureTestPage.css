@@ -1,16 +1,113 @@
-.admin-culture-test-placeholder {
-    margin-top: 1rem;
-    padding: 1.25rem 1.5rem;
-    border: 1px dashed #c9c9c9;
+/* 台語文化（test）後台頁面樣式
+   版面外框比照「媒體與社群資源」後台（adminSocialmediaPage.css）；
+   依專案慣例，各後台頁各自宣告一份頁面外殼樣式，不跨檔相依。 */
+
+.admin-content-wrapper {
+    background-color: #fff;
     border-radius: 8px;
-    background-color: #fafafa;
-    color: #6c757d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    min-height: 600px;
+    padding: 30px;
 }
 
-.admin-culture-test-placeholder ul {
-    padding-left: 1.25rem;
+.admin-header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
 }
 
-.admin-culture-test-placeholder li {
-    line-height: 1.9;
+.admin-header-controls h5 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
 }
+
+.admin-add-button {
+    background-color: #2D92C1;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+}
+
+.admin-add-button:hover {
+    background-color: #40a9ff;
+}
+
+.admin-add-button img {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    filter: brightness(0) invert(1);
+}
+
+.admin-controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* 沒有新增項目按鈕時（如刪除紀錄），讓篩選器仍靠右對齊 */
+.admin-controls-row > :last-child {
+    margin-left: auto;
+}
+
+.status-filter {
+    display: flex;
+    align-items: center;
+}
+
+.status-filter span {
+    font-size: 0.95rem;
+    color: #555;
+    margin-right: 10px;
+}
+
+/* 表格的圖片欄位 */
+.image-preview-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.file-name-text {
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* Modal 表單 */
+.upload-hint {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.invalid-hint {
+    color: #DC2626;
+    font-size: 0.85rem;
+    margin-top: 6px;
+}
+
+.is-invalid {
+    border-color: #DC2626 !important;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+}
+
+.culture-clear-image {
+    color: #DC2626;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+/* 注意：表格樣式已移至 AdminDataTable 組件，請勿在此重複定義 */

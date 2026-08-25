@@ -2,8 +2,7 @@
 
 > 對象：後端開發者
 > 對應前端頁面：`/culture-test`（`src/cultureTestPage/CultureTestPage.jsx`）、`/admin/culture-test`（`src/adminPage/adminContent/adminHome/adminCultureTestPage.jsx`）
-> 目前狀態：**前台已完成，資料全部走 mock**（`src/services/cultureTestMockApi.js`）；**後台仍是空架構頁**
-> 定位：這頁是舊版「節慶飲食」（`/culture/food`、`/culture/festival`）的新版重寫，完成後將取代舊版兩頁
+> 目前狀態：**前台與後台皆已完成畫面，資料全部走 mock**（`src/services/cultureTestMockApi.js`，前後台共用同一份記憶體資料）
 
 ---
 
@@ -145,7 +144,10 @@ Response：
 
 ## 5. 後台 API
 
-後台頁面目前是空的，以下依「媒體與社群資源後台」的操作模式規劃。全部需要 `BearerAuth` ＋ `CONTENT_MANAGER`。
+後台頁面已依「媒體與社群資源後台」的操作模式做好（目前打 mock），以下是它預期呼叫的端點。全部需要 `BearerAuth` ＋ `CONTENT_MANAGER`。
+
+> `POST /admin/culture-media/sort` 目前前端尚未使用（後台比照 `/admin/socialmedia` 未啟用拖曳排序），
+> 但排序欄位仍請保留，日後要開拖曳時才不用改資料表。
 
 ### 5.1 影音資料
 
@@ -281,8 +283,8 @@ Response：
 1. **刪除分類時，底下的影音怎麼處理**：擋住、連帶軟刪除，或搬到「其他類」？
 2. **`image` 縮圖是否必填**：如果多數影音是 YouTube，要由後端抓 thumbnail 自動填，還是一律後台手動上傳？
    目前前端沒圖會顯示預設佔位圖，不會壞版。
-3. **舊版「節慶飲食」資料要不要搬過來**：舊版兩頁（`/culture/food`、`/culture/festival`）在新分類中對應到
-   「地方/產業 > 飲食」與「地方/產業 > 節慶」。要一次性搬移，還是新舊並行到某個時間點？這會決定舊版 API 何時能下線。
+3. **與「節慶飲食」（`/culture/food`、`/culture/festival`）無關**：兩者是各自獨立的功能，
+   資料表、API 與頁面都分開，不需要互相搬移資料，舊版也不會下架。
 4. **影音是否需要「上架/下架」或排程**：目前只有軟刪除，沒有狀態欄位。若 PM 有這需求要及早加。
 
 ---
@@ -294,5 +296,8 @@ Response：
 1. `src/services/cultureTestMockApi.js` → 換成真的 `fetch`，`CATEGORY_TREE` 改讀 API 的 `categories`
 2. `CultureTestPage.jsx` 的 `subCategoriesOf` 改由 API 資料建立（目前是 import 常數）
 3. `item.image` 補 `envConfig.imageUrl` 前綴（比照 `SocialmediaPage.jsx:95`）
-4. `adminCultureTestPage.jsx` 從空架構頁改成完整的 `AdminDataTable` 管理頁，
-   並沿用 `useContentEditPermission` 的唯讀模式（見 `docs/project_architecture.md` 的後台慣例）
+4. `adminCultureTestPage.jsx` 已是完整的 `AdminDataTable` 管理頁（比照 `/admin/socialmedia`），
+   目前呼叫 mock 的 `fetchAdminCultureItems` / `addCultureItem` / `modifyCultureItem`，
+   接上 API 時把這三支換成 `authenticatedFetch` 打 §5.1 的端點即可，畫面不需改動；
+   圖片上傳一併從本地 blob URL 換成 `services/uploadService.js` 的 `uploadFile()`
+5. 分類維護介面（§5.2）尚未實作，前後台的分類目前都來自寫死的 `CATEGORY_TREE`

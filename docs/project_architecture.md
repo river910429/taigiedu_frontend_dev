@@ -47,7 +47,7 @@
   - 後端 API 設計說明見 `docs/placename_culture_api.md`，草稿規格見 `docs/openapi/placename-culture.draft.openapi.json`。
 - **名人堂/台語人物 (`/celebrity`, `/celebrity/detail`)**: `celebrity/CelebrityPage.jsx` 與 `CelebrityDetails.jsx`，展示推廣台語或相關文化的人物介紹。
 - **文化介紹 (`/culture/food`, `/culture/festival`)**: 介紹台灣在地美食 (`CultureFood`) 與節慶 (`CultureFestival`)。
-- **台語文化（test） (`/culture-test`)**: `cultureTestPage/CultureTestPage.jsx`，影音資料庫的分類瀏覽頁，也是「節慶飲食」的**新版重寫**（舊版兩頁在新分類中併入 `文化 > 地方/產業`）。
+- **台語文化（test） (`/culture-test`)**: `cultureTestPage/CultureTestPage.jsx`，影音資料庫的分類瀏覽頁。
   - **分類只收來源表第一層的「文化」這一支，並取其後兩層**（2026-08 PM 調整，前一版是「取前兩層、涵蓋 6 個第一層」）：
     - 篩選第一層 ＝ 來源表第二層：戲曲、祭典、傳統工藝、地方/產業（4 項）
     - 篩選第二層 ＝ 來源表第三層「列舉細項」：歌仔戲、布袋戲…（合計 21 項）
@@ -70,10 +70,11 @@
       **這是 PM 確認過要保留的行為，不是 bug，請勿自行改成「有變更就可送出」。**
     - 選取狀態的異動邏輯抽成 `withCategoryToggled` / `withAllSubsToggled` / `withSubToggled` 三個純函式，桌機套用到 `selectedItems`、手機套用到 `draftSelected`。
   - 媒體與社群資源在手機版是直接把子選單 `display: none`（等於選不到第二層），此頁刻意不沿用該行為。
-  - ⚠️ **內容目前來自 `services/cultureTestMockApi.js` 假資料**：`CATEGORY_TREE` 為上述兩層分類，影音由 `buildMockData()` 依第三層生成（每組 20~45 筆，合計約 660 筆）。回傳格式刻意比照 `POST /media`：`{ category_order, data: { 篩選第一層: [{ ..., subcategory }] } }`，一次給全部，篩選／搜尋／分頁皆由前台處理。接上真實 API 時換掉 `fetchCultureItems()` 即可，頁面不需改動。
+  - ⚠️ **內容目前來自 `services/cultureTestMockApi.js` 假資料**：`CATEGORY_TREE` 為上述兩層分類，影音由 `buildMockItems()` 依第三層生成（每組 20~45 筆，合計約 660 筆）。回傳格式刻意比照 `POST /media`：`{ category_order, data: { 篩選第一層: [{ ..., subcategory }] } }`，一次給全部，篩選／搜尋／分頁皆由前台處理。接上真實 API 時換掉 `fetchCultureItems()` 即可，頁面不需改動。
   - **後端 API 需求規格見 `docs/culture_test_api.md`**（含前台 `POST /culture-media`、後台影音與分類 CRUD、資料表建議、待確認事項）。
-  - 新舊兩套**刻意並存**，待新版 API 完成後才會取代舊版並移除 `/culture/food`、`/culture/festival`（舊版兩頁在新分類中對應到「地方/產業 > 飲食」與「地方/產業 > 節慶」）。
-  - ⚠️ 開發中頁面，但**未加 feature toggle**，前台側邊欄一律顯示（含正式環境）。
+  - mock 已改為「攤平陣列為單一資料來源」：前台的分組格式由 `groupForFrontend()` 推導，後台則直接讀寫該陣列，兩邊同步。
+  - 由 `VITE_ENABLE_CULTURE_TEST_FEATURE` 控制前台側邊欄、後台側邊欄、後台首頁卡片與兩條路由是否顯示。
+    ⚠️ 關閉時路由是 `<Navigate>` 導回首頁／後台首頁，**不是 404**，所以入口若沒一起擋就會變成「點了沒反應」。
 - **職業台語（test） (`/occupation-test`, `/occupation-test/:id`)**: `occupationTestPage/OccupationTestPage.jsx`，職場情境台語教材的資源列表。
   - **版面沿用「台語教學資源共享平台」**（`resourcePage/`）：sticky 篩選列 + 卡片牆（每頁 12 筆）+ 分頁；
     網格與間距在 `OccupationTestPage.css` 比照 `ResourceContent.css`。
@@ -134,8 +135,24 @@
   - 考試資訊 (`/admin/main-search/test`): `adminTestPage.jsx`。
   - 活動快訊 (`/admin/main-search/news`): `adminNewsPage.jsx`。
 - **節慶飲食管理 (`/admin/culture/food`, `/admin/culture/festival`)**: `adminFoodPage.jsx` / `adminFestivalPage.jsx`。
-- **台語文化（test）管理 (`/admin/culture-test`)**: `adminCultureTestPage.jsx`，上述節慶飲食後台的**新版重寫**。
-  - ⚠️ 空架構頁，尚未串接 API；與舊版並存，無 feature toggle，所有管理員皆可見。
+- **台語文化（test）管理 (`/admin/culture-test`)**: `adminCultureTestPage.jsx`，台語文化影音的內容管理頁。
+  - **版面與操作整套比照「媒體與社群資源」後台**（`adminSocialmediaPage.jsx`）：
+    麵包屑分類篩選（第一層 + 連動的第二層）、「目前資源／刪除紀錄」狀態切換、`AdminDataTable`（每頁 20 筆、不啟用拖曳）、
+    `AdminModal` 表單，刪除為軟刪除並可從刪除紀錄復原。
+  - **欄位依前台 `/culture-test` 實際使用的欄位設定**：
+    表格為「編輯｜分類｜子分類｜標題｜影音連結｜圖片｜刪除／復原｜建立時間」；
+    表單為「標題、影音連結、分類（第二層）、子分類（第三層）、圖片（選填）」。
+  - 與媒體與社群資源刻意不同的兩點：
+    1. 類別是**單選的兩層連動下拉**（一筆影音只屬於一個第三層分類），不是可複選的勾選框；
+       送出時以 `getCategoryId(category, subcategory)` 轉成 `category_id`（「其他類」重名，不可只用名稱識別）。
+    2. **圖片非必填**（媒體與社群資源是必填），沒圖時前台顯示預設佔位圖。
+  - ⚠️ **資料與前台共用 `services/cultureTestMockApi.js` 的同一份記憶體假資料**（`fetchAdminCultureItems` /
+    `addCultureItem` / `modifyCultureItem`），因此後台改完切到前台看得到結果，但**重整就會回到初始假資料**。
+    圖片上傳在 mock 階段只產生本地 blob URL，接上 API 後改用 `services/uploadService.js` 的 `uploadFile()`。
+    端點規格見 `docs/culture_test_api.md` §5。
+  - 支援 `?category=戲曲` 參數，後台首頁（`adminMain.jsx`）的「台語文化（test）」卡片以四個第一層分類為連結，即以此帶入預設篩選（與媒體與社群資源同一套做法）。
+  - 受 `VITE_ENABLE_CULTURE_TEST_FEATURE` 控制（後台側邊欄、後台首頁卡片、路由三處都要一起擋）；沿用 `useContentEditPermission` 的唯讀模式。
+  - 分類本身的維護介面（`/admin/culture-category`，見 `docs/culture_test_api.md` §5.2）**尚未實作**，分類目前來自寫死的 `CATEGORY_TREE`。
 - **認證考試管理 (`/admin/exam/info`)**: `examPage/adminExamInfo.jsx`，編輯考試基本資訊。
   - 註：`examPage/` 下另有 `adminExamBooks.jsx`、`adminExamChannels.jsx`，但目前尚未在 `App.jsx` 中掛載路由。
 - **媒體與社群資源管理 (`/admin/socialmedia`)**: `adminSocialmediaPage.jsx`，編輯與新增推薦的影音/Podcast連結。

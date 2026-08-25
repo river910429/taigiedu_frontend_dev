@@ -179,7 +179,6 @@ const AppLayout = () => {
                 : <Navigate to="/" replace />
             }
           />
-          {/* 台語文化（test）：節慶飲食的新版重寫，與舊版並存 */}
           <Route
             path="/culture-test"
             element={
@@ -250,7 +249,6 @@ const AppLayout = () => {
               </AdminRoute>
             }
           />
-          {/* 台語文化（test）後台：與舊版節慶飲食後台並存 */}
           <Route
             path="/admin/culture-test"
             element={
