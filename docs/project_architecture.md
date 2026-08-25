@@ -81,7 +81,7 @@
   - **卡片直接在頁面內組裝 `components/Card` 的積木**（見 §9），不是 `resourcePage/ResourceCard`，
     本資料夾也不再有自己的卡片元件（`OccupationCard.jsx` 已於 2026-08 移除）。
     「本頁不顯示點讚數與下載次數」的作法就是**不放 `<Card.Stats>`**——不加 prop 開關、不 fork。
-    卡片在本頁的尺寸（300×400、預覽圖 222px、內容區 178px、標籤上緣 12px）寫在 `OccupationTestPage.css`
+    卡片在本頁的尺寸（300×400、預覽圖 222px、內容區 178px）寫在 `OccupationTestPage.css`
     的 `.otp-grid > .cc-card` 那一段；⚠️ 要調整只能改本頁 CSS，**不可改動 `components/Card` 的積木樣式**。
   - 與資源共享平台刻意不同的兩點（PM 指定）：
     1. 篩選只有**一個**分類下拉（共用 `components/CustomSelect`，含「全部」選項）+ 關鍵字搜尋，
@@ -94,8 +94,9 @@
     **原本的說明文字（`summary` / `sections`）已於 2026-08 依 PM 指定移除**，mock 資料也不再提供這兩個欄位；
     日期／點讚數／下載數、AUTHOR、標籤、「下載資源」與「點讚資源」按鈕**這頁一律不放**（2026-08 PM 指定），
     需要時才從 FilePreview 補回來。
-  - 卡片內容為「預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤」（即 `Card.Preview` + `Card.FileType` +
-    `Card.Title` + `Card.Uploader` + `Card.Tags`），尺寸與資源共享平台相同（300×400）；
+  - 卡片內容為「預覽圖 + 檔案類型標籤 + 標題 + 上傳者」（即 `Card.Preview` + `Card.FileType` +
+    `Card.Title` + `Card.Uploader`），尺寸與資源共享平台相同（300×400）；
+    ⚠️ **標籤（`Card.Tags`）已於 2026-08 依 PM 指定移除**，前後台與 mock 資料都不再有 `tags` 欄位，勿再加回。
     與它的唯一差別是**不顯示右上角的點讚數與下載次數**（本功能不記錄這兩個數字，
     mock 資料也沒有 `likes` / `downloads` 欄位）。
   - 列表**不顯示「共 N 筆」總數**（僅底部分頁），與資源共享平台一致。
@@ -103,8 +104,7 @@
     **醫療長照／行業台語**兩項，各 18 筆（合計 36 筆），一次回傳全部，篩選／搜尋／分頁皆由前台處理。
     分類與內容日後改由後端資料庫匯入，屆時換掉 `fetchOccupationResources()` / `fetchOccupationCategories()` 即可，頁面不需改動。
     詳細頁的點讚只改前端狀態、下載尚無實際檔案。
-  - 由 `VITE_ENABLE_OCCUPATION_TEST_FEATURE` 控制側邊欄與兩條路由是否顯示。
-  - 目前**只有前台，沒有後台管理頁**。
+  - 由 `VITE_ENABLE_OCCUPATION_TEST_FEATURE` 控制前台側邊欄、後台側邊欄、後台首頁卡片與三條路由是否顯示。
 - **社群媒體/影音 (`/socialmedia`)**: `socialmediaPage/SocialmediaPage`，整合外部平台（如 YouTube/Podcast）的影音資源。
 - **認證考試 (`/exam`)**: `examPage/ExamPage`，提供台語認證的相關資訊。
 - **親屬關係計算機 (`/relative-calculator`)**: `relativeCalculatorPage/RelativeCalculatorPage.jsx`，提供親屬稱謂查詢與計算功能。
@@ -153,6 +153,44 @@
   - 支援 `?category=戲曲` 參數，後台首頁（`adminMain.jsx`）的「台語文化（test）」卡片以四個第一層分類為連結，即以此帶入預設篩選（與媒體與社群資源同一套做法）。
   - 受 `VITE_ENABLE_CULTURE_TEST_FEATURE` 控制（後台側邊欄、後台首頁卡片、路由三處都要一起擋）；沿用 `useContentEditPermission` 的唯讀模式。
   - 分類本身的維護介面（`/admin/culture-category`，見 `docs/culture_test_api.md` §5.2）**尚未實作**，分類目前來自寫死的 `CATEGORY_TREE`。
+- **職業台語（test）管理 (`/admin/occupation-test`)**: `adminOccupationTestPage.jsx`，職業台語教材的內容管理頁。
+  - 頁面外框（類別篩選、「目前資源／刪除紀錄」切換、新增鈕、`AdminModal` 表單）比照其他後台分頁
+    （`adminSocialmediaPage` / `adminCultureTestPage`），刪除為軟刪除並可從刪除紀錄復原。
+  - ⚠️ **清單不是 `AdminDataTable`，而是卡片牆**（PM 指定，2026-08）：直接組裝 `components/Card` 的積木，
+    組法與尺寸都比照前台 `/occupation-test`（預覽圖 + 檔案類型標籤 + 標題 + 上傳者，
+    不放 `Card.Stats`、不放 `Card.Tags`），每頁 12 筆 + `mainSearchPage/Pagination`。
+    管理操作收在**滑過卡片才浮出的半透明操作層**（預覽／編輯／刪除，`:focus-within` 也會顯示以支援鍵盤），
+    卡片本身不顯示建立時間。
+  - 「預覽」導到**職業台語專用的預覽頁 `/admin/occupation-test/preview`**（`adminOccupationPreviewPage.jsx`），
+    資料塞在 query string，該頁不打任何 API。
+    ⚠️ **刻意不共用 `/admin/file-preview`**：那頁的「下架資源」按鈕打 `/admin/resource/status`（資源共享平台的端點），
+    職業台語的資料不在那組 API 裡；且本功能需要「返回列表」，而那頁是另開分頁進來的、沒有返回的對象。
+    要在那支加開關就得改到共用檔案，因此另寫一份（PM 指定），**代價是兩邊樣式各自維護**。
+    ⚠️ 另外這裡是 **`navigate()` 站內導頁，不是 `window.open` 另開分頁**（資源共享平台後台是另開分頁）。
+    原因：access token 只存在記憶體（`services/authService.js`），新分頁拿不到，得靠 `/auth/refresh` 的 cookie 救回；
+    本機 `localhost:3000` 打 `api.taigiedu.com` 屬跨站、cookie 送不出去 → 被導去 `/login`，
+    而 `ProtectedRoute` 轉跳時只保留 `location.pathname`、**丟掉 query string**，回來後參數就全沒了。
+    同分頁導頁不經過這段轉跳，參數才留得住。（正式站同網域下沒這問題，但為了本機可用一律走 `navigate()`。）
+    卡片尺寸寫在 `adminOccupationTestPage.css` 的 `.oca-card-slot` 那一段；
+    ⚠️ 要調整只能改本頁 CSS，**不可改動 `components/Card` 的積木樣式**。
+  - **欄位依前台 `/occupation-test` 實際使用的欄位設定**：
+    表單為「名稱、類別、上傳檔案、預覽縮圖」。
+    ⚠️ **`uploader`（上傳者）不放在表單裡**：新增時由後端依 Bearer Token 自動帶入登入者名稱，
+    修改時維持原值不動。mock 沒有 Token，暫時由頁面帶 `AuthContext` 的 `user.name` 代替；
+    接上真實 API 後請把 `uploader` 從 payload 移除，改由後端寫入。
+    `fileType` 由上傳檔案的副檔名自動帶入（前台卡片標籤只有 pdf/ppt/doc 三種），不手動填；
+    `topic` 只用於前台搜尋字串，後台不提供輸入，新資料留空。
+  - **上傳檔案與預覽縮圖比照前台「上傳資源」**（`resourcePage/UploadResource`）：限 PDF/PPT/DOC、100MB，
+    選好檔案後自動產生縮圖，也可手動上傳自訂圖片覆蓋；已手動指定過就不會被自動縮圖蓋掉。
+    ⚠️ 縮圖產生邏輯抽在 `utils/documentThumbnail.js`（PDF 走 pdfjs 渲染第一頁、DOCX 走 mammoth 取文字、
+    DOC/PPT 畫佔位圖）。這份邏輯與 `UploadResource.jsx` 內的同名函式**同源但各自一份**——
+    後者屬於「共用元件預設不可修改」的範圍（見 CLAUDE.md §9.1），要合併需先取得同意。
+  - 支援 `?category=醫療長照` 參數，後台首頁的「職業台語（test）」卡片即以此帶入預設篩選。
+  - ⚠️ **資料與前台共用 `services/occupationTestMockApi.js` 的同一份記憶體假資料**（`fetchAdminOccupationResources` /
+    `addOccupationResource` / `modifyOccupationResource`），後台改完切到前台看得到結果，但**重整就會回到初始假資料**。
+    mock 階段檔案與縮圖都只產生本地 blob URL，接上 API 後改用 `services/uploadService.js` 的 `uploadFile()`。
+  - 受 `VITE_ENABLE_OCCUPATION_TEST_FEATURE` 控制（後台側邊欄、後台首頁卡片、路由三處都要一起擋）；
+    沿用 `useContentEditPermission` 的唯讀模式。
 - **認證考試管理 (`/admin/exam/info`)**: `examPage/adminExamInfo.jsx`，編輯考試基本資訊。
   - 註：`examPage/` 下另有 `adminExamBooks.jsx`、`adminExamChannels.jsx`，但目前尚未在 `App.jsx` 中掛載路由。
 - **媒體與社群資源管理 (`/admin/socialmedia`)**: `adminSocialmediaPage.jsx`，編輯與新增推薦的影音/Podcast連結。
@@ -164,6 +202,14 @@
   - 「停用／恢復上傳資格」走 `POST /admin/member/status`（需 CONTENT_MANAGER，後端據 `action` 設定 `isSuspended`、`suspendAt`、`suspendReason`）；「設定管理員身分」走 `POST /admin/member/flags`（需 SYSTEM_MANAGER，直接帶 flags 整數）。兩者封裝在 `services/memberService.js`。
   - 三個視圖的分流依據：管理員名單 = `!isSuspended && flags > 0`、會員名單 = `!isSuspended && flags === 0`、停用會員名單 = `isSuspended`（並顯示 `suspendReason` / `suspendAt`）。
 - **檔案預覽 (`/admin/file-preview`)**: 後台專屬預覽介面，`adminresourcePage/AdminFilePreview.jsx`。
+  - 資料**全部從 query string 讀取**，開啟時不打 API；由 `AdminResourcePage` 以 `window.open` 帶參數過去。
+  - 唯一會打 API 的是「下架資源」按鈕（`POST /admin/resource/status`，資源共享平台專用）。
+  - ⚠️ **這支是資源共享平台專用，其他功能不要共用**。職業台語需要「隱藏下架鈕 + 返回列表」，
+    若在此加開關就得改動共用檔案，因此另開一頁 `adminOccupationPreviewPage.jsx`（見上）。
+- **職業台語檔案預覽 (`/admin/occupation-test/preview`)**: `adminOccupationPreviewPage.jsx`。
+  - 版面比照 `AdminFilePreview`（管理員檢視橫幅 + 紅色標題 + AUTHOR + 置中預覽圖），但**兩邊各自維護**，
+    class 前綴為 `oap-`。沒有下架按鈕與管理軌跡，多了「‹ 返回職業台語列表」。
+  - 資料全部從 query string 讀（`title` / `imageUrl` / `fileType` / `uploader` / `category`），不打任何 API。
 - **公告管理 (`/admin/announcement`)**: `adminAnnouncementPage.jsx`，管理一般公告與停機公告（含上架/排程/下架狀態）。
   - ⚠️ **目前此頁仍使用內建 `MOCK_DATA` 假資料，尚未串接後端 API**；新增/編輯/刪除僅更新本地 state，重整即重置。
 
@@ -193,6 +239,7 @@ src/
  ├── contexts/           # React Context (AuthContext.jsx)
  ├── services/           # 後端串接：authService.js（JWT）、outageService.js（Firestore 停機公告）、featuredResourceMockApi.js
  ├── shared/             # 跨元件共用狀態，如 resourceStore.js
+ ├── utils/              # 純函式工具，如 documentThumbnail.js（依上傳文件產生預覽縮圖）
  ├── relativeCalculatorPage/ # 親屬關係計算機頁面與樣式
  ├── styles/             # 全局樣式 (`global.css`)
  └── [各功能資料夾]/       # 如 readPage, resourcePage, culture, examPage 等，各自包含 JSX 與專屬 CSS 樣式

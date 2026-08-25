@@ -1,0 +1,369 @@
+/* 職業台語（test）後台頁面樣式
+   版面外框比照其他後台分頁（adminSocialmediaPage.css / adminCultureTestPage.css）；
+   依專案慣例，各後台頁各自宣告一份頁面外殼樣式，不跨檔相依。
+   上傳與縮圖區的視覺沿用前台「上傳資源」（UploadResource.css），
+   但 class 另取 oca- 前綴，避免與前台樣式或 Bootstrap 互相污染（見 CLAUDE.md §10）。 */
+
+.admin-content-wrapper {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    min-height: 600px;
+    padding: 30px;
+}
+
+.admin-header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.admin-header-controls h5 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.admin-add-button {
+    background-color: #2D92C1;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+}
+
+.admin-add-button:hover {
+    background-color: #40a9ff;
+}
+
+.admin-add-button img {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    filter: brightness(0) invert(1);
+}
+
+.admin-controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* 沒有新增項目按鈕時（如刪除紀錄），讓篩選器仍靠右對齊 */
+.admin-controls-row > :last-child {
+    margin-left: auto;
+}
+
+.status-filter {
+    display: flex;
+    align-items: center;
+}
+
+.status-filter span {
+    font-size: 0.95rem;
+    color: #555;
+    margin-right: 10px;
+}
+
+.upload-hint {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.invalid-hint {
+    color: #DC2626;
+    font-size: 0.85rem;
+    margin-top: 6px;
+}
+
+.is-invalid {
+    border-color: #DC2626 !important;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+}
+
+/* ===== Modal：上傳檔案 ===== */
+.oca-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.oca-file-name {
+    color: #555;
+    font-size: 0.95rem;
+    word-break: break-all;
+}
+
+/* ===== Modal：預覽縮圖 ===== */
+.oca-thumb-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: 16px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.oca-thumb-empty,
+.oca-thumb-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #9ca3af;
+    font-size: 0.95rem;
+}
+
+.oca-thumb-loading-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.oca-thumb-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.oca-thumb-image-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.oca-thumb-image {
+    max-height: 260px;
+    max-width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: #fff;
+}
+
+/* 移除鈕壓在縮圖右上角，與前台上傳頁一致 */
+.oca-thumb-remove {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: #DC2626;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.oca-thumb-remove:hover {
+    background: #b91c1c;
+}
+
+.oca-thumb-custom-name {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.oca-thumb-upload-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 0.45rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #fff;
+    color: #2D92C1;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.oca-thumb-upload-btn:hover {
+    border-color: #2D92C1;
+    background: #f4f9fc;
+}
+
+/* ===== 搜尋列 =====
+   樣式比照「台語教學資源共享平台」的搜尋列（resourcePage/ResourceHeader.css 的 .res-search-*）：
+   8px 圓角、聚焦時 #4AA3BA 邊框與淡光暈，右側是純圖示（無底色按鈕）。
+   位置在麵包屑那一列的右側，靠 .admin-header-controls 的 space-between 推過去，
+   高度改為 40px 以配合該列的其他元件（共享平台是 48px 的獨立篩選列）。 */
+.oca-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 0 1 400px;
+    min-width: 200px;
+    height: 40px;
+}
+
+.oca-search-input {
+    width: 100%;
+    height: 100%;
+    padding: 0 3rem 0 1rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    margin: 0;
+    outline: none;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.oca-search-input:focus,
+.oca-search-input:hover {
+    border-color: #4AA3BA;
+    box-shadow: 0 0 5px rgba(74, 163, 186, 0.3);
+}
+
+.oca-search-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.oca-search-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+/* ===== 卡片牆 =====
+   清單不用 AdminDataTable，改用 components/Card 的積木組裝（PM 指定），
+   組法與尺寸都比照前台 /occupation-test（OccupationTestPage.css）。
+
+   顏色、圓角、陰影、字級、hover 等「長什麼樣」全部由積木提供；
+   ⚠️ 這裡只寫「在本頁多大」——積木刻意不管高度，各頁自己給。
+   要調整本頁卡片改這一段就好，**不要去改 components/Card 的樣式**（跨頁共用）。 */
+.oca-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 300px));
+    justify-content: center;
+    column-gap: 30px;
+    row-gap: 40px;
+    margin: 20px auto;
+    padding-top: 10px;
+    min-height: 200px;
+    align-items: start;
+    width: 100%;
+}
+
+/* 卡片外再包一層，讓管理鈕與建立時間有定位基準，不必動到積木本身 */
+.oca-card-slot {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    justify-self: center;
+}
+
+.oca-card-slot > .cc-card {
+    max-width: 300px;
+    height: 400px;
+    margin: 0 auto;
+    overflow: hidden; /* 預覽圖跟著卡片圓角一起裁切 */
+}
+
+.oca-card-slot .cc-preview {
+    height: 222px;
+    flex-shrink: 0;
+}
+
+.oca-card-slot .cc-content {
+    height: 178px; /* 400px - preview(222px) */
+}
+
+/* 管理操作：滑過卡片才浮出的半透明操作層
+   （前台卡片沒有這一層；後台把預覽／編輯／刪除都收在這裡，平常不干擾卡片內容）
+   同時對 :focus-within 生效，鍵盤 Tab 進來時也看得到按鈕。 */
+.oca-card-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border-radius: var(--cc-card-radius, 12px);
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s ease-in-out;
+    z-index: 2;
+}
+
+.oca-card-slot:hover .oca-card-overlay,
+.oca-card-overlay:focus-within {
+    opacity: 1;
+    visibility: visible;
+}
+
+.oca-overlay-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 120px;
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 999px;
+    background: #fff;
+    color: #333;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.oca-overlay-btn:hover {
+    background: #f1f5f9;
+}
+
+.oca-overlay-btn img {
+    width: 16px;
+    height: 16px;
+}
+
+.oca-overlay-btn.is-primary {
+    background: #2D92C1;
+    color: #fff;
+}
+
+.oca-overlay-btn.is-primary:hover {
+    background: #40a9ff;
+}
+
+.oca-overlay-btn.is-danger {
+    color: #DC2626;
+}
+
+.oca-overlay-btn.is-danger img {
+    filter: invert(23%) sepia(88%) saturate(3200%) hue-rotate(350deg) brightness(88%) contrast(95%);
+}
+
+/* 載入失敗／無資料 */
+.oca-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 3rem 1rem;
+    color: #6c757d;
+    font-size: 1rem;
+}

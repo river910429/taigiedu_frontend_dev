@@ -52,6 +52,8 @@ import AdminFilePreview from "./adminPage/adminContent/adminHome/adminresourcePa
 import AdminFoodPage from "./adminPage/adminContent/adminHome/adminFoodPage";
 import AdminFestivalPage from "./adminPage/adminContent/adminHome/adminFestivalPage";
 import AdminCultureTestPage from "./adminPage/adminContent/adminHome/adminCultureTestPage";
+import AdminOccupationTestPage from "./adminPage/adminContent/adminHome/adminOccupationTestPage";
+import AdminOccupationPreviewPage from "./adminPage/adminContent/adminHome/adminOccupationPreviewPage";
 import AdminSocialmediaPage from "./adminPage/adminContent/adminHome/adminSocialmediaPage";
 import AdminResourcePage from "./adminPage/adminContent/adminHome/adminresourcePage/AdminResourcePage";
 import ResourceHeaderPage from "./adminPage/adminContent/adminHome/adminresourcePage/ResourceHeaderPage";
@@ -255,6 +257,27 @@ const AppLayout = () => {
               <AdminRoute>
                 {isCultureTestFeatureEnabled
                   ? <AdminCultureTestPage />
+                  : <Navigate to="/admin" replace />}
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/occupation-test"
+            element={
+              <AdminRoute>
+                {isOccupationTestFeatureEnabled
+                  ? <AdminOccupationTestPage />
+                  : <Navigate to="/admin" replace />}
+              </AdminRoute>
+            }
+          />
+          {/* 職業台語專用的檔案預覽頁（不共用 /admin/file-preview，原因見該頁檔頭） */}
+          <Route
+            path="/admin/occupation-test/preview"
+            element={
+              <AdminRoute>
+                {isOccupationTestFeatureEnabled
+                  ? <AdminOccupationPreviewPage />
                   : <Navigate to="/admin" replace />}
               </AdminRoute>
             }

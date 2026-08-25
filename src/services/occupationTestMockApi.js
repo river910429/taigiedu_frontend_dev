@@ -1,7 +1,9 @@
 /**
  * 職業台語（test）— 假資料 API
  *
- * ⚠️ 這是開發階段的 mock，尚未串接後端。
+ * ⚠️ 這是開發階段的 mock，尚未串接後端。前台（/occupation-test）與後台（/admin/occupation-test）
+ * 共用本檔的同一份記憶體資料，因此在後台新增／修改／刪除後，切到前台即可看到結果
+ * （重整頁面就會回到初始假資料）。
  *
  * ── 與「台語教學資源共享平台」的差異 ──
  * 版面沿用資源共享平台（卡片牆 + 篩選列 + 分頁），但：
@@ -55,8 +57,6 @@ const TITLE_PATTERNS = [
 
 const UPLOADERS = ['Tshuì水團隊', '台語教研小組', '林老師', '陳老師', '職場台語工作坊'];
 const FILE_TYPES = ['pdf', 'ppt', 'doc'];
-const CONTENT_TAGS = ['教案', '學習單', '簡報'];
-const LEVEL_TAGS = ['入門', '進階', '通用'];
 
 /** 固定種子的偽亂數，確保每次重整看到的假資料一致（方便比對畫面） */
 const seededRandom = (seed) => {
@@ -92,13 +92,16 @@ const buildMockData = () => {
         title: `${pattern(topic)}${round > 1 ? `（${round}）` : ''}`,
         uploader: pick(random, UPLOADERS),
         fileType: pick(random, FILE_TYPES),
-        tags: [category, pick(random, CONTENT_TAGS), pick(random, LEVEL_TAGS)],
         // 本功能不記錄點讚數與下載次數，故不提供 likes / downloads 欄位
         date: `2026-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} 09:00:00`,
         // 尚無圖片與檔案，前台會顯示預設佔位圖；接上 API 後改放實際路徑
         imageUrl: null,
         fileUrl: '',
+        fileName: '',
         // 詳細頁只放檔案預覽圖與「閱讀全部」，不再有說明文字，故不提供 summary / sections
+        // 以下為後台管理欄位，前台不使用
+        is_deleted: false,
+        created_at: `2026-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T09:00:00Z`,
       });
     }
   });
@@ -106,7 +109,9 @@ const buildMockData = () => {
   return items;
 };
 
-const MOCK_ITEMS = buildMockData();
+// 記憶體資料表：前台讀未刪除的、後台讀全部，後台的異動直接改這個陣列
+let MOCK_ITEMS = buildMockData();
+let nextItemId = MOCK_ITEMS.length + 1;
 
 const delay = (ms = 250) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -120,20 +125,97 @@ export const fetchOccupationResources = async () => {
   await delay();
   return {
     categories: [...CATEGORY_OPTIONS],
-    data: MOCK_ITEMS,
+    data: MOCK_ITEMS.filter(item => !item.is_deleted),
   };
 };
 
 /** 取得單筆資源（mock），供詳細頁使用 */
 export const fetchOccupationResourceById = async (id) => {
   await delay(150);
-  return MOCK_ITEMS.find(item => String(item.id) === String(id)) || null;
+  return MOCK_ITEMS.find(item => String(item.id) === String(id) && !item.is_deleted) || null;
 };
 
 /** 取得分類清單（mock）。後端完成後改打 API，前台不需改動。 */
 export const fetchOccupationCategories = async () => {
   await delay(100);
   return [...CATEGORY_OPTIONS];
+};
+
+/**
+ * 【後台】取得資源列表（mock，對應 GET /admin/occupation-resource）
+ *
+ * 回傳攤平陣列且**包含已刪除的資料**（後台以 is_deleted 分成「目前資源／刪除紀錄」兩個視圖）。
+ */
+export const fetchAdminOccupationResources = async () => {
+  await delay();
+  return MOCK_ITEMS.map(item => ({ ...item }));
+};
+
+/**
+ * 【後台】新增一筆（mock，對應 POST /admin/occupation-resource/add）
+ *
+ * ⚠️ `uploader` 在真實 API 應由後端依 Bearer Token 判定登入者後寫入，
+ * 前端不該送這個欄位；mock 沒有 Token，暫時由呼叫端帶入 AuthContext 的使用者名稱。
+ */
+export const addOccupationResource = async (payload) => {
+  await delay(200);
+  if (!CATEGORY_OPTIONS.includes(payload.category)) throw new Error('分類不存在');
+
+  MOCK_ITEMS.push({
+    id: nextItemId++,
+    category: payload.category,
+    // topic 只用於前台搜尋的比對字串，後台沒有這個欄位，新資料留空
+    topic: '',
+    title: payload.title,
+    uploader: payload.uploader || '',
+    fileType: payload.fileType || '',
+    date: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    imageUrl: payload.imageUrl || null,
+    fileUrl: payload.fileUrl || '',
+    fileName: payload.fileName || '',
+    is_deleted: false,
+    created_at: new Date().toISOString(),
+  });
+
+  return { success: true, message: '新增成功' };
+};
+
+/**
+ * 【後台】修改／刪除／復原（mock，對應 POST /admin/occupation-resource/modify）
+ *
+ * action: '1' = 刪除（軟刪除）／'2' = 復原／'3' = 修改
+ */
+export const modifyOccupationResource = async ({ id, action, ...payload }) => {
+  await delay(200);
+  const target = MOCK_ITEMS.find(item => String(item.id) === String(id));
+  if (!target) throw new Error('找不到該筆資料');
+
+  if (action === '1') {
+    target.is_deleted = true;
+  } else if (action === '2') {
+    target.is_deleted = false;
+  } else if (action === '3') {
+    if (!CATEGORY_OPTIONS.includes(payload.category)) throw new Error('分類不存在');
+    Object.assign(target, {
+      category: payload.category,
+      title: payload.title,
+      uploader: payload.uploader || '',
+      fileType: payload.fileType || '',
+      imageUrl: payload.imageUrl || null,
+      fileUrl: payload.fileUrl || '',
+      fileName: payload.fileName || '',
+    });
+  } else {
+    throw new Error('未知的 action');
+  }
+
+  return { success: true, message: '更新成功' };
+};
+
+/** 測試／開發用：把假資料重設回初始狀態 */
+export const resetOccupationMockData = () => {
+  MOCK_ITEMS = buildMockData();
+  nextItemId = MOCK_ITEMS.length + 1;
 };
 
 export default fetchOccupationResources;

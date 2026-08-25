@@ -1,0 +1,94 @@
+/* 職業台語（test）後台檔案預覽頁
+   視覺比照 adminresourcePage/AdminFilePreview.css，但 class 另取 oap- 前綴，
+   兩邊各自維護、互不影響（見 adminOccupationPreviewPage.jsx 的說明）。 */
+
+.oap-page {
+    width: 100%;
+    min-height: 100vh;
+    background: #f8fafc;
+    padding-bottom: 40px;
+}
+
+/* 返回列表 */
+.oap-back-button {
+    display: block;
+    margin: 16px 32px 0;
+    padding: 8px 16px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    background: #fff;
+    color: #101828;
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.oap-back-button:hover {
+    border-color: #2D92C1;
+    color: #2D92C1;
+}
+
+/* 管理員檢視提示 */
+.oap-view-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #FFE4C2;
+    color: #4B5563;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid #FFD09A;
+    margin: 16px 32px;
+}
+
+.oap-view-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #FF9B42;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* 標題區 */
+.oap-header {
+    position: relative;
+    padding: 0 32px;
+    margin-bottom: 24px;
+}
+
+.oap-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #EF4444;
+    margin: 0 0 16px 0;
+}
+
+.oap-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    color: #6B7280;
+    font-size: 15px;
+}
+
+.oap-uploader,
+.oap-meta {
+    color: #6B7280;
+}
+
+/* 預覽圖 */
+.oap-image {
+    display: flex;
+    justify-content: center;
+    padding: 0 32px;
+}
+
+.oap-image img {
+    max-width: 100%;
+    max-height: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}

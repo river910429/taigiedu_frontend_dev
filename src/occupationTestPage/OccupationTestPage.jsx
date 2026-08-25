@@ -14,7 +14,7 @@ import { fetchOccupationResources } from '../services/occupationTestMockApi';
  * 職業台語（test）
  *
  * 版面沿用「台語教學資源共享平台」（resourcePage）：sticky 篩選列 + 卡片牆 + 分頁，
- * 卡片直接組裝 `components/Card` 的積木（預覽圖 + 檔案類型標籤 + 標題 + 上傳者 + 標籤），
+ * 卡片直接組裝 `components/Card` 的積木（預覽圖 + 檔案類型標籤 + 標題 + 上傳者），
  * 與資源共享平台的差別只在**不顯示點讚數與下載次數**——不放 `<Card.Stats>` 就是了。
  * 卡片在本頁的尺寸（300×400、預覽圖 222px…）寫在 OccupationTestPage.css，
  * ⚠️ 需要調整只能改本頁 CSS，**不可改動 components/Card 的積木樣式**，那是跨頁共用的。
@@ -73,7 +73,7 @@ const OccupationTestPage = () => {
     return resources.filter(item => {
       if (selectedCategory && item.category !== selectedCategory) return false;
       if (!term) return true;
-      return `${item.title} ${item.category} ${item.topic} ${item.uploader} ${(item.tags || []).join(' ')}`
+      return `${item.title} ${item.category} ${item.topic} ${item.uploader}`
         .toLowerCase()
         .includes(term);
     });
@@ -175,7 +175,6 @@ const OccupationTestPage = () => {
                 <Card.Content>
                   <Card.Title>{item.title}</Card.Title>
                   <Card.Uploader name={item.uploader} />
-                  <Card.Tags tags={item.tags} />
                 </Card.Content>
               </Card>
             ))}

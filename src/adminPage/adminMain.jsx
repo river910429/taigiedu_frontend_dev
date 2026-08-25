@@ -17,6 +17,7 @@ const AdminMain = () => {
   // 台語文化與其路由同受 VITE_ENABLE_CULTURE_TEST_FEATURE 控制，
   // 沒有一起擋的話關閉時卡片還在，點了會被路由導回本頁，看起來像沒反應
   const isCultureTestFeatureEnabled = envConfig.features.enableCultureTestFeature;
+  const isOccupationTestFeatureEnabled = envConfig.features.enableOccupationTestFeature;
 
   // 排列順序即卡片在 3 欄格線中的位置：
   // 第一列刻意放三張「兩個項目」的卡片，讓高度自然對齊
@@ -45,11 +46,21 @@ const AdminMain = () => {
       cultureTestCategories: true,
       requireCultureTestFeature: true,
     },
+    // 項目為前台的分類下拉選項，需與 services/occupationTestMockApi.js 的 CATEGORY_OPTIONS 一致
+    {
+      title: "職業台語（test）",
+      icon: cloudIcon,
+      functions: ["醫療長照", "行業台語"],
+      // 這些項目會帶 ?category= 進入職業台語管理頁並自動套用篩選
+      occupationTestCategories: true,
+      requireOccupationTestFeature: true,
+    },
   ];
 
   const functionGroups = allFunctionGroups.filter(group => {
     if (group.requireSystemManager && !canManageAnnouncement) return false;
     if (group.requireCultureTestFeature && !isCultureTestFeatureEnabled) return false;
+    if (group.requireOccupationTestFeature && !isOccupationTestFeatureEnabled) return false;
     return true;
   });
 
@@ -76,6 +87,11 @@ const AdminMain = () => {
     // 台語文化（test）：同樣帶類別參數進入管理頁
     if (group.cultureTestCategories) {
       navigate(`/admin/culture-test?category=${encodeURIComponent(functionName)}`);
+      return;
+    }
+    // 職業台語（test）：同樣帶類別參數進入管理頁
+    if (group.occupationTestCategories) {
+      navigate(`/admin/occupation-test?category=${encodeURIComponent(functionName)}`);
       return;
     }
     const path = routeMap[functionName];

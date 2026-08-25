@@ -49,7 +49,8 @@ const MENU_ITEMS = [
   { id: 6, label: "會員管理", icon: userIcon, path: "/admin/member" },
   // 公告管理（Popup 公告）僅系統管理員可見
   { id: 7, label: "公告管理", icon: shieldIcon, path: "/admin/announcement", requireSystemManager: true },
-  { id: 8, label: "台語文化（test）", icon: bookIcon, path: "/admin/culture-test" }
+  { id: 8, label: "台語文化（test）", icon: bookIcon, path: "/admin/culture-test" },
+  { id: 9, label: "職業台語（test）", icon: cloudIcon, path: "/admin/occupation-test" }
 ];
 
 const AdminSidebar = ({ isOpen = false, onClose }) => {
@@ -64,9 +65,11 @@ const AdminSidebar = ({ isOpen = false, onClose }) => {
   const menuItems = useMemo(() => {
     const canManageAnnouncement = isSuperAdmin();
     const isCultureTestFeatureEnabled = envConfig.features.enableCultureTestFeature;
+    const isOccupationTestFeatureEnabled = envConfig.features.enableOccupationTestFeature;
     return MENU_ITEMS
       .filter(item => !item.requireSystemManager || canManageAnnouncement)
-      .filter(item => isCultureTestFeatureEnabled || item.id !== 8);
+      .filter(item => isCultureTestFeatureEnabled || item.id !== 8)
+      .filter(item => isOccupationTestFeatureEnabled || item.id !== 9);
   }, [isSuperAdmin]);
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
