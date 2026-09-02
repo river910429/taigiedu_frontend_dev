@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Sidebar.css";
 import homeIcon from "./assets/sidebar_icon/主頁.svg";
@@ -14,6 +14,12 @@ import examIcon from "./assets/sidebar_icon/認證考試.svg";
 import featuredResourceIcon from "./assets/sidebar_icon/本站特色資源.svg";
 import chevronUpIcon from "./assets/chevron-up.svg";
 import envConfig from "./config";
+
+const isPathActive = (itemPath, currentPath) => {
+  if (!itemPath) return false;
+  if (itemPath === currentPath) return true;
+  return itemPath !== '/' && currentPath.startsWith(itemPath + '/');
+};
 
 const Sidebar = ({ isOpen = false, onClose }) => {
   const basePath = envConfig.basePath;
@@ -58,32 +64,43 @@ const Sidebar = ({ isOpen = false, onClose }) => {
         { id: "topic-integration", label: "議題融入", path: "/topic-integration" },
         { id: 12, label: "親戚計算機", path: "/relative-calculator" },
         { id: "placename-culture", label: "台語地名與文化", path: "/placename-culture" },
+        { id: "culture-test", label: "台語文化", path: "/culture-test" },
+        { id: "occupation-test", label: "職業台語", path: "/occupation-test" },
       ],
     },
-    { id: 13, label: "台語文化（test）", icon: cultureIcon, path: "/culture-test" },
-    // 職業台語（test）：版面比照教學資源共享平台，開發中
-    { id: 14, label: "職業台語（test）", icon: resourceIcon, path: "/occupation-test" },
   ];
 
-  const menuItems = allMenuItems
-    .filter(item => {
-      if (!isCultureTestFeatureEnabled && item.id === 13) return false;
-      if (!isOccupationTestFeatureEnabled && item.id === 14) return false;
-      if (!isTopicIntegrationFeatureEnabled && item.id === 11) return false;
-      if (!isUnstableFeaturesEnabled) {
-        if ([2, 3, 4].includes(item.id)) return false;
-      }
-      return true;
-    })
-    .map(item => {
-      if (!item.hasSubmenu) return item;
-      // 子選單也要吃 feature toggle
-      const submenuItems = item.submenuItems.filter(subItem => {
-        if (!isPlacenameCultureFeatureEnabled && subItem.id === "placename-culture") return false;
+  const menuItems = useMemo(() => {
+    return allMenuItems
+      .filter(item => {
+        if (!isUnstableFeaturesEnabled) {
+          if ([2, 3, 4].includes(item.id)) return false;
+        }
+        return true;
+      })
+      .map(item => {
+        if (!item.hasSubmenu) return item;
+        // 子選單也要吃 feature toggle
+        const submenuItems = item.submenuItems.filter(subItem => {
+          if (!isTopicIntegrationFeatureEnabled && subItem.id === "topic-integration") return false;
+          if (!isPlacenameCultureFeatureEnabled && subItem.id === "placename-culture") return false;
+          if (!isCultureTestFeatureEnabled && subItem.id === "culture-test") return false;
+          if (!isOccupationTestFeatureEnabled && subItem.id === "occupation-test") return false;
+          return true;
+        });
+        return { ...item, submenuItems };
+      })
+      .filter(item => {
+        if (item.hasSubmenu && item.submenuItems.length === 0) return false;
         return true;
       });
-      return { ...item, submenuItems };
-    });
+  }, [
+    isUnstableFeaturesEnabled,
+    isTopicIntegrationFeatureEnabled,
+    isPlacenameCultureFeatureEnabled,
+    isCultureTestFeatureEnabled,
+    isOccupationTestFeatureEnabled,
+  ]);
 
   // 當 URL 變更時，根據當前路徑來設定 activeItem
   useEffect(() => {
@@ -94,18 +111,21 @@ const Sidebar = ({ isOpen = false, onClose }) => {
       setActiveSubItem(null);
     } else {
       // 檢查是否為子選單
-      const parentItem = menuItems.find(item => item.hasSubmenu && item.submenuItems.some(sub => sub.path === location.pathname));
+      const parentItem = menuItems.find(item =>
+        item.hasSubmenu && item.submenuItems.some(sub => isPathActive(sub.path, location.pathname))
+      );
       if (parentItem) {
         setActiveItem(parentItem.id);
         setOpenSubMenuId(parentItem.id);
-        setActiveSubItem(parentItem.submenuItems.find(sub => sub.path === location.pathname).id);
+        const activeSub = parentItem.submenuItems.find(sub => isPathActive(sub.path, location.pathname));
+        setActiveSubItem(activeSub ? activeSub.id : null);
       } else {
         setActiveItem(null);
         setOpenSubMenuId(null);
         setActiveSubItem(null);
       }
     }
-  }, [location.pathname]); // 監聽 location.pathname 變化
+  }, [location.pathname, menuItems]); // 監聽 location.pathname 與 menuItems 變化
 
   const handleClick = (item) => {
     if (item.isExternal) {
