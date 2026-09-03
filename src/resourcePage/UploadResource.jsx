@@ -658,12 +658,13 @@ const UploadResource = ({ isOpen, onClose, onUploadSuccess }) => {
             <span className="form-label-title">
               <span className="form-label-required">*</span>冊別
             </span>
-            <p>※例如： 113 上冊</p>
+            <p>※限制8字 ，例如： 113 上冊</p>
             <input
               type="text"
               name="book"
               value={formData.book}
               onChange={handleInputChange}
+              maxLength="8"
               required
               disabled={isProcessing || isSuccess}
             />

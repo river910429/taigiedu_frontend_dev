@@ -27,7 +27,7 @@ const ResourceCard = ({
   title,
   uploader, // 這可能是從 uploader_name 傳入的
   tags = [],
-  date, // 三個呼叫端都有傳但本元件未使用，保留在對外介面（勿順手清掉）
+  date,
   isLiked = false,
   onCardClick, // 控制點擊事件的 prop
 }) => {
@@ -91,7 +91,7 @@ const ResourceCard = ({
         {/* 上傳者名稱 */}
         <Card.Uploader name={uploader} />
         {/* 資源標籤 */}
-        <Card.Tags tags={tags} />
+        <Card.Tags tags={date ? [String(date).slice(0, 4), ...tags] : tags} />
       </Card.Content>
     </Card>
   );
